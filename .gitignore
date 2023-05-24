@@ -30,3 +30,6 @@
 *.exe
 *.out
 *.app
+/.vs
+/bondlib/.vs/bondlib
+/bondlib/x64/Debug
