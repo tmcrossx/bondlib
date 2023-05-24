@@ -5,6 +5,7 @@
 
 namespace tmx::value {
 
+	// Value of discounted cash flows.
 	template<class U, class C, class D>
 	constexpr C present(size_t m, const U* u, const C* c, D d)
 	{
@@ -17,13 +18,14 @@ namespace tmx::value {
 		return pv;
 	}
 
+	// Derivative of present value with repect to a parallel shift.
 	template<class U, class C, class D>
 	constexpr C duration(size_t m, const U* u, const C* c, const D& d)
 	{
 		C dur = 0;
 
 		for (size_t i = 0; i < m; ++i) {
-			dur += u[i] * c[i] * d(u[i]);
+			dur -= u[i] * c[i] * d(u[i]);
 		}
 
 		return dur;
@@ -31,15 +33,15 @@ namespace tmx::value {
 
 	// Constant forward rate matching price.
 	template<class U, class C>
-	constexpr C yield(const C p, size_t m, const U* u, const C* c, 
+	inline C yield(const C p, size_t m, const U* u, const C* c, 
 		C y = 0, C eps = std::sqrt(std::numeric_limits<C>::epsilon()))
 	{
-		C y_ = y + 2 * eps;
+		C y_ = y + 2 * eps; // at least one loop
 
 		while (std::fabs(y_ - y) > eps) {
-			C p_ = present(m, u, c, [y](U t) { return exp(-y * t); }) - p;
-			C dp_ = duration(m, u, c, [y](U t) { return exp(-y * t); });
-			C y_ = y - p_ / dp_;
+			C p_ = present(m, u, c, [y](U t) { return std::exp(-y * t); }) - p;
+			C dp_ = duration(m, u, c, [y](U t) { return std::exp(-y * t); });
+			y_ = y - p_ / dp_; // Newton-Raphson
 			std::swap(y_, y);
 		}
 
@@ -48,14 +50,25 @@ namespace tmx::value {
 
 #ifdef _DEBUG
 
+	template<class X = double>
 	inline int test_value_yield()
 	{
-		constexpr double u[] = { 0,1,2 };
-		constexpr double c[] = { -1, 0.03, 1.03 };
+		X eps = std::sqrt(std::numeric_limits<X>::epsilon());
+		X y0 = X(0.03);
+		X d1 = std::exp(-y0);
+		X c0 = (1 - d1 * d1) / (d1 + d1 * d1);
+		X u[] = { 0,1,2 };
+		X c[] = { -1, c0, 1 + c0 };
+
 		{
-			double y = yield(0., 3, u, c);
-			y = y;
+			X y = yield(X(0), 3, u, c);
+			ensure(std::fabs(y - y0) <= eps);
 		}
+		{
+			X y = yield(X(0), 3, u, c, y0);
+			ensure(std::fabs(y - y0) <= eps);
+		}
+
 		return 0;
 	}
 #endif // _DEBUG
