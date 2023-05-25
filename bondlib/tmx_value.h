@@ -71,6 +71,7 @@ namespace tmx::value {
 
 		return 0;
 	}
+
 #endif // _DEBUG
 
 }

@@ -135,6 +135,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ensure.h" />
+    <ClInclude Include="tmx_bond.h" />
     <ClInclude Include="tmx_pwflat_curve.h" />
     <ClInclude Include="tmx_date.h" />
     <ClInclude Include="tmx_pwflat.h" />
