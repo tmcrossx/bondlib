@@ -1,3 +1,4 @@
+// tmx_date.h - Date routines
 #pragma once
 #include <chrono>
 
@@ -12,7 +13,7 @@ namespace tmx::date {
 	{
 		double dy = y * dpy;
 		int iy = static_cast<int>(dy);
-		iy += dy - iy > 0.5; // round
+		iy += dy - iy > 0.5; // std::round not constexpr
 
 		return std::chrono::sys_days(d) + std::chrono::days{iy};
 	}
@@ -122,6 +123,7 @@ namespace tmx::date {
 		{
 			static_assert(dcf_30_360(2023y/1/1, 2023y/1/1) == 0);
 			static_assert(dcf_30_360(2023y/1/1, 2023y/1/2) == 1/360.);
+			//static_assert(dcf_30_360(2022y / 12 / 2, 2023y / 1 / 2) == 1 / 30.);
 			//!!! more tests
 		}
 

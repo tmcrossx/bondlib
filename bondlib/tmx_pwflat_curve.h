@@ -12,13 +12,14 @@ namespace tmx::pwflat {
 		std::vector<T> t;
 		std::vector<F> f;
 		F _f;
+		size_t off;
 	public:
 		// constant curve
 		curve(F _f = NaN<F>)
 			: _f{ _f }
 		{ }
 		curve(size_t n, const T* t_, const F* f_, F _f = NaN<F>)
-			: t(t_, t_ + n), f(f_, f_ + n), _f(_f)
+			: t(t_, t_ + n), f(f_, f_ + n), _f(_f), off(0)
 		{
 			ensure(ok());
 		}
@@ -31,11 +32,12 @@ namespace tmx::pwflat {
 
 		bool operator==(const curve& c) const
 		{
+			// use off
 			if (t == c.t and f == c.f) {
 				return (_f == c._f) or (std::isnan(_f) and std::isnan(c._f));
 			}
 			
-			false;
+			return false;
 		}
 		bool operator!=(const curve& c) const
 		{
@@ -50,19 +52,19 @@ namespace tmx::pwflat {
 
 		size_t size() const
 		{
-			return t.size();
+			return t.size() - off;
 		}
 		const T* time() const
 		{
-			return t.data();
+			return t.data() + off;
 		}
 		const F* forward() const
 		{
-			return f.data();
+			return f.data() + off;
 		}
 		const F* rate() const
 		{
-			return f.data();
+			return forward();
 		}
 		std::pair<T, F> back() const
 		{
@@ -99,9 +101,18 @@ namespace tmx::pwflat {
 			return *this;
 		}
 
+		// Forward at time u
+		curve& translate(T u)
+		{
+			auto tu = pwflat::translate(u, std::span(t));
+			off = tu.size();
+
+			return *this;
+		}
+
 		F value(T u) const
 		{
-			return pwflat::value(u, t.size(), t.data(), f.data(), _f);
+			return pwflat::value(u, size(), time(), rate(), _f);
 		}
 		F operator()(T u) const
 		{
@@ -110,15 +121,15 @@ namespace tmx::pwflat {
 
 		F integral(T u) const
 		{
-			return pwflat::integral(u, t.size(), t.data(), f.data(), _f);
+			return pwflat::integral(u, size(), time(), rate(), _f);
 		}
 		F discount(T u) const
 		{
-			return pwflat::discount(u, t.size(), t.data(), f.data(), _f);
+			return pwflat::discount(u, size(), time(), rate(), _f);
 		}
 		F spot(T u) const
 		{
-			return pwflat::spot(u, t.size(), t.data(), f.data(), _f);
+			return pwflat::spot(u, size(), time(), rate(), _f);
 		}
 	};
 
@@ -160,7 +171,10 @@ namespace tmx::pwflat {
 			ensure(f[2] == c(2.5));
 			ensure(std::isnan(c(3.5)));
 		}
-
+		{
+			curve c(3, t, f);
+			c.translate(1);
+		}
 
 		return 0;
 	}

@@ -93,7 +93,7 @@ namespace tmx::pwflat {
 		{
 			{
 				constexpr double v = value(0., 0, t, f);
-				static_assert(v != v); // std::isnan not constexpr in VS2022
+				static_assert(v != v); // std::isnan not constexpr
 			}
 			static_assert(5 == value(0., 0, t, f, 5.));
 			{
@@ -168,6 +168,7 @@ namespace tmx::pwflat {
 				constexpr double v = integral(3.1, 3, t, f);
 				static_assert(v != v);
 			}
+			static_assert(9 + 2.5 == integral(3.5, 3, t, f, 5.));
 		}
 
 		return 0;
@@ -257,7 +258,7 @@ namespace tmx::pwflat {
 
 #endif // _DEBUG
 
-	// t => t - u
+	// t => t - u > 0
 	template<class T>
 	constexpr std::span<T> translate(T u, size_t n, T* t)
 	{
