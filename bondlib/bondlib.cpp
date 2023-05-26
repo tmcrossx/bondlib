@@ -9,6 +9,7 @@ using namespace tmx;
 int test_value_yield_d = value::value_yield_test<double>();
 int test_value_yield_f = value::value_yield_test<float>();
 int test_pwflat_integral = pwflat::pwflat_integral_test();
+int test_pwflat_translate_d = pwflat::pwflat_translate_test<double>();
 int test_pwflat_curve_d = pwflat::pwflat_curve_test<double>();
 int test_bond_basic = bond::bond_basic_test();
 

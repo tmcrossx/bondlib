@@ -12,7 +12,7 @@
 */
 #pragma once
 #include <cmath>
-//#include <algorithm>
+#include <algorithm>
 //#include <iterator>
 //#include <limits>
 //#include <numeric>
@@ -255,6 +255,62 @@ namespace tmx::pwflat {
 		return 0;
 	}
 
+#endif // _DEBUG
+
+	// t => t - u
+	template<class T>
+	constexpr std::span<T> translate(T u, size_t n, T* t)
+	{
+		std::transform(t, t + n, t, [u](T ti) { return ti - u; });
+		size_t m = std::upper_bound(t, t + n, 0) - t;
+
+		return std::span(t + m, n - m);
+	}
+	template<class T, size_t N>
+	constexpr std::span<T> translate(T u, std::span<T, N> t)
+	{
+		return translate(u, t.size(), t.data());
+	}
+
+#ifdef _DEBUG
+
+	template<class T>
+	inline int pwflat_translate_test()
+	{
+		auto eq = [](const std::span<T>& s, const std::initializer_list<T>& t) {
+			return std::equal(s.begin(), s.end(), t.begin(), t.end());
+		};
+		{
+			T t[] = { 1,2,4 };
+			auto t0 = translate<T>(0, 3, t);
+			ensure(eq(t0, { 1, 2, 4 }));
+
+			auto t1 = translate<T>(1, 3, t);
+			ensure(eq(t1, { 1,  3 }));
+
+			auto t2 = translate<T>(2, 3, t);
+			ensure(eq(t2, { 1 }));
+			
+			auto t3 = translate<T>(-3, 3, t);
+			ensure(eq(t3, { 1, 2, 4 }));
+		}
+		{
+			T t[] = { 1,2,4 };
+			auto t0 = translate<T>(0, std::span(t));
+			ensure(eq(t0, { 1, 2, 4 }));
+
+			auto t1 = translate<T>(1, t0);
+			ensure(eq(t1, { 1,  3 }));
+
+			auto t2 = translate<T>(2, t1);
+			ensure(eq(t2, { 1 }));
+
+			auto t3 = translate<T>(-3, t2);
+			ensure(eq(std::span<T>(t), { 1 - 1, 2 - 1 - 2, 4 }));
+		}
+
+		return 0;
+	}
 #endif // _DEBUG
 
 }
