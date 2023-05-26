@@ -23,6 +23,12 @@ namespace tmx::pwflat {
 		{
 			ensure(ok());
 		}
+		curve(const std::span<T>& t, const std::span<F>& f, F _f = NaN<F>)
+			: curve(t.size(), t.data(), f.data(), _f)
+		{
+			ensure(t.size() == f.size());
+			ensure(ok());
+		}
 		curve(const curve&) = default;
 		curve& operator=(const curve&) = default;
 		curve(curve&&) = default;
@@ -32,12 +38,10 @@ namespace tmx::pwflat {
 
 		bool operator==(const curve& c) const
 		{
-			// use off
-			if (t == c.t and f == c.f) {
-				return (_f == c._f) or (std::isnan(_f) and std::isnan(c._f));
-			}
-			
-			return false;
+			return off == c.offset()
+				and std::equal(t.data() + off, t.data() + t.size(), c.time())
+				and std::equal(f.data() + off, f.data() + f.size(), c.rate())
+				and (_f == c.extrapolate() or std::isnan(_f) and std::isnan(c.extrapolate()));
 		}
 		bool operator!=(const curve& c) const
 		{
@@ -46,10 +50,13 @@ namespace tmx::pwflat {
 
 		bool ok() const
 		{
-			return t.size() == f.size()
-				and (t.size() == 0 or t[0] > 0 and monotonic(t.begin(), t.end()));
+			return t.size() == f.size() and (t.size() == 0 or t[0] > 0 and monotonic(t.begin(), t.end()));
 		}
 
+		size_t offset() const
+		{
+			return off;
+		}
 		size_t size() const
 		{
 			return t.size() - off;
@@ -68,6 +75,8 @@ namespace tmx::pwflat {
 		}
 		std::pair<T, F> back() const
 		{
+			ensure(0 != size());
+
 			return { t.back(), f.back() };
 		}
 
@@ -105,7 +114,7 @@ namespace tmx::pwflat {
 		curve& translate(T u)
 		{
 			auto tu = pwflat::translate(u, std::span(t));
-			off = tu.size();
+			off = t.size() - tu.size();
 
 			return *this;
 		}
