@@ -27,7 +27,7 @@ Use piecewise flat forwards for $f$.
 
 ## Fixed Income
 
-Convert from dates to years from some valuation/dated date.
+Convert from dates to years from some effective/dated date.
 
 Fixed cash flows $(u_j, c_j)$.
 
@@ -42,7 +42,7 @@ Yield is the constant rate that reprices a bond $p = \sum_j c_j \exp(-y u_j)$.
 
 ## Bond
 
-compounding $(1 + y/n)^n = exp(f)$
+compounding $(1 + y/n)^n = \exp(f)$
 
 bond: dated, maturity, coupon, frequency (= 2), day count basis (= 30/360)
 

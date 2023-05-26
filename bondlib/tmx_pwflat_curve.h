@@ -22,12 +22,6 @@ namespace tmx::pwflat {
 		{
 			ensure(ok());
 		}
-		curve(std::span<T> t, std::span<F> f, F _f = NaN<F>)
-			: curve(t.size(), t.begin(), f.begin(), _f)
-		{
-			ensure(t.size() == f.size());
-			ensure(ok());
-		}
 		curve(const curve&) = default;
 		curve& operator=(const curve&) = default;
 		curve(curve&&) = default;
@@ -147,7 +141,6 @@ namespace tmx::pwflat {
 			ensure(!(c != c2));
 		}
 		{
-			//curve<X,X> c(std::span<X>(t), std::span<X>(f));
 			curve c(3, t, f);
 			
 			ensure(3 == c.size());
@@ -157,6 +150,15 @@ namespace tmx::pwflat {
 			ensure(c2 == c);
 			c = c2;
 			ensure(!(c != c2));			
+
+			ensure(std::isnan(c(-1)));
+			for (size_t i = 0; i < 3; ++i) {
+				ensure(f[i] == c(t[i]));
+			}
+			ensure(f[0] == c(0.5));
+			ensure(f[1] == c(1.5));
+			ensure(f[2] == c(2.5));
+			ensure(std::isnan(c(3.5)));
 		}
 
 
