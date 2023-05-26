@@ -18,7 +18,7 @@ namespace tmx::value {
 		return pv;
 	}
 
-	// Derivative of present value with repect to a parallel shift.
+	// Derivative of present value with respect to a parallel shift.
 	template<class U, class C, class D>
 	constexpr C duration(size_t m, const U* u, const C* c, const D& d)
 	{
@@ -48,10 +48,22 @@ namespace tmx::value {
 		return y;
 	}
 
+	// Convert from continuously compounded rate using (1 + y/n)^n = e^r
+	template<class X>
+	inline X compound_yield(X r, unsigned n)
+	{
+		return X(n*(std::pow(std::exp(r), 1. / n) - 1));
+	}
+	template<class X>
+	inline X continuous_yield(X y, unsigned n)
+	{
+		return X(std::log(std::pow(1 + y/n, n)));
+	}
+
 #ifdef _DEBUG
 
 	template<class X = double>
-	inline int test_value_yield()
+	inline int value_yield_test()
 	{
 		X eps = std::sqrt(std::numeric_limits<X>::epsilon());
 		X y0 = X(0.03);
@@ -67,6 +79,12 @@ namespace tmx::value {
 		{
 			X y = yield(X(0), 3, u, c, y0);
 			ensure(std::fabs(y - y0) <= eps);
+		}
+		{
+			X r = X(0.05);
+			X y2 = compound_yield(r, 2);
+			X r2 = continuous_yield(y2, 2);
+			ensure(std::fabs(r - r2) <= std::numeric_limits<X>::epsilon());
 		}
 
 		return 0;

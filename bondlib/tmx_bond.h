@@ -15,7 +15,7 @@ namespace tmx::bond {
 
 	struct basic {
 		date::ymd dated; // calculation start date
-		double maturity; // years
+		unsigned int maturity; // years
 		double coupon;
 		std::chrono::months frequency;
 		double (*day_count_fraction)(const date::ymd&, const date::ymd&);
@@ -23,7 +23,7 @@ namespace tmx::bond {
 
 #ifdef _DEBUG
 
-	inline int test_bond_basic()
+	inline int bond_basic_test()
 	{
 		{
 			using std::chrono::year;
@@ -47,23 +47,27 @@ namespace tmx::bond {
 		std::vector<U> u;
 		std::vector<C> c;
 
-		auto maturity = date::add_years(valuation, bond.maturity);
-		auto d1 = maturity;
-		auto d0 = d1 - bond.frequency;
-		u.push_back(date::dcf_years(valuation, d1));
-		// clean price ??? correct accrued interest
-		c.push_back(bond.coupon * bond.day_count_fraction(std::max(d0, valuation), d1));
+		auto d0 = bond.dated;
+		auto d1 = d0 + bond.frequency;
+		auto maturity = d0 + std::chrono::years(bond.maturity);
 
-		// Work back from maturity and reverse.
-		while (d0 > valuation) {
+		while (d1 < valuation) {
 			d1 = d0;
-			d0 = d1 - bond.frequency;
-			u.push_back(date::dcf_years(valuation, d1));
-			c.push_back(bond.coupon * bond.day_count_fraction(std::max(d0, valuation), d1));
+			d0 = d0 + bond.frequency;
 		}
 
-		std::reverse(u.begin(), u.end());
-		std::reverse(c.begin(), c.end());
+		u.push_back(date::dcf_years(valuation, d1));
+		c.push_back(bond.coupon * bond.day_count_fraction(valuation, d1));
+		d0 = d1;
+		d1 = d0 + bond.frequency;
+	
+		while (d1 <= maturity) {
+			u.push_back(date::dcf_years(valuation, d1));
+			c.push_back(bond.coupon * bond.day_count_fraction(d0, d1));
+			d0 = d1;
+			d1 = d0 + bond.frequency;
+		}
+		c.back() += 1; // principal
 
 		return { u, c };
 	}

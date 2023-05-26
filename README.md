@@ -4,32 +4,48 @@ Bond pricing and analytics
 
 ## Date
 
-Using `ymd = std::chrono::year_month_day`.  
+Date is a [`time_point`](https://en.cppreference.com/w/cpp/chrono/time_point).
+
+Difference of dates is a [`duration`](https://en.cppreference.com/w/cpp/chrono/duration)
+
+Only need day resolution so use [`year_month_day`](https://en.cppreference.com/w/cpp/chrono/year_month_day)
+
+`ymd add_years(ymd d, double y)` add years based on days per year.
+
+`double dcf_years(ymd d0, ymd d1)` duration as double based on days per year.
+
+`dcf_years(ymd d0, date_add(d0, y)) == y` within one day
+
 Implement day count fractions: 30/360, Actual/360, ...  
 
-## Curve
+## Curve 
 
-Piecewise-flat forward curve.
+Discount curve. $D(t) = exp(-\int_0^t f(s) ds)$, 
+$D_t(u) = D(u)/D(t) = exp(-\int_t^u f(s) ds)$ if 0 vol.
 
-`pwflat curve(span<T>{}, span<F>, _f)` is constant curve _f
+Use piecewise flat forwards for $f$.
 
 ## Fixed Income
 
-times, cash flows: (u_j, c_j)
+Convert from dates to years from some valuation/dated date.
+
+Fixed cash flows $(u_j, c_j)$.
 
 ## Value
 
-present_value(m, u, c, discount)
+Present value at $t$ is $\sum_{u_j > t} c_j D_t(u_j)$.
 
-yield(ymd pvdate, double price, bond): price = present_value
+Duration at $t$ is the derivative with respect to a parallel shift 
+in the forward curve $-\sum_{u_j > t} u_j c_j D_t(u_j)$.
+
+Yield is the constant rate that reprices a bond $p = \sum_j c_j \exp(-y u_j)$.
 
 ## Bond
 
-compounded_yield(unsigned n, double rate): (1 + yield/n)^n = exp(rate)
+compounding $(1 + y/n)^n = exp(f)$
 
-bond: maturity (years?), coupon, frequency (= 2), day count basis (= 30/360)
+bond: dated, maturity, coupon, frequency (= 2), day count basis (= 30/360)
 
 call/put schedule: time, amount
 
-present_value(ymd, bond, discount)
 

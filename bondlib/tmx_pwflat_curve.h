@@ -1,5 +1,7 @@
 // tmx_pwflat_curve.h - piecewise flat curve value type
 #pragma once
+#include <vector>
+#include "ensure.h"
 #include "tmx_pwflat.h"
 
 namespace tmx::pwflat {
@@ -20,9 +22,10 @@ namespace tmx::pwflat {
 		{
 			ensure(ok());
 		}
-		curve(const std::vector<T>& t, const std::vector<F>& f, F _f = NaN<F>)
-			: t(t), f(f), _f(_f)
+		curve(std::span<T> t, std::span<F> f, F _f = NaN<F>)
+			: curve(t.size(), t.begin(), f.begin(), _f)
 		{
+			ensure(t.size() == f.size());
 			ensure(ok());
 		}
 		curve(const curve&) = default;
@@ -31,6 +34,19 @@ namespace tmx::pwflat {
 		curve& operator=(curve&&) = default;
 		~curve()
 		{ }
+
+		bool operator==(const curve& c) const
+		{
+			if (t == c.t and f == c.f) {
+				return (_f == c._f) or (std::isnan(_f) and std::isnan(c._f));
+			}
+			
+			false;
+		}
+		bool operator!=(const curve& c) const
+		{
+			return !operator==(c);
+		}
 
 		bool ok() const
 		{
@@ -81,9 +97,10 @@ namespace tmx::pwflat {
 		}
 
 		// Parallel shift
-		curve& shift(F& df)
+		curve& shift(F df)
 		{
 			std::for_each(f.begin(), f.end(), [df](F fi) { fi += df; });
+			_f += df;
 
 			return *this;
 		}
@@ -96,6 +113,7 @@ namespace tmx::pwflat {
 		{
 			return value(u);
 		}
+
 		F integral(T u) const
 		{
 			return pwflat::integral(u, t.size(), t.data(), f.data(), _f);
@@ -109,5 +127,42 @@ namespace tmx::pwflat {
 			return pwflat::spot(u, t.size(), t.data(), f.data(), _f);
 		}
 	};
+
+#ifdef _DEBUG
+
+	template<class X>
+	inline int pwflat_curve_test()
+	{
+		X t[] = { 1, 2, 3 };
+		X f[] = { .1, .2, .3 };
+
+		{
+			curve c(.1);
+			ensure(0 == c.size());
+			ensure(.1 == c(.2));
+			ensure(c.extrapolate() == c(.2));
+			curve c2{ c };
+			ensure(c2 == c);
+			c = c2;
+			ensure(!(c != c2));
+		}
+		{
+			//curve<X,X> c(std::span<X>(t), std::span<X>(f));
+			curve c(3, t, f);
+			
+			ensure(3 == c.size());
+			ensure(.1 == c.value(1));
+			ensure(std::isnan(c.extrapolate()));
+			curve c2{ c };
+			ensure(c2 == c);
+			c = c2;
+			ensure(!(c != c2));			
+		}
+
+
+		return 0;
+	}
+
+#endif // _DEBUG
 
 }

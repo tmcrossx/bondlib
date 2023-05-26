@@ -12,13 +12,11 @@
 */
 #pragma once
 #include <cmath>
-#include <algorithm>
-#include <iterator>
-#include <limits>
-#include <numeric>
+//#include <algorithm>
+//#include <iterator>
+//#include <limits>
+//#include <numeric>
 #include <span>
-#include <vector>
-#include "ensure.h"
 
 namespace tmx::pwflat {
 
@@ -75,6 +73,15 @@ namespace tmx::pwflat {
 		auto ti = std::lower_bound(t, t + n, u);
 
 		return ti == t + n ? _f : f[ti - t];
+	}
+	template<class T = double, class F = double>
+	constexpr F value(T u, const std::span<T>& t, const std::span<F>& f, F _f = NaN<F>)
+	{
+		if (t.size() != f.size()) {
+			return NaN<F>;
+		}
+
+		return value(u, t.size(), t.begin(), f.begin(), _f);
 	}
 
 #ifdef _DEBUG
@@ -138,7 +145,7 @@ namespace tmx::pwflat {
 
 #ifdef _DEBUG
 
-	inline int test_pwflat_integral()
+	inline int pwflat_integral_test()
 	{
 		constexpr double t[] = { 1, 2, 3 };
 		constexpr double f[] = { 2, 3, 4 };
@@ -182,7 +189,7 @@ namespace tmx::pwflat {
 		constexpr double t[] = { 1, 2, 3 };
 		constexpr double f[] = { 2, 3, 4 };
 		{
-			/*
+			/*!!!
 			static_assert(0 == discount(0., 0, t, f));
 			static_assert(10 == discount(2., 0, t, f, 5.));
 			{
@@ -224,7 +231,7 @@ namespace tmx::pwflat {
 		constexpr double t[] = { 1, 2, 3 };
 		constexpr double f[] = { 2, 3, 4 };
 		{
-			/*
+			/*!!!
 			static_assert(0 == spot(0., 0, t, f));
 			static_assert(10 == spot(2., 0, t, f, 5.));
 			{

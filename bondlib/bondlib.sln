@@ -5,6 +5,13 @@ VisualStudioVersion = 17.6.33712.159
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bondlib", "bondlib.vcxproj", "{E3EC9686-83A5-400F-B10E-A398005BCEFD}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{3DB20384-3BDF-4DF0-932D-377C9F975DCC}"
+	ProjectSection(SolutionItems) = preProject
+		..\docs\2006-isda-definitions.pdf = ..\docs\2006-isda-definitions.pdf
+		..\docs\ICMA-PMH-Appendix-A5-March-2022.pdf = ..\docs\ICMA-PMH-Appendix-A5-March-2022.pdf
+		..\docs\ICMA-Rule-Book-Rule-251-reproduced-by-permission-of-ICMA.pdf = ..\docs\ICMA-Rule-Book-Rule-251-reproduced-by-permission-of-ICMA.pdf
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64

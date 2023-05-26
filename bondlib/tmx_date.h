@@ -74,9 +74,11 @@ namespace tmx::date {
 		return dcf_years(d0, d1, 365);
 	}
 
-	// ISDA
+	// 2006-isda-definitions.pdf
 	constexpr double dcf_actual_actual(const ymd& d0, const ymd& d1)
 	{
+		double dcf = 0;
+
 		auto t0 = std::chrono::sys_days(d0);
 		auto t1 = std::chrono::sys_days(d1);
 		auto y0 = d0.year();
@@ -85,10 +87,14 @@ namespace tmx::date {
 		for (auto yi = y0; yi <= y1; ++yi) {
 			if (d0 <= yi / 2 / 29 and yi / 2 / 29 <= d1) {
 				ld += yi.is_leap();
+				//!!! days/366
+			}
+			else {
+				//!!! days/365
 			}
 		}
 
-		return (ld + (t1 - t0).count()) / dpy;
+		return (ld + (t1 - t0).count()) / 365.;
 	}
 	
 	//!!! tests
