@@ -20,7 +20,7 @@ Implement day count fractions: 30/360, Actual/360, ...
 
 ## Curve 
 
-Discount curve. $D(t) = \exp(-\int_0^t f(s) ds)$, 
+Discount $D(t) = \exp(-\int_0^t f(s) ds)$, forward discount 
 $D_t(u) = D(u)/D(t) = \exp(-\int_t^u f(s) ds)$ if 0 vol.
 
 Use piecewise flat forwards for $f$.
