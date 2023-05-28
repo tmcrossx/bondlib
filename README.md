@@ -46,6 +46,12 @@ compounding $(1 + y/n)^n = \exp(f)$
 
 bond: dated, maturity, coupon, frequency (= 2), day count basis (= 30/360)
 
-call/put schedule: time, amount
+Single call at date and price. Use time-dependent Ho-Lee with constant volatility.
 
+## Municipal Bond Curve
 
+Municipal bonds are quoted using 5% coupon 10-year non-call par coupons.  
+[EMMA](https://emma.msrb.org/ToolsAndResources/ICEYieldCurve?daily=False)
+provides daily quotes at maturities for 1 to 30 years.
+
+Bootstrap constant annual forwards. 

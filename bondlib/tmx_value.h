@@ -17,6 +17,16 @@ namespace tmx::value {
 
 		return pv;
 	}
+	template<class U, class C, class D>
+	constexpr C present(const std::span<U>& u, const std::span<C>& c, D d)
+	{
+		if (u.size() != c.size()) {
+			return std::numeric_limits<C>::quiet_NaN();
+		}
+
+		return present(u.size(), u.data(), c.data(), d);
+	}
+
 
 	// Derivative of present value with respect to a parallel shift.
 	template<class U, class C, class D>
@@ -29,6 +39,15 @@ namespace tmx::value {
 		}
 
 		return dur;
+	}
+	template<class U, class C, class D>
+	constexpr C duration(const std::span<U>& u, const std::span<C>& c, D d)
+	{
+		if (u.size() != c.size()) {
+			return std::numeric_limits<C>::quiet_NaN();
+		}
+
+		return duration(u.size(), u.data(), c.data(), d);
 	}
 
 	// Constant forward rate matching price.
@@ -46,6 +65,15 @@ namespace tmx::value {
 		}
 
 		return y;
+	}
+	template<class U, class C, class D>
+	constexpr C yield(const C p, const std::span<U>& u, const std::span<C>& c, D d)
+	{
+		if (u.size() != c.size()) {
+			return std::numeric_limits<C>::quiet_NaN();
+		}
+
+		return yield(p, u.size(), u.data(), c.data(), d);
 	}
 
 	// Convert from continuously compounded rate using (1 + y/n)^n = e^r
