@@ -66,14 +66,14 @@ namespace tmx::value {
 
 		return y;
 	}
-	template<class U, class C, class D>
-	constexpr C yield(const C p, const std::span<U>& u, const std::span<C>& c, D d)
+	template<class U, class C>
+	constexpr C yield(const C p, const std::span<U>& u, const std::span<C>& c)
 	{
 		if (u.size() != c.size()) {
 			return std::numeric_limits<C>::quiet_NaN();
 		}
 
-		return yield(p, u.size(), u.data(), c.data(), d);
+		return yield(p, u.size(), u.data(), c.data());
 	}
 
 	// Convert from continuously compounded rate using (1 + y/n)^n = e^r

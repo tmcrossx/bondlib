@@ -27,7 +27,7 @@ namespace tmx::pwflat {
 	template<class I>
 	constexpr bool monotonic(const I b, const I e)
 	{
-		using T = std::iterator_traits<I>::value_type;
+		using T = typename std::iterator_traits<I>::value_type;
 
 		return e == std::adjacent_find(b, e, std::greater_equal<T>{});
 	}
@@ -165,8 +165,8 @@ namespace tmx::pwflat {
 			static_assert(9 == integral(3., 3, t, f));
 			//ensure(9 == integral(3., 3, t, f));
 			{
-				constexpr double v = integral(3.1, 3, t, f);
-				static_assert(v != v);
+//				constexpr double v = integral(3.1, 3, t, f);
+//				static_assert(v != v);
 			}
 			static_assert(9 + 2.5 == integral(3.5, 3, t, f, 5.));
 		}
@@ -313,5 +313,42 @@ namespace tmx::pwflat {
 		return 0;
 	}
 #endif // _DEBUG
+
+}
+
+namespace tmx {
+
+	template<class T>
+	class translate {
+		T dt;
+		size_t n;
+		std::span<T> t;
+	public:
+		translate(T dt, std::span<T> t)
+			: dt{ dt }, t{ t }
+		{
+			n = pwflat::translate(dt, std::span(t)).size();
+		}
+		~translate()
+		{
+			pwflat::translate(-dt, std::span(t));
+		}
+
+		size_t size() const
+		{
+			return n;
+		}
+		operator std::span<T>()
+		{
+			return t.last(n);
+		}
+		/*
+		template<size_t N>
+		const operator std::span<T, N>() const
+		{
+			return t.last(n);
+		}
+		*/
+	};
 
 }

@@ -25,6 +25,12 @@ $D_t(u) = D(u)/D(t) = \exp(-\int_t^u f(s) ds)$ if 0 vol.
 
 Use piecewise flat forwards for $f$.
 
+shift rates
+
+translate times
+
+use internal offset to minimize copying
+
 ## Fixed Income
 
 Convert from dates to years from some effective/dated date.
@@ -46,7 +52,7 @@ compounding $(1 + y/n)^n = \exp(f)$
 
 bond: dated, maturity, coupon, frequency (= 2), day count basis (= 30/360)
 
-Single call at date and price. Use time-dependent Ho-Lee with constant volatility.
+Single call at date and price. Use time-dependent Ho-Lee with constant volatility. $f_t = r(t) (1 + sigma B_t)$.
 
 ## Municipal Bond Curve
 

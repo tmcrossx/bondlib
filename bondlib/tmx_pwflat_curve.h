@@ -16,10 +16,10 @@ namespace tmx::pwflat {
 	public:
 		// constant curve
 		curve(F _f = NaN<F>)
-			: _f{ _f }
+			: _f{ _f }, off{ 0 }
 		{ }
 		curve(size_t n, const T* t_, const F* f_, F _f = NaN<F>)
-			: t(t_, t_ + n), f(f_, f_ + n), _f(_f), off(0)
+			: t(t_, t_ + n), f(f_, f_ + n), _f{ _f }, off{ 0 }
 		{
 			ensure(ok());
 		}
@@ -27,7 +27,6 @@ namespace tmx::pwflat {
 			: curve(t.size(), t.data(), f.data(), _f)
 		{
 			ensure(t.size() == f.size());
-			ensure(ok());
 		}
 		curve(const curve&) = default;
 		curve& operator=(const curve&) = default;
@@ -36,23 +35,22 @@ namespace tmx::pwflat {
 		~curve()
 		{ }
 
-		bool operator==(const curve& c) const
-		{
-			return off == c.offset()
-				and std::equal(t.data() + off, t.data() + t.size(), c.time())
-				and std::equal(f.data() + off, f.data() + f.size(), c.rate())
-				and (_f == c.extrapolate() or std::isnan(_f) and std::isnan(c.extrapolate()));
-		}
-		bool operator!=(const curve& c) const
-		{
-			return !operator==(c);
-		}
-
 		bool ok() const
 		{
 			return t.size() == f.size() and (t.size() == 0 or t[0] > 0 and monotonic(t.begin(), t.end()));
 		}
 
+		bool operator==(const curve& c) const
+		{
+			return offset() == c.offset()
+				and std::equal(time(), time() + size(), c.time())
+				and std::equal(rate(), rate() + size(), c.rate())
+				and (extrapolate() == c.extrapolate() or std::isnan(_f) and std::isnan(c.extrapolate()));
+		}
+		bool operator!=(const curve& c) const
+		{
+			return !operator==(c);
+		}
 		size_t offset() const
 		{
 			return off;
@@ -65,13 +63,21 @@ namespace tmx::pwflat {
 		{
 			return t.data() + off;
 		}
-		const F* forward() const
+		const F* rate() const
 		{
 			return f.data() + off;
 		}
-		const F* rate() const
+		const F* forward() const
 		{
-			return forward();
+			return rate();
+		}
+		F operator[](size_t i) const
+		{
+			return f[i];
+		}
+		F& operator[](size_t i)
+		{
+			return f[i];
 		}
 		std::pair<T, F> back() const
 		{
@@ -99,6 +105,8 @@ namespace tmx::pwflat {
 		curve& extrapolate(F f_)
 		{
 			_f = f_;
+
+			return *this;
 		}
 
 		// Parallel shift
@@ -182,7 +190,9 @@ namespace tmx::pwflat {
 		}
 		{
 			curve c(3, t, f);
-			c.translate(1);
+			c.translate(0.5);
+			ensure(f[0] == c(0.5));
+			ensure(f[1] == c(1.5));
 		}
 
 		return 0;

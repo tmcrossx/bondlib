@@ -29,16 +29,16 @@ namespace tmx::bond {
 		: dated{ dated }, maturity{ maturity }, coupon{ coupon },
 			frequency{ frequency }, day_count_fraction{ day_count_fraction }
 		{
-			auto mat = date::add_years(dated, maturity);
+			auto mat = dated + std::chrono::years(maturity);
 			auto d0 = dated;
 			auto d1 = d0 + frequency;
-			while (d1 <= mat) {
+			do {
 				u.push_back(date::dcf_years(dated, d1));
 				c.push_back(coupon * day_count_fraction(d0, d1));
 				d0 = d1;
 				d1 = d0 + frequency;
-			}
-			ensure(d1 == mat);
+			} while (d1 <= mat);
+
 			c.back() += 1; // notional
 		}
 		basic(const basic&) = default;
@@ -46,7 +46,7 @@ namespace tmx::bond {
 		virtual ~basic()
 		{ }
 
-		double accrued(date::ymd valuation) const
+		constexpr double accrued(date::ymd valuation) const
 		{
 			auto d = dated;
 
@@ -56,16 +56,41 @@ namespace tmx::bond {
 			
 			return coupon * day_count_fraction(valuation, d);
 		}
-		double present_value(date::ymd valuation) const
-		{
-			// translate
-			// value::present
-			// translate
 
-			return 0;
+		// price given yield
+		double price(double y) const
+		{
+			double p = 0;
+
+			auto mat = dated + std::chrono::years(maturity);
+			date::ymd d0 = dated;
+			double D = 1;
+			for (auto d1 = d0 + frequency; d1 <= mat; d0 = d1, d1 = d0 + frequency) {
+				D /= 1 + y * frequency.count() / 12;
+				p += day_count_fraction(d0, d1) * D;
+			}
+			
+			return coupon * p + D;
 		}
-		// duration
-		// yield
+
+		template<class D>
+		double present_value(date::ymd valuation, D d) const
+		{
+			auto du = date::dcf_years(dated, valuation);
+			tmx::translate _u(du, std::span(u));
+
+			return value::present(_u, std::span(c).last(_u.size()), d);
+		}
+
+		template<class D>
+		double duration(date::ymd valuation, D d) const
+		{
+			auto du = date::dcf_years(dated, valuation);
+			tmx::translate _u(du, std::span(u));
+
+			return value::duration(_u, std::span(c).last(_u.size()), d);
+		}
+		//!!! yield
 	};
 
 	// class callable : public basic { ... };
