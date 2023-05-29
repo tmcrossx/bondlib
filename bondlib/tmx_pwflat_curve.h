@@ -3,6 +3,7 @@
 #include <vector>
 #include "ensure.h"
 #include "tmx_pwflat.h"
+#include "tmx_span.h"
 
 namespace tmx::pwflat {
 
@@ -71,6 +72,7 @@ namespace tmx::pwflat {
 		{
 			return rate();
 		}
+		// rate element access
 		F operator[](size_t i) const
 		{
 			return f[i];
@@ -118,10 +120,10 @@ namespace tmx::pwflat {
 			return *this;
 		}
 
-		// Forward at time u
+		// t -> t - u > 0
 		curve& translate(T u)
 		{
-			auto tu = pwflat::translate(u, std::span(t));
+			auto tu = span::translate(u, std::span(t));
 			off = t.size() - tu.size();
 
 			return *this;

@@ -140,6 +140,7 @@
     <ClInclude Include="tmx_pwflat_curve.h" />
     <ClInclude Include="tmx_date.h" />
     <ClInclude Include="tmx_pwflat.h" />
+    <ClInclude Include="tmx_span.h" />
     <ClInclude Include="tmx_value.h" />
   </ItemGroup>
   <ItemGroup>
