@@ -76,7 +76,7 @@ namespace tmx::value {
 		return yield(p, u.size(), u.data(), c.data());
 	}
 
-	// Convert from continuously compounded rate using (1 + y/n)^n = e^r
+	// Convert between continuous and compounded rate using (1 + y/n)^n = e^r
 	template<class X>
 	inline X compound_yield(X r, unsigned n)
 	{

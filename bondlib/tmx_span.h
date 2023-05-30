@@ -17,59 +17,58 @@ namespace tmx {
 
 #endif // _DEBUG
 
-		// t => t - u > 0
+		// t => t - u, return first index > 0
+		template<class T>
+		constexpr size_t translate(T u, size_t n, T* t)
+		{
+			std::transform(t, t + n, t, [u](T ti) { return ti - u; });
+
+			return std::upper_bound(t, t + n, 0) - t;
+		}
 		template<class T>
 		constexpr std::span<T> translate(T u, std::span<T> t)
 		{
-			std::transform(t.begin(), t.end(), t.begin(), [u](T ti) { return ti - u; });
-			size_t m = std::upper_bound(t.begin(), t.end(), 0) - t.begin();
-
-			return t.last(t.size() - m);
+			return t.last(t.size() - translate(u, t.size(), t.data()));
 		}
-		template<class T>
-		constexpr std::span<T> translate(T u, size_t n, T* t)
-		{
-			return translate(u, std::span(t, n));
-		}
+	} // namespace span
 
 #ifdef _DEBUG
 
-		template<class T>
-		inline int pwflat_translate_test()
+	template<class T>
+	inline int pwflat_translate_test()
+	{
 		{
-			{
-				constexpr T t[] = { 1,2,4 };
-				auto t0 = translate<T>(0, 3, t);
-				static_assert(equal(t0, { 1, 2, 4 }));
+			constexpr T t[] = { 1,2,4 };
+			auto t0 = translate<T>(0, 3, t);
+			static_assert(equal(t0, { 1, 2, 4 }));
 
-				auto t1 = translate<T>(1, 3, t);
-				static_assert(equal(t1, { 1,  3 }));
+			auto t1 = translate<T>(1, 3, t);
+			static_assert(equal(t1, { 1,  3 }));
 
-				auto t2 = translate<T>(2, 3, t);
-				static_assert(equal(t2, { 1 }));
+			auto t2 = translate<T>(2, 3, t);
+			static_assert(equal(t2, { 1 }));
 
-				auto t3 = translate<T>(-3, 3, t);
-				static_assert(equal(t3, { 1, 2, 4 }));
-			}
-			{
-				T t[] = { 1,2,4 };
-				auto t0 = translate<T>(0, std::span(t));
-				static_assert(equal(t0, { 1, 2, 4 }));
-
-				auto t1 = translate<T>(1, t0);
-				static_assert(equal(t1, { 1,  3 }));
-
-				auto t2 = translate<T>(2, t1);
-				static_assert(equal(t2, { 1 }));
-
-				auto t3 = translate<T>(-3, t2);
-				static_assert(equal(std::span<T>(t), { 1 - 1, 2 - 1 - 2, 4 }));
-			}
-
-			return 0;
+			auto t3 = translate<T>(-3, 3, t);
+			static_assert(equal(t3, { 1, 2, 4 }));
 		}
+		{
+			T t[] = { 1,2,4 };
+			auto t0 = translate<T>(0, std::span(t));
+			static_assert(equal(t0, { 1, 2, 4 }));
+
+			auto t1 = translate<T>(1, t0);
+			static_assert(equal(t1, { 1,  3 }));
+
+			auto t2 = translate<T>(2, t1);
+			static_assert(equal(t2, { 1 }));
+
+			auto t3 = translate<T>(-3, t2);
+			static_assert(equal(std::span<T>(t), { 1 - 1, 2 - 1 - 2, 4 }));
+		}
+
+		return 0;
+	}
 #endif // _DEBUG
-	} // namespace span
 
 	template<class T>
 	class translate {
@@ -80,9 +79,9 @@ namespace tmx {
 		translate(T dt, size_t n, T* t)
 			: dt{ dt }, n{ n }, t{ t }
 		{
-			m = span::translate(dt, n, t).size();
+			m = n - span::translate(dt, n, t);
 		}
-		translate(T dt, const std::span<T>& t)
+		translate(T dt, std::span<T> t)
 			: translate(t, t.size(), t.data())
 		{ }
 		~translate()
@@ -94,9 +93,9 @@ namespace tmx {
 		{
 			return m;
 		}
-		auto span() const 
+		auto span() const
 		{
-			return std::span(t, n - m);
+			return std::span(t, n).last(m);
 		}
 
 #ifdef _DEBUG
