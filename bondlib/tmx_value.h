@@ -2,78 +2,53 @@
 #pragma once
 #include <cmath>
 #include <limits>
+#include "tmx_pwflat.h"
 
 namespace tmx::value {
 
 	// Value of discounted cash flows.
-	template<class U, class C, class D>
-	constexpr C present(size_t m, const U* u, const C* c, D d)
+	template<class U, class C, class T, class F>
+	constexpr C present(size_t m, const U* u, const C* c, size_t n, const T* t, const F* f,
+		F _f = std::numeric_limits<F>::quiet_NaN())
 	{
 		C pv = 0;
 
 		for (size_t i = 0; i < m; ++i) {
-			pv += c[i] * d(u[i]);
+			pv += c[i] * pwflat::discount(u[i], n, t, f, _f);
 		}
 
 		return pv;
 	}
-	template<class U, class C, class D>
-	constexpr C present(const std::span<U>& u, const std::span<C>& c, D d)
-	{
-		if (u.size() != c.size()) {
-			return std::numeric_limits<C>::quiet_NaN();
-		}
-
-		return present(u.size(), u.data(), c.data(), d);
-	}
-
 
 	// Derivative of present value with respect to a parallel shift.
-	template<class U, class C, class D>
-	constexpr C duration(size_t m, const U* u, const C* c, const D& d)
+	template<class U, class C, class T, class F>
+	constexpr C duration(size_t m, const U* u, const C* c, size_t n, const T* t, const F* f,
+		F _f = std::numeric_limits<F>::quiet_NaN())
 	{
 		C dur = 0;
 
 		for (size_t i = 0; i < m; ++i) {
-			dur -= u[i] * c[i] * d(u[i]);
+			dur -= u[i] * c[i] * pwflat::discount(u[i], n, t, f, _f);
 		}
 
 		return dur;
-	}
-	template<class U, class C, class D>
-	constexpr C duration(const std::span<U>& u, const std::span<C>& c, D d)
-	{
-		if (u.size() != c.size()) {
-			return std::numeric_limits<C>::quiet_NaN();
-		}
-
-		return duration(u.size(), u.data(), c.data(), d);
 	}
 
 	// Constant forward rate matching price.
 	template<class U, class C>
 	inline C yield(const C p, size_t m, const U* u, const C* c, 
-		C y = 0, C eps = std::sqrt(std::numeric_limits<C>::epsilon()))
+		C y = 0, C tol = std::sqrt(std::numeric_limits<C>::epsilon()))
 	{
-		C y_ = y + 2 * eps; // at least one loop
+		C y_ = y + 2 * tol; // at least one loop
 
-		while (std::fabs(y_ - y) > eps) {
-			C p_ = present(m, u, c, [y](U t) { return std::exp(-y * t); }) - p;
-			C dp_ = duration(m, u, c, [y](U t) { return std::exp(-y * t); });
+		while (std::fabs(y_ - y) > tol) {
+			C p_ = present(m, u, c, 0, u, c, y) - p;
+			C dp_ = duration(m, u, c, 0, u, c, y);
 			y_ = y - p_ / dp_; // Newton-Raphson
 			std::swap(y_, y);
 		}
 
 		return y;
-	}
-	template<class U, class C>
-	constexpr C yield(const C p, const std::span<U>& u, const std::span<C>& c)
-	{
-		if (u.size() != c.size()) {
-			return std::numeric_limits<C>::quiet_NaN();
-		}
-
-		return yield(p, u.size(), u.data(), c.data());
 	}
 
 	// Convert between continuous and compounded rate using (1 + y/n)^n = e^r
