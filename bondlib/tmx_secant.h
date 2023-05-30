@@ -3,7 +3,7 @@
 #include <cmath>
 #include <limits>
 
-namespace fms::secant {
+namespace tmx::secant {
 
 	template<class X>
 	constexpr X epsilon = std::numeric_limits<X>::epsilon();

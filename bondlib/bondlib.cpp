@@ -5,6 +5,7 @@
 #include "tmx_pwflat_curve.h"
 #include "tmx_value.h"
 #include "tmx_bond.h"
+#include "tmx_bootstrap.h"
 //#include "tmx_muni.h"
 
 using namespace tmx;
