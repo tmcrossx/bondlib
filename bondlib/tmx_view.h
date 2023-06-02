@@ -9,7 +9,7 @@ namespace tmx {
 	// non-owning view of data
 	template<class T>
 	class view {
-		const size_t n; // size
+		const size_t n;
 		T* t;
 	public:
 		constexpr view(size_t n, T* t)
@@ -25,7 +25,8 @@ namespace tmx {
 		}
 		constexpr bool eq(const std::initializer_list<T>& v) const
 		{
-			return operator==(view(v.size(), v.data()));
+			return size() == v.size()
+				&& std::equal(data(), data() + size(), v.begin(), v.end());
 		}
 
 		constexpr size_t size() const
@@ -64,39 +65,40 @@ namespace tmx {
 	template<class T>
 	inline int view_test()
 	{
+		ptrdiff_t m;
 		T t[] = { 1,2,4 };
 		{
-			constexpr auto m0 = translate<T>(0, 3, t);
-			assert(view(3 - m0, t + m0).eq({ 1, 2, 4 }));
+			m = translate<T>(0, 3, t);
+			assert(view(3 - m, t + m).eq({ 1, 2, 4 }));
+			
+			m = translate<T>(1, 3, t);
+			assert(view(3 - m, t + m).eq({ 1,  3 }));
 
-			auto m1 = translate<T>(1, 3, t);
-			static_assert(view(t + m1, 3 - m1).eq({ 1,  3 }));
+			m = translate<T>(2, 3, t);
+			assert(view(3 - m, t + m).eq({ 1 }));
 
-			auto m2 = translate<T>(2, 3, t);
-			static_assert(view(t + m2, 3 - m2).eq({ 1 }));
+			m = translate<T>(-3, 3, t);
+			assert(view(3 - m, t + m).eq({ 1, 2, 4 }));
 
-			auto m3 = translate<T>(-3, 3, t);
-			static_assert(view(t + m2, 3 - m2).eq({ 1, 2, 4 }));
 		}
 
 		return 0;
 	}
 #endif // _DEBUG
 
+	// put things back
 	template<class T>
 	class translate_ {
 		T dt;
-		size_t n, m;
+		size_t n;
+		ptrdiff_t m; // offset
 		T* t;
 	public:
-		translate_(T dt, size_t n, T* t)
-			: dt{ dt }, n{ n }, t{ t }
+		translate_(T dt, size_t n, T* t, ptrdiff_t m = 0)
+			: dt{ dt }, n{ n }, m{ m }, t { t }
 		{
-			m = n - view::translate(dt, n, t);
+			m = view::translate(dt, n, t);
 		}
-		translate_(T dt, std::span<T> t)
-			: translate(t, t.size(), t.data())
-		{ }
 		~translate_()
 		{
 			view::translate(-dt, n, t);
@@ -104,11 +106,19 @@ namespace tmx {
 
 		size_t size() const
 		{
-			return m;
+			return n - m;
 		}
-		auto span() const
+		T* data()
 		{
-			return std::span(t, n).last(m);
+			return t + m;
+		}
+		const T* data() const
+		{
+			return t + m;
+		}
+		auto view() const
+		{
+			return view(size(), data());
 		}
 
 #ifdef _DEBUG
@@ -116,18 +126,18 @@ namespace tmx {
 		{
 			T t[] = { 1,2,3 };
 			{
-				tmx::translate_ t0(0.5, 3, t);// std::span(t));
+				tmx::translate_ t0(0.5, 3, t);
 				assert(3 == t0.size());
 				assert(1 - 0.5 == t[0]);
 			}
-			assert(span::equal(std::span(t), { 1.,2.,3. }));
+			assert(view(3, t).eq({ 1,2,3 }));
 			{
-				tmx::translate_ t0(1.5, 3, t);// std::span(t));
+				tmx::translate_ t0(1.5, 3, t);
 				assert(2 == t0.size());
 				assert(1 - 1.5 == t[0]);
-				assert(span::equal(t0.span(), { 0.5, 1.5 }));
+				assert(t0.view().equals( { 0.5, 1.5 }));
 			}
-			assert(span::equal(std::span(t), { 1.,2.,3. }));
+			assert(view(3, t).eq({ 1,2,3 }));
 
 			return 0;
 		}
