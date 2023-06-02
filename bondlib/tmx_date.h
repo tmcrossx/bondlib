@@ -1,4 +1,4 @@
-// tmx_date.h - Date routines
+ï»¿// tmx_date.h - Date routines
 #pragma once
 #include <chrono>
 
@@ -121,7 +121,7 @@ namespace tmx::date {
 			Question: shouldn't sys_days .count() already factor in leap days?
 			and instead shouldn't we split the years as given in the 2006-isda pdf :
 
-			if “Actual/Actual”, “Actual/Actual (ISDA)”, “Act/Act” or “Act/Act (ISDA)” is specified,
+			if â€œActual/Actualâ€, â€œActual/Actual (ISDA)â€, â€œAct/Actâ€ or â€œAct/Act (ISDA)â€ is specified,
 			the actual number of days in the Calculation Period or Compounding Period in respect of which payment
 			is being made divided by 365 (or, if any portion of that Calculation Period or Compounding Period falls
 			in a leap year, the sum of (i) the actual number of days in that portion of the Calculation Period or

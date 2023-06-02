@@ -14,86 +14,67 @@ namespace tmx::bond {
 		constexpr auto monthly = std::chrono::months(1);
 	}
 
-	struct basic {
-		date::ymd dated; // calculation start date
-		unsigned int maturity; // years
-		double coupon;
+	template<class C = double>
+	struct simple {
+		std::chrono::years maturity;
+		C coupon;
 		std::chrono::months frequency;
-		double (*day_count_fraction)(const date::ymd&, const date::ymd&);
-	private:
-		mutable std::vector<double> u, c; // times and cash flows
-	public:
-		basic(date::ymd dated, unsigned int maturity, double coupon,
-			std::chrono::months frequency = frequency::semiannually,
-			double (*day_count_fraction)(const date::ymd&, const date::ymd&) = date::dcf_30_360)
-		: dated{ dated }, maturity{ maturity }, coupon{ coupon },
-			frequency{ frequency }, day_count_fraction{ day_count_fraction }
-		{
-			auto mat = dated + std::chrono::years(maturity);
-			auto d0 = dated;
-			auto d1 = d0 + frequency;
-			do {
-				u.push_back(date::dcf_years(dated, d1));
-				c.push_back(coupon * day_count_fraction(d0, d1));
-				d0 = d1;
-				d1 = d0 + frequency;
-			} while (d1 <= mat);
-
-			c.back() += 1; // notional
-		}
-		basic(const basic&) = default;
-		basic& operator=(const basic&) = default;
-		virtual ~basic()
-		{ }
-
-		constexpr double accrued(date::ymd valuation) const
-		{
-			auto d = dated;
-
-			while (d <= valuation) {
-				d += frequency;
-			}
-			
-			return coupon * day_count_fraction(valuation, d);
-		}
-
-		// price given yield
-		double price(double y) const
-		{
-			double p = 0;
-
-			auto mat = dated + std::chrono::years(maturity);
-			date::ymd d0 = dated;
-			double D = 1;
-			for (auto d1 = d0 + frequency; d1 <= mat; d0 = d1, d1 = d0 + frequency) {
-				D /= 1 + y * frequency.count() / 12;
-				p += day_count_fraction(d0, d1) * D;
-			}
-			
-			return coupon * p + D;
-		}
-
-		template<class D>
-		double present_value(date::ymd valuation, D d) const
-		{
-			auto du = date::dcf_years(dated, valuation);
-			tmx::translate _u(du, std::span(u));
-
-			return value::present(_u, std::span(c).last(_u.size()), d);
-		}
-
-		template<class D>
-		double duration(date::ymd valuation, D d) const
-		{
-			auto du = date::dcf_years(dated, valuation);
-			tmx::translate _u(du, std::span(u));
-
-			return value::duration(_u, std::span(c).last(_u.size()), d);
-		}
-		//!!! yield
+		C (*day_count_fraction)(const date::ymd&, const date::ymd&);
 	};
 
-	// class callable : public basic { ... };
+	// Return pair of time, cash vectors
+	template<class U = double, class C = double>
+	constexpr std::pair<std::vector<U>, std::vector<C>> cashflows(const simple<C>& bond, const date::ymd& dated)
+	{
+		std::vector<U> u;
+		std::vector<C> c;
+
+		date::ymd d0 = dated;
+		date::ymd d1 = d0 + bond.frequency;
+		while (d1 <= dated + bond.maturity) {
+			u.push_back(date::dcf_years(dated, d1));
+			c.push_back(bond.coupon * bond.day_count_fraction(d0, d1));
+			d0 = d1;
+			d1 = d0 + bond.frequency;
+		}
+		c.back() += 1; // principal
+
+		return { u, c };
+	}
+
+	template<class C>
+	constexpr auto accrued(const simple<C>& bond, const date::ymd& dated, const date::ymd& valuation)
+	{
+		auto d = dated;
+
+		while (d + bond.frequency <= valuation) {
+			d += bond.frequency;
+		}
+
+		return bond.coupon * bond.day_count_fraction(d, valuation);
+	}
+
+	/*
+	// price given yield
+	template<class Y>
+	constexpr auto price(const simple<Y>& bond, const date::ymd& dated, Y y)
+	{
+		double p = 0;
+
+		auto mat = dated + bond.maturity;
+		date::ymd d0 = dated;
+		date::ymd d1 = d0 + bond.frequency;
+		Y D = 1;
+		while (d1 <= mat) {
+			D /= 1 + y * bond.frequency.count() / 12;
+			p += bond.day_count_fraction(d0, d1) * D;
+			d0 = d1;
+			d1 = d0 + bond.frequency;
+		}
+
+		return bond.coupon * p + D;
+	}
+	*/
 
 #ifdef _DEBUG
 
@@ -105,14 +86,20 @@ namespace tmx::bond {
 			using std::chrono::day;
 
 			date::ymd d(year(2023), month(1), day(1));
-			basic bond(d, 10, 0.05, frequency::semiannually, date::dcf_30_360);
-			ensure(0.5 == bond.day_count_fraction(bond.dated, bond.dated + bond.frequency));
-			ensure(0.5 == bond.day_count_fraction(bond.dated - bond.frequency, bond.dated));
+			bond::simple bond(std::chrono::years(10), 0.05, bond::frequency::semiannually, date::dcf_30_360);
+			const auto& [u, c] = cashflows(bond, d);
+			assert(20 == u.size());
+			assert(c[0] == bond.coupon * bond.day_count_fraction(d, d + bond.frequency));
+			assert(c[19] == c[0] + 1);
+			assert(u[19] == date::dcf_years(d, d + bond.maturity));
 		}
 
 		return 0;
 	}
 
 #endif // _DEBUG
-
 }
+
+// class callable : public basic { ... };
+
+

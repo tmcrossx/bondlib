@@ -66,7 +66,7 @@ namespace tmx::value {
 #ifdef _DEBUG
 
 	template<class X = double>
-	inline int value_yield_test()
+	inline int yield_test()
 	{
 		X eps = std::sqrt(std::numeric_limits<X>::epsilon());
 		X y0 = X(0.03);

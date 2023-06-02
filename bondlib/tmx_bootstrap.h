@@ -24,8 +24,8 @@ namespace tmx::bootstrap {
 			return { NaN<T>, NaN<F> };
 		}
 
-		_f = secant::solve([m, u, c, n, t, f, p](F f0) { return value::present(m, u, c, n, t, f, f0) - p; },
-			_f, _f + 0.01);
+		_f = secant::solve([m, u, c, n, t, f, p](F f0) { 
+			return value::present(m, u, c, n, t, f, f0) - p; }, _f, _f + 0.01);
 
 		return { _u, _f };
 	}

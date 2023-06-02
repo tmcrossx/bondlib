@@ -3,7 +3,7 @@
 #include <vector>
 #include "ensure.h"
 #include "tmx_pwflat.h"
-#include "tmx_span.h"
+#include "tmx_view.h"
 
 namespace tmx::pwflat {
 
@@ -23,11 +23,6 @@ namespace tmx::pwflat {
 			: t(t_, t_ + n), f(f_, f_ + n), _f{ _f }, off{ 0 }
 		{
 			ensure(ok());
-		}
-		curve(const std::span<T>& t, const std::span<F>& f, F _f = NaN<F>)
-			: curve(t.size(), t.data(), f.data(), _f)
-		{
-			ensure(t.size() == f.size());
 		}
 		curve(const curve&) = default;
 		curve& operator=(const curve&) = default;
@@ -52,6 +47,7 @@ namespace tmx::pwflat {
 		{
 			return !operator==(c);
 		}
+
 		size_t offset() const
 		{
 			return off;
@@ -123,8 +119,7 @@ namespace tmx::pwflat {
 		// t -> t - u > 0
 		curve& translate(T u)
 		{
-			auto tu = span::translate(u, std::span(t));
-			off = t.size() - tu.size();
+			off += tmx::translate<T>(u, size(), t.data() + off);
 
 			return *this;
 		}

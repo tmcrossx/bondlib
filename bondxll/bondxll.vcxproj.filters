@@ -15,42 +15,18 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\README.md" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="tmx_date.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tmx_pwflat.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ensure.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tmx_pwflat_curve.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tmx_value.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tmx_bond.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tmx_muni.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tmx_view.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tmx_bootstrap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tmx_secant.h">
+    <ClInclude Include="bondxll.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="bondlib.cpp">
+    <ClCompile Include="bondxll.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xll_date.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xll_pwflat_curve.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
