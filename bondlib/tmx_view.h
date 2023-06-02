@@ -94,14 +94,14 @@ namespace tmx {
 		ptrdiff_t m; // offset
 		T* t;
 	public:
-		translate_(T dt, size_t n, T* t, ptrdiff_t m = 0)
-			: dt{ dt }, n{ n }, m{ m }, t { t }
+		translate_(T dt_, size_t n_, T* t_, ptrdiff_t m_ = 0)
+			: dt{ dt_ }, n{ n_ }, m{ m_ }, t { t_ }
 		{
-			m = view::translate(dt, n, t);
+			m = tmx::translate(dt, n, t);
 		}
 		~translate_()
 		{
-			view::translate(-dt, n, t);
+			tmx::translate(-dt, n, t);
 		}
 
 		size_t size() const
@@ -118,7 +118,7 @@ namespace tmx {
 		}
 		auto view() const
 		{
-			return view(size(), data());
+			return tmx::view(size(), data());
 		}
 
 #ifdef _DEBUG
@@ -130,14 +130,14 @@ namespace tmx {
 				assert(3 == t0.size());
 				assert(1 - 0.5 == t[0]);
 			}
-			assert(view(3, t).eq({ 1,2,3 }));
+			assert(tmx::view(3, t).eq({ 1,2,3 }));
 			{
 				tmx::translate_ t0(1.5, 3, t);
 				assert(2 == t0.size());
 				assert(1 - 1.5 == t[0]);
-				assert(t0.view().equals( { 0.5, 1.5 }));
+				assert(t0.view().eq( { 0.5, 1.5 }));
 			}
-			assert(view(3, t).eq({ 1,2,3 }));
+			assert(tmx::view(3, t).eq({ 1,2,3 }));
 
 			return 0;
 		}
