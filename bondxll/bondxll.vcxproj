@@ -22,7 +22,7 @@
     <ClInclude Include="bondxll.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="bondxll.cpp" />
+    <ClCompile Include="xll_bond.cpp" />
     <ClCompile Include="xll_date.cpp" />
     <ClCompile Include="xll_pwflat_curve.cpp" />
   </ItemGroup>

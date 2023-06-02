@@ -5,8 +5,8 @@
 using namespace tmx;
 using namespace xll;
 
-AddIn xai_pwflat_curve(
-	Function(XLL_HANDLEX, "xll_pwflat_curve", "\\PWFLAT.CURVE")
+AddIn xai_pwflat_curve_(
+	Function(XLL_HANDLEX, "xll_pwflat_curve_", "\\PWFLAT.CURVE")
 	.Arguments({
 		Arg(XLL_FPX, "t", "is an array of positive increasing times."),
 		Arg(XLL_FPX, "f", "is an array of corresponding rates."),
@@ -16,7 +16,7 @@ AddIn xai_pwflat_curve(
 	.Category(CATEGORY)
 	.FunctionHelp("Return a handle to a piecewise flat curve.")
 );
-HANDLEX WINAPI xll_pwflat_curve(const _FPX* pt, const _FPX* pf, LPOPER p_f)
+HANDLEX WINAPI xll_pwflat_curve_(const _FPX* pt, const _FPX* pf, LPOPER p_f)
 {
 #pragma XLLEXPORT
 

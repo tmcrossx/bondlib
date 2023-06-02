@@ -20,13 +20,13 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="bondxll.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="xll_date.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="xll_pwflat_curve.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xll_bond.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

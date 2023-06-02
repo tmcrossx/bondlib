@@ -2,6 +2,7 @@
 #pragma once
 #include <algorithm>
 #include <vector>
+#include "ensure.h"
 #include "tmx_date.h"
 #include "tmx_value.h"
 
@@ -88,10 +89,10 @@ namespace tmx::bond {
 			date::ymd d(year(2023), month(1), day(1));
 			bond::simple bond(std::chrono::years(10), 0.05, bond::frequency::semiannually, date::dcf_30_360);
 			const auto& [u, c] = cashflows(bond, d);
-			assert(20 == u.size());
-			assert(c[0] == bond.coupon * bond.day_count_fraction(d, d + bond.frequency));
-			assert(c[19] == c[0] + 1);
-			assert(u[19] == date::dcf_years(d, d + bond.maturity));
+			ensure(20 == u.size());
+			ensure(c[0] == bond.coupon * bond.day_count_fraction(d, d + bond.frequency));
+			ensure(c[19] == c[0] + 1);
+			ensure(u[19] == date::dcf_years(d, d + bond.maturity));
 		}
 
 		return 0;
