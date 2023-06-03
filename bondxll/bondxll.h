@@ -5,7 +5,7 @@
 #include "xll/xll/xll.h"
 
 #ifndef CATEGORY
-#define CATEGORY "bondxll"
+#define CATEGORY "TMX"
 #endif
 
 namespace xll {

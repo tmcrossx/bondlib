@@ -41,11 +41,7 @@ namespace tmx::pwflat {
 			return offset() == c.offset()
 				and std::equal(time(), time() + size(), c.time())
 				and std::equal(rate(), rate() + size(), c.rate())
-				and (extrapolate() == c.extrapolate() or std::isnan(_f) and std::isnan(c.extrapolate()));
-		}
-		bool operator!=(const curve& c) const
-		{
-			return !operator==(c);
+				and (extrapolate() == c.extrapolate() or std::isnan(extrapolate()) and std::isnan(c.extrapolate()));
 		}
 
 		size_t offset() const
@@ -94,6 +90,11 @@ namespace tmx::pwflat {
 
 			return *this;
 		}
+		curve& push_back(const std::pair<T, F>& tf)
+		{
+			return extend(tf.first, tf.second);
+		}
+
 		// Get extrapolated value.
 		F extrapolate() const
 		{
@@ -119,6 +120,7 @@ namespace tmx::pwflat {
 		// t -> t - u > 0
 		curve& translate(T u)
 		{
+			// !!! make sure curve.translate(u).translate(v) == curve.translate(u + v)
 			off += tmx::translate<T>(u, size(), t.data() + off);
 
 			return *this;

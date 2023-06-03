@@ -4,6 +4,7 @@
 #include <vector>
 #include "ensure.h"
 #include "tmx_date.h"
+#include "tmx_instrument.h"
 #include "tmx_value.h"
 
 namespace tmx::bond {
@@ -25,22 +26,24 @@ namespace tmx::bond {
 
 	// Return pair of time, cash vectors
 	template<class U = double, class C = double>
-	constexpr std::pair<std::vector<U>, std::vector<C>> cashflows(const simple<C>& bond, const date::ymd& dated)
+	constexpr instrument_vector<U,C> cash_flow(const simple<C>& bond, const date::ymd& dated)
 	{
-		std::vector<U> u;
-		std::vector<C> c;
+		instrument_vector<U,C> i;
 
 		date::ymd d0 = dated;
 		date::ymd d1 = d0 + bond.frequency;
 		while (d1 <= dated + bond.maturity) {
-			u.push_back(date::dcf_years(dated, d1));
-			c.push_back(bond.coupon * bond.day_count_fraction(d0, d1));
+			U u = date::dcf_years(dated, d1);
+			C c = bond.coupon * bond.day_count_fraction(d0, d1);
+			if (d1 == dated + bond.maturity) {
+				c += 1;
+			}
+			i.push_back(u, c);
 			d0 = d1;
 			d1 = d0 + bond.frequency;
 		}
-		c.back() += 1; // principal
 
-		return { u, c };
+		return i;
 	}
 
 	template<class C>
@@ -88,8 +91,10 @@ namespace tmx::bond {
 
 			date::ymd d(year(2023), month(1), day(1));
 			bond::simple bond(std::chrono::years(10), 0.05, bond::frequency::semiannually, date::dcf_30_360);
-			const auto& [u, c] = cashflows(bond, d);
-			ensure(20 == u.size());
+			const auto i = cash_flow(bond, d);
+			ensure(20 == i.size());
+			const auto u = i.time();
+			const auto c = i.cash();
 			ensure(c[0] == bond.coupon * bond.day_count_fraction(d, d + bond.frequency));
 			ensure(c[19] == c[0] + 1);
 			ensure(u[19] == date::dcf_years(d, d + bond.maturity));

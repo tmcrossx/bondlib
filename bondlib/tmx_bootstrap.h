@@ -9,7 +9,7 @@ namespace tmx::bootstrap {
 	constexpr X NaN = std::numeric_limits<X>::quiet_NaN();
 
 	// bootstrap single instrument
-	template<class U, class C, class T, class F>
+	template<class U = double, class C = double, class T = double, class F = double>
 	constexpr std::pair<T, F> instrument(
 		size_t m, const U* u, const C* c, 
 		size_t n, const T* t, const F* f, F p = 0)

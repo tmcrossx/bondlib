@@ -5,7 +5,7 @@ using namespace tmx;
 using namespace xll;
 
 AddIn xai_date_add_years(
-	Function(XLL_DOUBLE, "xll_date_add_years", "DATE.ADD.YEARS")
+	Function(XLL_DOUBLE, "xll_date_add_years", CATEGORY ".DATE.ADD.YEARS")
 	.Arguments({
 		Arg(XLL_DOUBLE, "date", "is an Excel date."),
 		Arg(XLL_DOUBLE, "years", "is the number of years to add."),
@@ -23,7 +23,7 @@ double WINAPI xll_date_add_years(double d, double y)
 }
 
 AddIn xai_date_dcf_years(
-	Function(XLL_DOUBLE, "xll_date_dcf_years", "DATE.DCF.YEARS")
+	Function(XLL_DOUBLE, "xll_date_dcf_years", CATEGORY ".DATE.DCF.YEARS")
 	.Arguments({
 		Arg(XLL_DOUBLE, "d0", "is an Excel date."),
 		Arg(XLL_DOUBLE, "d1", "is an Excel date."),

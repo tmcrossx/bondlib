@@ -34,21 +34,35 @@ namespace tmx::value {
 		return dur;
 	}
 
+	// Second derivative of present value with respect to a parallel shift.
+	template<class U, class C, class T, class F>
+	constexpr C convexity(size_t m, const U* u, const C* c, size_t n, const T* t, const F* f,
+		F _f = std::numeric_limits<F>::quiet_NaN())
+	{
+		C cnv = 0;
+
+		for (size_t i = 0; i < m; ++i) {
+			cnv += u[i] * u[i] * c[i] * pwflat::discount(u[i], n, t, f, _f);
+		}
+
+		return cnv;
+	}
+
 	// Constant forward rate matching price.
 	template<class U, class C>
 	inline C yield(const C p, size_t m, const U* u, const C* c, 
-		C y = 0, C tol = std::sqrt(std::numeric_limits<C>::epsilon()))
+		C y = 0, C tol = std::sqrt(std::numeric_limits<C>::epsilon()), size_t iter = 100)
 	{
 		C y_ = y + 2 * tol; // at least one loop
 
-		while (std::fabs(y_ - y) > tol) {
+		while (iter-- and  std::fabs(y_ - y) > tol) {
 			C p_ = present(m, u, c, 0, u, c, y) - p;
 			C dp_ = duration(m, u, c, 0, u, c, y);
 			y_ = y - p_ / dp_; // Newton-Raphson
-			std::swap(y_, y);
+			std::swap(y_, y); 
 		}
 
-		return y;
+		return iter ? y : std::numeric_limits<C>::quiet_NaN();
 	}
 
 	// Convert between continuous and compounded rate using (1 + y/n)^n = e^r

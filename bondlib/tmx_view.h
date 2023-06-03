@@ -53,13 +53,6 @@ namespace tmx {
 
 		return std::upper_bound(t, t + n, 0) - t;
 	}
-	/*
-	template<class T>
-	constexpr std::span<T> translate(T u, std::span<T> t)
-	{
-		return t.last(t.size() - translate(u, t.size(), t.data()));
-	}
-	*/
 #ifdef _DEBUG
 
 	template<class T>
