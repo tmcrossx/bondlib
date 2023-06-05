@@ -12,6 +12,7 @@ using namespace tmx;
 
 #ifdef _DEBUG
 int test_years = date::years_test();
+int test_dcf_30_360 = date::dcf_30_360_test();
 int test_value_yield_d = value::yield_test<double>();
 int test_value_yield_f = value::yield_test<float>();
 int test_pwflat_integral = pwflat::pwflat_integral_test();

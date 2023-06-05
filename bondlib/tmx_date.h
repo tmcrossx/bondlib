@@ -107,8 +107,8 @@ namespace tmx::date {
 	{
 		using std::literals::chrono_literals::operator""y;
 		{
-			assert(dcf_actual_actual(2023y / 1 / 1, 2023y / 1 / 1) == 0);
-			assert(dcf_actual_actual(2023y / 1 / 1, 2023y / 1 / 2) == 1 / 365.);
+			static_assert(dcf_actual_actual(2023y / 1 / 1, 2023y / 1 / 1) == 0);
+			static_assert(dcf_actual_actual(2023y / 1 / 1, 2023y / 1 / 2) == 1 / 365.);
 
 			/*
 			logical error? there are 367 days between the two dates but adding the leap day changes that to 368
@@ -123,8 +123,8 @@ namespace tmx::date {
 			portion of the Calculation Period or Compounding Period falling in a non-leap year divided by 365)
 
 			*/
-			assert(dcf_actual_actual(2023y / 2 / 28, 2024y / 3 / 1) == 368 / 365.);
-			assert(dcf_actual_actual(2024y / 2 / 28, 2024y / 2 / 29) == 2 / 365.);
+			static_assert(dcf_actual_actual(2023y / 2 / 28, 2024y / 3 / 1) == 368 / 365.);
+			static_assert(dcf_actual_actual(2024y / 2 / 28, 2024y / 2 / 29) == 2 / 365.);
 			//!!! more tests
 		}
 
@@ -156,7 +156,7 @@ namespace tmx::date {
 		{
 			static_assert(dcf_30_360(2023y / 1 / 1, 2023y / 1 / 1) == 0);
 			static_assert(dcf_30_360(2023y / 1 / 1, 2023y / 1 / 2) == 1 / 360.);
-			//static_assert(dcf_30_360(2022y / 12 / 2, 2023y / 1 / 2) == 1 / 30.);
+			static_assert(dcf_30_360(2022y / 12 / 2, 2023y / 1 / 2) == 1 - 11 / 12.);
 			//!!! more tests
 		}
 
