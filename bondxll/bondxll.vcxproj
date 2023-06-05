@@ -22,6 +22,7 @@
     <ClInclude Include="bondxll.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="tmx_instrument.cpp" />
     <ClCompile Include="xll_bond.cpp" />
     <ClCompile Include="xll_bootstrap.cpp" />
     <ClCompile Include="xll_date.cpp" />

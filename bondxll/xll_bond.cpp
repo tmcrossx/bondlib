@@ -60,8 +60,8 @@ HANDLEX WINAPI xll_bond_simple_(WORD maturity, double coupon, WORD freq, HANDLEX
 	return result;
 }
 
-AddIn xai_bond_cash_flow(
-	Function(XLL_HANDLEX, "xll_bond_cash_flow", CATEGORY ".BOND.CASH_FLOW")
+AddIn xai_bond_cash_flow_(
+	Function(XLL_HANDLEX, "xll_bond_cash_flow_", "\\" CATEGORY ".BOND.INSTRUMENT")
 	.Arguments({
 		Arg(XLL_HANDLEX, "bond", "is a handle to a bond."),
 		Arg(XLL_DOUBLE, "dated", "is the dated date of the bond."),
@@ -70,7 +70,7 @@ AddIn xai_bond_cash_flow(
 	.Category(CATEGORY)
 	.FunctionHelp("Return a handle to bond cash flows.")
 );
-_FPX* WINAPI xll_bond_cash_flow(HANDLEX b, double dated)
+_FPX* WINAPI xll_bond_cash_flow_(HANDLEX b, double dated)
 {
 #pragma XLLEXPORT
 	static FPX result;
@@ -79,7 +79,7 @@ _FPX* WINAPI xll_bond_cash_flow(HANDLEX b, double dated)
 		handle<bond::simple<>> b_(b);
 		ensure(b_);
 
-		handle<instrument<>> i_(new instrument_vector<>(bond::cash_flow<>(*b_, excel_to_ymd(dated))));
+		handle<instrument<>> i_(new instrument_vector<>(bond::instrument<>(*b_, excel_to_ymd(dated))));
 	}
 	catch (const std::exception& ex) {
 		XLL_ERROR(ex.what());

@@ -15,6 +15,10 @@ namespace tmx {
 		constexpr view(size_t n, T* t)
 			: n{ n }, t{ t }
 		{ }
+		template<size_t N>
+		constexpr view(T(&t)[N])
+			: n{ N }, t{ t }
+		{ }
 		constexpr ~view()
 		{ }
 
@@ -73,6 +77,10 @@ namespace tmx {
 			m = translate<T>(-3, 3, t);
 			assert(view(3 - m, t + m).eq({ 1, 2, 4 }));
 
+		}
+		{
+			view v(t);
+			assert(3 == v.size());
 		}
 
 		return 0;

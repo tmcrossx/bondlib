@@ -26,7 +26,7 @@ namespace tmx::bond {
 
 	// Return pair of time, cash vectors
 	template<class U = double, class C = double>
-	constexpr instrument_vector<U,C> cash_flow(const simple<C>& bond, const date::ymd& dated)
+	constexpr instrument_vector<U,C> instrument(const simple<C>& bond, const date::ymd& dated)
 	{
 		instrument_vector<U,C> i;
 
@@ -91,7 +91,7 @@ namespace tmx::bond {
 
 			date::ymd d(year(2023), month(1), day(1));
 			bond::simple bond(std::chrono::years(10), 0.05, bond::frequency::semiannually, date::dcf_30_360);
-			const auto i = cash_flow(bond, d);
+			const auto i = instrument(bond, d);
 			ensure(20 == i.size());
 			const auto u = i.time();
 			const auto c = i.cash();

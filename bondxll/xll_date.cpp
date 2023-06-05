@@ -39,3 +39,41 @@ double WINAPI xll_date_dcf_years(double d0, double d1)
 
 	return date::dcf_years(y0, y1);
 }
+
+AddIn xai_date_ymd(
+	Function(XLL_DOUBLE, "xll_date_ymd", CATEGORY ".DATE.YMD")
+	.Arguments({
+		Arg(XLL_DOUBLE, "date", "is an Excel date."),
+		})
+	.Category(CATEGORY)
+	.FunctionHelp("Return Excel date as yyyymmdd.")
+);
+double WINAPI xll_date_ymd(double d)
+{
+#pragma XLLEXPORT
+	auto y = excel_to_ymd(d);
+
+	return (int)y.year() * 10000 + (unsigned)y.month() * 100 + (unsigned)y.day();
+}
+
+AddIn xai_date_excel(
+	Function(XLL_DOUBLE, "xll_date_excel", CATEGORY ".DATE.EXCEL")
+	.Arguments({
+		Arg(XLL_DOUBLE, "date", "is a yyyymmdd date."),
+		})
+		.Category(CATEGORY)
+	.FunctionHelp("Return a yyyymmdd date as an Excel date.")
+);
+double WINAPI xll_date_excel(double date)
+{
+#pragma XLLEXPORT
+	int y = (int)date / 10000;
+	date -= y * 10000;
+	unsigned m = (unsigned)date / 100;
+	date -= m * 100;
+	unsigned d = (unsigned)date;
+
+	auto t = xll::ymd(std::chrono::year(y), std::chrono::month(m), std::chrono::day(d));
+
+	return ymd_to_excel(t);
+}

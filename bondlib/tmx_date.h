@@ -5,63 +5,49 @@
 namespace tmx::date {
 
 	using ymd = std::chrono::year_month_day;
+	using std::chrono::sys_seconds;
 
-	// days per year
+	// days per year conversion convention
 	constexpr double dpy = 365.25;
 
-	constexpr ymd add_years(ymd d, double y)
+	constexpr sys_seconds add_years(const sys_seconds& t, double y)
 	{
-		double dy = y * dpy;
-		int iy = static_cast<int>(dy);
-		iy += dy - iy > 0.5; // std::round not constexpr
-
-		return std::chrono::sys_days(d) + std::chrono::days{ iy };
+		return t + std::chrono::seconds{ static_cast<int>(y * dpy * 86400) };
 	}
-
-	constexpr double dcf_years(const ymd& d0, const ymd& d1, double dpy = date::dpy)
+	constexpr double diff_years(const sys_seconds& t0, const sys_seconds& t1, double dpy = date::dpy)
 	{
-		auto t0 = std::chrono::sys_days(d0);
-		auto t1 = std::chrono::sys_days(d1);
-
-		return (t1 - t0).count() / dpy;
+		return (t1 - t0).count() / (dpy * 86400);
 	}
 
 #ifdef _DEBUG
 
 #pragma warning(push)
 #pragma warning(disable: 4455)
-	inline int test_dcf_years()
+	inline int years_test()
 	{
 		using std::literals::chrono_literals::operator""y;
+		using std::chrono::years;
+		using std::chrono::months;
+		using std::chrono::days;
+
 		constexpr auto abs = [](double d) {
 			return d >= 0 ? d : -d;
 		};
 		{
-			static_assert(dcf_years(2023y / 1 / 1, 2023y / 1 / 1) == 0);
-			static_assert(dcf_years(2023y / 1 / 1, 2023y / 1 / 2) == 1 / 365.25);
+			// ymd to time_point
+			constexpr std::chrono::sys_days t0{ 2023y / 1 / 1 };
+			constexpr std::chrono::sys_days t1{ 2023y / 1 / 2 };
+
+			static_assert(diff_years(t0, t0) == 0);
+			static_assert(diff_years(t0, t1) == 1 / dpy);
+
 			//!!! more tests
 
-			//should negaive dcf_years be allowed?
-			static_assert(dcf_years(2023y / 1 / 1, 2022y / 12 / 31) == -1 / 365.25);
-		}
+			// diff_years can be negative
+			static_assert(diff_years(t1, t0) == -1 / 365.25);
 
-		{
-			constexpr auto d0 = 2023y / 1 / 1;
-			constexpr double y = 0;
-			constexpr auto d1 = add_years(d0, y);
-			static_assert(dcf_years(d1, d0) == y);
-		}
-		{
-			constexpr auto d0 = 2023y / 1 / 1;
-			constexpr double y = 1.2;
-			constexpr auto d1 = add_years(d0, y);
-			static_assert(abs(dcf_years(d0, d1) - y) < .5 / dpy);
-		}
-		{
-			constexpr auto d0 = 2023y / 1 / 1;
-			constexpr double y = -1.2;
-			constexpr auto d1 = add_years(d0, y);
-			static_assert(abs(dcf_years(d0, d1) - y) < .5 / dpy);
+			constexpr double y = diff_years(t0, t1);
+			static_assert(t1 == add_years(t0, y));
 		}
 
 		return 0;
@@ -70,6 +56,14 @@ namespace tmx::date {
 
 #endif // _DEBUG
 
+
+	constexpr double dcf_years(const ymd& d0, const ymd& d1, double dpy = date::dpy)
+	{
+		std::chrono::sys_days t0{d0};
+		std::chrono::sys_days t1{d1};
+
+		diff_years(t0, t1, dpy);
+	}
 	constexpr double dcf_actual_360(const ymd& d0, const ymd& d1)
 	{
 		return dcf_years(d0, d1, 360);
