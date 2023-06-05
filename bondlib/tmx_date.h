@@ -11,13 +11,13 @@ namespace tmx::date {
 	// days per year conversion convention
 	constexpr double dpy = 365.25;
 
-	constexpr sys_seconds add_years(const sys_days& t, double y)
+	constexpr sys_days add_years(const sys_days& t, double y)
 	{
-		return t + std::chrono::seconds{ static_cast<int>(y * dpy * 86400 + 0.5) };
+		return t + std::chrono::days{ static_cast<int>(y * dpy + 0.5) };
 	}
 	constexpr double sub_years(const sys_days& t1, const sys_days& t0, double dpy = date::dpy)
 	{
-		return std::chrono::round<std::chrono::seconds>(t1 - t0).count() / (dpy * 86400);
+		return std::chrono::round<std::chrono::days>(t1 - t0).count() / dpy;
 	}
 
 #ifdef _DEBUG

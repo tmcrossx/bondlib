@@ -13,7 +13,7 @@ XLL_CONST(WORD, TMX_FREQUENCY_MONTHLY, 12 / tmx::bond::frequency::monthly.count(
 XLL_CONST(HANDLEX, TMX_DAY_COUNT_30_360, safe_handle(date::dcf_30_360), "30 days per month, 360 days per year.", CATEGORY, "")
 XLL_CONST(HANDLEX, TMX_DAY_COUNT_ACTUAL_360, safe_handle(date::dcf_actual_360), "Actual days divided by 360.", CATEGORY, "")
 XLL_CONST(HANDLEX, TMX_DAY_COUNT_ACTUAL_365, safe_handle(date::dcf_actual_365), "Actual days divided by 365.", CATEGORY, "")
-
+/*
 AddIn xai_bond_simple_(
 	Function(XLL_HANDLEX, "xll_bond_simple_", "\\" CATEGORY ".BOND.SIMPLE")
 	.Arguments({
@@ -87,3 +87,4 @@ _FPX* WINAPI xll_bond_cash_flow_(HANDLEX b, double dated)
 
 	return result.get();
 }
+*/

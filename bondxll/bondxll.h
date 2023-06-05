@@ -10,18 +10,18 @@
 
 namespace xll {
 
-	//using ymd = std::chrono::year_month_day;
+	using sys_seconds = std::chrono::sys_seconds;
 	using sys_days = std::chrono::sys_days;
-	constexpr auto epoch{ sys_days(std::chrono::year(1900) / 1 / 0) };
+	constexpr auto epoch{ std::chrono::sys_days(std::chrono::year(1900) / 1 / 0) };
 
 	inline double days_to_excel(const sys_days& d)
 	{
-		return (d - epoch).count();
+		return std::chrono::duration_cast<std::chrono::days>(d - epoch).count();
 	}
 	// Excel time in days since epoch.
-	inline auto excel_to_days(double t)
+	inline sys_days excel_to_days(double t)
 	{
-		return epoch + std::chrono::seconds(static_cast<int>(t * 86400));
+		return epoch + std::chrono::days((int)t);
 	}
 
 }

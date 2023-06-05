@@ -10,11 +10,9 @@ Difference of dates is a [`duration`](https://en.cppreference.com/w/cpp/chrono/d
 
 Only need day resolution so use [`year_month_day`](https://en.cppreference.com/w/cpp/chrono/year_month_day)
 
-`ymd add_years(ymd d, double y)` add years based on days per year.
+sub_years(add_years(d, t), d) = t
 
-`double dcf_years(ymd d0, ymd d1)` duration as double based on days per year.
-
-`dcf_years(ymd d0, date_add(d0, y)) == y` within one day
+add_years(d0, sub_years(d1, d0)) = d1
 
 Implement day count fractions: 30/360, Actual/360, ...  
 

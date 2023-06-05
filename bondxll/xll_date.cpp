@@ -16,12 +16,31 @@ AddIn xai_date_add_years(
 double WINAPI xll_date_add_years(double d, double y)
 {
 #pragma XLLEXPORT
-	auto ymd = excel_to_ymd(d);
-	ymd = date::add_years(ymd, y);
+	auto t = excel_to_days(d);
+	t = date::add_years(t, y);
 
-	return ymd_to_excel(ymd);
+	return days_to_excel(t);
 }
 
+AddIn xai_date_sub_years(
+	Function(XLL_DOUBLE, "xll_date_sub_years", CATEGORY ".DATE.SUB.YEARS")
+	.Arguments({
+		Arg(XLL_DOUBLE, "d0", "is an Excel date."),
+		Arg(XLL_DOUBLE, "d1", "is an Excel date."),
+		})
+		.Category(CATEGORY)
+	.FunctionHelp("Return d0 - d1 in years.")
+);
+double WINAPI xll_date_sub_years(double d0, double d1)
+{
+#pragma XLLEXPORT
+	auto t0 = excel_to_days(d0);
+	auto t1 = excel_to_days(d1);
+
+	return date::sub_years(t0, t1);
+}
+
+/*
 AddIn xai_date_dcf_years(
 	Function(XLL_DOUBLE, "xll_date_dcf_years", CATEGORY ".DATE.DCF.YEARS")
 	.Arguments({
@@ -34,8 +53,8 @@ AddIn xai_date_dcf_years(
 double WINAPI xll_date_dcf_years(double d0, double d1)
 {
 #pragma XLLEXPORT
-	auto y0 = excel_to_ymd(d0);
-	auto y1 = excel_to_ymd(d1);
+	auto y0 = excel_to_days(d0);
+	auto y1 = excel_to_days(d1);
 
 	return date::dcf_years(y0, y1);
 }
@@ -77,3 +96,4 @@ double WINAPI xll_date_excel(double date)
 
 	return ymd_to_excel(t);
 }
+*/
