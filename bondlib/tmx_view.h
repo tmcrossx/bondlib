@@ -66,16 +66,16 @@ namespace tmx {
 		T t[] = { 1,2,4 };
 		{
 			m = translate<T>(0, 3, t);
-			assert(view(3 - m, t + m).eq({ 1, 2, 4 }));
+			assert(view<T>(3 - m, t + m).eq({ 1, 2, 4 }));
 			
 			m = translate<T>(1, 3, t);
-			assert(view(3 - m, t + m).eq({ 1,  3 }));
+			assert(view<T>(3 - m, t + m).eq({ 1,  3 }));
 
 			m = translate<T>(2, 3, t);
-			assert(view(3 - m, t + m).eq({ 1 }));
+			assert(view<T>(3 - m, t + m).eq({ 1 }));
 
 			m = translate<T>(-3, 3, t);
-			assert(view(3 - m, t + m).eq({ 1, 2, 4 }));
+			assert(view<T>(3 - m, t + m).eq({ 1, 2, 4 }));
 
 		}
 		{
@@ -131,14 +131,14 @@ namespace tmx {
 				assert(3 == t0.size());
 				assert(1 - 0.5 == t[0]);
 			}
-			assert(tmx::view(3, t).eq({ 1,2,3 }));
+			assert(tmx::view<T>(3, t).eq({ 1,2,3 }));
 			{
 				tmx::translate_ t0(1.5, 3, t);
 				assert(2 == t0.size());
 				assert(1 - 1.5 == t[0]);
 				assert(t0.view().eq( { 0.5, 1.5 }));
 			}
-			assert(tmx::view(3, t).eq({ 1,2,3 }));
+			assert(tmx::view<T>(3, t).eq({ 1,2,3 }));
 
 			return 0;
 		}

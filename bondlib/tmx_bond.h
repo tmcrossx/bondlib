@@ -90,7 +90,7 @@ namespace tmx::bond {
 			using std::chrono::day;
 
 			date::ymd d(year(2023), month(1), day(1));
-			bond::simple bond(std::chrono::years(10), 0.05, bond::frequency::semiannually, date::dcf_30_360);
+			bond::simple<> bond{std::chrono::years(10), 0.05, bond::frequency::semiannually, date::dcf_30_360};
 			const auto i = instrument(bond, d);
 			ensure(20 == i.size());
 			const auto u = i.time();
