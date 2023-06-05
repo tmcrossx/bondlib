@@ -21,19 +21,19 @@ namespace tmx::bond {
 		std::chrono::years maturity;
 		C coupon;
 		std::chrono::months frequency;
-		C (*day_count_fraction)(const date::ymd&, const date::ymd&);
+		C (*day_count_fraction)(const date::sys_days&, const date::sys_days&);
 	};
 
 	// Return pair of time, cash vectors
 	template<class U = double, class C = double>
-	constexpr instrument_vector<U,C> instrument(const simple<C>& bond, const date::ymd& dated)
+	constexpr instrument_vector<U,C> instrument(const simple<C>& bond, const std::chrono::sys_days& dated)
 	{
 		instrument_vector<U,C> i;
-
-		date::ymd d0 = dated;
-		date::ymd d1 = d0 + bond.frequency;
+		/*
+		auto d0 = dated;
+		auto d1 = d0 + bond.frequency;
 		while (d1 <= dated + bond.maturity) {
-			U u = date::dcf_years(dated, d1);
+			U u = date::sub_years(d1, dated);
 			C c = bond.coupon * bond.day_count_fraction(d0, d1);
 			if (d1 == dated + bond.maturity) {
 				c += 1;
@@ -42,7 +42,7 @@ namespace tmx::bond {
 			d0 = d1;
 			d1 = d0 + bond.frequency;
 		}
-
+		*/
 		return i;
 	}
 

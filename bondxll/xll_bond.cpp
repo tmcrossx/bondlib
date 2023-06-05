@@ -48,7 +48,7 @@ HANDLEX WINAPI xll_bond_simple_(WORD maturity, double coupon, WORD freq, HANDLEX
 			_dcf = *safe_pointer<dcf_t>(dcf);
 		}
 
-		handle<bond::simple<>> h(new bond::simple(years(maturity), coupon, months(12 / freq), _dcf));
+		handle<bond::simple<>> h(new bond::simple<>{ years(maturity), coupon, months(12 / freq), _dcf });
 		ensure(h);
 
 		result = h.get();

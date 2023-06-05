@@ -1,4 +1,4 @@
-// tmx_instrument.cpp - Instrument times and cash flows.
+// xll_instrument.cpp - Instrument times and cash flows.
 #include "../bondlib/tmx_instrument.h"
 #include "bondxll.h"
 
@@ -35,7 +35,7 @@ AddIn xai_instrument(
 		Arg(XLL_HANDLEX, "instrument", "is a handle to an instrument."),
 		})
 	.Category(CATEGORY)
-	.FunctionHelp("Return a handle to times and cash flows.")
+	.FunctionHelp("Return times and cash flows of instrument.")
 );
 _FPX* WINAPI xll_instrument(HANDLEX i)
 {
