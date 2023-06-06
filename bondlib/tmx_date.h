@@ -11,6 +11,19 @@ namespace tmx::date {
 	// days per year conversion convention
 	constexpr double dpy = 365.25;
 
+	namespace frequency {
+		constexpr auto annually = std::chrono::months(12);
+		constexpr auto semiannually = std::chrono::months(6);
+		constexpr auto quarterly = std::chrono::months(3);
+		constexpr auto monthly = std::chrono::months(1);
+	}
+
+	template<class Clock, class Duration>
+	constexpr sys_days as_days(const std::chrono::time_point<Clock,Duration>& t)
+	{
+		return std::chrono::time_point_cast<std::chrono::days>(t);
+	}
+
 	constexpr sys_days add_years(const sys_days& t, double y)
 	{
 		return t + std::chrono::days{ static_cast<int>(y * dpy + 0.5) };
@@ -44,7 +57,7 @@ namespace tmx::date {
 
 			//!!! more tests
 
-			// diff_years can be negative
+			// sub_years can be negative
 			static_assert(sub_years(t0, t1) == -1 / 365.25);
 
 			constexpr double y = sub_years(t1, t0);

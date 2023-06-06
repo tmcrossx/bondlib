@@ -9,13 +9,6 @@
 
 namespace tmx::bond {
 
-	namespace frequency {
-		constexpr auto annually = std::chrono::months(12);
-		constexpr auto semiannually = std::chrono::months(6);
-		constexpr auto quarterly = std::chrono::months(3);
-		constexpr auto monthly = std::chrono::months(1);
-	}
-
 	template<class C = double>
 	struct simple {
 		std::chrono::years maturity;
@@ -29,9 +22,9 @@ namespace tmx::bond {
 	constexpr instrument_vector<U,C> instrument(const simple<C>& bond, const std::chrono::sys_days& dated)
 	{
 		instrument_vector<U,C> i;
-		/*
+		
 		auto d0 = dated;
-		auto d1 = d0 + bond.frequency;
+		auto d1 = date::as_days(d0 + bond.frequency);
 		while (d1 <= dated + bond.maturity) {
 			U u = date::sub_years(d1, dated);
 			C c = bond.coupon * bond.day_count_fraction(d0, d1);
@@ -40,9 +33,9 @@ namespace tmx::bond {
 			}
 			i.push_back(u, c);
 			d0 = d1;
-			d1 = d0 + bond.frequency;
+			d1 = date::as_days(d0 + bond.frequency);
 		}
-		*/
+		
 		return i;
 	}
 
@@ -90,7 +83,7 @@ namespace tmx::bond {
 			using std::chrono::day;
 
 			date::ymd d(year(2023), month(1), day(1));
-			bond::simple<> bond{std::chrono::years(10), 0.05, bond::frequency::semiannually, date::dcf_30_360};
+			bond::simple<> bond{std::chrono::years(10), 0.05, date::frequency::semiannually, date::dcf_30_360};
 			const auto i = instrument(bond, d);
 			ensure(20 == i.size());
 			const auto u = i.time();
