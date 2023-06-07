@@ -5,11 +5,11 @@
 namespace tmx::date {
 
 	using ymd = std::chrono::year_month_day;
-	using std::chrono::sys_seconds;
-	using std::chrono::sys_days;
+	//using std::chrono::sys_seconds;
+	using sys_days = std::chrono::sys_days;
 
 	// days per year conversion convention
-	constexpr double dpy = 365.25;
+	constexpr double dpy = 365.2425; // same as std::chrono::years
 
 	namespace frequency {
 		constexpr auto annually = std::chrono::months(12);
@@ -58,10 +58,14 @@ namespace tmx::date {
 			//!!! more tests
 
 			// sub_years can be negative
-			static_assert(sub_years(t0, t1) == -1 / 365.25);
+			static_assert(sub_years(t0, t1) == -1 / dpy);
 
 			constexpr double y = sub_years(t1, t0);
 			static_assert(t1 == add_years(t0, y));
+
+			auto t2 = add_years(t0, y);
+			std::chrono::sys_days t3{ 2023y / 1 / 1 };
+			t2 = t2;
 		}
 
 		return 0;
@@ -70,24 +74,25 @@ namespace tmx::date {
 
 #endif // _DEBUG
 
+	using dcf_t = double(*)(const sys_days&, const sys_days&);
 
-	constexpr double dcf_years(const sys_days& d0, const sys_days& d1, double dpy = date::dpy)
+	constexpr double dcf_years(const sys_days& d0, const sys_days& d1)
 	{
 		return sub_years(d1, d0, dpy);
 	}
 	constexpr double dcf_actual_360(const sys_days& d0, const sys_days& d1)
 	{
-		return dcf_years(d0, d1, 360);
+		return sub_years(d1, d0, 360);
 	}
 	constexpr double dcf_actual_365(const sys_days& d0, const sys_days& d1)
 	{
-		return dcf_years(d0, d1, 365);
+		return sub_years(d1, d0, 365);
 	}
 
 	// 2006-isda-definitions.pdf
 	constexpr double dcf_actual_actual(const sys_days& d0, const sys_days& d1)
 	{
-		return sub_years(d1, d0) / dpy; //!!! not correct
+		return sub_years(d1, d0); //!!! not correct
 	}
 
 	//!!! tests
@@ -138,14 +143,13 @@ namespace tmx::date {
 		int dm = (unsigned)t1.month() - (unsigned)t0.month();
 		int dd0 = (unsigned)t0.day();
 		int dd1 = (unsigned)t1.day();
-		if (dd0 == 31) 
+		if (dd0 == 31) {
 			dd0 = 30;
-		if (dd1 == 31 and dd0 > 29)
+		}
+		if (dd1 == 31 and dd0 > 29) {
 			dd1 = 30;
+		}
 		int dd = dd1 - dd0;
-
-		// months are computed modulo 12
-		//int md = d1.month() >= d0.month() ? dm.count() : dm.count() - 12;
 
 		return dy + dm / 12. + dd / 360.;
 	}

@@ -50,6 +50,7 @@ namespace tmx::bond {
 
 		return bond.coupon * bond.day_count_fraction(d, valuation);
 	}
+	//!!! add tests
 
 	/*
 	// price given yield

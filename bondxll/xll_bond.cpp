@@ -5,12 +5,7 @@
 using namespace tmx;
 using namespace xll;
 
-XLL_CONST(WORD, TMX_FREQUENCY_ANNUALLY, 12 / tmx::bond::frequency::annually.count(), "Yearly payments.", CATEGORY, "")
-XLL_CONST(WORD, TMX_FREQUENCY_SEMIANNUALLY, 12 / tmx::bond::frequency::semiannually.count(), "2 payments per year.", CATEGORY, "")
-XLL_CONST(WORD, TMX_FREQUENCY_QUARTERLY, 12 / tmx::bond::frequency::quarterly.count(), "4 payments per year.", CATEGORY, "")
-XLL_CONST(WORD, TMX_FREQUENCY_MONTHLY, 12 / tmx::bond::frequency::monthly.count(), "12 payments per year.", CATEGORY, "")
 
-/*
 AddIn xai_bond_simple_(
 	Function(XLL_HANDLEX, "xll_bond_simple_", "\\" CATEGORY ".BOND.SIMPLE")
 	.Arguments({
@@ -31,18 +26,19 @@ HANDLEX WINAPI xll_bond_simple_(WORD maturity, double coupon, WORD freq, HANDLEX
 	try {
 		using std::chrono::years;
 		using std::chrono::months;
-		using dcf_t = double(*)(const date::ymd&, const date::ymd&);
 
 		if (freq == 0) {
 			freq = 2;
 		}
 
-		dcf_t _dcf = nullptr;
+		date::dcf_t _dcf = nullptr;
 		if (dcf == 0) {
 			_dcf = date::dcf_30_360;
 		}
 		else {
-			_dcf = *safe_pointer<dcf_t>(dcf);
+			date::dcf_t* p = safe_pointer<date::dcf_t>(dcf);
+			ensure(p);
+			_dcf = *p;
 		}
 
 		handle<bond::simple<>> h(new bond::simple<>{ years(maturity), coupon, months(12 / freq), _dcf });
@@ -67,21 +63,25 @@ AddIn xai_bond_cash_flow_(
 	.Category(CATEGORY)
 	.FunctionHelp("Return a handle to bond cash flows.")
 );
-_FPX* WINAPI xll_bond_cash_flow_(HANDLEX b, double dated)
+HANDLEX WINAPI xll_bond_cash_flow_(HANDLEX b, double dated)
 {
 #pragma XLLEXPORT
-	static FPX result;
+	static HANDLEX result;
 
 	try {
+		result = INVALID_HANDLEX;
+
 		handle<bond::simple<>> b_(b);
 		ensure(b_);
 
-		handle<instrument<>> i_(new instrument_vector<>(bond::instrument<>(*b_, excel_to_ymd(dated))));
+		handle<instrument<>> i_(new instrument_vector<>(bond::instrument<>(*b_, excel_to_days(dated))));
+		ensure(i_);
+
+		result = i_.get();
 	}
 	catch (const std::exception& ex) {
 		XLL_ERROR(ex.what());
 	}
 
-	return result.get();
+	return result;
 }
-*/
