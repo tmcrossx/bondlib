@@ -88,8 +88,67 @@ AddIn xai_date_dcf_years(
 		.Category(CATEGORY)
 	.FunctionHelp("Return time in years from d0 to d1.")
 );
+
 double WINAPI xll_date_dcf_years(double d0, double d1)
 {
 #pragma XLLEXPORT
 	return xll_date_dcf(xll_TMX_DAY_COUNT_YEARS(), d0, d1);
 }
+
+AddIn xai_date_dcf_actual_360(
+	Function(XLL_DOUBLE, "xll_date_dcf_actual_360", CATEGORY ".DATE.DCF_ACTUAL_360")
+	.Arguments({
+		Arg(XLL_DOUBLE, "d0", "is an Excel date."),
+		Arg(XLL_DOUBLE, "d1", "is an Excel date."),
+		})
+		.Category(CATEGORY)
+	.FunctionHelp("Return Actual/360 day count fraction from d0 to d1.")
+);
+double WINAPI xll_date_dcf_actual_360(double d0, double d1)
+{
+#pragma XLLEXPORT
+	return xll_date_dcf(xll_TMX_DAY_COUNT_ACTUAL_360(), d0, d1);
+}
+AddIn xai_date_dcf_actual_365(
+	Function(XLL_DOUBLE, "xll_date_dcf_actual_365", CATEGORY ".DATE.DCF_ACTUAL_365")
+	.Arguments({
+		Arg(XLL_DOUBLE, "d0", "is an Excel date."),
+		Arg(XLL_DOUBLE, "d1", "is an Excel date."),
+		})
+		.Category(CATEGORY)
+	.FunctionHelp("Return Actual/365 day count fraction from d0 to d1.")
+);
+double WINAPI xll_date_dcf_actual_365(double d0, double d1)
+{
+#pragma XLLEXPORT
+	return xll_date_dcf(xll_TMX_DAY_COUNT_ACTUAL_365(), d0, d1);
+}
+AddIn xai_date_dcf_actual_actual(
+	Function(XLL_DOUBLE, "xll_date_dcf_actual_actual", CATEGORY ".DATE.DCF_ACTUAL_ACTUAL")
+	.Arguments({
+		Arg(XLL_DOUBLE, "d0", "is an Excel date."),
+		Arg(XLL_DOUBLE, "d1", "is an Excel date."),
+		})
+		.Category(CATEGORY)
+	.FunctionHelp("Return time Actual/Actual day count fraction from d0 to d1.")
+);
+double WINAPI xll_date_dcf_actual_actual(double d0, double d1)
+{
+#pragma XLLEXPORT
+	return xll_date_dcf(xll_TMX_DAY_COUNT_ACTUAL_ACTUAL(), d0, d1);
+}
+AddIn xai_date_dcf_30_360(
+	Function(XLL_DOUBLE, "xll_date_dcf_30_360", CATEGORY ".DATE.DCF_30_360")
+	.Arguments({
+		Arg(XLL_DOUBLE, "d0", "is an Excel date."),
+		Arg(XLL_DOUBLE, "d1", "is an Excel date."),
+		})
+		.Category(CATEGORY)
+	.FunctionHelp("Return 30/360 day count fraction from d0 to d1.")
+);
+double WINAPI xll_date_dcf_30_360(double d0, double d1)
+{
+#pragma XLLEXPORT
+	return xll_date_dcf(xll_TMX_DAY_COUNT_30_360(), d0, d1);
+}
+
