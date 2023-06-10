@@ -8,8 +8,6 @@ Date is a [`time_point`](https://en.cppreference.com/w/cpp/chrono/time_point).
 
 Difference of dates is a [`duration`](https://en.cppreference.com/w/cpp/chrono/duration)
 
-Only need day resolution so use [`year_month_day`](https://en.cppreference.com/w/cpp/chrono/year_month_day)
-
 sub_years(add_years(d, t), d) = t
 
 add_years(d0, sub_years(d1, d0)) = d1

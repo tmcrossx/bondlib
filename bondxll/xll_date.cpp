@@ -16,7 +16,7 @@ XLL_CONST(WORD, TMX_FREQUENCY_QUARTERLY, 12 / tmx::date::frequency::quarterly.co
 XLL_CONST(WORD, TMX_FREQUENCY_MONTHLY, 12 / tmx::date::frequency::monthly.count(), "12 payments per year.", CATEGORY " Enum", "")
 
 AddIn xai_date_add_years(
-	Function(XLL_DOUBLE, "xll_date_add_years", CATEGORY ".DATE.ADD.YEARS")
+	Function(XLL_DOUBLE, "xll_date_add_years", CATEGORY ".DATE.ADD_YEARS")
 	.Arguments({
 		Arg(XLL_DOUBLE, "date", "is an Excel date."),
 		Arg(XLL_DOUBLE, "years", "is the number of years to add."),
@@ -28,11 +28,11 @@ double WINAPI xll_date_add_years(double d, double y)
 {
 #pragma XLLEXPORT
 
-	return days_to_excel(date::add_years(excel_to_days(d), y));
+	return d + y*date::dpy;
 }
 
 AddIn xai_date_sub_years(
-	Function(XLL_DOUBLE, "xll_date_sub_years", CATEGORY ".DATE.SUB.YEARS")
+	Function(XLL_DOUBLE, "xll_date_sub_years", CATEGORY ".DATE.SUB_YEARS")
 	.Arguments({
 		Arg(XLL_DOUBLE, "d0", "is an Excel date."),
 		Arg(XLL_DOUBLE, "d1", "is an Excel date."),
@@ -44,49 +44,11 @@ double WINAPI xll_date_sub_years(double d0, double d1)
 {
 #pragma XLLEXPORT
 
-	return date::sub_years(excel_to_days(d0), excel_to_days(d1));
-}
-
-AddIn xai_date_ymd(
-	Function(XLL_DOUBLE, "xll_date_ymd", CATEGORY ".DATE.YMD")
-	.Arguments({
-		Arg(XLL_DOUBLE, "date", "is an Excel date."),
-		})
-		.Category(CATEGORY)
-	.FunctionHelp("Return Excel date as yyyymmdd.")
-);
-double WINAPI xll_date_ymd(double d)
-{
-#pragma XLLEXPORT
-	auto y = std::chrono::year_month_day(excel_to_days(d));
-
-	return (int)y.year() * 10000 + (unsigned)y.month() * 100 + (unsigned)y.day();
-}
-
-AddIn xai_date_excel(
-	Function(XLL_DOUBLE, "xll_date_excel", CATEGORY ".DATE.EXCEL")
-	.Arguments({
-		Arg(XLL_DOUBLE, "date", "is a yyyymmdd date."),
-		})
-		.Category(CATEGORY)
-	.FunctionHelp("Return a yyyymmdd date as an Excel date.")
-);
-double WINAPI xll_date_excel(double date)
-{
-#pragma XLLEXPORT
-	int y = (int)date / 10000;
-	date -= y * 10000;
-	unsigned m = (unsigned)date / 100;
-	date -= m * 100;
-	unsigned d = (unsigned)date;
-
-	auto t = std::chrono::sys_days(std::chrono::year_month_day(std::chrono::year(y), std::chrono::month(m), std::chrono::day(d)));
-
-	return days_to_excel(t);
+	return (d0 - d1)/date::dpy;
 }
 
 AddIn xai_date_dcf(
-	Function(XLL_DOUBLE, "xll_date_dcf", CATEGORY ".DATE.DCF")
+	Function(XLL_DOUBLE, "xll_date_dcf", CATEGORY ".DATE_DCF")
 	.Arguments({
 		Arg(XLL_HANDLEX, "dcf", "is a day count fraction."),
 		Arg(XLL_DOUBLE, "d0", "is an Excel date."),
@@ -108,7 +70,7 @@ double WINAPI xll_date_dcf(HANDLEX dcf, double d0, double d1)
 			return INVALID_HANDLEX;
 		}
 
-		result = (*_dcf)(excel_to_days(d0), excel_to_days(d1));
+		result = (*_dcf)(as_time(d0), as_time(d1));
 	}
 	catch (const std::exception& ex) {
 		XLL_ERROR(ex.what());
@@ -118,7 +80,7 @@ double WINAPI xll_date_dcf(HANDLEX dcf, double d0, double d1)
 }
 
 AddIn xai_date_dcf_years(
-	Function(XLL_DOUBLE, "xll_date_dcf_years", CATEGORY ".DATE.DCF.YEARS")
+	Function(XLL_DOUBLE, "xll_date_dcf_years", CATEGORY ".DATE.DCF_YEARS")
 	.Arguments({
 		Arg(XLL_DOUBLE, "d0", "is an Excel date."),
 		Arg(XLL_DOUBLE, "d1", "is an Excel date."),

@@ -16,7 +16,7 @@ namespace tmx::bond {
 		std::chrono::months frequency;
 		C (*day_count_fraction)(const date::sys_days&, const date::sys_days&);
 	};
-
+#if 0
 	// Return pair of time, cash vectors
 	template<class U = double, class C = double>
 	constexpr instrument_vector<U,C> instrument(const simple<C>& bond, const std::chrono::sys_days& dated)
@@ -98,6 +98,7 @@ namespace tmx::bond {
 	}
 
 #endif // _DEBUG
+#endif // 0
 }
 
 // class callable : public basic { ... };

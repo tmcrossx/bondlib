@@ -4,12 +4,13 @@
 
 namespace tmx::date {
 
+	//using time_point = std::chrono::time_point<std::chrono::system_clock>;
 	using ymd = std::chrono::year_month_day;
-	//using std::chrono::sys_seconds;
-	using sys_days = std::chrono::sys_days;
+	using std::chrono::time_point;
 
 	// days per year conversion convention
 	constexpr double dpy = 365.2425; // same as std::chrono::years
+	//constexpr std::chrono::duration<double, std::chrono::years> years{ dpy };
 
 	namespace frequency {
 		constexpr auto annually = std::chrono::months(12);
@@ -18,19 +19,15 @@ namespace tmx::date {
 		constexpr auto monthly = std::chrono::months(1);
 	}
 
-	template<class Clock, class Duration>
-	constexpr sys_days as_days(const std::chrono::time_point<Clock,Duration>& t)
+	template<class Dur>
+	constexpr auto add_years(const time_point<Dur>& t, double y)
 	{
-		return std::chrono::time_point_cast<std::chrono::days>(t);
+		return t + std::chrono::seconds(static_cast<int>(y * dpy * 86400 + 0.5));
 	}
-
-	constexpr sys_days add_years(const sys_days& t, double y)
+	template<class Dur>
+	constexpr double sub_years(const time_point<Dur>& t1, const time_point<Dur>& t0, double dpy = date::dpy)
 	{
-		return t + std::chrono::days{ static_cast<int>(y * dpy + 0.5) };
-	}
-	constexpr double sub_years(const sys_days& t1, const sys_days& t0, double dpy = date::dpy)
-	{
-		return std::chrono::round<std::chrono::days>(t1 - t0).count() / dpy;
+		return std::chrono::round<std::chrono::seconds>(t1 - t0).count() / (dpy * 86400);
 	}
 
 #ifdef _DEBUG
@@ -67,6 +64,13 @@ namespace tmx::date {
 			std::chrono::sys_days t3{ 2023y / 1 / 1 };
 			t2 = t2;
 		}
+		{
+			auto now = std::chrono::system_clock::now();
+			auto t0 = add_years(now, 1.1);
+			auto t1 = add_years(t0, -1.1);
+			auto count = std::chrono::duration_cast<std::chrono::seconds>(now - t1).count();
+			//assert(-1 <= count and count <= 1);
+		}
 
 		return 0;
 	}
@@ -74,23 +78,27 @@ namespace tmx::date {
 
 #endif // _DEBUG
 
-	using dcf_t = double(*)(const sys_days&, const sys_days&);
+	//using dcf_t = double(*)(const time_point<Dur>&, const time_point<Dur>&);
 
-	constexpr double dcf_years(const sys_days& d0, const sys_days& d1)
+	template<class Dur>
+	constexpr double dcf_years(const time_point<Dur>& d0, const time_point<Dur>& d1)
 	{
 		return sub_years(d1, d0, dpy);
 	}
-	constexpr double dcf_actual_360(const sys_days& d0, const sys_days& d1)
+	template<class Dur>
+	constexpr double dcf_actual_360(const time_point<Dur>& d0, const time_point<Dur>& d1)
 	{
 		return sub_years(d1, d0, 360);
 	}
-	constexpr double dcf_actual_365(const sys_days& d0, const sys_days& d1)
+	template<class Dur>
+	constexpr double dcf_actual_365(const time_point<Dur>& d0, const time_point<Dur>& d1)
 	{
 		return sub_years(d1, d0, 365);
 	}
 
 	// 2006-isda-definitions.pdf
-	constexpr double dcf_actual_actual(const sys_days& d0, const sys_days& d1)
+	template<class Dur>
+	constexpr double dcf_actual_actual(const time_point<Dur>& d0, const time_point<Dur>& d1)
 	{
 		return sub_years(d1, d0); //!!! not correct
 	}
@@ -106,7 +114,9 @@ namespace tmx::date {
 	{
 		using std::literals::chrono_literals::operator""y;
 		{
-			static_assert(dcf_actual_actual(2023y / 1 / 1, 2023y / 1 / 1) == 0);
+			constexpr std::chrono::sys_days t0{ 2023y / 1 / 1 };
+			constexpr std::chrono::sys_days t1{ 2023y / 1 / 2 };
+			static_assert(dcf_actual_actual(t0, t0) == 0);
 			//static_assert(dcf_actual_actual(2023y / 1 / 1, 2023y / 1 / 2) == 1 / dpy);
 
 			/*
@@ -134,11 +144,13 @@ namespace tmx::date {
 #endif // _DEBUG
 
 	// 2006-isda-definitions.pdf 
-	constexpr double dcf_30_360(const sys_days& d0, const sys_days& d1)
+	template<class Dur>
+	constexpr double dcf_30_360(const time_point<Dur>& d0, const time_point<Dur>& d1)
 	{
-		std::chrono::year_month_day t0{d0};
-		std::chrono::year_month_day t1{d1};
+		constexpr std::chrono::year_month_day t0{std::chrono::sys_days{d0}};
+		constexpr std::chrono::year_month_day t1{std::chrono::sys_days{d1}};
 
+		/*
 		int dy = (int)t1.year() - (int)t0.year();
 		int dm = (unsigned)t1.month() - (unsigned)t0.month();
 		int dd0 = (unsigned)t0.day();
@@ -152,6 +164,8 @@ namespace tmx::date {
 		int dd = dd1 - dd0;
 
 		return dy + dm / 12. + dd / 360.;
+		*/
+		return 0;
 	}
 
 #ifdef _DEBUG
@@ -160,10 +174,13 @@ namespace tmx::date {
 #pragma warning(disable: 4455)
 	inline int dcf_30_360_test()
 	{
+		using std::chrono::sys_days;
 		using std::literals::chrono_literals::operator""y;
 		{
-			static_assert(dcf_30_360(2023y / 1 / 1, 2023y / 1 / 1) == 0);
-			static_assert(dcf_30_360(2023y / 1 / 1, 2023y / 1 / 2) == 1 / 360.);
+			constexpr std::chrono::sys_days t0{ 2023y / 1 / 1 };
+			constexpr std::chrono::sys_days t1{ 2023y / 1 / 2 };
+			static_assert(dcf_30_360(t0, t0) == 0);
+			static_assert(dcf_30_360(t0, t1) == 1 / 360.);
 			static_assert(dcf_30_360(2023y / 1 / 1, 2023y / 2 / 1) == 1 / 12.);
 			static_assert(dcf_30_360(2023y / 1 / 31, 2023y / 2 / 1) == 1 / 12. - 29/360.);
 			//!!! more tests

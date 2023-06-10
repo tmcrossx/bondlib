@@ -5,7 +5,7 @@
 using namespace tmx;
 using namespace xll;
 
-
+#if 0
 AddIn xai_bond_simple_(
 	Function(XLL_HANDLEX, "xll_bond_simple_", "\\" CATEGORY ".BOND.SIMPLE")
 	.Arguments({
@@ -74,7 +74,7 @@ HANDLEX WINAPI xll_bond_cash_flow_(HANDLEX b, double dated)
 		handle<bond::simple<>> b_(b);
 		ensure(b_);
 
-		handle<instrument<>> i_(new instrument_vector<>(bond::instrument<>(*b_, excel_to_days(dated))));
+		handle<instrument<>> i_(new instrument_vector<>(bond::instrument<>(*b_, date::as_days(excel_to_days(dated)))));
 		ensure(i_);
 
 		result = i_.get();
@@ -85,3 +85,4 @@ HANDLEX WINAPI xll_bond_cash_flow_(HANDLEX b, double dated)
 
 	return result;
 }
+#endif // 0

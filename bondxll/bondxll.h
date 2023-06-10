@@ -10,17 +10,45 @@
 
 namespace xll {
 
-	// Excel epoch.
-	constexpr auto epoch{ std::chrono::sys_days(std::chrono::year(1900) / 1 / 0) };
+	// https://stackoverflow.com/questions/33964461/handling-julian-days-in-c11-14
+	struct excel_clock;
 
-	inline double days_to_excel(const std::chrono::sys_days& d)
+	template <class Duration>
+	using excel_time = std::chrono::time_point<excel_clock, Duration>;
+
+	// Excel clock represented as days since 1900-01-00.
+	struct excel_clock
 	{
-		return std::chrono::duration_cast<std::chrono::days>(d - epoch).count();
-	}
-	// Excel time in days since epoch.
-	inline std::chrono::sys_days excel_to_days(double t)
+		using rep = double;
+		using period = std::chrono::days::period;
+		using duration = std::chrono::duration<rep, period>;
+		using time_point = std::chrono::time_point<excel_clock>;
+
+		static constexpr bool is_steady = false;
+
+		static time_point now() noexcept;
+
+		template <class Duration>
+		static auto from_sys(std::chrono::sys_time<Duration> const& tp) noexcept
+		{
+			return excel_time{ tp - (std::chrono::sys_days{std::chrono::year(1900) / 1 / 0}) };
+		}
+
+		template <class Duration>
+		static auto to_sys(excel_time<Duration> const& tp) noexcept
+		{
+			return std::chrono::sys_time{ tp - std::chrono::clock_cast<excel_clock>(std::chrono::sys_days{}) };
+		}
+	};
+
+	inline excel_clock::time_point excel_clock::now() noexcept
 	{
-		return epoch + std::chrono::days((int)t);
+		using namespace std::chrono;
+		return clock_cast<excel_clock>(system_clock::now());
 	}
 
+	inline auto as_time(double d)
+	{
+		return excel_time{ excel_clock::duration{d} };
+	}
 }
