@@ -1,7 +1,7 @@
 // bondxll.h
 #pragma once
 #include <chrono>
-#include "../bondlib/tmx_date.h"
+//#include "../bondlib/tmx_date.h"
 #include "xll/xll/xll.h"
 
 #ifndef CATEGORY
@@ -50,5 +50,9 @@ namespace xll {
 	inline auto as_time(double d)
 	{
 		return excel_time{ excel_clock::duration{d} };
+	}
+	inline std::chrono::sys_days as_days(double d)
+	{
+		return std::chrono::time_point_cast<std::chrono::days>(excel_clock::to_sys(as_time(d)));
 	}
 }

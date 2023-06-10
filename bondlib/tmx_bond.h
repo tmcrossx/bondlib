@@ -14,9 +14,9 @@ namespace tmx::bond {
 		std::chrono::years maturity;
 		C coupon;
 		std::chrono::months frequency;
-		C (*day_count_fraction)(const date::sys_days&, const date::sys_days&);
+		date::dcf_t& day_count_fraction;
 	};
-#if 0
+
 	// Return pair of time, cash vectors
 	template<class U = double, class C = double>
 	constexpr instrument_vector<U,C> instrument(const simple<C>& bond, const std::chrono::sys_days& dated)
@@ -38,7 +38,7 @@ namespace tmx::bond {
 		
 		return i;
 	}
-
+	/*
 	template<class C>
 	constexpr auto accrued(const simple<C>& bond, const date::ymd& dated, const date::ymd& valuation)
 	{
@@ -51,7 +51,7 @@ namespace tmx::bond {
 		return bond.coupon * bond.day_count_fraction(d, valuation);
 	}
 	//!!! add tests
-
+	*/
 	/*
 	// price given yield
 	template<class Y>
@@ -76,29 +76,32 @@ namespace tmx::bond {
 
 #ifdef _DEBUG
 
+#pragma warning(push)
+#pragma warning(disable: 4455)
 	inline int bond_basic_test()
 	{
 		{
+			using std::chrono::sys_days;
 			using std::chrono::year;
 			using std::chrono::month;
 			using std::chrono::day;
+			using std::literals::chrono_literals::operator""y;
 
-			date::ymd d(year(2023), month(1), day(1));
+			auto d = sys_days{ 2023y / 1 / 1 };
 			bond::simple<> bond{std::chrono::years(10), 0.05, date::frequency::semiannually, date::dcf_30_360};
 			const auto i = instrument(bond, d);
 			ensure(20 == i.size());
 			const auto u = i.time();
 			const auto c = i.cash();
-			ensure(c[0] == bond.coupon * bond.day_count_fraction(d, d + bond.frequency));
+			ensure(c[0] == bond.coupon * bond.day_count_fraction(d, date::as_days(d + bond.frequency)));
 			ensure(c[19] == c[0] + 1);
-			ensure(u[19] == date::dcf_years(d, d + bond.maturity));
+			ensure(u[19] == date::dcf_years(d, date::as_days(d + bond.maturity)));
 		}
 
 		return 0;
 	}
-
+#pragma warning(pop)
 #endif // _DEBUG
-#endif // 0
 }
 
 // class callable : public basic { ... };

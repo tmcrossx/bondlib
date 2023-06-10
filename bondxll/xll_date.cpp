@@ -63,14 +63,14 @@ double WINAPI xll_date_dcf(HANDLEX dcf, double d0, double d1)
 	double result = INVALID_HANDLEX;
 
 	try {
-		auto _dcf = safe_pointer<date::dcf_t>(dcf);
+		date::dcf_t* _dcf = safe_pointer<date::dcf_t>(dcf);
 		if (!_dcf) {
 			XLL_ERROR(__FUNCTION__ ": invalid day count fraction");
 
 			return INVALID_HANDLEX;
 		}
 
-		result = (*_dcf)(as_time(d0), as_time(d1));
+		result = (*_dcf)(as_days(d0), as_days(d1));
 	}
 	catch (const std::exception& ex) {
 		XLL_ERROR(ex.what());
