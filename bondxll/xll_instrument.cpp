@@ -1,5 +1,6 @@
 // xll_instrument.cpp - Instrument times and cash flows.
 #include "../bondlib/tmx_instrument.h"
+#include "../bondlib/tmx_value.h"
 #include "bondxll.h"
 
 using namespace tmx;

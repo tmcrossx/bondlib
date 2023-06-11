@@ -23,25 +23,15 @@ HANDLEX WINAPI xll_pwflat_curve_(const _FPX* pt, const _FPX* pf, LPOPER p_f)
 	HANDLEX h = INVALID_HANDLEX;
 
 	try {
-		if (size(*pt) == 1) { // handle
-			handle<pwflat::curve<>> c_(pt->array[0]);
-			ensure(c_);
-			handle<pwflat::curve<>> h_(new pwflat::curve(*c_));
-			ensure(h_);
-
-			h = h_.get();
+		ensure(size(*pt) == size(*pf));
+		double _f = std::numeric_limits<double>::quiet_NaN();
+		if (*p_f) {
+			ensure(p_f->is_num());
+			_f = p_f->as_num();
 		}
-		else {
-			ensure(size(*pt) == size(*pf));
-			double _f = std::numeric_limits<double>::quiet_NaN();
-			if (*p_f) {
-				ensure(p_f->is_num());
-				_f = p_f->as_num();
-			}
-			handle<pwflat::curve<>> h_(new pwflat::curve(size(*pt), pt->array, pf->array, _f));
-			ensure(h_);
-			h = h_.get();
-		}
+		handle<pwflat::curve<>> h_(new pwflat::curve(size(*pt), pt->array, pf->array, _f));
+		ensure(h_);
+		h = h_.get();
 	}
 	catch (const std::exception& ex) {
 		XLL_ERROR(ex.what());
@@ -81,16 +71,17 @@ _FPX* WINAPI xll_pwflat_curve(HANDLEX c)
 	return result.get();
 }
 
-AddIn xai_pwflat_curve_shift(
-	Function(XLL_HANDLEX, "xll_pwflat_curve_shift", CATEGORY ".PWFLAT.CURVE.SHIFT")
+AddIn xai_pwflat_curve_shift_(
+	Function(XLL_HANDLEX, "xll_pwflat_curve_shift_", "\\" CATEGORY ".PWFLAT.CURVE.SHIFT")
 	.Arguments({
 		Arg(XLL_HANDLEX, "curve", "is handle to a curve."),
 		Arg(XLL_DOUBLE, "rate", "is the rate to shift the curve.")
 		})
+	.Uncalced()
 	.Category(CATEGORY)
 	.FunctionHelp("Return a two row array of times and rates.")
 );
-HANDLEX WINAPI xll_pwflat_curve_shift(HANDLEX c, double f)
+HANDLEX WINAPI xll_pwflat_curve_shift_(HANDLEX c, double f)
 {
 #pragma XLLEXPORT
 	double result = std::numeric_limits<double>::quiet_NaN();
@@ -98,25 +89,30 @@ HANDLEX WINAPI xll_pwflat_curve_shift(HANDLEX c, double f)
 	try {
 		handle<pwflat::curve<>> c_(c);
 		ensure(c_);
-		c_->shift(f);
+		handle<pwflat::curve<>> _c(new pwflat::curve(*c_));
+		ensure(_c);
+		_c->shift(f);
+
+		result = _c.get();
 	}
 	catch (const std::exception& ex) {
 		XLL_ERROR(ex.what());
 	}
 
-	return c;
+	return result;
 }
 
-AddIn xai_pwflat_curve_translate(
-	Function(XLL_HANDLEX, "xll_pwflat_curve_translate", CATEGORY ".PWFLAT.CURVE.TRANSLATE")
+AddIn xai_pwflat_curve_translate_(
+	Function(XLL_HANDLEX, "xll_pwflat_curve_translate_", "\\" CATEGORY ".PWFLAT.CURVE.TRANSLATE")
 	.Arguments({
 		Arg(XLL_HANDLEX, "curve", "is handle to a curve."),
 		Arg(XLL_DOUBLE, "time", "is the time in years to translate the curve.")
 		})
+	.Uncalced()
 	.Category(CATEGORY)
 	.FunctionHelp("Return a two row array of times and rates.")
 );
-HANDLEX WINAPI xll_pwflat_curve_translate(HANDLEX c, double u)
+HANDLEX WINAPI xll_pwflat_curve_translate_(HANDLEX c, double u)
 {
 #pragma XLLEXPORT
 	double result = std::numeric_limits<double>::quiet_NaN();
@@ -124,13 +120,17 @@ HANDLEX WINAPI xll_pwflat_curve_translate(HANDLEX c, double u)
 	try {
 		handle<pwflat::curve<>> c_(c);
 		ensure(c_);
-		c_->translate(u);
+		handle<pwflat::curve<>> _c(new pwflat::curve(*c_));
+		ensure(_c);
+		_c->translate(u);
+
+		result = _c.get();
 	}
 	catch (const std::exception& ex) {
 		XLL_ERROR(ex.what());
 	}
 
-	return c;
+	return result;
 }
 
 AddIn xai_pwflat_curve_value(
@@ -162,7 +162,7 @@ HANDLEX WINAPI xll_pwflat_curve_value(HANDLEX c, double t)
 }
 
 AddIn xai_pwflat_curve_spot(
-	Function(XLL_DOUBLE, "xll_pwflat_curve_spot", "PWFLAT.CURVE.SPOT")
+	Function(XLL_DOUBLE, "xll_pwflat_curve_spot", CATEGORY ".PWFLAT.CURVE.SPOT")
 	.Arguments({
 		Arg(XLL_HANDLEX, "c", "is a handle to a piecewise flat curve."),
 		Arg(XLL_DOUBLE, "t", "is the time at which to value the spot rate of the curve."),

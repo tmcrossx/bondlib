@@ -29,15 +29,15 @@ namespace tmx::date {
 		return std::chrono::time_point_cast<ymd>(t);
 	}
 
-	template<class Dur>
-	constexpr auto add_years(const std::chrono::sys_time<Dur>& t, double y)
+	template<class Clk, class Dur>
+	constexpr auto add_years(const std::chrono::time_point<Clk, Dur>& t, double y)
 	{
-		return t + std::chrono::duration<float>(y * dpy * 86400.5);
+		return t + std::chrono::seconds{ static_cast<long long>(y * dpy * 86400) };
 	}
-	template<class Dur>
-	constexpr double sub_years(const std::chrono::sys_time<Dur>& t1, const std::chrono::sys_time<Dur>& t0, double dpy = date::dpy)
+	template<class Clk, class Dur>
+	constexpr double sub_years(const std::chrono::time_point<Clk, Dur>& t1, const std::chrono::time_point<Clk, Dur>& t0, double dpy = date::dpy)
 	{
-		return std::chrono::round<std::chrono::seconds>(t1 - t0).count() / (dpy * 86400);
+		return std::chrono::duration_cast<std::chrono::seconds>(t1 - t0).count()/(dpy*86400);
 	}
 
 #ifdef _DEBUG

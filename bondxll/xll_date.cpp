@@ -30,7 +30,7 @@ double WINAPI xll_date_add_years(double d, double y)
 
 	auto t = date::add_years(as_time(d), y);
 
-	return t.time_since_epoch().count()/86400;
+	return t.time_since_epoch().count()/86400.;
 }
 
 AddIn xai_date_add_ymd(
@@ -53,8 +53,9 @@ double WINAPI xll_date_add_ymd(double t, LONG y, WORD m, WORD d)
 	auto v = std::chrono::year_month_day{ u };
 	v += std::chrono::years(y);
 	v += std::chrono::months(m);
+	auto w = std::chrono::sys_days{ v };
 
-	return std::chrono::sys_days{v}.time_since_epoch().count();
+	return excel_clock::from_sys(w).time_since_epoch().count();
 }
 
 AddIn xai_date_sub_years(
@@ -70,7 +71,7 @@ double WINAPI xll_date_sub_years(double d0, double d1)
 {
 #pragma XLLEXPORT
 
-	return date::sub_years(as_time(d1), as_time(d0));
+	return date::sub_years(as_days(d0), as_days(d1));
 }
 
 AddIn xai_date_dcf(

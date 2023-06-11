@@ -33,7 +33,7 @@ namespace tmx::pwflat {
 
 		bool ok() const
 		{
-			return t.size() == f.size() and (t.size() == 0 or t[0] > 0 and monotonic(t.begin(), t.end()));
+			return t.size() == f.size() and (t.size() == 0 or t[0] >= 0 and monotonic(t.begin(), t.end()));
 		}
 
 		bool operator==(const curve& c) const
@@ -111,7 +111,9 @@ namespace tmx::pwflat {
 		// Parallel shift
 		curve& shift(F df)
 		{
-			std::for_each(f.begin(), f.end(), [df](F fi) { fi += df; });
+			for (size_t i = 0; i < size(); ++i) {
+				f[i] += df;
+			}
 			_f += df;
 
 			return *this;

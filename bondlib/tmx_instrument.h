@@ -27,6 +27,35 @@ namespace tmx {
 		virtual const C* _cash() const = 0;
 	};
 
+	// non-owning instrument view
+	template<class U = double, class C = double>
+	class instrument_view : public instrument<U, C> {
+		size_t m;
+		const U* u;
+		const C* c;
+	public:
+		instrument_view()
+		{ }
+		instrument_view(size_t m, const U* u, const C* c)
+			: m{ m }, u{ u }, c{ c }
+		{ }
+		~instrument_view()
+		{ }
+
+		size_t _size() const override
+		{
+			return m;
+		}
+		const U* _time() const override
+		{
+			return u;
+		}
+		const C* _cash() const override
+		{
+			return c;
+		}
+	};
+
 	// instrument value type
 	template<class U = double, class C = double>
 	class instrument_vector : public instrument<U, C> {
@@ -62,4 +91,5 @@ namespace tmx {
 			return c.data();
 		}
 	};
-};
+
+}
