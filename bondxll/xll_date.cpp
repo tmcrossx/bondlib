@@ -28,7 +28,33 @@ double WINAPI xll_date_add_years(double d, double y)
 {
 #pragma XLLEXPORT
 
-	return d + y*date::dpy;
+	auto t = date::add_years(as_time(d), y);
+
+	return t.time_since_epoch().count()/86400;
+}
+
+AddIn xai_date_add_ymd(
+	Function(XLL_DOUBLE, "xll_date_add_ymd", CATEGORY ".DATE.ADD_YMD")
+	.Arguments({
+		Arg(XLL_DOUBLE, "date", "is an Excel date."),
+		Arg(XLL_LONG, "years", "is the number of years to add."),
+		Arg(XLL_WORD, "months", "is the number of months to add."),
+		Arg(XLL_WORD, "days", "is the number of days to add."),
+		})
+		.Category(CATEGORY)
+	.FunctionHelp("Add years to date.")
+);
+double WINAPI xll_date_add_ymd(double t, LONG y, WORD m, WORD d)
+{
+#pragma XLLEXPORT
+
+	auto u = as_days(t);
+	u += std::chrono::days{ d };
+	auto v = std::chrono::year_month_day{ u };
+	v += std::chrono::years(y);
+	v += std::chrono::months(m);
+
+	return std::chrono::sys_days{v}.time_since_epoch().count();
 }
 
 AddIn xai_date_sub_years(
@@ -44,7 +70,7 @@ double WINAPI xll_date_sub_years(double d0, double d1)
 {
 #pragma XLLEXPORT
 
-	return (d0 - d1)/date::dpy;
+	return date::sub_years(as_time(d1), as_time(d0));
 }
 
 AddIn xai_date_dcf(

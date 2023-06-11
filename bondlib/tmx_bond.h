@@ -19,21 +19,19 @@ namespace tmx::bond {
 
 	// Return pair of time, cash vectors
 	template<class U = double, class C = double>
-	constexpr instrument_vector<U,C> instrument(const simple<C>& bond, const std::chrono::sys_days& dated)
+	constexpr instrument_vector<U,C> instrument(const simple<C>& bond, const date::ymd& dated)
 	{
 		instrument_vector<U,C> i;
 		
+		auto mat = dated + bond.maturity;
 		auto d0 = dated;
-		auto d1 = date::as_days(d0 + bond.frequency);
-		while (d1 <= dated + bond.maturity) {
-			U u = date::sub_years(d1, dated);
+		auto d1 = d0 + bond.frequency;
+		while (d1 <= mat) {
+			U u = date::dcf_years(dated, d1);
 			C c = bond.coupon * bond.day_count_fraction(d0, d1);
-			if (d1 == dated + bond.maturity) {
-				c += 1;
-			}
-			i.push_back(u, c);
+			i.push_back(u, c + (d1 == mat));
 			d0 = d1;
-			d1 = date::as_days(d0 + bond.frequency);
+			d1 = d0 + bond.frequency;
 		}
 		
 		return i;
@@ -87,15 +85,16 @@ namespace tmx::bond {
 			using std::chrono::day;
 			using std::literals::chrono_literals::operator""y;
 
-			auto d = sys_days{ 2023y / 1 / 1 };
+			auto d = 2023y / 1 / 1 ;
 			bond::simple<> bond{std::chrono::years(10), 0.05, date::frequency::semiannually, date::dcf_30_360};
 			const auto i = instrument(bond, d);
 			ensure(20 == i.size());
 			const auto u = i.time();
 			const auto c = i.cash();
-			ensure(c[0] == bond.coupon * bond.day_count_fraction(d, date::as_days(d + bond.frequency)));
-			ensure(c[19] == c[0] + 1);
-			ensure(u[19] == date::dcf_years(d, date::as_days(d + bond.maturity)));
+			ensure(u[0] != 0);
+			ensure(c[0] == 0.05/2);
+			ensure(std::fabs(-c[19] + c[0] + 1) < 1e-15);
+			ensure(std::fabs(-u[19] + 10) < 1e-2);
 		}
 
 		return 0;

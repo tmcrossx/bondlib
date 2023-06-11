@@ -13,7 +13,7 @@ AddIn xai_tmx_bootstrap_(
 		Arg(XLL_FPX, "instruments", "is an array of fixed income instrument handles."),
 		Arg(XLL_FPX, "prices", "is an array of instrument prices."),
 		})
-	.Uncalced()
+		.Uncalced()
 	.Category(CATEGORY)
 	.FunctionHelp("Return a handle to a curve repricing instruments.")
 );
@@ -34,6 +34,7 @@ HANDLEX WINAPI xll_tmx_bootstrap_(_FPX* pi, _FPX* pp)
 				ii->size(), ii->time(), ii->cash(),
 				c_->size(), c_->time(), c_->rate(), pp->array[i]));
 		}
+		result = c_.get();
 	}
 	catch (const std::exception& ex) {
 		XLL_ERROR(ex.what());

@@ -5,7 +5,6 @@
 using namespace tmx;
 using namespace xll;
 
-#if 0
 AddIn xai_bond_simple_(
 	Function(XLL_HANDLEX, "xll_bond_simple_", "\\" CATEGORY ".BOND.SIMPLE")
 	.Arguments({
@@ -31,9 +30,9 @@ HANDLEX WINAPI xll_bond_simple_(WORD maturity, double coupon, WORD freq, HANDLEX
 			freq = 2;
 		}
 
-		date::dcf_t _dcf = nullptr;
+		date::dcf_t* _dcf = nullptr;
 		if (dcf == 0) {
-			_dcf = date::dcf_30_360;
+			_dcf = &date::dcf_30_360;
 		}
 		else {
 			date::dcf_t* p = safe_pointer<date::dcf_t>(dcf);
@@ -41,7 +40,7 @@ HANDLEX WINAPI xll_bond_simple_(WORD maturity, double coupon, WORD freq, HANDLEX
 			_dcf = *p;
 		}
 
-		handle<bond::simple<>> h(new bond::simple<>{ years(maturity), coupon, months(12 / freq), _dcf });
+		handle<bond::simple<>> h(new bond::simple<>{ years(maturity), coupon, months(12 / freq), *_dcf });
 		ensure(h);
 
 		result = h.get();
@@ -74,7 +73,7 @@ HANDLEX WINAPI xll_bond_cash_flow_(HANDLEX b, double dated)
 		handle<bond::simple<>> b_(b);
 		ensure(b_);
 
-		handle<instrument<>> i_(new instrument_vector<>(bond::instrument<>(*b_, date::as_days(excel_to_days(dated)))));
+		handle<instrument<>> i_(new instrument_vector<>(bond::instrument<>(*b_, as_days(dated))));
 		ensure(i_);
 
 		result = i_.get();
@@ -85,4 +84,3 @@ HANDLEX WINAPI xll_bond_cash_flow_(HANDLEX b, double dated)
 
 	return result;
 }
-#endif // 0
