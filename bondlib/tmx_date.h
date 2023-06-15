@@ -18,13 +18,13 @@ namespace tmx::date {
 		constexpr auto monthly = std::chrono::months(1);
 	}
 
-	template<class Duration>
-	constexpr std::chrono::sys_days as_days(const std::chrono::sys_time<Duration>& t)
+	template<class Dur>
+	constexpr std::chrono::sys_days as_days(const std::chrono::sys_time<Dur>& t)
 	{
 		return std::chrono::time_point_cast<std::chrono::days>(t);
 	}
-	template<class Duration>
-	constexpr ymd as_ymd(const std::chrono::sys_time<Duration>& t)
+	template<class Dur>
+	constexpr ymd as_ymd(const std::chrono::sys_time<Dur>& t)
 	{
 		return std::chrono::time_point_cast<ymd>(t);
 	}
@@ -37,7 +37,7 @@ namespace tmx::date {
 	template<class Clk, class Dur>
 	constexpr double sub_years(const std::chrono::time_point<Clk, Dur>& t1, const std::chrono::time_point<Clk, Dur>& t0, double dpy = date::dpy)
 	{
-		return std::chrono::duration_cast<std::chrono::seconds>(t1 - t0).count()/(dpy*86400);
+		return std::chrono::round<std::chrono::seconds>(t1 - t0).count()/(dpy*86400);
 	}
 
 #ifdef _DEBUG
@@ -181,12 +181,13 @@ namespace tmx::date {
 		using std::chrono::sys_days;
 		using std::literals::chrono_literals::operator""y;
 		{
-			constexpr std::chrono::sys_days t0{ 2023y / 1 / 1 };
-			constexpr std::chrono::sys_days t1{ 2023y / 1 / 2 };
+			constexpr auto t0{ 2023y / 1 / 1 };
+			constexpr auto t1{ 2023y / 1 / 2 };
 			static_assert(dcf_30_360(t0, t0) == 0);
 			static_assert(dcf_30_360(t0, t1) == 1 / 360.);
-			static_assert(dcf_30_360(sys_days{ 2023y / 1 / 1 }, sys_days{ 2023y / 2 / 1 }) == 1 / 12.);
-			static_assert(dcf_30_360(sys_days{ 2023y / 1 / 31 }, sys_days{ 2023y / 2 / 1 }) == 1 / 12. - 29 / 360.);
+			static_assert(dcf_30_360(2023y / 1 / 1, 2023y / 2 / 1 ) == 1 / 12.);
+			static_assert(dcf_30_360(2023y / 1 / 31, 2023y / 2 / 1 ) == 1 / 12. - 29 / 360.);
+			static_assert(dcf_30_360(1985y / 1 / 31, 1986y / 3 / 16) == 406 / 360.);
 			//!!! more tests
 		}
 

@@ -51,6 +51,12 @@
     <ClInclude Include="tmx_instrument.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="tmx_ho_lee.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tmx_black.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="bondlib.cpp">

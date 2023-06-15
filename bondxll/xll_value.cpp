@@ -129,3 +129,51 @@ double WINAPI xll_value_yield(const _FPX* i, double p)
 
 	return y;
 }
+
+AddIn xai_value_compound_yield(
+	Function(XLL_DOUBLE, "xll_value_compound_yield", CATEGORY ".VALUE.COMPOUND_YIELD")
+	.Arguments({
+		Arg(XLL_DOUBLE, "yield", "is a continuously compounded yield."),
+		Arg(XLL_WORD, "n", "is the number of times to compound per year."),
+		})
+		.Category(CATEGORY)
+	.FunctionHelp("Return the compounded yield.")
+);
+double WINAPI xll_value_compound_yield(double y, WORD n)
+{
+#pragma XLLEXPORT
+	double r = std::numeric_limits<double>::quiet_NaN();
+
+	try {
+		r = value::compound_yield(y, n);
+	}
+	catch (const std::exception& ex) {
+		XLL_ERROR(ex.what());
+	}
+
+	return r;
+}
+
+AddIn xai_value_continuous_yield(
+	Function(XLL_DOUBLE, "xll_value_continuous_yield", CATEGORY ".VALUE.CONTINUOUS_YIELD")
+	.Arguments({
+		Arg(XLL_DOUBLE, "yield", "is compounded yield."),
+		Arg(XLL_WORD, "n", "is the number of times the yield is compounded per year."),
+		})
+		.Category(CATEGORY)
+	.FunctionHelp("Return constant continuous_yield repricing the instrument.")
+);
+double WINAPI xll_value_continuous_yield(double y, WORD n)
+{
+#pragma XLLEXPORT
+	double r = std::numeric_limits<double>::quiet_NaN();
+
+	try {
+		r = value::continuous_yield(y, n);
+	}
+	catch (const std::exception& ex) {
+		XLL_ERROR(ex.what());
+	}
+
+	return r;
+}

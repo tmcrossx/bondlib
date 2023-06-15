@@ -25,7 +25,7 @@ HANDLEX WINAPI xll_instrument_(const _FPX* pu, const _FPX* pc)
 		return INVALID_HANDLEX;
 	}
 
-	handle<instrument<>> h_(new instrument_vector(size(*pu), pu->array, pc->array));
+	handle<instrument<>> h_(new instrument_value(size(*pu), pu->array, pc->array));
 
 	return h_ ? h_.get() : INVALID_HANDLEX;
 }

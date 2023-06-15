@@ -10,10 +10,38 @@ XLL_CONST(HANDLEX, TMX_DAY_COUNT_30_360, safe_handle(date::dcf_30_360), "30 days
 XLL_CONST(HANDLEX, TMX_DAY_COUNT_ACTUAL_360, safe_handle(date::dcf_actual_360), "Actual days divided by 360.", CATEGORY " Enum", "")
 XLL_CONST(HANDLEX, TMX_DAY_COUNT_ACTUAL_365, safe_handle(date::dcf_actual_365), "Actual days divided by 365.", CATEGORY " Enum", "")
 
-XLL_CONST(WORD, TMX_FREQUENCY_ANNUALLY, 12 / tmx::date::frequency::annually.count(), "Yearly payments.", CATEGORY " Enum", "")
-XLL_CONST(WORD, TMX_FREQUENCY_SEMIANNUALLY, 12 / tmx::date::frequency::semiannually.count(), "2 payments per year.", CATEGORY " Enum", "")
-XLL_CONST(WORD, TMX_FREQUENCY_QUARTERLY, 12 / tmx::date::frequency::quarterly.count(), "4 payments per year.", CATEGORY " Enum", "")
-XLL_CONST(WORD, TMX_FREQUENCY_MONTHLY, 12 / tmx::date::frequency::monthly.count(), "12 payments per year.", CATEGORY " Enum", "")
+XLL_CONST(WORD, TMX_FREQUENCY_ANNUALLY, tmx::date::frequency::annually.count(), "Yearly payments.", CATEGORY " Enum", "")
+XLL_CONST(WORD, TMX_FREQUENCY_SEMIANNUALLY, tmx::date::frequency::semiannually.count(), "2 payments per year.", CATEGORY " Enum", "")
+XLL_CONST(WORD, TMX_FREQUENCY_QUARTERLY, tmx::date::frequency::quarterly.count(), "4 payments per year.", CATEGORY " Enum", "")
+XLL_CONST(WORD, TMX_FREQUENCY_MONTHLY, tmx::date::frequency::monthly.count(), "12 payments per year.", CATEGORY " Enum", "")
+
+AddIn xai_enum(
+	Function(XLL_LPOPER, "xll_enum", "ENUM")
+	.Arguments({
+		Arg(XLL_CSTRING12, "enum", "is the string representation of an enumeration.")
+		})
+	.Category(CATEGORY)
+	.FunctionHelp("Return evaluate a string representation of an enumeration.")
+);
+LPOPER WINAPI xll_enum(const XCHAR* e)
+{
+#pragma XLLEXPORT
+	static OPER o;
+
+	try {
+		auto x = OPER("=") & OPER(e) & OPER("()");
+		o = Excel(xlfEvaluate, x);
+	}
+	catch (const std::exception& ex) {
+		XLL_ERROR(ex.what());
+
+		return (LPOPER)&ErrValue;
+	}
+
+	return &o;
+}
+
+
 
 AddIn xai_date_add_years(
 	Function(XLL_DOUBLE, "xll_date_add_years", CATEGORY ".DATE.ADD_YEARS")

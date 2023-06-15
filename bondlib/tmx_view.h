@@ -9,9 +9,12 @@ namespace tmx {
 	// non-owning view of data
 	template<class T>
 	class view {
-		const size_t n;
+		size_t n;
 		T* t;
 	public:
+		constexpr view()
+			: n{ 0 }, t{ nullptr }
+		{ }
 		constexpr view(size_t n, T* t)
 			: n{ n }, t{ t }
 		{ }
@@ -19,6 +22,8 @@ namespace tmx {
 		constexpr view(T(&t)[N])
 			: n{ N }, t{ t }
 		{ }
+		constexpr view(const view&) = default;
+		constexpr view& operator=(const view&) = default;
 		constexpr ~view()
 		{ }
 
@@ -45,106 +50,49 @@ namespace tmx {
 		{
 			return t;
 		}
+		// t => t - u, return first index > 0
+		constexpr ptrdiff_t translate(T u)
+		{
+			if (n == 0) {
+				return 0;
+			}
 
-	};
+			for (size_t i = 0; i < n; ++i) {
+				t[i] -= u;
+			}
 
-
-	// t => t - u, return first index > 0
-	template<class T>
-	constexpr ptrdiff_t translate(T u, size_t n, T* t)
-	{
-		std::transform(t, t + n, t, [u](T ti) { return ti - u; });
-
-		return std::upper_bound(t, t + n, 0) - t;
-	}
+			return std::upper_bound(t, t + n, 0) - t;
+		}
 #ifdef _DEBUG
 
-	template<class T>
-	inline int view_test()
-	{
-		ptrdiff_t m;
-		T t[] = { 1,2,4 };
-		{
-			m = translate<T>(0, 3, t);
-			assert(view<T>(3 - m, t + m).eq({ 1, 2, 4 }));
-			
-			m = translate<T>(1, 3, t);
-			assert(view<T>(3 - m, t + m).eq({ 1,  3 }));
-
-			m = translate<T>(2, 3, t);
-			assert(view<T>(3 - m, t + m).eq({ 1 }));
-
-			m = translate<T>(-3, 3, t);
-			assert(view<T>(3 - m, t + m).eq({ 1, 2, 4 }));
-
-		}
-		{
-			view v(t);
-			assert(3 == v.size());
-		}
-
-		return 0;
-	}
-#endif // _DEBUG
-
-	// put things back
-	template<class T>
-	class translate_ {
-		T dt;
-		size_t n;
-		ptrdiff_t m; // offset
-		T* t;
-	public:
-		translate_(T dt_, size_t n_, T* t_, ptrdiff_t m_ = 0)
-			: dt{ dt_ }, n{ n_ }, m{ m_ }, t { t_ }
-		{
-			m = tmx::translate(dt, n, t);
-		}
-		~translate_()
-		{
-			tmx::translate(-dt, n, t);
-		}
-
-		size_t size() const
-		{
-			return n - m;
-		}
-		T* data()
-		{
-			return t + m;
-		}
-		const T* data() const
-		{
-			return t + m;
-		}
-		auto view() const
-		{
-			return tmx::view(size(), data());
-		}
-
-#ifdef _DEBUG
 		static int test()
 		{
-			T t[] = { 1,2,3 };
+			ptrdiff_t m;
+			T t[] = { 1,2,4 };
+			view v(3, t);
 			{
-				tmx::translate_ t0(0.5, 3, t);
-				assert(3 == t0.size());
-				assert(1 - 0.5 == t[0]);
+				m = v.translate(0);
+				assert(view<T>(3 - m, t + m).eq({ 1, 2, 4 }));
+
+				m = v.translate(1);
+				assert(view<T>(3 - m, t + m).eq({ 1,  3 }));
+
+				m = v.translate(2);
+				assert(view<T>(3 - m, t + m).eq({ 1 }));
+
+				m = v.translate(-3);
+				assert(view<T>(3 - m, t + m).eq({ 1, 2, 4 }));
+
 			}
-			assert(tmx::view<T>(3, t).eq({ 1,2,3 }));
 			{
-				tmx::translate_ t0(1.5, 3, t);
-				assert(2 == t0.size());
-				assert(1 - 1.5 == t[0]);
-				assert(t0.view().eq( { 0.5, 1.5 }));
+				view v(t);
+				assert(3 == v.size());
+				assert(v.eq({ 1, 2, 4 }));
 			}
-			assert(tmx::view<T>(3, t).eq({ 1,2,3 }));
 
 			return 0;
 		}
 #endif // _DEBUG
 
 	};
-
-
 }

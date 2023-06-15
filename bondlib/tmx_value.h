@@ -13,7 +13,7 @@ namespace tmx::value {
 	{
 		C pv = 0;
 
-		for (size_t i = 0; i < m; ++i) {
+		for (size_t i = 0; i < m and u[i] >= 0; ++i) {
 			pv += c[i] * pwflat::discount(u[i], n, t, f, _f);
 		}
 
@@ -27,7 +27,7 @@ namespace tmx::value {
 	{
 		C dur = 0;
 
-		for (size_t i = 0; i < m; ++i) {
+		for (size_t i = 0; i < m and u[i] >= 0; ++i) {
 			dur -= u[i] * c[i] * pwflat::discount(u[i], n, t, f, _f);
 		}
 
@@ -41,7 +41,7 @@ namespace tmx::value {
 	{
 		C cnv = 0;
 
-		for (size_t i = 0; i < m; ++i) {
+		for (size_t i = 0; i < m and u[i] >= 0; ++i) {
 			cnv += u[i] * u[i] * c[i] * pwflat::discount(u[i], n, t, f, _f);
 		}
 

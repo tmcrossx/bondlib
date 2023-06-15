@@ -11,7 +11,7 @@ AddIn xai_bond_simple_(
 		Arg(XLL_WORD, "maturity", "is the bond maturity in years."),
 		Arg(XLL_DOUBLE, "coupon", "is the bond coupon."),
 		Arg(XLL_WORD, "frequency", "is the yearly payment frequency from the TMX_FREQUENCY_* enumeration. Default is semiannually"),
-		Arg(XLL_HANDLEX, "dcf", "is the day count basis from the TMX_DAY_COUNT_* enumeration. Default is 30/360."),
+		Arg(XLL_HANDLEX, "day_count", "is the day count basis from the TMX_DAY_COUNT_* enumeration. Default is 30/360."),
 		})
 	.Uncalced()
 	.Category(CATEGORY)
@@ -40,7 +40,7 @@ HANDLEX WINAPI xll_bond_simple_(WORD maturity, double coupon, WORD freq, HANDLEX
 			_dcf = *p;
 		}
 
-		handle<bond::simple<>> h(new bond::simple<>{ years(maturity), coupon, months(12 / freq), *_dcf });
+		handle<bond::simple<>> h(new bond::simple<>{ years(maturity), coupon, months(freq), *_dcf });
 		ensure(h);
 
 		result = h.get();
@@ -50,6 +50,37 @@ HANDLEX WINAPI xll_bond_simple_(WORD maturity, double coupon, WORD freq, HANDLEX
 	}
 
 	return result;
+}
+
+AddIn xai_bond_simple(
+	Function(XLL_LPOPER, "xll_bond_simple", CATEGORY ".BOND.SIMPLE")
+	.Arguments({
+		Arg(XLL_HANDLEX, "handle", "is a handle to a simple bond."),
+		})
+	.Category(CATEGORY)
+	.FunctionHelp("Return the maturity, coupon, frequency, and day count of a simple bond.")
+);
+LPOPER WINAPI xll_bond_simple(HANDLEX h)
+{
+#pragma XLLEXPORT
+	static OPER result;
+
+	try {
+		result = ErrNA;
+		handle<bond::simple<>> h_(h);
+		ensure(h_);
+
+		result.resize(4, 1);
+		result[0] = std::chrono::years(h_->maturity).count();
+		result[1] = h_->coupon;
+		result[2] = h_->frequency.count();
+		result[3] = to_handle(&h_->day_count);
+	}
+	catch (const std::exception& ex) {
+		XLL_ERROR(ex.what());
+	}
+
+	return &result;
 }
 
 AddIn xai_bond_cash_flow_(
@@ -73,7 +104,7 @@ HANDLEX WINAPI xll_bond_cash_flow_(HANDLEX b, double dated)
 		handle<bond::simple<>> b_(b);
 		ensure(b_);
 
-		handle<instrument<>> i_(new instrument_vector<>(bond::instrument<>(*b_, as_days(dated))));
+		handle<instrument<>> i_(new instrument_value<>(bond::instrument<>(*b_, as_days(dated))));
 		ensure(i_);
 
 		result = i_.get();

@@ -1,7 +1,6 @@
 // bondxll.h
 #pragma once
 #include <chrono>
-//#include "../bondlib/tmx_date.h"
 #include "xll/xll/xll.h"
 
 #ifndef CATEGORY
@@ -13,8 +12,8 @@ namespace xll {
 	// https://stackoverflow.com/questions/33964461/handling-julian-days-in-c11-14
 	struct excel_clock;
 
-	template <class Duration>
-	using excel_time = std::chrono::time_point<excel_clock, Duration>;
+	template <class Dur>
+	using excel_time = std::chrono::time_point<excel_clock, Dur>;
 
 	// Excel clock represented as days since 1900-01-00.
 	struct excel_clock
@@ -28,14 +27,14 @@ namespace xll {
 
 		static time_point now() noexcept;
 
-		template <class Duration>
-		static auto from_sys(std::chrono::sys_time<Duration> const& tp) noexcept
+		template <class Dur>
+		static auto from_sys(std::chrono::sys_time<Dur> const& tp) noexcept
 		{
 			return excel_time{ tp - (std::chrono::sys_days{std::chrono::year(1900) / 1 / 0}) };
 		}
 
-		template <class Duration>
-		static auto to_sys(excel_time<Duration> const& tp) noexcept
+		template <class Dur>
+		static auto to_sys(excel_time<Dur> const& tp) noexcept
 		{
 			return std::chrono::sys_time{ tp - std::chrono::clock_cast<excel_clock>(std::chrono::sys_days{}) };
 		}

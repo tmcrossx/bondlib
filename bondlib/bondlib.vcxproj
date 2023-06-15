@@ -135,8 +135,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ensure.h" />
+    <ClInclude Include="tmx_black.h" />
     <ClInclude Include="tmx_bond.h" />
     <ClInclude Include="tmx_bootstrap.h" />
+    <ClInclude Include="tmx_ho_lee.h" />
     <ClInclude Include="tmx_instrument.h" />
     <ClInclude Include="tmx_muni.h" />
     <ClInclude Include="tmx_pwflat_curve.h" />
