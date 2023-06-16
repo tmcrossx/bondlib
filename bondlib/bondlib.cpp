@@ -16,6 +16,7 @@ int test_dcf_30_360 = date::dcf_30_360_test();
 int test_view_d = view<double>::test();
 int test_pwflat_integral = pwflat::pwflat_integral_test();
 int test_pwflat_curve_d = pwflat::pwflat_curve_test<double>();
+int test_pwflat_curve_view = pwflat::curve_view<double,double>::test();
 int test_value_yield_d = value::yield_test<double>();
 int test_value_yield_f = value::yield_test<float>();
 int test_bond_basic = bond::bond_basic_test();

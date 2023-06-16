@@ -8,7 +8,7 @@ namespace tmx::black {
 
 	namespace normal {
 		// standard normal share density
-		template<class X, class S>
+		template<class X, class S = X>
 		inline X pdf(X x, S s = 0)
 		{
 			X xs = x - s;
@@ -18,8 +18,8 @@ namespace tmx::black {
 		}
 
 		// normal share cumulative distribution function
-		template<class X>
-		inline X cdf(X x)
+		template<class X, class S = X>
+		inline X cdf(X x, S s = 0)
 		{
 			return 0.5 * (1 + std::erf((x - s) / std::numbers::sqrt2_v<X>));
 		}

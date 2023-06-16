@@ -24,6 +24,10 @@ namespace tmx {
 				&& time()[0] >= 0
 				&& std::is_sorted(time(), time() + size(), std::less{});
 		}
+		constexpr auto back() const
+		{
+			return std::make_pair(time()[size() - 1], cash()[size() - 1]);
+		}
 
 		size_t size() const
 		{
@@ -101,7 +105,7 @@ namespace tmx {
 		{
 			auto iu = std::lower_bound(u.begin(), u.end(), _u);
 			auto ic = std::distance(u.begin(), iu);
-			if (*iu == _u) {
+			if (iu != u.end() and *iu == _u) {
 				// add cash flow to existing time
 				c[ic] += _c;
 			}
