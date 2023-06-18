@@ -23,25 +23,26 @@
 //           = D(u)/D(t) exp(-σ^2 t^2(u - t)/2)
 #pragma once
 #include <cmath>
-#include "tmx_pwflat.h"
+#include "tmx_instrument.h"
+#include "tmx_pwflat_value.h"
 
 namespace tmx::ho_lee {
 
 	// E[D_t(u)]
 	template<class X = double>
-	constexpr X ED(const pwflat::curve_base<X,X>& f, X t, X u, X σ) 
+	inline auto ED(X Dt, X Du, X t, X u, X σ) 
 	{
-		return (f.discount(u)/f.discount(t)) * std::exp(-σ * σ * t * t * (u - t) / 2);
+		return (Du/Dt) * std::exp(-σ * σ * t * t * (u - t) / 2);
 	}
 	// E[log D_t(u)]
 	template<class X = double>
-	constexpr X ELogD(const pwflat::curve_base<X, X>, X t, X u, X σ)
+	inline auto ELogD(X Dt, X Du, X t, X u, X σ)
 	{
-		return std::log(f.discount(u) / f.discount(t)) - σ * σ * u * t * (u - t) / 2;
+		return std::log(Du / Dt) - σ * σ * u * t * (u - t) / 2;
 	}
 	// Var[log D_t(u)]
 	template<class X = double>
-	constexpr X VarLogD(X t, X u, X σ)
+	inline auto VarLogD(X t, X u, X σ)
 	{
 		return σ * σ * (u - t) * (u - t) * t;
 	}
@@ -60,5 +61,27 @@ namespace tmx::ho_lee {
 		return v;
 	}
 	*/
+	template<class T = double, class F = double, class S = double>
+	class model {
+		pwflat::curve_value<T, F> f; // forward curve
+		S σ;
+	public:
+		model(const pwflat::curve_value<T, F>& f, S σ)
+			: f(f), σ(σ)
+		{ }
+		// Expected value at time t
+		template<class U = double, class C = double>
+		auto value(const instrument<U,C>& i, T t = 0) const
+		{
+			auto v = 0;
+
+			auto Dt = f.discount(t);
+			for (size_t j = 0; j < m and u[j] >= t; ++j) {
+				v += c_[j] * ED(Dt, f.discount(u_[j]), t, u_[j], σ);
+			}
+
+			return v;
+		}
+	};
 
 }

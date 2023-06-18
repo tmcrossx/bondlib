@@ -1,6 +1,6 @@
 // xll_value.h - Value functions
 #include "../bondlib/tmx_instrument.h"
-#include "../bondlib/tmx_pwflat_curve.h"
+#include "../bondlib/tmx_pwflat_value.h"
 #include "../bondlib/tmx_value.h"
 #include "bondxll.h"
 
@@ -40,7 +40,7 @@ double WINAPI xll_value_present(const _FPX* puc, HANDLEX curve)
 
 	try {
 		auto iv = get_instrument_view(puc);
-		handle<pwflat::curve<>> c_(curve);
+		handle<pwflat::curve_view<>> c_(curve);
 		ensure(c_);
 		result = value::present(iv.size(), iv.time(), iv.cash(), c_->size(), c_->time(), c_->rate(), c_->extrapolate());
 	}
@@ -67,7 +67,7 @@ double WINAPI xll_value_duration(const _FPX* puc, HANDLEX curve)
 
 	try {
 		auto iv = get_instrument_view(puc);
-		handle<pwflat::curve<>> c_(curve);
+		handle<pwflat::curve_view<>> c_(curve);
 		ensure(c_);
 		result = value::duration(iv.size(), iv.time(), iv.cash(), c_->size(), c_->time(), c_->rate(), c_->extrapolate());
 	}
@@ -94,7 +94,7 @@ double WINAPI xll_value_convexity(const _FPX* puc, HANDLEX curve)
 
 	try {
 		auto iv = get_instrument_view(puc);
-		handle<pwflat::curve<>> c_(curve);
+		handle<pwflat::curve_view<>> c_(curve);
 		ensure(c_);
 		result = value::convexity(iv.size(), iv.time(), iv.cash(), c_->size(), c_->time(), c_->rate(), c_->extrapolate());
 	}

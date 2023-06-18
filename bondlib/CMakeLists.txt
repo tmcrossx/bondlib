@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
-set(CMAKE_CXX_FLAGS "-D_DEBUG")
+add_compile_definitions("_DEBUG")
+add_compile_options("-Wall -Wno-unknown-pragmas")
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 project(bondlib)

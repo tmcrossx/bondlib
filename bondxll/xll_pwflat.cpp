@@ -1,5 +1,5 @@
-// xll_pwflat_curve.cpp - Piecewise flat curve
-#include "../bondlib/tmx_pwflat_curve.h"
+// xll_pwflat.cpp - Piecewise flat curve view
+#include "../bondlib/tmx_pwflat_value.h"
 #include "bondxll.h"
 
 using namespace tmx;
@@ -29,7 +29,7 @@ HANDLEX WINAPI xll_pwflat_curve_(const _FPX* pt, const _FPX* pf, LPOPER p_f)
 			ensure(p_f->is_num());
 			_f = p_f->as_num();
 		}
-		handle<pwflat::curve<>> h_(new pwflat::curve(size(*pt), pt->array, pf->array, _f));
+		handle<pwflat::curve_view<>> h_(new pwflat::curve_value(size(*pt), pt->array, pf->array, _f));
 		ensure(h_);
 		h = h_.get();
 	}
@@ -55,7 +55,7 @@ _FPX* WINAPI xll_pwflat_curve(HANDLEX c)
 
 	try {
 		result.resize(0, 0);
-		handle<pwflat::curve<>> c_(c);
+		handle<pwflat::curve_view<>> c_(c);
 		ensure(c_);
 		int m = (int)c_->size();
 		result.resize(2, m + 1);
@@ -87,9 +87,9 @@ HANDLEX WINAPI xll_pwflat_curve_shift_(HANDLEX c, double f)
 	double result = std::numeric_limits<double>::quiet_NaN();
 
 	try {
-		handle<pwflat::curve<>> c_(c);
+		handle<pwflat::curve_view<>> c_(c);
 		ensure(c_);
-		handle<pwflat::curve<>> _c(new pwflat::curve(*c_));
+		handle<pwflat::curve_view<>> _c(new pwflat::curve_value(*c_));
 		ensure(_c);
 		_c->shift(f);
 
@@ -118,9 +118,9 @@ HANDLEX WINAPI xll_pwflat_curve_translate_(HANDLEX c, double u)
 	double result = std::numeric_limits<double>::quiet_NaN();
 
 	try {
-		handle<pwflat::curve<>> c_(c);
+		handle<pwflat::curve_view<>> c_(c);
 		ensure(c_);
-		handle<pwflat::curve<>> _c(new pwflat::curve(*c_));
+		handle<pwflat::curve_view<>> _c(new pwflat::curve_value(*c_));
 		ensure(_c);
 		_c->translate(u);
 
@@ -149,7 +149,7 @@ HANDLEX WINAPI xll_pwflat_curve_value(HANDLEX c, double t)
 	double v = std::numeric_limits<double>::quiet_NaN();
 
 	try {
-		handle<pwflat::curve<>> c_(c);
+		handle<pwflat::curve_view<>> c_(c);
 		ensure(c_);
 
 		v = c_->value(t);
@@ -177,7 +177,7 @@ HANDLEX WINAPI xll_pwflat_curve_spot(HANDLEX c, double t)
 	double v = std::numeric_limits<double>::quiet_NaN();
 
 	try {
-		handle<pwflat::curve<>> c_(c);
+		handle<pwflat::curve_view<>> c_(c);
 		ensure(c_);
 
 		v = c_->spot(t);
@@ -205,7 +205,7 @@ HANDLEX WINAPI xll_pwflat_curve_discount(HANDLEX c, double t)
 	double v = std::numeric_limits<double>::quiet_NaN();
 
 	try {
-		handle<pwflat::curve<>> c_(c);
+		handle<pwflat::curve_view<>> c_(c);
 		ensure(c_);
 
 		v = c_->discount(t);

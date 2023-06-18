@@ -53,15 +53,10 @@ namespace tmx::date {
 		using std::chrono::sys_days;
 		using std::chrono::sys_time;
 
-		constexpr auto abs = [](double d) {
-			return d >= 0 ? d : -d;
-		};
 		{
 			// ymd to time_point
 			constexpr sys_days t0{ 2023y / 1 / 1 };
 			constexpr sys_days t1{ 2023y / 1 / 2 };
-
-			constexpr auto dt = sub_years(t1, t0);
 
 			static_assert(sub_years(t0, t0) == 0);
 			static_assert(sub_years(t1, t0) == 1 / dpy);
@@ -77,10 +72,12 @@ namespace tmx::date {
 			constexpr auto t1 = add_years(t0, -1.1);
 			static_assert(0 == (t - t1).count());
 
+			/*
 			constexpr auto t2 = t + std::chrono::years(1);
 			constexpr auto t2_ = sys_days{ 2024y / 1 / 1 };
 			constexpr auto dt = t2 - sys_days{2024y / 1 / 1};
 			//static_assert(sys_days{ t2 } == sys_days{2024y / 1 / 1});
+			*/
 		}
 
 		return 0;

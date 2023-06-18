@@ -69,7 +69,7 @@ double WINAPI xll_black_put_delta(double f, double s, double k)
 }
 
 AddIn xai_black_put_gamma(
-	Function(XLL_DOUBLE, "xll_black_put_gamma", CATEGORY ".BLACK.PUT.GAMMA")
+	Function(XLL_DOUBLE, "xll_black_put_gamma", CATEGORY ".BLACK.GAMMA")
 	.Arguments({
 	Arg(XLL_DOUBLE, "f", "is the forward price."),
 	Arg(XLL_DOUBLE, "s", "is the vol."),
@@ -85,7 +85,7 @@ double WINAPI xll_black_put_gamma(double f, double s, double k)
 }
 
 AddIn xai_black_put_vega(
-	Function(XLL_DOUBLE, "xll_black_put_vega", CATEGORY ".BLACK.PUT.VEGA")
+	Function(XLL_DOUBLE, "xll_black_put_vega", CATEGORY ".BLACK.VEGA")
 	.Arguments({
 	Arg(XLL_DOUBLE, "f", "is the forward price."),
 	Arg(XLL_DOUBLE, "s", "is the vol."),
@@ -98,4 +98,37 @@ double WINAPI xll_black_put_vega(double f, double s, double k)
 {
 #pragma XLLEXPORT
 	return black::put::vega(f, s, k);
+}
+
+
+AddIn xai_black_call_value(
+	Function(XLL_DOUBLE, "xll_black_call_value", CATEGORY ".BLACK.CALL.VALUE")
+	.Arguments({
+	Arg(XLL_DOUBLE, "f", "is the forward price."),
+	Arg(XLL_DOUBLE, "s", "is the vol."),
+	Arg(XLL_DOUBLE, "k", "is the strike."),
+		})
+		.Category(CATEGORY)
+	.FunctionHelp("Return the Black call value.")
+);
+double WINAPI xll_black_call_value(double f, double s, double k)
+{
+#pragma XLLEXPORT
+	return black::call::value(f, s, k);
+}
+
+AddIn xai_black_call_delta(
+	Function(XLL_DOUBLE, "xll_black_call_delta", CATEGORY ".BLACK.CALL.DELTA")
+	.Arguments({
+	Arg(XLL_DOUBLE, "f", "is the forward price."),
+	Arg(XLL_DOUBLE, "s", "is the vol."),
+	Arg(XLL_DOUBLE, "k", "is the strike."),
+		})
+		.Category(CATEGORY)
+	.FunctionHelp("Return the Black call delta.")
+);
+double WINAPI xll_black_call_delta(double f, double s, double k)
+{
+#pragma XLLEXPORT
+	return black::call::delta(f, s, k);
 }

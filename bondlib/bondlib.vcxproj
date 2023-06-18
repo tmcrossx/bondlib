@@ -140,10 +140,14 @@
     <ClInclude Include="tmx_bootstrap.h" />
     <ClInclude Include="tmx_ho_lee.h" />
     <ClInclude Include="tmx_instrument.h" />
+    <ClInclude Include="tmx_iterable.h" />
+    <ClInclude Include="tmx_monoid.h" />
+    <ClInclude Include="tmx_monte_carlo.h" />
     <ClInclude Include="tmx_muni.h" />
-    <ClInclude Include="tmx_pwflat_curve.h" />
+    <ClInclude Include="tmx_pwflat_value.h" />
     <ClInclude Include="tmx_date.h" />
     <ClInclude Include="tmx_pwflat.h" />
+    <ClInclude Include="tmx_pwflat_view.h" />
     <ClInclude Include="tmx_secant.h" />
     <ClInclude Include="tmx_view.h" />
     <ClInclude Include="tmx_value.h" />

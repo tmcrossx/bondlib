@@ -32,7 +32,8 @@ namespace tmx::pwflat {
 	{
 		using T = typename std::iterator_traits<I>::value_type;
 
-		return std::is_sorted(b, e, std::less<T>{});
+		// std::is_sorted(b, e, less) is not correct 
+		return e == std::adjacent_find(b, e, std::greater_equal<T>{});
 	}
 	template<class T>
 	constexpr bool monotonic(size_t n, const T* t)
@@ -47,12 +48,12 @@ namespace tmx::pwflat {
 
 #ifdef _DEBUG
 
-	inline int test_pwflat_monotonic()
+	inline int monotonic_test()
 	{
 		static_assert(monotonic<int>(0, nullptr));
 		static_assert(monotonic({ 1 }));
 		static_assert(monotonic({ 1,2 }));
-		//static_assert(!monotonic({ 1,1 })); //??? fails
+		static_assert(!monotonic({ 1.,1. })); 
 
 		return 0;
 	}
@@ -75,7 +76,7 @@ namespace tmx::pwflat {
 
 #ifdef _DEBUG
 
-	inline int pwflat_value_test()
+	inline int value_test()
 	{
 		constexpr double t[] = { 1, 2, 3 };
 		constexpr double f[] = { 2, 3, 4 };
@@ -134,7 +135,7 @@ namespace tmx::pwflat {
 
 #ifdef _DEBUG
 
-	inline int pwflat_integral_test()
+	inline int integral_test()
 	{
 		constexpr double t[] = { 1, 2, 3 };
 		constexpr double f[] = { 2, 3, 4 };
@@ -152,11 +153,12 @@ namespace tmx::pwflat {
 			static_assert(2 + 3. / 2 == integral(1.5, 3, t, f));
 			static_assert(5 == integral(2., 3, t, f));
 			static_assert(9 == integral(3., 3, t, f));
-			//ensure(9 == integral(3., 3, t, f));
+			#if _MSVC_VER >= 1931
 			{
-				//				constexpr double v = integral(3.1, 3, t, f);
-				//				static_assert(v != v);
+				constexpr double v = integral(3.1, 3, t, f);
+				static_assert(v != v);
 			}
+			#endif
 			static_assert(9 + 2.5 == integral(3.5, 3, t, f, 5.));
 		}
 
@@ -175,28 +177,13 @@ namespace tmx::pwflat {
 
 #ifdef _DEBUG
 
-	inline int pwflat_discount_test()
+	inline int discount_test()
 	{
 		double t[] = { 1, 2, 3 };
 		double f[] = { 2, 3, 4 };
 		{
-			assert(0 == discount(0., 0, t, f));
-			assert(10 == discount(2., 0, t, f, 5.));
-			{
-				double v = discount(-0.1, 3, t, f);
-				assert(v != v);
-			}
-			assert(0 == discount(0., 3, t, f));
-			assert(1 == discount(0.5, 3, t, f));
-			assert(2 == discount(1., 3, t, f));
-			assert(2 + 3. / 2 == discount(1.5, 3, t, f));
-			assert(5 == discount(2., 3, t, f));
-			//!!!failing static_assert(9 == discount(3., 3, t, f));
-			assert(9 == discount(3., 3, t, f));
-			{
-				double v = discount(3.1, 3, t, f);
-				assert(v != v);
-			}
+			assert(std::exp(-0) == discount(0., 0, t, f));
+			assert(std::exp(-10) == discount(2., 0, t, f, 5.));
 		}
 
 		return 0;
@@ -246,9 +233,9 @@ namespace tmx::pwflat {
 
 #endif // _DEBUG
 	template<class T = double, class F = double>
-	class curve_base {
+	class curve {
 	public:
-		virtual ~curve_base() = default;
+		virtual ~curve() = default;
 
 		F value(T u) const
 		{
@@ -269,35 +256,13 @@ namespace tmx::pwflat {
 		}
 		F discount(T u) const
 		{
-			return _discount(u);
+			return std::exp(-_integral(u));
 		}
 		F spot(T u) const
 		{
 			return _spot(u);
 		}
-		/*
-		size_t offset() const
-		{
-			return _offset();
-		}
-		//??? remove
-		size_t size() const
-		{
-			return _size();
-		}
-		const T* time() const
-		{
-			return _time;
-		}
-		const F* rate() const
-		{
-			return _rate();
-		}
-		const F* forward() const
-		{
-			return rate();
-		}
-		*/
+
 		std::pair<T, F> back() const
 		{
 			return _back();
@@ -309,222 +274,33 @@ namespace tmx::pwflat {
 			return _extrapolate();
 		}
 		// Set extrapolated value.
-		curve_base& extrapolate(F f_)
+		curve& extrapolate(F f_)
 		{
 			return _extrapolate(f_);
 		}
 
 		// Parallel shift
-		curve_base& shift(F df)
+		curve& shift(F df)
 		{
 			return _shift(df);
 		}
 
 		// t -> t - u > 0
-		curve_base& translate(T u)
+		curve& translate(T u)
 		{
-			return _translate();
+			return _translate(u);
 		}
 	private:
 		virtual F _value(T u) const = 0;
 		virtual F _integral(T u) const = 0;
-		virtual F _discount(T u) const = 0;
 		virtual F _spot(T u) const = 0;
 		virtual std::pair<T, F> _back() const = 0;
 		virtual F _extrapolate() const = 0;
-		virtual curve_base& _extrapolate(F f_) = 0;
-		virtual curve_base& _shift(F df) = 0;
-		virtual curve_base& _translate(T u) = 0;
+		virtual curve& _extrapolate(F f_) = 0;
+		virtual curve& _shift(F df) = 0;
+		virtual curve& _translate(T u) = 0;
 	};
 
-	// Non-owning view of pwflat curve.
-	template<class T = double, class F = double>
-	class curve_view : public curve_base<T,F> {
-	protected:
-		size_t n;
-		T* t;
-		F* f;
-		F _f;
-		ptrdiff_t off;
-	public:
-		// constant curve
-		curve_view(F _f = NaN<F>)
-			: n(0), t(nullptr), f(nullptr), _f(_f), off(0)
-		{}
-		curve_view(size_t n = 0, T* t = nullptr, F* f = nullptr, F _f = NaN<F>)
-			: n(n), t(t), f(f), _f(_f), off(0)
-		{}
-		curve_view(const curve_view&) = default;
-		curve_view& operator=(const curve_view&) = default;
-		virtual ~curve_view() = default;
-
-		bool ok() const
-		{
-			return (n == off or t[off] >= 0 and monotonic(t, t + n));
-		}
-
-		bool operator==(const curve_view& c) const
-		{
-			return offset() == c.offset()
-				and std::equal(time(), time() + size(), c.time())
-				and std::equal(rate(), rate() + size(), c.rate())
-				and (_extrapolate() == c._extrapolate() or std::isnan(_extrapolate()) and std::isnan(c._extrapolate()));
-		}
-
-		size_t offset() const
-		{
-			return off;
-		}
-		size_t size() const
-		{
-			return n - off;
-		}
-		const T* time() const
-		{
-			return t + off;
-		}
-		const F* rate() const
-		{
-			return f + off;
-		}
-		const F* forward() const
-		{
-			return rate();
-		}
-		// rate element access
-		F operator[](size_t i) const
-		{
-			return f[i];
-		}
-		F& operator[](size_t i)
-		{
-			return f[i];
-		}
-		std::pair<T, F> _back() const override
-		{
-			if (n == off) {
-				return { NaN<T>, NaN<F> };
-			}
-
-			return { t[n - 1], f[n - 1] };
-		}
-
-		// Get extrapolated value.
-		F _extrapolate() const override
-		{
-			return _f;
-		}
-		// Set extrapolated value.
-		curve_view& _extrapolate(F f_) override
-		{
-			_f = f_;
-
-			return *this;
-		}
-
-		// Parallel shift
-		curve_view& _shift(F df) override
-		{
-			for (size_t i = 0; i < size(); ++i) {
-				f[i] += df;
-			}
-			_f += df;
-
-			return *this;
-		}
-
-		// t -> t - u > 0
-		curve_view& _translate(T u) override
-		{
-			// !!! make sure curve.translate(u).translate(v) == curve.translate(u + v)
-			view v(n, t);
-			off += v.translate(u);
-
-			return *this;
-		}
-		/*
-		template<class T, class F>
-		struct _translate : public curve_view<T, F> {
-			T u;
-			constexpr _translate(curve_view<T, F> c, T u)
-				: curve_view<T, F>(c), u(0)
-			{
-				translate(u);
-			}
-			constexpr _translate(const _translate&) = default;
-			constexpr _translate& operator=(const _translate&) = default;
-			constexpr ~_translate()
-			{
-				translate(-u);
-			}
-		};
-		constexpr _translate<T,F> translate_(T u) const
-		{
-			return _translate<T,F>(*this, u);
-		}
-		*/
-		F _value(T u) const override
-		{
-			return pwflat::value(u, size(), time(), rate(), _f);
-		}
-		F _integral(T u) const override
-		{
-			return pwflat::integral(u, size(), time(), rate(), _f);
-		}
-		F _discount(T u) const override
-		{
-			return pwflat::discount(u, size(), time(), rate(), _f);
-		}
-		F _spot(T u) const override
-		{
-			return pwflat::spot(u, size(), time(), rate(), _f);
-		}
-#ifdef _DEBUG
-		static int test()
-		{
-			T t[] = { 1, 2, 3 };
-			F f[] = { .1,.2,.3 };
-			
-			{
-				curve_view c(3, t, f);
-				assert(c.ok());
-				assert(0 == c.offset());
-				assert(c.extrapolate() != c.extrapolate()); // NaN
-				curve_view c2{ c };
-				assert(c2 == c);
-				c = c2;
-				assert(!(c != c2));
-				assert(c(0) == .1);
-				assert(c(1) == .1);
-				assert(c(2) == .2);
-				assert(c(3) == .3);
-				assert(!(c != c2));
-				assert(c(0.5) == .1);
-				assert(c(1.5) == .2);
-				assert(c(2.5) == .3);
-				assert(c(3.5) != c(3.5));
-			}
-			{
-				T t2[] = { 1, 2, 3 };
-				F f2[] = { .1,.2,.3 };
-				curve_view c2(3, t, f);
-				c2.shift(0.1);
-				assert(c2(0) == .1 + 0.1);
-				assert(c2(1.5) == .2 + 0.1);
-				/*
-				c2.translate(0.5);
-				assert(t2[0] == 0.5);
-				c2.extrapolate(-0.5);
-				*/
-				c2.shift(-0.1);
-				assert(c2 == curve_view(3, t, f));
-			}
-		
-			return 0;
-		}
-
-#endif // _DEBUG
-	};
 
 }
 

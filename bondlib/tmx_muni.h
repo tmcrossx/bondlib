@@ -1,6 +1,6 @@
 // tmx_muni.h - Municipal bond curves
 #pragma once
-#include "tmx_pwflat_curve.h"
+#include "tmx_pwflat_value.h"
 #include "tmx_bond.h"
 #include "tmx_value.h"
 

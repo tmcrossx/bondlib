@@ -17,7 +17,7 @@ namespace tmx::black {
 			return std::exp(-xs * xs / 2) / sqrt2pi;
 		}
 
-		// normal share cumulative distribution function
+		// standard normal share cumulative distribution function
 		template<class X, class S = X>
 		inline X cdf(X x, S s = 0)
 		{

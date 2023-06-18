@@ -28,7 +28,7 @@
     <ClCompile Include="xll_bond.cpp" />
     <ClCompile Include="xll_bootstrap.cpp" />
     <ClCompile Include="xll_date.cpp" />
-    <ClCompile Include="xll_pwflat_curve.cpp" />
+    <ClCompile Include="xll_pwflat.cpp" />
     <ClCompile Include="xll_value.cpp" />
   </ItemGroup>
   <ItemGroup>
