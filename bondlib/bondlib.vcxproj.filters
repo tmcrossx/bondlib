@@ -45,7 +45,7 @@
     <ClInclude Include="tmx_bootstrap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tmx_secant.h">
+    <ClInclude Include="tmx_root1d.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tmx_instrument.h">

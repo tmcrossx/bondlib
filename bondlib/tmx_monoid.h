@@ -12,6 +12,10 @@ namespace tmx {
 	// associative binary operation with identity
 	template<class X>
 	struct monoid_base {
+		constexpr bool eq(const monoid_base<X>& m) const
+		{
+			return _eq(m);
+		}
 		constexpr X id() const
 		{
 			return _id();
@@ -21,39 +25,9 @@ namespace tmx {
 			return _op(x, y);
 		}
 	private:
+		virtual bool _eq() const = 0;
 		virtual X _id() const = 0;
 		virtual X _op(const X& x, const X& y) const = 0;
-	};
-
-	// fold iterable ??? foldl and foldr
-	template<iterable I, class X = typename I::value_type>
-	class fold {
-		const monoid_base<X>& m;
-		I i;
-		X x;
-	public:
-		constexpr fold(const monoid_base<X>& m, I i, const X& x = m.id())
-			: m(m), i(i), x(x)
-		{ }
-		constexpr bool operator==(const fold& f) const = default;
-		constexpr explicit operator bool() const
-		{
-			return i;
-		}
-		constexpr auto operator*() const
-		{
-			return x;
-		}
-		constexpr fold& operator++()
-		{
-			if (i) {
-				x = m.op(x, *i);
-				++i;
-			}
-
-			return *this;
-		}
-
 	};
 
 	template<class X, class Op>
@@ -65,6 +39,20 @@ namespace tmx {
 		constexpr monoid(X id, Op op)
 			: id_(id)//, op_(op)
 		{ }
+		constexpr monoid(const monoid&) = default;
+		constexpr monoid& operator=(const monoid&) = default;
+		constexpr ~monoid() = default;	
+
+		constexpr bool operator==(const monoid& m) const
+		{
+			return _eq(m);
+		}
+
+		constexpr bool _eq(const monoid& m) const override
+		{
+			return id_ == m.id_ and op_ == m.op;
+		}
+
 		constexpr X _id() const override
 		{
 			return id_;
@@ -86,6 +74,45 @@ namespace tmx {
 	constexpr auto min_monoid = monoid(std::numeric_limits<X>::max(),
 		[](const X& x, const X& y) { return std::min<X>(x, y); });
 
+	// fold iterable ??? foldl and foldr
+	template<class X, class Op, class I>
+	class scan {
+		monoid<X, Op> m;
+		I i;
+		X x;
+	public:
+		constexpr scan(monoid<X, Op> m, I i)
+			: m(m), i(i), x(m.id())
+		{ }
+		constexpr scan(const scan&) = default;
+		constexpr scan& operator=(const scan&) = default;
+		constexpr ~scan() = default;
+
+		constexpr bool operator==(const scan& f) const
+		{
+			return m == f.m && i == f.i && x == f.x;
+		};
+
+		constexpr explicit operator bool() const
+		{
+			return i.operator bool();
+		}
+		constexpr auto operator*() const
+		{
+			return x;
+		}
+		constexpr scan& operator++()
+		{
+			if (i) {
+				x = m.op(x, *i);
+				++i;
+			}
+
+			return *this;
+		}
+
+	};
+
 #ifdef _DEBUG
 	template<class X>
 	inline int monoid_test()
@@ -93,7 +120,11 @@ namespace tmx {
 		{
 			auto m = plus_monoid<X>;
 			auto i = iota_iterable<X>{};
-			auto f = fold(m, i);
+			auto f = scan(m, i);
+			auto f2{ f };
+			assert(f == f2);
+			f = f2;
+			assert(!(f != f2));
 			assert(f);
 		}
 		{

@@ -69,6 +69,7 @@ namespace tmx::ho_lee {
 		model(const pwflat::curve_value<T, F>& f, S σ)
 			: f(f), σ(σ)
 		{ }
+		/*
 		// Expected value at time t
 		template<class U = double, class C = double>
 		auto value(const instrument<U,C>& i, T t = 0) const
@@ -77,11 +78,12 @@ namespace tmx::ho_lee {
 
 			auto Dt = f.discount(t);
 			for (size_t j = 0; j < m and u[j] >= t; ++j) {
-				v += c_[j] * ED(Dt, f.discount(u_[j]), t, u_[j], σ);
+				v += c[j] * ED(Dt, f.discount(u_[j]), t, u_[j], σ);
 			}
 
 			return v;
 		}
+		*/
 	};
 
 }

@@ -2,6 +2,7 @@
 #pragma once
 #include <cmath>
 #include <limits>
+#include "tmx_instrument.h"
 #include "tmx_pwflat.h"
 
 namespace tmx::value {

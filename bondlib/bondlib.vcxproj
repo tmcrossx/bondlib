@@ -148,7 +148,7 @@
     <ClInclude Include="tmx_date.h" />
     <ClInclude Include="tmx_pwflat.h" />
     <ClInclude Include="tmx_pwflat_view.h" />
-    <ClInclude Include="tmx_secant.h" />
+    <ClInclude Include="tmx_root1d.h" />
     <ClInclude Include="tmx_view.h" />
     <ClInclude Include="tmx_value.h" />
   </ItemGroup>

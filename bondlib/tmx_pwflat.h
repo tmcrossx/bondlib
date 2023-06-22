@@ -232,6 +232,8 @@ namespace tmx::pwflat {
 	}
 
 #endif // _DEBUG
+
+	// NVI base class for piecewise flat curves.
 	template<class T = double, class F = double>
 	class curve {
 	public:

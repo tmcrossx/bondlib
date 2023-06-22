@@ -1,6 +1,6 @@
 // tmx_bootstrap.h - Bootstrap a pwflat forward curve.
 #pragma once
-#include "tmx_secant.h"
+#include "tmx_root1d.h"
 #include "tmx_value.h"
 
 namespace tmx::bootstrap {

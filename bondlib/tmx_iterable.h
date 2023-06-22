@@ -25,6 +25,19 @@ namespace tmx {
 	{
 		return (!i && !j) || (i && j && *i == *j && equal(++i, ++j));
 	}
+
+	template<iterable I>
+	constexpr I last(I i)
+	{
+		I j = i;
+
+		while (i) {
+			j = ++i;
+		}
+
+		return j;
+	}
+
 	template<iterable I>
 	constexpr size_t length(I i, size_t n = 0)
 	{
@@ -36,10 +49,16 @@ namespace tmx {
 		T t;
 	public:
 		using value_type = T;
+		
 		constexpr iota_iterable(T t = 0)
 			: t(t)
 		{ }
+		constexpr iota_iterable(const iota_iterable&) = default;
+		constexpr iota_iterable& operator=(const iota_iterable&) = default;
+		constexpr ~iota_iterable() = default;
+
 		constexpr bool operator==(const iota_iterable&) const = default;
+
 		constexpr explicit operator bool() const
 		{
 			return true;
@@ -61,10 +80,11 @@ namespace tmx {
 	class range_iterable {
 		I b, e;
 	public:
-		range_iterable(I b, I e)
+		using value_type = typename I::value_type;
+		constexpr range_iterable(I b, I e)
 			: b(b), e(e)
 		{ }
-		bool operator==(const range_iterable&) const = default;
+		constexpr bool operator==(const range_iterable&) const = default;
 		constexpr explicit operator bool() const
 		{
 			return b != e;
