@@ -2,9 +2,10 @@
 #pragma once
 #include <algorithm>
 #include <cmath>
-#include <stdexcept>
 #include <initializer_list>
+#include <iterator>
 #include <limits>
+#include <stdexcept>
 
 namespace tmx {
 
@@ -44,6 +45,10 @@ namespace tmx {
 		template<size_t N>
 		constexpr view(T(&t)[N])
 			: n{ N }, t{ t }
+		{ }
+		template<std::contiguous_iterator I>
+		constexpr view(I b, I e)
+			: n{ static_cast<size_t>(std::distance(b, e)) }, t{ &*b }
 		{ }
 		constexpr view(const view&) = default;
 		constexpr view& operator=(const view&) = default;

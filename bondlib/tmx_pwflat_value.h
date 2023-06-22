@@ -11,6 +11,11 @@ namespace tmx::pwflat {
 	class curve_value : public curve_view<T,F> {
 		std::vector<T> t;
 		std::vector<F> f;
+		void update()
+		{
+			curve_view<T, F>::t = view<T>(t.begin(), t.end());
+			curve_view<T, F>::f = view<F>(f.begin(), f.end());
+		}
 	public:
 		using curve_view<T,F>::size;
 
@@ -21,14 +26,12 @@ namespace tmx::pwflat {
 		curve_value(size_t n, const T* t_, const F* f_, F _f = NaN<F>)
 			: curve_view<T, F>(_f), t(t_, t_ + n), f(f_, f_ + n)
 		{
-			curve_view<T,F>::t = t.data();
-			curve_view<T,F>::f = f.data();
-			curve_view<T, F>::n = n;
+			update();
 
 			ensure(ok());
 		}
 		curve_value(const curve_view<T,F>& c)
-			: curve_value(c.size(), c.time(), c.rate())
+			: curve_value(c.size(), c.time(), c.rate(), c.extrapolate())
 		{ }
 		curve_value(const curve_value&) = default;
 		curve_value& operator=(const curve_value&) = default;
@@ -49,9 +52,7 @@ namespace tmx::pwflat {
 
 			t.push_back(t_);
 			f.push_back(f_);
-			curve_view<T, F>::t = t.data();
-			curve_view<T, F>::f = f.data();
-			++curve_view<T, F>::n;
+			update();
 
 			return *this;
 		}
@@ -65,7 +66,6 @@ namespace tmx::pwflat {
 		{
 			T t[] = { 1, 2, 3 };
 			F f[] = { .1, .2, .3 };
-			/*
 			{
 				curve_value c(.1);
 				ensure(0 == c.size());
@@ -96,6 +96,7 @@ namespace tmx::pwflat {
 				ensure(f[2] == c(2.5));
 				ensure(std::isnan(c(3.5)));
 			}
+			/*
 			{
 				curve_value c(3, t, f);
 				c.translate(0.5);

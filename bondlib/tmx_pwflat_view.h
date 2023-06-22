@@ -103,9 +103,7 @@ namespace tmx::pwflat {
 		// t -> t - u > 0
 		curve_view& _translate(T u) override
 		{
-			// !!! make sure curve.translate(u).translate(v) == curve.translate(u + v)
 			if (size() > 0) {
-//				view v(n, t);
 				off += t.translate(u);
 			}
 
