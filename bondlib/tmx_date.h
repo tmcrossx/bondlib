@@ -37,7 +37,7 @@ namespace tmx::date {
 	template<class Clk, class Dur>
 	constexpr double sub_years(const std::chrono::time_point<Clk, Dur>& t1, const std::chrono::time_point<Clk, Dur>& t0, double dpy = date::dpy)
 	{
-		return std::chrono::round<std::chrono::seconds>(t1 - t0).count()/(dpy*86400);
+		return std::chrono::duration_cast<std::chrono::seconds>(t1 - t0).count()/(dpy*86400);
 	}
 
 #ifdef _DEBUG
@@ -70,6 +70,7 @@ namespace tmx::date {
 			constexpr sys_days t{ 2023y / 1 / 1 };
 			constexpr auto t0 = add_years(t, 1.1);
 			constexpr auto t1 = add_years(t0, -1.1);
+			constexpr auto dt = (t - t1).count();
 			static_assert(0 == (t - t1).count());
 
 			/*

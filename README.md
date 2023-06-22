@@ -4,45 +4,45 @@ Bond pricing and analytics
 
 ## Date and Time
 
+See Howard Hinnant's [date library](https://howardhinnant.github.io/date/date.html)
+for documentation of the [`<chrono>`](https://en.cppreference.com/w/cpp/chrono)
+date and time library. This library uses 
+[`std::system_clock`](https://en.cppreference.com/w/cpp/chrono/system_clock)
+which represents the system-wide real time wall clock for time points.
+
 Every analytics library needs to convert real world date and time
-to a floating point number representing time in years, and back again. 
-A _clock_ produces `time_points` that correspond to a date and a time.
-Every clock uses a signed arithmetic type and an _epoch_
-that is represented by the value 0. 
-Time points have a `time_since_epoch` member function for the clock
-that returns the number of ticks since the epoch.
+to a floating point number representing time in years and back again. 
 
-The invariant is `(date + years) + (-years) = date`.
+We use the duration `std::chrono::years` to define `tmx::date::dpy` to be the number of days per year.
 
-Date and time is represented by a [`time_point`](https://en.cppreference.com/w/cpp/chrono/time_point).
-A _clock_ produces time points 
-Differences of dates is a [`duration`](https://en.cppreference.com/w/cpp/chrono/duration)
+The function `date::add_years(tp, years)` returns a time point with
+years rounded to seconds and `date::sub_years(tp1, tp0)` returns `tp1 - tp0` as the number of years
+rounded to seconds between two time points.
+The invariants are `date_add(date_add(tp, years), -years))` is within one second of `tp`
+and `date_sub(date_add(tp, years), tp)` is less than `1/(dpy * 86400)`.
 
-The `<chrono>` library has two way of representing time points.
-The simplest way is a _serial-based_. This is a count of some unit of time
-using a _period_. There are also _field-based_ time points represented
-with human friendly fields.
-
-Implement day count fractions using `year_month_day`: 30/360, Actual/360, ...  
+Time points can be either _serial based_ or _field based_. 
+All day count fractions use the field based 
+[`std::chrono::year_month_day`](https://en.cppreference.com/w/cpp/chrono/year_month_day)
+with resolution to one day.
 
 ## Curve 
 
-Discount $D(t) = \exp(-\int_0^t f(s) ds)$.  
-Forward discount $D_t(u) = D(u)/D(t) = \exp(-\int_t^u f_t(s) ds)$ if 0 vol.
+We use $f(t)$ to denote the _(continuously compounded) forward rate_ at time $t$.
+The _forward discount_ at $t$ to time $u$ is $D_t(u) = D(u)/D(t) = \exp(-\int_t^u f_t(s) ds)$.
 
-Use piecewise flat forwards for $f$.
+The implementation use piecewise flat forwards.
 
 shift rates
 
 translate times
 
-use internal offset to minimize copying
+use internal offset to minimize copying??
 
 ## Fixed Income
 
-Convert from dates to years from some effective/dated date.
-
-Fixed cash flows $(u_j, c_j)$.
+Fixed cash flows $(u_j, c_j)$ where $u_j$ is the time in years
+of the $j$th cash flow and $c_j$ is the amount.
 
 ## Value
 
@@ -51,13 +51,19 @@ Present value at $t$ is $\sum_{u_j > t} c_j D_t(u_j)$.
 Duration at $t$ is the derivative with respect to a parallel shift 
 in the forward curve $-\sum_{u_j > t} u_j c_j D_t(u_j)$.
 
-Yield is the constant rate that reprices a bond $p = \sum_j c_j \exp(-y u_j)$.
+Convexity at $t$ is the second derivative with respect to a parallel shift 
+in the forward curve $\sum_{u_j > t} u_j^2 c_j D_t(u_j)$.
+
+Yield is the constant rate that reprices a bond $p(t) = \sum_{u_j > t} c_j \exp(-y(t) (u_j - t))$.
 
 ## Bond
 
+A _simple bond_ has indicative data maturity, coupon, frequency (default 2 times per year),
+day count basis (default 30/360).
+The _dated date_ determines the bond cash flows.
+
 compounding $(1 + y/n)^n = \exp(f)$
 
-bond: dated, maturity, coupon, frequency (= 2), day count basis (= 30/360)
 
 Single call at date and price. Use time-dependent Ho-Lee with constant volatility. 
 

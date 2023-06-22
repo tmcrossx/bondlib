@@ -3,7 +3,8 @@
 #include <cmath>
 #include <limits>
 #include "tmx_instrument.h"
-#include "tmx_pwflat.h"
+#include "tmx_pwflat_view.h"
+#include "tmx_root1d.h"
 
 namespace tmx::value {
 
@@ -14,11 +15,16 @@ namespace tmx::value {
 	{
 		C pv = 0;
 
-		for (size_t i = 0; i < m and u[i] >= 0; ++i) {
+		for (size_t i = 0; i < m; ++i) {
 			pv += c[i] * pwflat::discount(u[i], n, t, f, _f);
 		}
 
 		return pv;
+	}
+	// Value of discounted cash flows at t.
+	template<class U, class C, class T, class F>
+	constexpr C present(T t0, instrument_view<U, C> i, pwflat::curve_view<T, F> f)
+	{
 	}
 
 	// Derivative of present value with respect to a parallel shift.
@@ -28,7 +34,7 @@ namespace tmx::value {
 	{
 		C dur = 0;
 
-		for (size_t i = 0; i < m and u[i] >= 0; ++i) {
+		for (size_t i = 0; i < m; ++i) {
 			dur -= u[i] * c[i] * pwflat::discount(u[i], n, t, f, _f);
 		}
 
@@ -42,7 +48,7 @@ namespace tmx::value {
 	{
 		C cnv = 0;
 
-		for (size_t i = 0; i < m and u[i] >= 0; ++i) {
+		for (size_t i = 0; i < m; ++i) {
 			cnv += u[i] * u[i] * c[i] * pwflat::discount(u[i], n, t, f, _f);
 		}
 
@@ -52,18 +58,12 @@ namespace tmx::value {
 	// Constant forward rate matching price.
 	template<class U, class C>
 	inline C yield(const C p, size_t m, const U* u, const C* c, 
-		C y = 0, C tol = std::sqrt(std::numeric_limits<C>::epsilon()), size_t iter = 100)
+		C y = 0.01, C tol = std::sqrt(std::numeric_limits<C>::epsilon()), int iter = 100)
 	{
-		C y_ = y + 2 * tol; // at least one loop
-
-		while (iter-- and  std::fabs(y_ - y) > tol) {
-			C p_ = present(m, u, c, 0, u, c, y) - p;
-			C dp_ = duration(m, u, c, 0, u, c, y);
-			y_ = y - p_ / dp_; // Newton-Raphson
-			std::swap(y_, y); 
-		}
-
-		return iter ? y : std::numeric_limits<C>::quiet_NaN();
+		const auto pv = [=](C y_) { return present(m, u, c, 0, u, c, y_) - p; };
+		const auto dur = [=](C y_) { return duration(m, u, c, 0, u, c, y_); };
+		
+		return newton::solve(pv, dur, y, tol, iter);
 	}
 
 	// Convert between continuous and compounded rate using (1 + y/n)^n = e^r
