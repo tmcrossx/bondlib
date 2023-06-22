@@ -16,15 +16,9 @@
 #endif
 #include <cmath>
 #include <algorithm>
-//#include <iterator>
-//#include <limits>
-//#include <numeric>
 #include "tmx_view.h"
 
 namespace tmx::pwflat {
-
-	template<class X>
-	inline static constexpr X NaN = std::numeric_limits<X>::quiet_NaN();
 
 	// strictly increasing values
 	template<class I>
@@ -39,6 +33,11 @@ namespace tmx::pwflat {
 	constexpr bool monotonic(size_t n, const T* t)
 	{
 		return monotonic(t, t + n);
+	}
+	template<class T>
+	constexpr bool monotonic(const view<T>& t)
+	{
+		return monotonic(t.begin(), t.end());
 	}
 	template<class T>
 	constexpr bool monotonic(const std::initializer_list<T>& t)

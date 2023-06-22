@@ -9,17 +9,17 @@ namespace tmx::pwflat {
 	class curve_view : public curve<T, F> {
 	protected:
 		size_t n;
-		T* t;
-		F* f;
+		view<T> t;
+		view<F> f;
 		F _f;
 		ptrdiff_t off;
 	public:
 		// constant curve
 		curve_view(F _f)
-			: n{ 0 }, t{ nullptr }, f{ nullptr }, _f{ _f }, off{ 0 }
+			: n{ 0 }, t{ }, f{ }, _f{ _f }, off{ 0 }
 		{ }
 		curve_view(size_t n = 0, T* t = nullptr, F* f = nullptr, F _f = NaN<F>)
-			: n(n), t(t), f(f), _f(_f), off(0)
+			: n(n), t(n, t), f(n, f), _f(_f), off(0)
 		{}
 		curve_view(const curve_view&) = default;
 		curve_view& operator=(const curve_view&) = default;
@@ -27,7 +27,7 @@ namespace tmx::pwflat {
 
 		bool ok() const
 		{
-			return (n == off or t[off] >= 0 and monotonic(t, t + n));
+			return (n == off or t[off] >= 0 and monotonic(t));
 		}
 
 		bool operator==(const curve_view& c) const
@@ -44,15 +44,15 @@ namespace tmx::pwflat {
 		}
 		size_t size() const
 		{
-			return n - off;
+			return t.size() - off;
 		}
 		const T* time() const
 		{
-			return t + off;
+			return t.data() + off;
 		}
 		const F* rate() const
 		{
-			return f + off;
+			return f.data() + off;
 		}
 		const F* forward() const
 		{
@@ -69,11 +69,11 @@ namespace tmx::pwflat {
 		}
 		std::pair<T, F> _back() const override
 		{
-			if (n == off) {
+			if (size() == off) {
 				return { NaN<T>, NaN<F> };
 			}
 
-			return { t[n - 1], f[n - 1] };
+			return { t(-1), f(-1) };
 		}
 
 		// Get extrapolated value.
@@ -104,9 +104,9 @@ namespace tmx::pwflat {
 		curve_view& _translate(T u) override
 		{
 			// !!! make sure curve.translate(u).translate(v) == curve.translate(u + v)
-			if (n > 0) {
-				view v(n, t);
-				off += v.translate(u);
+			if (size() > 0) {
+//				view v(n, t);
+				off += t.translate(u);
 			}
 
 			return *this;

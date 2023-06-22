@@ -17,6 +17,7 @@ namespace tmx {
 		return x = std::copysign(x, y);
 	}
 
+	// cyclic division
 	inline long xmod(long x, size_t y)
 	{
 		if (0 <= x and x < y)
@@ -64,15 +65,33 @@ namespace tmx {
 		{
 			return n;
 		}
+
 		constexpr T* data()
 		{
 			return t;
 		}
+		constexpr T* begin()
+		{
+			return t;
+		}
+		constexpr T* end()
+		{
+			return t + n;
+		}
+
 		constexpr const T* data() const
 		{
 			return t;
 		}
-		
+		constexpr const T* begin() const
+		{
+			return t;
+		}
+		constexpr const T* end() const
+		{
+			return t + n;
+		}
+
 		// Unchecked element access.
 		constexpr T operator[](size_t i) const
 		{
@@ -130,14 +149,14 @@ namespace tmx {
 				const view v(t);
 				assert(3 == v.size());
 				assert(v.eq({ 1, 2, 4 }));
-				assert(v[0] == 1);
+				assert(v[0] == 1); // operator[] const
 				assert(v(-1) == 4);
 			}
 			{
 				view v(t);
 				assert(3 == v.size());
 				assert(v.eq({ 1, 2, 4 }));
-				assert(v[0] == 1);
+				assert(v[0] == 1); // operator[]
 				v(-1) = 5;
 				assert(v[2] == 5);
 			}
