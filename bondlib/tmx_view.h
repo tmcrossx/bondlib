@@ -73,7 +73,7 @@ namespace tmx {
 			return t;
 		}
 		
-		// Checked element access.
+		// Unchecked element access.
 		constexpr T operator[](size_t i) const
 		{
 			return t[i];
