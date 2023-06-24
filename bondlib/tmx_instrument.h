@@ -9,69 +9,70 @@ namespace tmx {
 	// NVI base class for instruments
 	template<class U = double, class C = double>
 	struct instrument {
+		// instrument() = delete; ???
 		virtual ~instrument()
 		{ }
 
 		bool operator==(const instrument& i) const
 		{
-			return size() == i.size()
-				&& std::equal(cash(), cash() + size(), i.cash())
-				&& std::equal(time(), time() + size(), i.time());
+			return time() == i.time() and cash() == i.cash();
 		}
 
 		size_t size() const
 		{
 			return _size();
 		}
-		const U* time() const
+		const view<U> time() const
 		{
 			return _time();
 		}
-		const C* cash() const
+		const view<C> cash() const
 		{
 			return _cash();
 		}
 
 		std::pair<U, C> back() const
 		{
-			size_t m = size() - 1;
-
-			return { time()[m], cash()[m] };
+			return { time()(-1), cash()(-1) };
 		}
 	private:
 		virtual size_t _size() const = 0;
-		virtual const U* _time() const = 0;
-		virtual const C* _cash() const = 0;
+		virtual const view<U> _time() const = 0;
+		virtual const view<C> _cash() const = 0;
 	};
 
 	// non-owning instrument view
 	template<class U = double, class C = double>
 	class instrument_view : public instrument<U, C> {
 	protected:
-		size_t m;
-		const U* u;
-		const C* c;
+		view<U> u;
+		view<C> c;
 	public:
 		instrument_view()
-			: m{ 0 }, u{ nullptr }, c{ nullptr }
+			: u{}, c{}
 		{ }
 		instrument_view(size_t m, const U* u, const C* c)
-			: m{ m }, u{ u }, c{ c }
+			: u(m, u), c(m, c)
 		{ }
+		instrument_view(view<U> u, view<C> c)
+			: u{ u }, c{ c }
+		{
+			ensure(u.size() == c.size());
+		}
 		instrument_view(const instrument_view& v) = default;
 		instrument_view& operator=(const instrument_view& v) = default;
-		~instrument_view()
+		virtual ~instrument_view()
 		{ }
 
 		size_t _size() const override
 		{
-			return m;
+			return u.size();
 		}
-		const U* _time() const override
+		const view<U> _time() const override
 		{
 			return u;
 		}
-		const C* _cash() const override
+		const view<C> _cash() const override
 		{
 			return c;
 		}
@@ -84,20 +85,33 @@ namespace tmx {
 		std::vector<C> c;
 		void update()
 		{
-			instrument_view<U, C>::m = u.size();
-			instrument_view<U, C>::u = this->u.data();
-			instrument_view<U, C>::c = this->c.data();
+			instrument_view<U, C>::u = view<U>(u);
+			instrument_view<U, C>::c = view<C>(c);
 		}
 	public:
 		instrument_value()
+			: u{}, c{}
 		{ }
 		instrument_value(size_t m, const U* u, const C* c)
 			: u(u, u + m), c(c, c + m)
 		{
 			update();
 		}
-		instrument_value(const instrument_value& v) = default;
-		instrument_value& operator=(const instrument_value& v) = default;
+		instrument_value(const instrument_value& v)
+			: u(v.u), c(v.c)
+		{
+			update();
+		}
+		instrument_value& operator=(const instrument_value& v)
+		{
+			if (this != &v) {
+				u = v.u;
+				c = v.c;
+				update();
+			}
+
+			return *this;
+		}
 		instrument_value(instrument_value&& v) = default;
 		instrument_value& operator=(instrument_value&& v) = default;
 		~instrument_value()

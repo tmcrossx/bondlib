@@ -1,8 +1,9 @@
-// tmx_pwflat.h - piecewise flat curve
+// tmx_pwflat.h - left continuous piecewise flat curve
 /*
 		   { f[i] if t[i-1] < t <= t[i];
 	f(t) = { _f   if t > t[n-1];
 		   { NaN  if t < 0
+		   { f[0] if t = 0
 	F                                   _f
 	|        f[1]             f[n-1] o--------
 	| f[0] o------          o--------x
@@ -16,6 +17,7 @@
 #endif
 #include <cmath>
 #include <algorithm>
+#include "ensure.h"
 #include "tmx_view.h"
 
 namespace tmx::pwflat {
@@ -52,256 +54,290 @@ namespace tmx::pwflat {
 		static_assert(monotonic<int>(0, nullptr));
 		static_assert(monotonic({ 1 }));
 		static_assert(monotonic({ 1,2 }));
-		static_assert(!monotonic({ 1.,1. })); 
+		static_assert(!monotonic({ 1.,1. }));
 
 		return 0;
 	}
 
 #endif // _DEBUG
 
-	// f(u) assuming t[i] monotonically increasing
+	// NVI base class for piecewise flat curve.
 	template<class T = double, class F = double>
-	constexpr F value(T u, size_t n, const T* t, const F* f, F _f = NaN<F>)
-	{
-		if (u < 0)
-			return NaN<F>;
-		if (n == 0)
-			return _f;
-
-		auto ti = std::lower_bound(t, t + n, u);
-
-		return ti == t + n ? _f : f[ti - t];
-	}
-
-#ifdef _DEBUG
-
-	inline int value_test()
-	{
-		constexpr double t[] = { 1, 2, 3 };
-		constexpr double f[] = { 2, 3, 4 };
-		{
-			{
-				constexpr double v = value(0., 0, t, f);
-				static_assert(v != v); // std::isnan not constexpr
-			}
-			static_assert(5 == value(0., 0, t, f, 5.));
-			{
-				constexpr double v = value(-0.1, 3, t, f);
-				static_assert(v != v);
-			}
-			static_assert(2 == value(0., 3, t, f));
-			static_assert(2 == value(0.1, 3, t, f));
-			static_assert(2 == value(1., 3, t, f));
-			static_assert(3 == value(1.1, 3, t, f));
-			static_assert(4 == value(2.9, 3, t, f));
-			static_assert(4 == value(3., 3, t, f));
-			{
-				constexpr double v = value(3.1, 3, t, f);
-				static_assert(v != v);
-			}
-		}
-
-		return 0;
-	}
-
-#endif // _DEBUG
-
-	// int_0^u f(t) dt
-	template<class T, class F>
-	constexpr F integral(T u, size_t n, const T* t, const F* f, F _f = NaN<F>)
-	{
-		if (u < 0)
-			return NaN<F>;
-		if (u == 0)
-			return 0;
-		if (n == 0)
-			return u * _f;
-
-		F I = 0;
-		T t_ = 0;
-
-		size_t i;
-		for (i = 0; i < n and t[i] <= u; ++i) {
-			I += f[i] * (t[i] - t_);
-			t_ = t[i];
-		}
-		if (u > t_) {
-			I += (i == n ? _f : f[i]) * (u - t_);
-		}
-
-		return I;
-	}
-
-#ifdef _DEBUG
-
-	inline int integral_test()
-	{
-		constexpr double t[] = { 1, 2, 3 };
-		constexpr double f[] = { 2, 3, 4 };
-		{
-
-			static_assert(0 == integral(0., 0, t, f));
-			static_assert(10 == integral(2., 0, t, f, 5.));
-			{
-				constexpr double v = integral(-0.1, 3, t, f);
-				static_assert(v != v);
-			}
-			static_assert(0 == integral(0., 3, t, f));
-			static_assert(1 == integral(0.5, 3, t, f));
-			static_assert(2 == integral(1., 3, t, f));
-			static_assert(2 + 3. / 2 == integral(1.5, 3, t, f));
-			static_assert(5 == integral(2., 3, t, f));
-			static_assert(9 == integral(3., 3, t, f));
-			#if _MSVC_VER >= 1931
-			{
-				constexpr double v = integral(3.1, 3, t, f);
-				static_assert(v != v);
-			}
-			#endif
-			static_assert(9 + 2.5 == integral(3.5, 3, t, f, 5.));
-		}
-
-		return 0;
-	}
-
-#endif // _DEBUG
-
-	// discount D(u) = exp(-int_0^u f(t) dt)
-	// std::exp not constexpr
-	template<class T, class F>
-	F discount(T u, size_t n, const T* t, const F* f, F _f = NaN<F>)
-	{
-		return std::exp(-integral(u, n, t, f, _f));
-	}
-
-#ifdef _DEBUG
-
-	inline int discount_test()
-	{
-		double t[] = { 1, 2, 3 };
-		double f[] = { 2, 3, 4 };
-		{
-			assert(std::exp(-0) == discount(0., 0, t, f));
-			assert(std::exp(-10) == discount(2., 0, t, f, 5.));
-		}
-
-		return 0;
-	}
-
-#endif // _DEBUG
-
-	// spot r(u) = (int_0^u f(t) dt)/u
-	// r(u) = f(u) if u <= t[0]
-	template<class T, class F>
-	constexpr F spot(T u, size_t n, const T* t, const F* f, F _f = NaN<F>)
-	{
-		return n == 0 ? _f
-			: u <= t[0] ? value(u, n, t, f, _f) : integral(u, n, t, f, _f) / u;
-	}
-
-#ifdef _DEBUG
-
-	inline int pwflat_spot_test()
-	{
-		constexpr double t[] = { 1, 2, 3 };
-		constexpr double f[] = { 2, 3, 4 };
-		{
-			/*!!!
-			static_assert(0 == spot(0., 0, t, f));
-			static_assert(10 == spot(2., 0, t, f, 5.));
-			{
-				constexpr double v = spot(-0.1, 3, t, f);
-				static_assert(v != v);
-			}
-			static_assert(0 == spot(0., 3, t, f));
-			static_assert(1 == spot(0.5, 3, t, f));
-			static_assert(2 == spot(1., 3, t, f));
-			static_assert(2 + 3. / 2 == spot(1.5, 3, t, f));
-			static_assert(5 == spot(2., 3, t, f));
-			//!!!failing static_assert(9 == spot(3., 3, t, f));
-			ensure(9 == spot(3., 3, t, f));
-			{
-				constexpr double v = spot(3.1, 3, t, f);
-				static_assert(v != v);
-			}
-			*/
-		}
-
-		return 0;
-	}
-
-#endif // _DEBUG
-
-	// NVI base class for piecewise flat curves.
-	template<class T = double, class F = double>
-	class curve {
-	public:
+	struct curve {
 		virtual ~curve() = default;
-
-		F value(T u) const
+		// f(t) is the forward rate at time t
+		F forward(T u) const
 		{
-			return _value(u);
-		}
-		F rate(T u) const
-		{
-			return value(u);
+			return _forward(u);
 		}
 		F operator()(T u) const
 		{
-			return value(u);
+			return _forward(u);
 		}
-
-		F integral(T u) const
+		// D_t(u) is the price at time t of a zero coupon bond maturing at time u.
+		// D_t(u) = exp(-int_t^u f(s) ds).
+		F discount(T u, T t = 0) const
 		{
-			return _integral(u);
+			return _discount(u, t);
 		}
-		F discount(T u) const
+		// r_t(u) is the spot rate at time t over the interval [t, u].
+		// D_t(u) = exp(-(u - t) r_t(u)).
+		F spot(T u, T t = 0) const
 		{
-			return std::exp(-_integral(u));
-		}
-		F spot(T u) const
-		{
-			return _spot(u);
-		}
-
-		std::pair<T, F> back() const
-		{
-			return _back();
-		}
-
-		// Get extrapolated value.
-		F extrapolate() const
-		{
-			return _extrapolate();
-		}
-		// Set extrapolated value.
-		curve& extrapolate(F f_)
-		{
-			return _extrapolate(f_);
-		}
-
-		// Parallel shift
-		curve& shift(F df)
-		{
-			return _shift(df);
-		}
-
-		// t -> t - u > 0
-		curve& translate(T u)
-		{
-			return _translate(u);
+			return _spot(u, t);
 		}
 	private:
-		virtual F _value(T u) const = 0;
-		virtual F _integral(T u) const = 0;
-		virtual F _spot(T u) const = 0;
-		virtual std::pair<T, F> _back() const = 0;
-		virtual F _extrapolate() const = 0;
-		virtual curve& _extrapolate(F f_) = 0;
-		virtual curve& _shift(F df) = 0;
-		virtual curve& _translate(T u) = 0;
+		virtual F _forward(T u) const = 0;
+		virtual F _discount(T u, T t) const = 0;
+		virtual F _spot(T u, T t) const = 0;
 	};
 
+	// Non-owning view of piecewise flat curve.
+	template<class T = double, class F = double>
+	struct curve_view : public curve<T, F> {
+		view<T> t;
+		view<F> f;
+		F _f; // extrapolation value
+
+		// constant curve
+		curve_view(F _f = NaN<F>)
+			: t{}, f{}, _f(_f)
+		{ }
+		curve_view(view<T> t, view<F> f, F _f = NaN<F>)
+			: t(t), f(f), _f(_f)
+		{
+			ensure(t.size() == f.size());
+			ensure(t.size() == 0 or t[0] > 0);
+			ensure(monotonic(t));
+		}
+		curve_view(size_t n, const T* t, const F* f, F _f = NaN<F>)
+			: curve_view(view<T>(n, t), view<F>(n, f), _f)
+		{ }
+		curve_view(const curve_view&) = default;
+		curve_view& operator=(const curve_view&) = default;
+		curve_view(curve_view&&) = default;
+		curve_view& operator=(curve_view&&) = default;
+		virtual ~curve_view() = default;
+
+		bool operator==(const curve_view& cv) const
+		{
+			return size() == cv.size()
+				&& t == cv.t
+				&& f == cv.f
+				&& (std::isnan(extrapolate()) and std::isnan(cv.extrapolate())
+					or extrapolate() == cv.extrapolate());
+		}
+
+		size_t size() const
+		{
+			return t.size();
+		}
+
+		F extrapolate() const
+		{
+			return _f;
+		}
+		curve_view<T, F>& extrapolate(F f_)
+		{
+			_f = f_;
+
+			return *this;
+		}
+		F _forward(T u) const override
+		{
+			if (u < 0)
+				return NaN<F>;
+			if (size() == 0)
+				return extrapolate();
+
+			auto ti = std::lower_bound(t.begin(), t.end(), u);
+
+			return ti == t.end() ? _f : f[ti - t.begin()];
+		}
+
+		// int_t^u f(t) dt
+		F integral(T u, T t0 = 0) const
+		{
+			if (u < t0)
+				return NaN<F>;
+			if (u == t0)
+				return 0;
+			if (size() == 0)
+				return (u - t0) * extrapolate();
+
+			F I = 0;
+			T t_ = t0;
+
+			size_t i = t.offset(t0);
+			for (; i < size() and t[i] <= u; ++i) {
+				I += f[i] * (t[i] - t_);
+				t_ = t[i];
+			}
+			if (u > t_) {
+				I += (i == size() ? extrapolate() : f[i]) * (u - t_);
+			}
+
+			return I;
+		}
+		// discount D_t(u) = exp(-int_t^u f(s) ds)
+		// std::exp not constexpr
+		F _discount(T u, T t0 = 0) const override
+		{
+			return std::exp(-integral(u, t0));
+		}
+
+		// D_t(u) = exp(-(u - t) r_t(u))
+		// r_t(u) = \int_t^u f(s) ds / (u - t)
+		// r_t(u) = f(u) if u <= t[offset]
+		constexpr F _spot(T u, T t0 = 0) const override
+		{
+			size_t i = t.offset(u);
+
+			return u < t0 ? NaN<F>
+				: i == size() ? extrapolate()
+				: u <= t[i] ? f[i]
+				: integral(u, t0) / (u - t0);
+		}
+
+#ifdef _DEBUG
+		static int test()
+		{
+			T t[] = { 1, 2, 3 };
+			F f[] = { 2, 3, 4 };
+			auto cv = curve_view(view(t), view(f));
+			{
+				{
+					double v = cv(-0.1);
+					assert(v != v);
+				}
+				assert(2 == cv(0.));
+				assert(2 == cv(0.1));
+				assert(2 == cv(1.));
+				assert(3 == cv(1.1));
+				assert(4 == cv(2.9));
+				assert(4 == cv(3.));
+				{
+					double v = cv(3.1);
+					assert(v != v);
+				}
+			}
+			{
+				{
+					double v = cv.integral(-0.1);
+					assert(v != v);
+				}
+				assert(0 == cv.integral(0.));
+				assert(1 == cv.integral(0.5));
+				assert(2 == cv.integral(1.));
+				assert(2 + 3. / 2 == cv.integral(1.5));
+				assert(5 == cv.integral(2.));
+				assert(9 == cv.integral(3.));
+				cv.extrapolate(5);
+				assert(9 + 2.5 == cv.integral(3.5));
+			}
+
+
+			return 0;
+		}
+#endif // _DEBUG
+
+	};
+
+	// Pwflat curve value type.
+	template<class T = double, class F = double>
+	class curve_value : public curve_view<T, F> {
+		std::vector<T> t;
+		std::vector<F> f;
+		void update()
+		{
+			curve_view<T, F>::t = view<T>(t.begin(), t.end());
+			curve_view<T, F>::f = view<F>(f.begin(), f.end());
+		}
+	public:
+		// constant curve
+		constexpr curve_value(F _f = NaN<F>)
+			: curve_view<T, F>(_f)
+		{ }
+		curve_value(size_t n, const T* t_, const F* f_, F _f = NaN<F>)
+			: curve_view<T, F>(_f), t(t_, t_ + n), f(f_, f_ + n)
+		{
+			update();
+		}
+		// Promote view to a value.
+		curve_value(const curve_view<T, F>& c)
+			: curve_value(c.size(), c.time(), c.rate(), c.extrapolate())
+		{ }
+		curve_value(const curve_value&) = default;
+		curve_value& operator=(const curve_value&) = default;
+		curve_value(curve_value&&) = default;
+		curve_value& operator=(curve_value&&) = default;
+		~curve_value()
+		{ }
+
+		// add point
+		curve_value& extend(T t_, F f_)
+		{
+			ensure(t.size() == 0 || t_ > t.back());
+
+			t.push_back(t_);
+			f.push_back(f_);
+			update();
+
+			return *this;
+		}
+		curve_value& push_back(const std::pair<T, F>& tf)
+		{
+			return extend(tf.first, tf.second);
+		}
+#ifdef _DEBUG
+
+		static int test()
+		{
+			T t[] = { 1, 2, 3 };
+			F f[] = { .1, .2, .3 };
+			{
+				curve_value c(.1);
+				ensure(0 == c.size());
+				ensure(.1 == c.extrapolate());
+				curve_value c2{ c };
+				ensure(c2 == c);
+				c = c2;
+				ensure(!(c != c2));
+				ensure(.1 == c(.2));
+			}
+			{
+				curve_value c(3, t, f);
+
+				ensure(3 == c.size());
+				ensure(f[0] == c(1.));
+				ensure(std::isnan(c.extrapolate()));
+				curve_value c2{ c };
+				ensure(c2 == c);
+				c = c2;
+				ensure(!(c != c2));
+
+				ensure(std::isnan(c(-1.)));
+				for (size_t i = 0; i < 3; ++i) {
+					ensure(f[i] == c(t[i]));
+				}
+				ensure(f[0] == c(0.5));
+				ensure(f[1] == c(1.5));
+				ensure(f[2] == c(2.5));
+				ensure(std::isnan(c(3.5)));
+			}
+			/*
+			{
+				curve_value c(3, t, f);
+				c.translate(0.5);
+				ensure(f[0] == c(0.5));
+				ensure(f[1] == c(1.5));
+			}
+			*/
+			return 0;
+		}
+
+#endif // _DEBUG
+
+	};
 
 }
-

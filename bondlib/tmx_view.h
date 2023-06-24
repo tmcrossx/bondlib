@@ -48,7 +48,12 @@ namespace tmx {
 		{ }
 		template<std::contiguous_iterator I>
 		constexpr view(I b, I e)
-			: n{ static_cast<size_t>(std::distance(b, e)) }, t{ &*b }
+			: n{ static_cast<size_t>(std::distance(b, e)) }, t{ n ? &*b : nullptr }
+		{ }
+		template<class C>
+		// requires std::contiguous_iterator<typename C::iterator>
+		constexpr view(C& t)
+			: view(t.begin(), t.end())
 		{ }
 		constexpr view(const view&) = default;
 		constexpr view& operator=(const view&) = default;
@@ -60,10 +65,17 @@ namespace tmx {
 			return size() == v.size()
 				&& std::equal(data(), data() + size(), v.data(), v.data() + v.size());
 		}
+		// == view({1,2,3}) ???
 		constexpr bool eq(const std::initializer_list<T>& v) const
 		{
 			return size() == v.size()
 				&& std::equal(data(), data() + size(), v.begin(), v.end());
+		}
+
+		// Least index with t[i] > 0.
+		constexpr ptrdiff_t offset(T u) const
+		{
+			return std::upper_bound(t, t + n, u) - t;
 		}
 
 		constexpr size_t size() const
@@ -110,60 +122,41 @@ namespace tmx {
 		// Cyclic element access.
 		constexpr T operator()(long i) const
 		{
-			return t[xmod(i, n)];
+			return n == 0 ? NaN<T> : t[xmod(i, n)];
 		}
 		constexpr T& operator()(long i)
 		{
+			//??? static T nan = NaN<T>;
 			return t[xmod(i, n)];
 		}
 
-		// t => t - u, return first index > 0
-		constexpr ptrdiff_t translate(T u)
-		{
-			if (n == 0) {
-				return 0;
-			}
-
-			for (size_t i = 0; i < n; ++i) {
-				t[i] -= u;
-			}
-
-			return std::upper_bound(t, t + n, 0) - t;
-		}
 #ifdef _DEBUG
 
 		static int test()
 		{
-			ptrdiff_t m;
-			T t[] = { 1,2,4 };
-			view v(3, t);
+			double t[] = { 1,2,4 };
+			view v(t);
 			{
-				m = v.translate(0);
-				assert(view<T>(3 - m, t + m).eq({ 1, 2, 4 }));
-
-				m = v.translate(1);
-				assert(view<T>(3 - m, t + m).eq({ 1,  3 }));
-
-				m = v.translate(2);
-				assert(view<T>(3 - m, t + m).eq({ 1 }));
-
-				m = v.translate(-3);
-				assert(view<T>(3 - m, t + m).eq({ 1, 2, 4 }));
+				assert(0 == v.offset(0));
+				assert(0 == v.offset(0.9));
+				assert(1 == v.offset(1));
+				assert(1 == v.offset(1.1));
+				assert(3 == v.offset(5));
 			}
 			{
-				const view v(t);
-				assert(3 == v.size());
-				assert(v.eq({ 1, 2, 4 }));
-				assert(v[0] == 1); // operator[] const
-				assert(v(-1) == 4);
+				const view cv(t);
+				assert(3 == cv.size());
+				assert(cv.eq({ 1, 2, 4 }));
+				assert(cv[0] == 1); // operator[] const
+				assert(cv(-1) == 4);
 			}
 			{
-				view v(t);
-				assert(3 == v.size());
-				assert(v.eq({ 1, 2, 4 }));
-				assert(v[0] == 1); // operator[]
-				v(-1) = 5;
-				assert(v[2] == 5);
+				view v2(t);
+				assert(3 == v2.size());
+				assert(v2.eq({ 1, 2, 4 }));
+				assert(v2[0] == 1); // operator[]
+				v2(-1) = 5;
+				assert(v2[2] == 5);
 			}
 
 			return 0;

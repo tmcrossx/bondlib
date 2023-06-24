@@ -27,9 +27,6 @@
     <ClInclude Include="ensure.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tmx_pwflat_value.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="tmx_value.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -55,9 +52,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tmx_black.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tmx_pwflat_view.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tmx_monoid.h">

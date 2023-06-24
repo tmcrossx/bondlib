@@ -71,7 +71,7 @@ namespace tmx::date {
 			constexpr auto t0 = add_years(t, 1.1);
 			constexpr auto t1 = add_years(t0, -1.1);
 			constexpr auto dt = (t - t1).count();
-			static_assert(0 == (t - t1).count());
+			static_assert(0 == dt);
 
 			/*
 			constexpr auto t2 = t + std::chrono::years(1);

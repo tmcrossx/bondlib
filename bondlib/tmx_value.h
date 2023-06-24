@@ -3,39 +3,50 @@
 #include <cmath>
 #include <limits>
 #include "tmx_instrument.h"
-#include "tmx_pwflat_view.h"
+#include "tmx_pwflat.h"
 #include "tmx_root1d.h"
 
 namespace tmx::value {
 
-	// Value of discounted cash flows.
-	template<class U, class C, class T, class F>
-	constexpr C present(size_t m, const U* u, const C* c, size_t n, const T* t, const F* f,
-		F _f = std::numeric_limits<F>::quiet_NaN())
+	// Convert between continuous and compounded rate using (1 + y/n)^n = e^r
+	template<class X>
+	inline X compound_yield(X r, unsigned n)
 	{
-		C pv = 0;
+		return X(n * (std::pow(std::exp(r), 1. / n) - 1));
+	}
+	template<class X>
+	inline X continuous_yield(X y, unsigned n)
+	{
+		return X(std::log(std::pow(1 + y / n, n)));
+	}
 
-		for (size_t i = 0; i < m; ++i) {
-			pv += c[i] * pwflat::discount(u[i], n, t, f, _f);
+	// Value at t of future discounted cash flows.
+	template<class U, class C, class T, class F>
+	constexpr C present(const instrument<U,C>& i, const pwflat::curve<T,F>& f, T t = 0)
+	{
+		const auto u = i.time();
+		const auto c = i.cash();
+
+		C pv = 0;
+		size_t j = u.offset(t);
+		for (; j < u.size(); ++j) {
+			pv += c[j] * f.discount(u[j], t);
 		}
 
 		return pv;
 	}
-	// Value of discounted cash flows at t.
-	template<class U, class C, class T, class F>
-	constexpr C present(T t0, instrument_view<U, C> i, pwflat::curve_view<T, F> f)
-	{
-	}
 
 	// Derivative of present value with respect to a parallel shift.
 	template<class U, class C, class T, class F>
-	constexpr C duration(size_t m, const U* u, const C* c, size_t n, const T* t, const F* f,
-		F _f = std::numeric_limits<F>::quiet_NaN())
+	constexpr C duration(const instrument<U, C>& i, const pwflat::curve<T, F>& f, T t = 0)
 	{
-		C dur = 0;
+		const auto u = i.time();
+		const auto c = i.cash();
 
-		for (size_t i = 0; i < m; ++i) {
-			dur -= u[i] * c[i] * pwflat::discount(u[i], n, t, f, _f);
+		C dur = 0;
+		size_t j = u.offset(t);
+		for (; j < u.size(); ++j) {
+			dur -= (u[j] - t) * c[j] * f.discount(u[j], t);
 		}
 
 		return dur;
@@ -43,13 +54,15 @@ namespace tmx::value {
 
 	// Second derivative of present value with respect to a parallel shift.
 	template<class U, class C, class T, class F>
-	constexpr C convexity(size_t m, const U* u, const C* c, size_t n, const T* t, const F* f,
-		F _f = std::numeric_limits<F>::quiet_NaN())
+	constexpr C convexity(const instrument<U, C>& i, const pwflat::curve<T, F>& f, T t = 0)
 	{
-		C cnv = 0;
+		const auto u = i.time();
+		const auto c = i.cash();
 
-		for (size_t i = 0; i < m; ++i) {
-			cnv += u[i] * u[i] * c[i] * pwflat::discount(u[i], n, t, f, _f);
+		C cnv = 0;
+		size_t j = u.offset(t);
+		for (; j < u.size(); ++j) {
+			cnv += (u[j] - t) * (u[j] - t) * c[j] * f.discount(u[j], t);
 		}
 
 		return cnv;
@@ -57,25 +70,13 @@ namespace tmx::value {
 
 	// Constant forward rate matching price.
 	template<class U, class C>
-	inline C yield(const C p, size_t m, const U* u, const C* c, 
+	inline C yield(const C p, const instrument<U,C>& i, 
 		C y = 0.01, C tol = std::sqrt(std::numeric_limits<C>::epsilon()), int iter = 100)
 	{
-		const auto pv = [=](C y_) { return present(m, u, c, 0, u, c, y_) - p; };
-		const auto dur = [=](C y_) { return duration(m, u, c, 0, u, c, y_); };
+		const auto pv = [&](C y_) { return present(i, pwflat::curve_view<U,C>(y_)) - p; };
+		const auto dur = [&](C y_) { return duration(i, pwflat::curve_view<U, C>(y_)); };
 		
 		return newton::solve(pv, dur, y, tol, iter);
-	}
-
-	// Convert between continuous and compounded rate using (1 + y/n)^n = e^r
-	template<class X>
-	inline X compound_yield(X r, unsigned n)
-	{
-		return X(n*(std::pow(std::exp(r), 1. / n) - 1));
-	}
-	template<class X>
-	inline X continuous_yield(X y, unsigned n)
-	{
-		return X(std::log(std::pow(1 + y/n, n)));
 	}
 
 #ifdef _DEBUG
@@ -87,15 +88,16 @@ namespace tmx::value {
 		X y0 = X(0.03);
 		X d1 = std::exp(-y0);
 		X c0 = (1 - d1 * d1) / (d1 + d1 * d1);
-		X u[] = { 0,1,2 };
-		X c[] = { -1, c0, 1 + c0 };
+		X u[] = { 1,2 };
+		X c[] = { c0, 1 + c0 };
+		const auto i = instrument_view(view(u), view(c));
 
 		{
-			X y = yield(X(0), 3, u, c);
+			X y = yield(X(1), i);
 			ensure(std::fabs(y - y0) <= eps);
 		}
 		{
-			X y = yield(X(0), 3, u, c, y0);
+			X y = yield(X(1), i, y0);
 			ensure(std::fabs(y - y0) <= eps);
 		}
 		{

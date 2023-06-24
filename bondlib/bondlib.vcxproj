@@ -102,7 +102,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
@@ -144,10 +144,8 @@
     <ClInclude Include="tmx_monoid.h" />
     <ClInclude Include="tmx_monte_carlo.h" />
     <ClInclude Include="tmx_muni.h" />
-    <ClInclude Include="tmx_pwflat_value.h" />
     <ClInclude Include="tmx_date.h" />
     <ClInclude Include="tmx_pwflat.h" />
-    <ClInclude Include="tmx_pwflat_view.h" />
     <ClInclude Include="tmx_root1d.h" />
     <ClInclude Include="tmx_view.h" />
     <ClInclude Include="tmx_value.h" />

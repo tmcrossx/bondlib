@@ -58,9 +58,9 @@ Yield is the constant rate that reprices a bond $p(t) = \sum_{u_j > t} c_j \exp(
 
 ## Bond
 
-A _simple bond_ has indicative data maturity, coupon, frequency (default 2 times per year),
+A _simple bond_ has indicative data maturity, coupon, frequency (default 2 times per year), and a
 day count basis (default 30/360).
-The _dated date_ determines the bond cash flows.
+The function `tmx::instrument` returns the bond cash flows given the _dated date_.
 
 compounding $(1 + y/n)^n = \exp(f)$
 
