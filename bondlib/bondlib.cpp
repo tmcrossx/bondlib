@@ -22,6 +22,7 @@ int test_view_d = view<double>::test();
 int test_pwflat_monotonic = pwflat::monotonic_test();
 int test_pwflat_curve_view = pwflat::curve_view<>::test();
 int test_pwflat_curve_value = pwflat::curve_value<>::test();
+int test_instrument_view = instrument_view<>::test();
 int test_instrument_value = instrument_value<>::test();
 int test_value_yield_d = value::yield_test<double>();
 int test_value_yield_f = value::yield_test<float>();

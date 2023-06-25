@@ -1,4 +1,4 @@
-// tmx_value.h - present value, duration
+// tmx_value.h - present value, duration, convexity
 #pragma once
 #include <cmath>
 #include <limits>

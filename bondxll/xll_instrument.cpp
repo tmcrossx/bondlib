@@ -1,6 +1,5 @@
 // xll_instrument.cpp - Instrument times and cash flows.
 #include "../bondlib/tmx_instrument.h"
-#include "../bondlib/tmx_value.h"
 #include "bondxll.h"
 
 using namespace tmx;
@@ -47,10 +46,13 @@ _FPX* WINAPI xll_instrument(HANDLEX i)
 		result.resize(0, 0);
 		handle<instrument<>> i_(i);
 		ensure(i_);
+
 		int m = (int)i_->size();
 		result.resize(2, m);
-		std::copy(i_->time(), i_->time() + m, result.array());
-		std::copy(i_->cash(), i_->cash() + m, result.array() + m);
+		auto u = i_->time();
+		auto c = i_->cash();
+		std::copy(u.begin(), u.end(), result.array());
+		std::copy(c.begin(), c.end(), result.array() + m);
 	}
 	catch (const std::exception& ex) {
 		XLL_ERROR(ex.what());

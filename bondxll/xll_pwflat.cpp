@@ -1,5 +1,5 @@
 // xll_pwflat.cpp - Piecewise flat curve view
-#include "../bondlib/tmx_pwflat_value.h"
+#include "../bondlib/tmx_pwflat.h"
 #include "bondxll.h"
 
 using namespace tmx;
@@ -29,7 +29,7 @@ HANDLEX WINAPI xll_pwflat_curve_(const _FPX* pt, const _FPX* pf, LPOPER p_f)
 			ensure(p_f->is_num());
 			_f = p_f->as_num();
 		}
-		handle<pwflat::curve_view<>> h_(new pwflat::curve_value(size(*pt), pt->array, pf->array, _f));
+		handle<pwflat::curve<>> h_(new pwflat::curve_value(size(*pt), pt->array, pf->array, _f));
 		ensure(h_);
 		h = h_.get();
 	}
@@ -55,14 +55,18 @@ _FPX* WINAPI xll_pwflat_curve(HANDLEX c)
 
 	try {
 		result.resize(0, 0);
-		handle<pwflat::curve_view<>> c_(c);
+		handle<pwflat::curve<>> c_(c);
 		ensure(c_);
-		int m = (int)c_->size();
+		auto pc = c_.as<pwflat::curve_view<>>();
+		ensure(pc);
+		int m = (int)pc->size();
 		result.resize(2, m + 1);
-		std::copy(c_->time(), c_->time() + m, result.array());
-		std::copy(c_->rate(), c_->rate() + m, result.array() + m + 1);
+		view<double> t = pc->t;
+		view<double> f = pc->f;
+		std::copy(t.begin(), t.end(), result.array());
+		std::copy(f.begin(), f.end(), result.array() + m + 1);
 		result(0, m) = result(0, m - 1);
-		result(1, m) = c_->extrapolate();
+		result(1, m) = pc->extrapolate();
 	}
 	catch (const std::exception& ex) {
 		XLL_ERROR(ex.what());
@@ -71,6 +75,7 @@ _FPX* WINAPI xll_pwflat_curve(HANDLEX c)
 	return result.get();
 }
 
+#if 0
 AddIn xai_pwflat_curve_shift_(
 	Function(XLL_HANDLEX, "xll_pwflat_curve_shift_", "\\" CATEGORY ".PWFLAT.CURVE.SHIFT")
 	.Arguments({
@@ -132,9 +137,10 @@ HANDLEX WINAPI xll_pwflat_curve_translate_(HANDLEX c, double u)
 
 	return result;
 }
+#endif // 0
 
 AddIn xai_pwflat_curve_value(
-	Function(XLL_DOUBLE, "xll_pwflat_curve_value", CATEGORY ".PWFLAT.CURVE.VALUE")
+	Function(XLL_DOUBLE, "xll_pwflat_curve_value", CATEGORY ".PWFLAT.CURVE.FORWARD")
 	.Arguments({
 		Arg(XLL_HANDLEX, "c", "is a handle to a piecewise flat curve."),
 		Arg(XLL_DOUBLE, "t", "is the time at which to value the curve."),
@@ -149,10 +155,10 @@ HANDLEX WINAPI xll_pwflat_curve_value(HANDLEX c, double t)
 	double v = std::numeric_limits<double>::quiet_NaN();
 
 	try {
-		handle<pwflat::curve_view<>> c_(c);
+		handle<pwflat::curve<>> c_(c);
 		ensure(c_);
 
-		v = c_->value(t);
+		v = c_->forward(t);
 	}
 	catch (const std::exception& ex) {
 		XLL_ERROR(ex.what());
@@ -177,7 +183,7 @@ HANDLEX WINAPI xll_pwflat_curve_spot(HANDLEX c, double t)
 	double v = std::numeric_limits<double>::quiet_NaN();
 
 	try {
-		handle<pwflat::curve_view<>> c_(c);
+		handle<pwflat::curve<>> c_(c);
 		ensure(c_);
 
 		v = c_->spot(t);
@@ -205,7 +211,7 @@ HANDLEX WINAPI xll_pwflat_curve_discount(HANDLEX c, double t)
 	double v = std::numeric_limits<double>::quiet_NaN();
 
 	try {
-		handle<pwflat::curve_view<>> c_(c);
+		handle<pwflat::curve<>> c_(c);
 		ensure(c_);
 
 		v = c_->discount(t);

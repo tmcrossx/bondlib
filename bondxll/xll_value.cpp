@@ -1,20 +1,18 @@
 // xll_value.h - Value functions
-#include "../bondlib/tmx_instrument.h"
-#include "../bondlib/tmx_pwflat_value.h"
 #include "../bondlib/tmx_value.h"
 #include "bondxll.h"
 
 using namespace tmx;
 using namespace xll;
 
-inline instrument_view<> get_instrument_view(const _FPX* puc)
+inline instrument_view<> get_instrument_view(_FPX* puc)
 {
 	instrument_view<> iv;
 
 	if (size(*puc) == 1) {
 		handle<instrument<>> i_(puc->array[0]);
 		ensure(i_);
-		iv = instrument_view<>(i_->size(), i_->time(), i_->cash());
+		iv = instrument_view<>(i_->time(), i_->cash());
 	}
 	else {
 		ensure(puc->rows == 2);
@@ -29,11 +27,12 @@ AddIn xai_value_present(
 	.Arguments({
 		Arg(XLL_FPX, "time_cash", "is a two row array of times and cash flows."),
 		Arg(XLL_HANDLEX, "curve", "is a handle to a curve."),
+		Arg(XLL_DOUBLE, "t", "is an optional time in years at which to compute the present value. Default is 0."),
 		})
 	.Category(CATEGORY)
 	.FunctionHelp("Return present value of cash flows using curve.")
 );
-double WINAPI xll_value_present(const _FPX* puc, HANDLEX curve)
+double WINAPI xll_value_present(_FPX* puc, HANDLEX curve, double t)
 {
 #pragma XLLEXPORT
 	double result = std::numeric_limits<double>::quiet_NaN();
@@ -42,7 +41,7 @@ double WINAPI xll_value_present(const _FPX* puc, HANDLEX curve)
 		auto iv = get_instrument_view(puc);
 		handle<pwflat::curve_view<>> c_(curve);
 		ensure(c_);
-		result = value::present(iv.size(), iv.time(), iv.cash(), c_->size(), c_->time(), c_->rate(), c_->extrapolate());
+		result = value::present(iv, *c_, t);
 	}
 	catch (const std::exception& ex) {
 		XLL_ERROR(ex.what());
@@ -56,11 +55,12 @@ AddIn xai_value_duration(
 	.Arguments({
 		Arg(XLL_FPX, "time_cash", "is a two row array of times and cash flows."),
 		Arg(XLL_HANDLEX, "curve", "is a handle to a curve."),
+		Arg(XLL_DOUBLE, "t", "is an optional time in years at which to compute the duration. Default is 0."),
 		})
 		.Category(CATEGORY)
 	.FunctionHelp("Return duration of cash flows using curve.")
 );
-double WINAPI xll_value_duration(const _FPX* puc, HANDLEX curve)
+double WINAPI xll_value_duration(_FPX* puc, HANDLEX curve, double t)
 {
 #pragma XLLEXPORT
 	double result = std::numeric_limits<double>::quiet_NaN();
@@ -69,7 +69,7 @@ double WINAPI xll_value_duration(const _FPX* puc, HANDLEX curve)
 		auto iv = get_instrument_view(puc);
 		handle<pwflat::curve_view<>> c_(curve);
 		ensure(c_);
-		result = value::duration(iv.size(), iv.time(), iv.cash(), c_->size(), c_->time(), c_->rate(), c_->extrapolate());
+		result = value::duration(iv, *c_, t);
 	}
 	catch (const std::exception& ex) {
 		XLL_ERROR(ex.what());
@@ -83,11 +83,12 @@ AddIn xai_value_convexity(
 	.Arguments({
 		Arg(XLL_FPX, "time_cash", "is a two row array of times and cash flows."),
 		Arg(XLL_HANDLEX, "curve", "is a handle to a curve."),
+		Arg(XLL_DOUBLE, "t", "is an optional time in years at which to compute the convexity. Default is 0."),
 		})
 		.Category(CATEGORY)
 	.FunctionHelp("Return convexity of cash flows using curve.")
 );
-double WINAPI xll_value_convexity(const _FPX* puc, HANDLEX curve)
+double WINAPI xll_value_convexity(_FPX* puc, HANDLEX curve, double t)
 {
 #pragma XLLEXPORT
 	double result = std::numeric_limits<double>::quiet_NaN();
@@ -96,7 +97,7 @@ double WINAPI xll_value_convexity(const _FPX* puc, HANDLEX curve)
 		auto iv = get_instrument_view(puc);
 		handle<pwflat::curve_view<>> c_(curve);
 		ensure(c_);
-		result = value::convexity(iv.size(), iv.time(), iv.cash(), c_->size(), c_->time(), c_->rate(), c_->extrapolate());
+		result = value::convexity(iv, *c_, t);
 	}
 	catch (const std::exception& ex) {
 		XLL_ERROR(ex.what());
@@ -114,14 +115,14 @@ AddIn xai_value_yield(
 		.Category(CATEGORY)
 	.FunctionHelp("Return constant yield repricing the instrument.")
 );
-double WINAPI xll_value_yield(const _FPX* i, double p)
+double WINAPI xll_value_yield(_FPX* i, double p)
 {
 #pragma XLLEXPORT
 	double y = std::numeric_limits<double>::quiet_NaN();
 
 	try {
 		instrument_view iv = get_instrument_view(i);
-		y = value::yield(p, iv.size(), iv.time(), iv.cash());
+		y = value::yield(p, iv);
 	}
 	catch (const std::exception& ex) {
 		XLL_ERROR(ex.what());

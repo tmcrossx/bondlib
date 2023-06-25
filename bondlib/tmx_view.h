@@ -1,4 +1,4 @@
-// tmx_span.h - std::span helpers
+// tmx_view.h - Non-owning view of contiguous data.
 #pragma once
 #include <algorithm>
 #include <cmath>
@@ -19,15 +19,11 @@ namespace tmx {
 	}
 
 	// cyclic division
-	inline long xmod(long x, size_t y)
+	constexpr long xmod(long x, long y)
 	{
-		if (0 <= x and x < y)
-			return x;
-
-		long z = x % static_cast<long>(y);
-		if (z < 0) z += static_cast<long>(y);
-
-		return z;
+		x = x % y;
+		
+		return x >= 0 ? x : x + y;
 	}
 
 	// non-owning view of data
@@ -51,7 +47,6 @@ namespace tmx {
 			: n{ static_cast<size_t>(std::distance(b, e)) }, t{ n ? &*b : nullptr }
 		{ }
 		template<class C>
-		// requires std::contiguous_iterator<typename C::iterator>
 		constexpr view(C& t)
 			: view(t.begin(), t.end())
 		{ }
@@ -62,8 +57,8 @@ namespace tmx {
 
 		constexpr bool operator==(const view& v) const
 		{
-			return size() == v.size()
-				&& std::equal(data(), data() + size(), v.data(), v.data() + v.size());
+			return n == v.n
+				&& std::equal(t, t + n, v.t, v.t + v.n);
 		}
 		// == view({1,2,3}) ???
 		constexpr bool eq(const std::initializer_list<T>& v) const
@@ -122,18 +117,27 @@ namespace tmx {
 		// Cyclic element access.
 		constexpr T operator()(long i) const
 		{
-			return n == 0 ? NaN<T> : t[xmod(i, n)];
+			return n == 0 ? NaN<T> : t[xmod(i, (long)n)];
 		}
 		constexpr T& operator()(long i)
 		{
-			//??? static T nan = NaN<T>;
-			return t[xmod(i, n)];
+			return t[xmod(i, (long)n)];
+		}
+
+		constexpr T back() const
+		{
+			return n == 0 ? NaN<T> : t[n - 1];
 		}
 
 #ifdef _DEBUG
 
 		static int test()
 		{
+			{
+				static_assert(-1 == -1 % 3, "xmod broken");
+				static_assert(1 == 1 % -3, "xmod broken");
+				static_assert(-1 == -1 % -3, "xmod broken");
+			}
 			double t[] = { 1,2,4 };
 			view v(t);
 			{

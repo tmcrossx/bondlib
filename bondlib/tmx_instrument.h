@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <vector>
 #include "ensure.h"
+#include "tmx_view.h"
 
 namespace tmx {
 
@@ -22,23 +23,23 @@ namespace tmx {
 		{
 			return _size();
 		}
-		const view<U> time() const
+		view<U> time() const
 		{
 			return _time();
 		}
-		const view<C> cash() const
+		view<C> cash() const
 		{
 			return _cash();
 		}
-
+		// last cash flow
 		std::pair<U, C> back() const
 		{
 			return { time()(-1), cash()(-1) };
 		}
 	private:
 		virtual size_t _size() const = 0;
-		virtual const view<U> _time() const = 0;
-		virtual const view<C> _cash() const = 0;
+		virtual view<U> _time() const = 0;
+		virtual view<C> _cash() const = 0;
 	};
 
 	// non-owning instrument view
@@ -51,7 +52,7 @@ namespace tmx {
 		instrument_view()
 			: u{}, c{}
 		{ }
-		instrument_view(size_t m, const U* u, const C* c)
+		instrument_view(size_t m, U* u, C* c)
 			: u(m, u), c(m, c)
 		{ }
 		instrument_view(view<U> u, view<C> c)
@@ -68,14 +69,37 @@ namespace tmx {
 		{
 			return u.size();
 		}
-		const view<U> _time() const override
+		view<U> _time() const override
 		{
 			return u;
 		}
-		const view<C> _cash() const override
+		view<C> _cash() const override
 		{
 			return c;
 		}
+
+#ifdef _DEBUG
+		static int test()
+		{
+			{
+				instrument_view<U, C> i;
+				assert(0 == i.size());
+				instrument_view<U, C> i2{i};
+				assert(i == i2);
+				i = i2;
+				assert(!(i != i2));
+
+				U u[] = {1, 2};
+				C c[] = {1, 2};
+				instrument_view<U, C> i3(2, u, c);
+				assert(i3.size() == 2);
+				assert(i3.time() == view<U>(2, u));
+				assert(i3.cash() == view<C>(2, c));
+			}
+
+			return 0;
+		}
+#endif // _DEBUG
 	};
 
 	// instrument value type

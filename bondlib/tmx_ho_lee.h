@@ -24,7 +24,7 @@
 #pragma once
 #include <cmath>
 #include "tmx_instrument.h"
-#include "tmx_pwflat_value.h"
+#include "tmx_pwflat.h"
 
 namespace tmx::ho_lee {
 

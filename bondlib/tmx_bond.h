@@ -17,7 +17,7 @@ namespace tmx::bond {
 		date::dcf_t& day_count;
 	};
 
-	// Return pair of time, cash vectors
+	// Return instrument cash flows for unit notional
 	template<class U = double, class C = double>
 	constexpr instrument_value<U,C> instrument(const simple<C>& bond, const date::ymd& dated)
 	{

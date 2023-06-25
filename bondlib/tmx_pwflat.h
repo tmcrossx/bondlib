@@ -17,6 +17,7 @@
 #endif
 #include <cmath>
 #include <algorithm>
+#include <vector>
 #include "ensure.h"
 #include "tmx_view.h"
 
@@ -65,6 +66,13 @@ namespace tmx::pwflat {
 	template<class T = double, class F = double>
 	struct curve {
 		virtual ~curve() = default;
+
+		// Last point on the curve.
+		std::pair<T, F> back() const
+		{
+			return _back();
+		}
+
 		// f(t) is the forward rate at time t
 		F forward(T u) const
 		{
@@ -87,6 +95,7 @@ namespace tmx::pwflat {
 			return _spot(u, t);
 		}
 	private:
+		virtual	std::pair<T, F> _back() const = 0;
 		virtual F _forward(T u) const = 0;
 		virtual F _discount(T u, T t) const = 0;
 		virtual F _spot(T u, T t) const = 0;
@@ -143,6 +152,12 @@ namespace tmx::pwflat {
 
 			return *this;
 		}
+
+		std::pair<T, F> _back() const override
+		{
+			return { t.back(), f.back() };
+		}
+
 		F _forward(T u) const override
 		{
 			if (u < 0)
