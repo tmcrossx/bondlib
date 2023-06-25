@@ -27,7 +27,7 @@ HANDLEX WINAPI xll_bond_simple_(WORD maturity, double coupon, WORD freq, HANDLEX
 		using std::chrono::months;
 
 		if (freq == 0) {
-			freq = 2;
+			freq = 6;
 		}
 
 		date::dcf_t* _dcf = nullptr;

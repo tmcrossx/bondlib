@@ -202,7 +202,7 @@ namespace tmx::pwflat {
 		}
 
 		// D_t(u) = exp(-(u - t) r_t(u))
-		// r_t(u) = \int_t^u f(s) ds / (u - t)
+		// r_t(u) = int_t^u f(s) ds / (u - t)
 		// r_t(u) = f(u) if u <= t[offset]
 		constexpr F _spot(T u, T t0 = 0) const override
 		{
@@ -271,8 +271,10 @@ namespace tmx::pwflat {
 	public:
 		// constant curve
 		constexpr curve_value(F _f = NaN<F>)
-			: curve_view<T, F>(_f)
-		{ }
+			: curve_view<T, F>(_f), t{}, f{}
+		{
+			update();
+		}
 		curve_value(size_t n, const T* t_, const F* f_, F _f = NaN<F>)
 			: curve_view<T, F>(_f), t(t_, t_ + n), f(f_, f_ + n)
 		{
@@ -282,10 +284,38 @@ namespace tmx::pwflat {
 		curve_value(const curve_view<T, F>& c)
 			: curve_value(c.size(), c.time(), c.rate(), c.extrapolate())
 		{ }
-		curve_value(const curve_value&) = default;
-		curve_value& operator=(const curve_value&) = default;
-		curve_value(curve_value&&) = default;
-		curve_value& operator=(curve_value&&) = default;
+		curve_value(const curve_value& cv)
+			: curve_view<T, F>(cv), t(cv.t), f(cv.f)
+		{
+			update();
+		}
+		curve_value& operator=(const curve_value& cv)
+		{
+			if (this != &cv) {
+				curve_view<T, F>::operator=(cv);
+				t = cv.t;
+				f = cv.f;
+				update();
+			}
+
+			return *this;
+		}
+		curve_value(curve_value&& cv)
+			: curve_view<T, F>(cv), t(std::move(cv.t)), f(std::move(cv.f))
+		{
+			update();
+		}
+		curve_value& operator=(curve_value&& cv)
+		{
+			if (this != &cv) {
+				curve_view<T, F>::operator=(cv);
+				t = std::move(cv.t);
+				f = std::move(cv.f);
+				update();
+			}
+
+			return *this;
+		}
 		~curve_value()
 		{ }
 

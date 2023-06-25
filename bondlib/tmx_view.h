@@ -22,7 +22,7 @@ namespace tmx {
 	constexpr long xmod(long x, long y)
 	{
 		x = x % y;
-		
+
 		return x >= 0 ? x : x + y;
 	}
 
@@ -166,6 +166,73 @@ namespace tmx {
 			return 0;
 		}
 #endif // _DEBUG
+	};
 
+	template<class T>
+	class view_iterable {
+		view<T> v;
+		size_t i;
+	public:
+		view_iterable()
+			: v{}, i{ 0 }
+		{ }
+		view_iterable(view<T> v)
+			: v{ v }, i{ 0 }
+		{ }
+
+		bool operator==(const view_iterable& o) const = default;
+
+		explicit constexpr operator bool() const
+		{
+			return i < v.size();
+		}
+		T operator*() const
+		{
+			return v[i];
+		}
+		view_iterable& operator++()
+		{
+			if (i < v.size()) {
+				++i;
+			}
+
+			return *this;
+		}
+
+#ifdef _DEBUG
+		static int test()
+		{
+			{
+				view_iterable<T> vi{};
+				assert(!vi);
+				view_iterable<T> vi2{ vi };
+				assert(vi == vi2);
+				vi = vi2;
+				assert(!(vi != vi2));
+			}
+			{
+				T t[] = { 1,2,4 };
+				view v(t);
+				view_iterable vi(v);
+				view_iterable vi2{ vi };
+				assert(vi2 == vi);
+				vi = vi2;
+				assert(!(vi != vi2));
+
+				assert(vi);
+				assert(*vi == 1);
+				++vi;
+				assert(vi);
+				assert(*vi == 2);
+				++vi;
+				assert(vi);
+				assert(*vi == 4);
+				++vi;
+				assert(!vi);
+			}
+
+			return 0;
+		}
+#endif // _DEBUG
 	};
 }

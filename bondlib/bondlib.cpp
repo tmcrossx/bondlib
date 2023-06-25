@@ -19,6 +19,7 @@ using namespace tmx;
 int test_years = date::years_test();
 int test_dcf_30_360 = date::dcf_30_360_test();
 int test_view_d = view<double>::test();
+int test_view_iterable_d = view_iterable<double>::test();
 int test_pwflat_monotonic = pwflat::monotonic_test();
 int test_pwflat_curve_view = pwflat::curve_view<>::test();
 int test_pwflat_curve_value = pwflat::curve_value<>::test();
