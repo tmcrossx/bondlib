@@ -38,3 +38,7 @@
 /xlcall32/x64/Debug
 /bondlib/.tmx_bond.h.swp
 /bondlib/tmp
+/bondlib/x64/Release
+/bondxll/x64/Release
+/setup/Debug
+/setup/Release
