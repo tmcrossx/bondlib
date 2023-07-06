@@ -42,7 +42,7 @@ AddIn xai_ho_lee_ELogD(
 		Arg(XLL_DOUBLE, "σ", "is the Ho-Lee volatility."),
 		})
 		.Category(CATEGORY)
-	.FunctionHelp("Return the Ho-Lee expected value of log discount E[log E_t[D_u]].")
+	.FunctionHelp("Return the Ho-Lee expected value of log discount E[log D_t(u)]].")
 );
 double WINAPI xll_ho_lee_ELogD(double Dt, double Du, double t, double u, double σ)
 {
@@ -67,7 +67,7 @@ AddIn xai_ho_lee_VarLogD(
 		Arg(XLL_DOUBLE, "σ", "is the Ho-Lee volatility."),
 		})
 		.Category(CATEGORY)
-	.FunctionHelp("Return the Ho-Lee expected variance of log discount Var(log E_t[D_u]).")
+	.FunctionHelp("Return the Ho-Lee expected variance of log discount Var(log D_t(u)).")
 );
 double WINAPI xll_ho_lee_VarLogD(double t, double u, double σ)
 {

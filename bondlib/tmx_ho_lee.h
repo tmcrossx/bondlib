@@ -1,4 +1,7 @@
 ﻿// tmx_ho_lee.h - Ho-Lee model with constant volatility.
+// D_t = exp(-int_0^t φ(s) ds - int_0^t σ(t - s) dB_s)
+// Var(int_0^t σ(t - s) dB_s) = σ^2 int_0^t (t - s)^2 ds = σ^2 t^3/3
+// D(t) = exp(-int_0^t φ(s) ds + σ^2 t^3/6)
 // D_t(u) = exp(-int_t^u φ(s) ds + σ^2 (u - t)^3/6 - σ (u - t) B_t)
 //        = D(u)/D(t) exp(σ^2 [-u^3 + t^3 + (u - t)^3]/6 - σ (u - t) B_t)
 //        = D(u)/D(t) exp(σ^2 [-3u^2 t + 3 u t^2]/6 - σ (u - t) B_t)
@@ -10,6 +13,25 @@
 #include "tmx_pwflat.h"
 
 namespace tmx::ho_lee {
+
+	// E[log D_t]
+	template<class X = double>
+	inline auto ELogD(X t, X φ)
+	{
+		return -φ * t;
+	}
+	// Var(log D_t)
+	template<class X = double>
+	inline auto VarLogD(X t, X σ)
+	{
+		return σ * σ * t * t * t / 3;
+	}
+	template<class X = double>
+	inline auto ED(X t, X φ, X σ)
+	{
+		return std::exp(ELogD(t, φ) + VarLogD(t, σ)/2);
+	}
+
 
 	// E[log D_t(u)]
 	template<class X = double>

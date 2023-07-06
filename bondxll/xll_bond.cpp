@@ -24,10 +24,9 @@ HANDLEX WINAPI xll_bond_simple_(WORD maturity, double coupon, WORD freq, HANDLEX
 
 	try {
 		using std::chrono::years;
-		using std::chrono::months;
 
 		if (freq == 0) {
-			freq = 6;
+			freq = tmx::date::frequency::semiannually;
 		}
 
 		date::dcf_t* _dcf = nullptr;
@@ -91,7 +90,7 @@ AddIn xai_bond_cash_flow_(
 		})
 	.Uncalced()
 	.Category(CATEGORY)
-	.FunctionHelp("Return a handle to bond cash flows.")
+	.FunctionHelp("Return a handle to bond instrument cash flows.")
 );
 HANDLEX WINAPI xll_bond_cash_flow_(HANDLEX b, double dated)
 {
