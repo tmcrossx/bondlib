@@ -43,8 +43,7 @@ namespace tmx::bootstrap {
 		pwflat::curve_value<T, F> f;
 		
 		while (is) {
-			const auto [_t, _f] = instrument(*is, f);
-			f.push_back({ _t, _f });
+			f.push_back(instrument(*is, f));
 			++is;
 		}
 

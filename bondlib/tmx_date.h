@@ -12,10 +12,10 @@ namespace tmx::date {
 	constexpr double dpy = years::period::num / (86400. * years::period::den);
 
 	namespace frequency {
-		constexpr auto annually = std::chrono::months(12);
-		constexpr auto semiannually = std::chrono::months(6);
-		constexpr auto quarterly = std::chrono::months(3);
-		constexpr auto monthly = std::chrono::months(1);
+		constexpr auto annually = 1;
+		constexpr auto semiannually = 2;
+		constexpr auto quarterly = 4;
+		constexpr auto monthly = 12;
 	}
 
 	template<class Dur>

@@ -65,7 +65,6 @@ The function `tmx::instrument` returns the bond cash flows given the _dated date
 
 compounding $(1 + y/n)^n = \exp(f)$
 
-
 Single call at date and price. Use time-dependent Ho-Lee with constant volatility. 
 
 $f_t = r(t) + \sigma B_t$.  

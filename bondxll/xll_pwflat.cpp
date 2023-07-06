@@ -169,7 +169,7 @@ HANDLEX WINAPI xll_pwflat_curve_value(HANDLEX c, double t, double _t)
 		handle<pwflat::curve<>> c_(c);
 		ensure(c_);
 
-		v = c_->forward(t - _t);
+		v = c_->forward(t + _t);
 	}
 	catch (const std::exception& ex) {
 		XLL_ERROR(ex.what());

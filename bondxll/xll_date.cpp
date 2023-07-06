@@ -10,10 +10,10 @@ XLL_CONST(HANDLEX, TMX_DAY_COUNT_30_360, safe_handle(date::dcf_30_360), "30 days
 XLL_CONST(HANDLEX, TMX_DAY_COUNT_ACTUAL_360, safe_handle(date::dcf_actual_360), "Actual days divided by 360.", CATEGORY " Enum", "")
 XLL_CONST(HANDLEX, TMX_DAY_COUNT_ACTUAL_365, safe_handle(date::dcf_actual_365), "Actual days divided by 365.", CATEGORY " Enum", "")
 
-XLL_CONST(WORD, TMX_FREQUENCY_ANNUALLY, tmx::date::frequency::annually.count(), "Yearly payments.", CATEGORY " Enum", "")
-XLL_CONST(WORD, TMX_FREQUENCY_SEMIANNUALLY, tmx::date::frequency::semiannually.count(), "2 payments per year.", CATEGORY " Enum", "")
-XLL_CONST(WORD, TMX_FREQUENCY_QUARTERLY, tmx::date::frequency::quarterly.count(), "4 payments per year.", CATEGORY " Enum", "")
-XLL_CONST(WORD, TMX_FREQUENCY_MONTHLY, tmx::date::frequency::monthly.count(), "12 payments per year.", CATEGORY " Enum", "")
+XLL_CONST(WORD, TMX_FREQUENCY_ANNUALLY, tmx::date::frequency::annually, "Yearly payments.", CATEGORY " Enum", "")
+XLL_CONST(WORD, TMX_FREQUENCY_SEMIANNUALLY, tmx::date::frequency::semiannually, "2 payments per year.", CATEGORY " Enum", "")
+XLL_CONST(WORD, TMX_FREQUENCY_QUARTERLY, tmx::date::frequency::quarterly, "4 payments per year.", CATEGORY " Enum", "")
+XLL_CONST(WORD, TMX_FREQUENCY_MONTHLY, tmx::date::frequency::monthly, "12 payments per year.", CATEGORY " Enum", "")
 
 AddIn xai_enum(
 	Function(XLL_LPOPER, "xll_enum", "ENUM")

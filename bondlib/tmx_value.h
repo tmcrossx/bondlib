@@ -68,7 +68,7 @@ namespace tmx::value {
 		return cnv;
 	}
 
-	// Constant forward rate matching price.
+	// Constant forward rate matching price p at _t.
 	template<class U, class C>
 	inline C yield(const instrument<U,C>& i, const C p = 0, U _t = 0,
 		C y = 0.01, C tol = std::sqrt(std::numeric_limits<C>::epsilon()), int iter = 100)

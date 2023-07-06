@@ -40,7 +40,7 @@ HANDLEX WINAPI xll_bond_simple_(WORD maturity, double coupon, WORD freq, HANDLEX
 			_dcf = *p;
 		}
 
-		handle<bond::simple<>> h(new bond::simple<>{ years(maturity), coupon, months(freq), *_dcf });
+		handle<bond::simple<>> h(new bond::simple<>{ years(maturity), coupon, freq, *_dcf });
 		ensure(h);
 
 		result = h.get();
@@ -73,7 +73,7 @@ LPOPER WINAPI xll_bond_simple(HANDLEX h)
 		result.resize(4, 1);
 		result[0] = std::chrono::years(h_->maturity).count();
 		result[1] = h_->coupon;
-		result[2] = h_->frequency.count();
+		result[2] = h_->frequency;
 		result[3] = to_handle(&h_->day_count);
 	}
 	catch (const std::exception& ex) {
