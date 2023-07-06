@@ -88,17 +88,22 @@ namespace tmx::pwflat {
 		{
 			return _discount(u, t);
 		}
-		// r_t(u) is the spot rate at time t over the interval [t, u].
-		// D_t(u) = exp(-(u - t) r_t(u)).
-		F spot(T u, T t = 0) const
+		// y_t(u) is the yield at time t over the interval [t, u].
+		// D_t(u) = exp(-(u - t) y_t(u)).
+		F yield(T u, T t = 0) const
 		{
-			return _spot(u, t);
+			return _yield(u, t);
+		}
+		curve& shift(F s)
+		{
+			return _shift(s);
 		}
 	private:
 		virtual	std::pair<T, F> _back() const = 0;
 		virtual F _forward(T u) const = 0;
 		virtual F _discount(T u, T t) const = 0;
-		virtual F _spot(T u, T t) const = 0;
+		virtual F _yield(T u, T t) const = 0;
+		virtual curve& _shift(F s) = 0;
 	};
 
 	// Non-owning view of piecewise flat curve.
@@ -201,17 +206,27 @@ namespace tmx::pwflat {
 			return std::exp(-integral(u, t0));
 		}
 
-		// D_t(u) = exp(-(u - t) r_t(u))
+		// D_t(u) = exp(-(u - t) r_t(u)) = exp(-int_t^u f(s) ds)
 		// r_t(u) = int_t^u f(s) ds / (u - t)
 		// r_t(u) = f(u) if u <= t[offset]
-		constexpr F _spot(T u, T t0 = 0) const override
+		constexpr F _yield(T u, T t0 = 0) const override
 		{
-			size_t i = t.offset(u);
+			size_t i = t.offset(t0);
 
 			return u < t0 ? NaN<F>
 				: i == size() ? extrapolate()
 				: u <= t[i] ? f[i]
 				: integral(u, t0) / (u - t0);
+		}
+
+		curve_view<T, F>& _shift(F s) override
+		{
+			for (size_t i = 0; i < size(); ++i) {
+				f[i] += s;
+			}
+			_f += s;
+
+			return *this;
 		}
 
 #ifdef _DEBUG
@@ -282,7 +297,7 @@ namespace tmx::pwflat {
 		}
 		// Promote view to a value.
 		curve_value(const curve_view<T, F>& c)
-			: curve_value(c.size(), c.time(), c.rate(), c.extrapolate())
+			: curve_value(c.size(), c.t.data(), c.f.data(), c._f)
 		{ }
 		curve_value(const curve_value& cv)
 			: curve_view<T, F>(cv), t(cv.t), f(cv.f)

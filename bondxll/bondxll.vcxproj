@@ -22,6 +22,7 @@
     <ClInclude Include="bondxll.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="xll_array_sequence.cpp" />
     <ClCompile Include="xll_black.cpp" />
     <ClCompile Include="xll_ho_lee.cpp" />
     <ClCompile Include="xll_instrument.cpp" />

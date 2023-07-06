@@ -21,7 +21,7 @@ namespace tmx {
 
 		size_t size() const
 		{
-			return _size();
+			return _time().size();
 		}
 		view<U> time() const
 		{
@@ -34,10 +34,9 @@ namespace tmx {
 		// last cash flow
 		std::pair<U, C> back() const
 		{
-			return { time()(-1), cash()(-1) };
+			return { _time()(-1), _cash()(-1) };
 		}
 	private:
-		virtual size_t _size() const = 0;
 		virtual view<U> _time() const = 0;
 		virtual view<C> _cash() const = 0;
 	};
@@ -65,10 +64,6 @@ namespace tmx {
 		virtual ~instrument_view()
 		{ }
 
-		size_t _size() const override
-		{
-			return u.size();
-		}
 		view<U> _time() const override
 		{
 			return u;
@@ -154,6 +149,15 @@ namespace tmx {
 				c.push_back(_c);
 				update();
 			}
+
+			return *this;
+		}
+		// Make price zero
+		instrument_value& price(C p)
+		{
+			u.insert(u.begin(), 0);
+			c.insert(c.begin(), -p);
+			update();
 
 			return *this;
 		}

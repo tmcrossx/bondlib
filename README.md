@@ -13,7 +13,7 @@ which represents the system-wide real time wall clock for time points.
 Every analytics library needs to convert real world date and time
 to a floating point number representing time in years and back again. 
 
-We use the duration `std::chrono::years` to define `tmx::date::dpy` to be the number of days per year.
+We use the duration `std::chrono::years` to define `tmx::date::dpy` as the number of days per year.
 
 The function `date::add_years(tp, years)` returns a time point with
 years rounded to seconds and `date::sub_years(tp1, tp0)` returns `tp1 - tp0` as the number of years
@@ -26,18 +26,19 @@ All day count fractions use the field based
 [`std::chrono::year_month_day`](https://en.cppreference.com/w/cpp/chrono/year_month_day)
 with resolution to one day.
 
-## Curve 
+## Discount 
 
-We use $f(t)$ to denote the _(continuously compounded) forward rate_ at time $t$.
-The _forward discount_ at $t$ to time $u$ is $D_t(u) = D(u)/D(t) = \exp(-\int_t^u f_t(s) ds)$.
+Let $f_t$ to be the _(continuously compounded) forward rate_ at time $t$.
+The _stochastic discount_ is $D_t = \int_0^t f_s\,ds$.
+The _forward curve_ $f(t)$ is defined by $D(t) = E[D_t] = \int_0^t f(s)\,ds$.
 
-The implementation use piecewise flat forwards.
+The price at $t$ of a zero coupon bond maturing at $u$ is 
+$D_t(u) = E_t[D_u]/D_t = E_t[\exp(-\int_t^u f_t(s) ds)]$,
+where $f_t(u)$ is the forward curve at time $t$. Note $f(t) = f_0(t)$.
 
-shift rates
+The _forward yield_ at $t$ defined by $D_t(u) = \exp(-(u - t)y_t(u)$.
 
-translate times
-
-use internal offset to minimize copying??
+The implementation uses [piecewise flat](tmx_pwflat.h) forwards.
 
 ## Fixed Income
 

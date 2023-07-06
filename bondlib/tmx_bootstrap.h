@@ -36,5 +36,19 @@ namespace tmx::bootstrap {
 
 		return { _u, _f };
 	}
+	/*
+	template<class U = double, class C = double, class T = double, class F = double>
+	constexpr pwflat::curve_value<T, F> instruments(iterable<instrument<U,C>> is)
+	{
+		pwflat::curve_value<T, F> f;
+		
+		while (is) {
+			const auto [_t, _f] = instrument(*is, f);
+			f.push_back({ _t, _f });
+			++is;
+		}
 
+		return f;
+	}
+	*/
 }

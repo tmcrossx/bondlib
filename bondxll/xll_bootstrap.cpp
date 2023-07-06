@@ -8,7 +8,7 @@ using namespace tmx;
 using namespace xll;
 
 AddIn xai_tmx_bootstrap_(
-	Function(XLL_HANDLEX, "xll_tmx_bootstrap_", "\\" CATEGORY ".BOOTSTRAP")
+	Function(XLL_HANDLEX, "xll_tmx_bootstrap_", "\\" CATEGORY ".BOOTSTRAP.CURVE")
 	.Arguments({
 		Arg(XLL_FPX, "instruments", "is an array of fixed income instrument handles."),
 		Arg(XLL_FPX, "prices", "is an array of instrument prices."),
