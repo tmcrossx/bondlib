@@ -5,43 +5,27 @@
 using namespace tmx;
 using namespace xll;
 
-inline instrument_view<> get_instrument_view(_FPX* puc)
-{
-	instrument_view<> iv;
-
-	if (size(*puc) == 1) {
-		handle<instrument<>> i_(puc->array[0]);
-		ensure(i_);
-		iv = instrument_view<>(i_->time(), i_->cash());
-	}
-	else {
-		ensure(puc->rows == 2);
-		iv = instrument_view<>(puc->columns, puc->array, puc->array + puc->columns);
-	}
-
-	return iv;
-}
-
 AddIn xai_value_present(
 	Function(XLL_DOUBLE, "xll_value_present", CATEGORY ".VALUE.PRESENT")
 	.Arguments({
-		Arg(XLL_FPX, "instrument", "is a handle or a two row array of times and cash flows."),
+		Arg(XLL_HANDLEX, "instrument", "is a handle to an instrument."),
 		Arg(XLL_HANDLEX, "curve", "is a handle to a curve."),
 		Arg(XLL_DOUBLE, "t", "is an optional time in years at which to compute the present value. Default is 0."),
 		})
 	.Category(CATEGORY)
-	.FunctionHelp("Return present value of cash flows using curve.")
+	.FunctionHelp("Return present value of instrument cash flows using curve at time t.")
 );
-double WINAPI xll_value_present(_FPX* puc, HANDLEX curve, double t)
+double WINAPI xll_value_present(HANDLEX inst, HANDLEX curve, double t)
 {
 #pragma XLLEXPORT
 	double result = std::numeric_limits<double>::quiet_NaN();
 
 	try {
-		auto iv = get_instrument_view(puc);
+		handle<instrument<>> i_(inst);
+		ensure(i_);
 		handle<pwflat::curve<>> c_(curve);
 		ensure(c_);
-		result = value::present(iv, *c_, t);
+		result = value::present(*i_, *c_, t);
 	}
 	catch (const std::exception& ex) {
 		XLL_ERROR(ex.what());
@@ -53,23 +37,24 @@ double WINAPI xll_value_present(_FPX* puc, HANDLEX curve, double t)
 AddIn xai_value_duration(
 	Function(XLL_DOUBLE, "xll_value_duration", CATEGORY ".VALUE.DURATION")
 	.Arguments({
-		Arg(XLL_FPX, "instrument", "is a two row array of times and cash flows."),
+		Arg(XLL_HANDLEX, "instrument", "is a handle to an instrument."),
 		Arg(XLL_HANDLEX, "curve", "is a handle to a curve."),
 		Arg(XLL_DOUBLE, "t", "is an optional time in years at which to compute the duration. Default is 0."),
 		})
 		.Category(CATEGORY)
 	.FunctionHelp("Return duration of cash flows using curve.")
 );
-double WINAPI xll_value_duration(_FPX* puc, HANDLEX curve, double t)
+double WINAPI xll_value_duration(HANDLEX inst, HANDLEX curve, double t)
 {
 #pragma XLLEXPORT
 	double result = std::numeric_limits<double>::quiet_NaN();
 
 	try {
-		auto iv = get_instrument_view(puc);
+		handle<instrument<>> i_(inst);
+		ensure(i_);
 		handle<pwflat::curve<>> c_(curve);
 		ensure(c_);
-		result = value::duration(iv, *c_, t);
+		result = value::duration(*i_, *c_, t);
 	}
 	catch (const std::exception& ex) {
 		XLL_ERROR(ex.what());
@@ -81,23 +66,24 @@ double WINAPI xll_value_duration(_FPX* puc, HANDLEX curve, double t)
 AddIn xai_value_convexity(
 	Function(XLL_DOUBLE, "xll_value_convexity", CATEGORY ".VALUE.CONVEXITY")
 	.Arguments({
-		Arg(XLL_FPX, "instrument", "is a two row array of times and cash flows."),
+		Arg(XLL_HANDLEX, "instrument", "is a handle to an instrument."),
 		Arg(XLL_HANDLEX, "curve", "is a handle to a curve."),
 		Arg(XLL_DOUBLE, "t", "is an optional time in years at which to compute the convexity. Default is 0."),
 		})
 		.Category(CATEGORY)
 	.FunctionHelp("Return convexity of cash flows using curve.")
 );
-double WINAPI xll_value_convexity(_FPX* puc, HANDLEX curve, double t)
+double WINAPI xll_value_convexity(HANDLEX inst, HANDLEX curve, double t)
 {
 #pragma XLLEXPORT
 	double result = std::numeric_limits<double>::quiet_NaN();
 
 	try {
-		auto iv = get_instrument_view(puc);
+		handle<instrument<>> i_(inst);
+		ensure(i_);
 		handle<pwflat::curve<>> c_(curve);
 		ensure(c_);
-		result = value::convexity(iv, *c_, t);
+		result = value::convexity(*i_, *c_, t);
 	}
 	catch (const std::exception& ex) {
 		XLL_ERROR(ex.what());
@@ -109,20 +95,22 @@ double WINAPI xll_value_convexity(_FPX* puc, HANDLEX curve, double t)
 AddIn xai_value_yield(
 	Function(XLL_DOUBLE, "xll_value_yield", CATEGORY ".VALUE.YIELD")
 	.Arguments({
-		Arg(XLL_FPX, "instrument", "is a handle to an instrument."),
+		Arg(XLL_HANDLEX, "instrument", "is a handle to an instrument."),
 		Arg(XLL_DOUBLE, "price", "is the price of the instrument."),
 		})
 		.Category(CATEGORY)
 	.FunctionHelp("Return constant yield repricing the instrument.")
 );
-double WINAPI xll_value_yield(_FPX* i, double p)
+double WINAPI xll_value_yield(HANDLEX inst, double p)
 {
 #pragma XLLEXPORT
 	double y = std::numeric_limits<double>::quiet_NaN();
 
 	try {
-		instrument_view iv = get_instrument_view(i);
-		y = value::yield(iv, p);
+		handle<instrument<>> i_(inst);
+		ensure(i_);
+
+		y = value::yield(*i_, p);
 	}
 	catch (const std::exception& ex) {
 		XLL_ERROR(ex.what());

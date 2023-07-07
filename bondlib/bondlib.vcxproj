@@ -140,6 +140,8 @@
     <ClInclude Include="tmx_bootstrap.h" />
     <ClInclude Include="tmx_ho_lee.h" />
     <ClInclude Include="tmx_instrument.h" />
+    <ClInclude Include="tmx_instrument_value.h" />
+    <ClInclude Include="tmx_instrument_view.h" />
     <ClInclude Include="tmx_iterable.h" />
     <ClInclude Include="tmx_monoid.h" />
     <ClInclude Include="tmx_monte_carlo.h" />

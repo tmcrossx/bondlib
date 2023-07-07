@@ -4,7 +4,7 @@
 #include <vector>
 #include "ensure.h"
 #include "tmx_date.h"
-#include "tmx_instrument.h"
+#include "tmx_instrument_value.h"
 #include "tmx_value.h"
 
 namespace tmx::bond {

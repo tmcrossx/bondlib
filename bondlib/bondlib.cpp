@@ -5,6 +5,7 @@
 #include "tmx_view.h"
 #include "tmx_date.h"
 #include "tmx_pwflat.h"
+#include "tmx_instrument_value.h"
 #include "tmx_value.h"
 #include "tmx_bond.h"
 #include "tmx_bootstrap.h"
