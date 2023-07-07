@@ -15,15 +15,15 @@ AddIn xai_value_present(
 	.Category(CATEGORY)
 	.FunctionHelp("Return present value of instrument cash flows using curve at time t.")
 );
-double WINAPI xll_value_present(HANDLEX inst, HANDLEX curve, double t)
+double WINAPI xll_value_present(HANDLEX i, HANDLEX c, double t)
 {
 #pragma XLLEXPORT
 	double result = std::numeric_limits<double>::quiet_NaN();
 
 	try {
-		handle<instrument<>> i_(inst);
+		handle<instrument<>> i_(i);
 		ensure(i_);
-		handle<pwflat::curve<>> c_(curve);
+		handle<curve<>> c_(c);
 		ensure(c_);
 		result = value::present(*i_, *c_, t);
 	}
@@ -44,15 +44,15 @@ AddIn xai_value_duration(
 		.Category(CATEGORY)
 	.FunctionHelp("Return duration of cash flows using curve.")
 );
-double WINAPI xll_value_duration(HANDLEX inst, HANDLEX curve, double t)
+double WINAPI xll_value_duration(HANDLEX i, HANDLEX c, double t)
 {
 #pragma XLLEXPORT
 	double result = std::numeric_limits<double>::quiet_NaN();
 
 	try {
-		handle<instrument<>> i_(inst);
+		handle<instrument<>> i_(i);
 		ensure(i_);
-		handle<pwflat::curve<>> c_(curve);
+		handle<curve<>> c_(c);
 		ensure(c_);
 		result = value::duration(*i_, *c_, t);
 	}
@@ -73,15 +73,15 @@ AddIn xai_value_convexity(
 		.Category(CATEGORY)
 	.FunctionHelp("Return convexity of cash flows using curve.")
 );
-double WINAPI xll_value_convexity(HANDLEX inst, HANDLEX curve, double t)
+double WINAPI xll_value_convexity(HANDLEX i, HANDLEX c, double t)
 {
 #pragma XLLEXPORT
 	double result = std::numeric_limits<double>::quiet_NaN();
 
 	try {
-		handle<instrument<>> i_(inst);
+		handle<instrument<>> i_(i);
 		ensure(i_);
-		handle<pwflat::curve<>> c_(curve);
+		handle<curve<>> c_(c);
 		ensure(c_);
 		result = value::convexity(*i_, *c_, t);
 	}
@@ -101,13 +101,13 @@ AddIn xai_value_yield(
 		.Category(CATEGORY)
 	.FunctionHelp("Return constant yield repricing the instrument.")
 );
-double WINAPI xll_value_yield(HANDLEX inst, double p)
+double WINAPI xll_value_yield(HANDLEX i, double p)
 {
 #pragma XLLEXPORT
 	double y = std::numeric_limits<double>::quiet_NaN();
 
 	try {
-		handle<instrument<>> i_(inst);
+		handle<instrument<>> i_(i);
 		ensure(i_);
 
 		y = value::yield(*i_, p);

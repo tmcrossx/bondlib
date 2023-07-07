@@ -80,10 +80,10 @@ namespace tmx::ho_lee {
 	*/
 	template<class T = double, class F = double, class S = double>
 	class model {
-		pwflat::curve_value<T, F> f; // forward curve
+		curve::curve_value<T, F> f; // forward curve
 		S σ;
 	public:
-		model(const pwflat::curve_value<T, F>& f, S σ)
+		model(const curve::curve_value<T, F>& f, S σ)
 			: f(f), σ(σ)
 		{ }
 		/*

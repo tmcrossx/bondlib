@@ -3,7 +3,7 @@
 #include <cmath>
 #include <limits>
 #include "tmx_instrument.h"
-#include "tmx_pwflat.h"
+#include "tmx_curve.h"
 #include "tmx_root1d.h"
 
 namespace tmx::value {
@@ -22,7 +22,7 @@ namespace tmx::value {
 
 	// Value at t of future discounted cash flows.
 	template<class U, class C, class T, class F>
-	constexpr C present(const instrument<U,C>& i, const pwflat::curve<T,F>& f, T t = 0)
+	constexpr C present(const instrument<U,C>& i, const curve<T,F>& f, T t = 0)
 	{
 		const auto u = i.time();
 		const auto c = i.cash();
@@ -38,7 +38,7 @@ namespace tmx::value {
 
 	// Derivative of present value with respect to a parallel shift.
 	template<class U, class C, class T, class F>
-	constexpr C duration(const instrument<U, C>& i, const pwflat::curve<T, F>& f, T t = 0)
+	constexpr C duration(const instrument<U, C>& i, const curve<T, F>& f, T t = 0)
 	{
 		const auto u = i.time();
 		const auto c = i.cash();
@@ -54,7 +54,7 @@ namespace tmx::value {
 
 	// Second derivative of present value with respect to a parallel shift.
 	template<class U, class C, class T, class F>
-	constexpr C convexity(const instrument<U, C>& i, const pwflat::curve<T, F>& f, T t = 0)
+	constexpr C convexity(const instrument<U, C>& i, const curve<T, F>& f, T t = 0)
 	{
 		const auto u = i.time();
 		const auto c = i.cash();
@@ -73,8 +73,8 @@ namespace tmx::value {
 	inline C yield(const instrument<U,C>& i, const C p = 0, U _t = 0,
 		C y = 0.01, C tol = std::sqrt(std::numeric_limits<C>::epsilon()), int iter = 100)
 	{
-		const auto pv = [&](C y_) { return present(i, pwflat::curve_view<U,C>(y_), _t) - p; };
-		const auto dur = [&](C y_) { return duration(i, pwflat::curve_view<U, C>(y_), _t); };
+		const auto pv = [&](C y_) { return present(i, curve_constant<U,C>(y_), _t) - p; };
+		const auto dur = [&](C y_) { return duration(i, curve_constant<U, C>(y_), _t); };
 		
 		return newton::solve(pv, dur, y, tol, iter);
 	}

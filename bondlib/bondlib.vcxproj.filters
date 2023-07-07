@@ -21,7 +21,7 @@
     <ClInclude Include="tmx_date.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tmx_pwflat.h">
+    <ClInclude Include="tmx_curve_pwflat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ensure.h">
@@ -67,6 +67,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tmx_instrument_view.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tmx_curve.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -8,10 +8,10 @@ namespace tmx::muni {
 
 	// Forward curve that reprices standard muni curve.
 	template<class T, class F>
-	inline pwflat::curve<T, F> fit(size_t n, const T* t, const F* y,
+	inline curve::curve<T, F> fit(size_t n, const T* t, const F* y,
 		F eps = std::sqrt(std::numeric_limits<F>::quiet_NaN()))
 	{
-		pwflat::curve r(n, t, y);
+		curve::curve r(n, t, y);
 		auto D = [&r](T t) { return r.discount(t); };
 
 		for (unsigned i = 0; i < 10; ++i) {

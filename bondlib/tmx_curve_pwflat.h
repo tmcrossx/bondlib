@@ -1,4 +1,4 @@
-// tmx_pwflat.h - left continuous piecewise flat curve
+// tmx_curve_pwflat.h - left continuous piecewise flat curve
 /*
 		   { f[i] if t[i-1] < t <= t[i];
 	f(t) = { _f   if t > t[n-1];
@@ -20,8 +20,9 @@
 #include <vector>
 #include "ensure.h"
 #include "tmx_view.h"
+#include "tmx_curve.h"
 
-namespace tmx::pwflat {
+namespace tmx::curve {
 
 	// strictly increasing values
 	template<class I>
