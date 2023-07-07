@@ -1,5 +1,5 @@
 // xll_pwflat.cpp - Piecewise flat curve view
-#include "../bondlib/tmx_pwflat.h"
+#include "../bondlib/tmx_pwflat_curve.h"
 #include "bondxll.h"
 
 using namespace tmx;
@@ -35,7 +35,7 @@ HANDLEX WINAPI xll_pwflat_curve_(const _FPX* pt, const _FPX* pf, LPOPER p_f)
 			--m;
 			_f = pf->array[m];
 		}
-		handle<curve::curve<>> h_(new curve::curve_value(m, pt->array, pf->array, _f));
+		handle<curve<>> h_(new pwflat::curve(m, pt->array, pf->array, _f));
 		ensure(h_);
 		h = h_.get();
 	}
@@ -62,16 +62,16 @@ _FPX* WINAPI xll_pwflat_curve(HANDLEX c)
 
 	try {
 		result.resize(0, 0);
-		handle<curve::curve<>> c_(c);
+		handle<curve<>> c_(c);
 		ensure(c_);
 
-		auto pc = c_.as<curve::curve_view<>>();
+		auto pc = c_.as<pwflat::curve_view<>>();
 		ensure(pc);
 		
 		int m = (int)pc->size();
 		result.resize(2, m + 1);
-		view<double> t = pc->t;
-		view<double> f = pc->f;
+		view<double> t = pc->time();
+		view<double> f = pc->rate();
 		std::copy(t.begin(), t.end(), result.array());
 		std::copy(f.begin(), f.end(), result.array() + m + 1);
 
@@ -101,9 +101,9 @@ HANDLEX WINAPI xll_pwflat_curve_shift_(HANDLEX c, double s)
 	double result = INVALID_HANDLEX;
 
 	try {
-		handle<curve::curve<>> c_(c);
+		handle<curve<>> c_(c);
 		ensure(c_);
-		handle<curve::curve<>> _c(new curve::curve_value(*(c_.as<curve::curve_view<>>())));
+		handle<curve<>> _c(new pwflat::curve(*(c_.as<pwflat::curve<>>())));
 		ensure(_c);
 
 		_c->shift(s);
@@ -167,7 +167,7 @@ HANDLEX WINAPI xll_pwflat_curve_value(HANDLEX c, double t, double _t)
 	double v = std::numeric_limits<double>::quiet_NaN();
 
 	try {
-		handle<curve::curve<>> c_(c);
+		handle<curve<>> c_(c);
 		ensure(c_);
 
 		v = c_->forward(t + _t);
@@ -196,7 +196,7 @@ HANDLEX WINAPI xll_pwflat_curve_yield(HANDLEX c, double t, double _t)
 	double v = std::numeric_limits<double>::quiet_NaN();
 
 	try {
-		handle<curve::curve<>> c_(c);
+		handle<curve<>> c_(c);
 		ensure(c_);
 
 		v = c_->yield(t + _t, _t);
@@ -225,7 +225,7 @@ HANDLEX WINAPI xll_pwflat_curve_discount(HANDLEX c, double t, double _t)
 	double v = std::numeric_limits<double>::quiet_NaN();
 
 	try {
-		handle<curve::curve<>> c_(c);
+		handle<curve<>> c_(c);
 		ensure(c_);
 
 		v = c_->discount(t + _t, _t);

@@ -1,4 +1,4 @@
-// tmx_curve_pwflat.h - left continuous piecewise flat curve
+// tmx_pwflat_curve.h - left continuous piecewise flat curve
 /*
 		   { f[i] if t[i-1] < t <= t[i];
 	f(t) = { _f   if t > t[n-1];
@@ -22,98 +22,16 @@
 #include "tmx_view.h"
 #include "tmx_curve.h"
 
-namespace tmx::curve {
-
-	// strictly increasing values
-	template<class I>
-	constexpr bool monotonic(const I b, const I e)
-	{
-		using T = typename std::iterator_traits<I>::value_type;
-
-		// std::is_sorted(b, e, less) is not correct 
-		return e == std::adjacent_find(b, e, std::greater_equal<T>{});
-	}
-	template<class T>
-	constexpr bool monotonic(size_t n, const T* t)
-	{
-		return monotonic(t, t + n);
-	}
-	template<class T>
-	constexpr bool monotonic(const view<T>& t)
-	{
-		return monotonic(t.begin(), t.end());
-	}
-	template<class T>
-	constexpr bool monotonic(const std::initializer_list<T>& t)
-	{
-		return monotonic(t.begin(), t.end());
-	}
-
-#ifdef _DEBUG
-
-	inline int monotonic_test()
-	{
-		static_assert(monotonic<int>(0, nullptr));
-		static_assert(monotonic({ 1 }));
-		static_assert(monotonic({ 1,2 }));
-		static_assert(!monotonic({ 1.,1. }));
-
-		return 0;
-	}
-
-#endif // _DEBUG
-
-	// NVI base class for piecewise flat curve.
-	template<class T = double, class F = double>
-	struct curve {
-		virtual ~curve() = default;
-
-		// Last point on the curve.
-		std::pair<T, F> back() const
-		{
-			return _back();
-		}
-
-		// f(t) is the forward rate at time t
-		F forward(T u) const
-		{
-			return _forward(u);
-		}
-		F operator()(T u) const
-		{
-			return _forward(u);
-		}
-		// D_t(u) is the price at time t of a zero coupon bond maturing at time u.
-		// D_t(u) = exp(-int_t^u f(s) ds).
-		F discount(T u, T t = 0) const
-		{
-			return _discount(u, t);
-		}
-		// y_t(u) is the yield at time t over the interval [t, u].
-		// D_t(u) = exp(-(u - t) y_t(u)).
-		F yield(T u, T t = 0) const
-		{
-			return _yield(u, t);
-		}
-		curve& shift(F s)
-		{
-			return _shift(s);
-		}
-	private:
-		virtual	std::pair<T, F> _back() const = 0;
-		virtual F _forward(T u) const = 0;
-		virtual F _discount(T u, T t) const = 0;
-		virtual F _yield(T u, T t) const = 0;
-		virtual curve& _shift(F s) = 0;
-	};
+namespace tmx::pwflat {
 
 	// Non-owning view of piecewise flat curve.
 	template<class T = double, class F = double>
-	struct curve_view : public curve<T, F> {
+	class curve_view : public curve<T, F> {
+	protected:
 		view<T> t;
 		view<F> f;
 		F _f; // extrapolation value
-
+	public:
 		// constant curve
 		curve_view(F _f = NaN<F>)
 			: t{}, f{}, _f(_f)
@@ -134,6 +52,15 @@ namespace tmx::curve {
 		curve_view& operator=(curve_view&&) = default;
 		virtual ~curve_view() = default;
 
+		view<T> time() const
+		{
+			return t;
+		}
+		view<F> rate() const
+		{
+			return f;
+		}
+
 		bool operator==(const curve_view& cv) const
 		{
 			return size() == cv.size()
@@ -152,7 +79,7 @@ namespace tmx::curve {
 		{
 			return _f;
 		}
-		curve_view<T, F>& extrapolate(F f_)
+		curve_view<T, F>& _extrapolate(F f_) override
 		{
 			_f = f_;
 
@@ -164,14 +91,14 @@ namespace tmx::curve {
 			return { t.back(), f.back() };
 		}
 
-		F _forward(T u) const override
+		F _forward(T u, T t0) const override
 		{
 			if (u < 0)
 				return NaN<F>;
 			if (size() == 0)
 				return extrapolate();
 
-			auto ti = std::lower_bound(t.begin(), t.end(), u);
+			auto ti = std::lower_bound(t.begin(), t.end(), u + t0);
 
 			return ti == t.end() ? _f : f[ti - t.begin()];
 		}
@@ -238,6 +165,13 @@ namespace tmx::curve {
 			auto cv = curve_view(view(t), view(f));
 			{
 				{
+					auto c = curve_view(view(t), view(f));
+					auto c2{ c };
+					assert(c == c2);
+					c = c2;
+					assert(!(c2 != c));
+				}
+				{
 					double v = cv(-0.1);
 					assert(v != v);
 				}
@@ -263,7 +197,7 @@ namespace tmx::curve {
 				assert(2 + 3. / 2 == cv.integral(1.5));
 				assert(5 == cv.integral(2.));
 				assert(9 == cv.integral(3.));
-				cv.extrapolate(5);
+				cv._extrapolate(5.);
 				assert(9 + 2.5 == cv.integral(3.5));
 			}
 
@@ -276,7 +210,7 @@ namespace tmx::curve {
 
 	// Pwflat curve value type.
 	template<class T = double, class F = double>
-	class curve_value : public curve_view<T, F> {
+	class curve : public curve_view<T, F> {
 		std::vector<T> t;
 		std::vector<F> f;
 		void update()
@@ -286,26 +220,26 @@ namespace tmx::curve {
 		}
 	public:
 		// constant curve
-		constexpr curve_value(F _f = NaN<F>)
+		constexpr curve(F _f = NaN<F>)
 			: curve_view<T, F>(_f), t{}, f{}
 		{
 			update();
 		}
-		curve_value(size_t n, const T* t_, const F* f_, F _f = NaN<F>)
+		curve(size_t n, const T* t_, const F* f_, F _f = NaN<F>)
 			: curve_view<T, F>(_f), t(t_, t_ + n), f(f_, f_ + n)
 		{
 			update();
 		}
 		// Promote view to a value.
-		curve_value(const curve_view<T, F>& c)
-			: curve_value(c.size(), c.t.data(), c.f.data(), c._f)
+		curve(const curve_view<T, F>& c)
+			: curve(c.size(), c.t.data(), c.f.data(), c._f)
 		{ }
-		curve_value(const curve_value& cv)
+		curve(const curve& cv)
 			: curve_view<T, F>(cv), t(cv.t), f(cv.f)
 		{
 			update();
 		}
-		curve_value& operator=(const curve_value& cv)
+		curve& operator=(const curve& cv)
 		{
 			if (this != &cv) {
 				curve_view<T, F>::operator=(cv);
@@ -316,12 +250,12 @@ namespace tmx::curve {
 
 			return *this;
 		}
-		curve_value(curve_value&& cv)
+		curve(curve&& cv)
 			: curve_view<T, F>(cv), t(std::move(cv.t)), f(std::move(cv.f))
 		{
 			update();
 		}
-		curve_value& operator=(curve_value&& cv)
+		curve& operator=(curve&& cv)
 		{
 			if (this != &cv) {
 				curve_view<T, F>::operator=(cv);
@@ -332,11 +266,11 @@ namespace tmx::curve {
 
 			return *this;
 		}
-		~curve_value()
+		~curve()
 		{ }
 
 		// add point
-		curve_value& extend(T t_, F f_)
+		curve& extend(T t_, F f_)
 		{
 			ensure(t.size() == 0 || t_ > t.back());
 
@@ -346,7 +280,7 @@ namespace tmx::curve {
 
 			return *this;
 		}
-		curve_value& push_back(const std::pair<T, F>& tf)
+		curve& push_back(const std::pair<T, F>& tf)
 		{
 			return extend(tf.first, tf.second);
 		}
@@ -357,22 +291,22 @@ namespace tmx::curve {
 			T t[] = { 1, 2, 3 };
 			F f[] = { .1, .2, .3 };
 			{
-				curve_value c(.1);
+				curve c(.1);
 				ensure(0 == c.size());
 				ensure(.1 == c.extrapolate());
-				curve_value c2{ c };
+				curve c2{ c };
 				ensure(c2 == c);
 				c = c2;
 				ensure(!(c != c2));
 				ensure(.1 == c(.2));
 			}
 			{
-				curve_value c(3, t, f);
+				curve c(3, t, f);
 
 				ensure(3 == c.size());
 				ensure(f[0] == c(1.));
 				ensure(std::isnan(c.extrapolate()));
-				curve_value c2{ c };
+				curve c2{ c };
 				ensure(c2 == c);
 				c = c2;
 				ensure(!(c != c2));
@@ -388,7 +322,7 @@ namespace tmx::curve {
 			}
 			/*
 			{
-				curve_value c(3, t, f);
+				curve c(3, t, f);
 				c.translate(0.5);
 				ensure(f[0] == c(0.5));
 				ensure(f[1] == c(1.5));

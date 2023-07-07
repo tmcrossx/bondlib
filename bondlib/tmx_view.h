@@ -26,6 +26,7 @@ namespace tmx {
 		return x >= 0 ? x : x + y;
 	}
 
+
 	// non-owning view of data
 	template<class T>
 	class view {
@@ -235,4 +236,44 @@ namespace tmx {
 		}
 #endif // _DEBUG
 	};
+
+	// strictly increasing values
+	template<class I>
+	constexpr bool monotonic(const I b, const I e)
+	{
+		using T = typename std::iterator_traits<I>::value_type;
+
+		// std::is_sorted(b, e, less) is not correct 
+		return e == std::adjacent_find(b, e, std::greater_equal<T>{});
+	}
+	template<class T>
+	constexpr bool monotonic(size_t n, const T* t)
+	{
+		return monotonic(t, t + n);
+	}
+	template<class T>
+	constexpr bool monotonic(const view<T>& t)
+	{
+		return monotonic(t.begin(), t.end());
+	}
+	template<class T>
+	constexpr bool monotonic(const std::initializer_list<T>& t)
+	{
+		return monotonic(t.begin(), t.end());
+	}
+
+#ifdef _DEBUG
+
+	inline int monotonic_test()
+	{
+		static_assert(monotonic<int>(0, nullptr));
+		static_assert(monotonic({ 1 }));
+		static_assert(monotonic({ 1,2 }));
+		static_assert(!monotonic({ 1.,1. }));
+
+		return 0;
+	}
+
+#endif // _DEBUG
+
 }

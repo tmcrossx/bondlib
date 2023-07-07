@@ -1,6 +1,6 @@
 // tmx_muni.h - Municipal bond curves
 #pragma once
-#include "tmx_pwflat_value.h"
+#include "tmx_pwflat_curve.h"
 #include "tmx_bond.h"
 #include "tmx_value.h"
 
@@ -8,7 +8,7 @@ namespace tmx::muni {
 
 	// Forward curve that reprices standard muni curve.
 	template<class T, class F>
-	inline curve::curve<T, F> fit(size_t n, const T* t, const F* y,
+	inline pwflat::curve<T, F> fit(size_t n, const T* t, const F* y,
 		F eps = std::sqrt(std::numeric_limits<F>::quiet_NaN()))
 	{
 		curve::curve r(n, t, y);

@@ -4,7 +4,7 @@
 //#include "tmx_monoid.h"
 #include "tmx_view.h"
 #include "tmx_date.h"
-#include "tmx_curve_pwflat.h"
+#include "tmx_pwflat_curve.h"
 #include "tmx_instrument_value.h"
 #include "tmx_value.h"
 #include "tmx_bond.h"
@@ -21,9 +21,9 @@ int test_years = date::years_test();
 int test_dcf_30_360 = date::dcf_30_360_test();
 int test_view_d = view<double>::test();
 int test_view_iterable_d = view_iterable<double>::test();
-int test_pwflat_monotonic = curve::monotonic_test();
-int test_pwflat_curve_view = curve::curve_view<>::test();
-int test_pwflat_curve_value = curve::curve_value<>::test();
+int test_tmx_monotonic = tmx::monotonic_test();
+int test_pwflat_curve_view = pwflat::curve_view<>::test();
+int test_pwflat_curve_value = pwflat::curve<>::test();
 int test_instrument_view = instrument_view<>::test();
 int test_instrument_value = instrument_value<>::test();
 int test_value_yield_d = value::yield_test<double>();

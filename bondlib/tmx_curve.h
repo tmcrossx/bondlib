@@ -19,6 +19,10 @@ namespace tmx {
 		{
 			return _forward(u, t);
 		}
+		F operator()(T u, T t = 0) const
+		{
+			return _forward(u, t);
+		}
 
 		// D_t(u) is the price at time t of a zero coupon bond maturing at time u.
 		// D_t(u) = exp(-int_t^u f(s) ds).

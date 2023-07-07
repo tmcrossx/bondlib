@@ -1,7 +1,6 @@
 // xll_bootstrap.cpp - Bootstrap a curve from bonds
-#include "../bondlib/tmx_pwflat.h"
-#include "../bondlib/tmx_instrument.h"
 #include "../bondlib/tmx_bootstrap.h"
+#include "../bondlib/tmx_pwflat_curve.h"
 #include "bondxll.h"
 
 using namespace tmx;
@@ -25,14 +24,14 @@ HANDLEX WINAPI xll_tmx_bootstrap_(_FPX* pi, _FPX* pp)
 	try {
 		ensure(size(*pi) == size(*pp));
 
-		curve::curve_value<> f;
+		pwflat::curve<> f;
 		for (size_t i = 0; i < size(*pi); ++i) {
 			handle<instrument<>> ii(pi->array[i]);
 			ensure(ii);
 			f.push_back(bootstrap::instrument<>(*ii, f, pp->array[i]));
 		}
 
-		handle<curve::curve<>> c_(new curve::curve_value<>(f));
+		handle<curve<>> c_(new pwflat::curve<>(f));
 		ensure(c_);
 		result = c_.get();
 	}

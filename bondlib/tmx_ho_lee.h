@@ -11,7 +11,7 @@
 #include <cmath>
 #include <utility>
 #include "tmx_instrument.h"
-#include "tmx_pwflat.h"
+//#include "tmx_pwflat.h"
 
 namespace tmx::ho_lee {
 
@@ -62,9 +62,6 @@ namespace tmx::ho_lee {
 	inline std::pair<X,X> log_normal_sum(size_t n, const X* μ, const X* σ)
 	{
 	}
-	*/
-
-	/*
 	// E[sum c_j D_t(u_j)]
 	template<class U = double, class C = double, class X = double>
 	constexpr X value(size_t m, const U* u_, const C* c_, X Dt, X t, X σ)
@@ -77,16 +74,14 @@ namespace tmx::ho_lee {
 
 		return v;
 	}
-	*/
 	template<class T = double, class F = double, class S = double>
 	class model {
-		curve::curve_value<T, F> f; // forward curve
+		curve::curve<T, F> f; // forward curve
 		S σ;
 	public:
-		model(const curve::curve_value<T, F>& f, S σ)
+		model(const curve::curve<T, F>& f, S σ)
 			: f(f), σ(σ)
 		{ }
-		/*
 		// Expected value at time t
 		template<class U = double, class C = double>
 		auto value(const instrument<U,C>& i, T t = 0) const
@@ -100,7 +95,6 @@ namespace tmx::ho_lee {
 
 			return v;
 		}
-		*/
 	};
-
+*/
 }

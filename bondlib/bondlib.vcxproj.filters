@@ -21,7 +21,7 @@
     <ClInclude Include="tmx_date.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tmx_curve_pwflat.h">
+    <ClInclude Include="tmx_pwflat_curve.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ensure.h">
@@ -52,15 +52,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tmx_black.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tmx_monoid.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tmx_monte_carlo.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tmx_iterable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tmx_instrument_value.h">
