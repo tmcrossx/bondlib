@@ -16,6 +16,7 @@ namespace tmx::bootstrap {
 		ensure (i.size() != 0);
 		const auto [_u, _c] = i.back();
 
+		//??? do we need to special case this
 		if (f.size() == 0) {
 			if (std::isnan(_f)) {
 				_f = 0.01;

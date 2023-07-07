@@ -14,7 +14,7 @@ AddIn xai_pwflat_curve_(
 		})
 	.Uncalced()
 	.Category(CATEGORY)
-	.FunctionHelp("Return a handle to a piecewise flat curve.")
+	.FunctionHelp("Return a handle to a piecewise flat forward curve.")
 );
 HANDLEX WINAPI xll_pwflat_curve_(const _FPX* pt, const _FPX* pf, LPOPER p_f)
 {
@@ -52,7 +52,8 @@ AddIn xai_pwflat_curve(
 		Arg(XLL_HANDLEX, "curve", "is handle to a curve."),
 		})
 	.Category(CATEGORY)
-	.FunctionHelp("Return a two row array of times and rates.")
+	.FunctionHelp("Return a two row array of times and rates. "
+	"The last time is duplicated and the last rate is the extrapolation.")
 );
 _FPX* WINAPI xll_pwflat_curve(HANDLEX c)
 {

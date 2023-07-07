@@ -9,6 +9,7 @@
 // Var(log D_t(u)) = σ^2 (u - t)^2 t
 #pragma once
 #include <cmath>
+#include <utility>
 #include "tmx_instrument.h"
 #include "tmx_pwflat.h"
 
@@ -51,6 +52,17 @@ namespace tmx::ho_lee {
 	{
 		return std::exp(ELogD(Dt, Du, t, u, σ) + VarLogD(t, u, σ)/2);
 	}
+
+	// Approximate sum of log-normal random variables by a single log-normal.
+	// E[sum_j exp(N_j)] = sum E[exp(N_j)].
+	// Var(sum_j exp(N_j)) = sum_j,k Cov(exp(N_j), exp(N_k))
+	// Cov(exp(N), exp(M)) = E[exp(N)] E[exp(M)] (exp(Cov(N, M)) - 1)
+	/*
+	template<class X>
+	inline std::pair<X,X> log_normal_sum(size_t n, const X* μ, const X* σ)
+	{
+	}
+	*/
 
 	/*
 	// E[sum c_j D_t(u_j)]
