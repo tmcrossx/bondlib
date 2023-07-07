@@ -93,7 +93,7 @@ AddIn xai_pwflat_curve_shift_(
 		})
 	.Uncalced()
 	.Category(CATEGORY)
-	.FunctionHelp("Return a shifted curve.")
+	.FunctionHelp("Return a curve shifted by spread.")
 );
 HANDLEX WINAPI xll_pwflat_curve_shift_(HANDLEX c, double s)
 {
@@ -155,10 +155,10 @@ AddIn xai_pwflat_curve_value(
 	.Arguments({
 		Arg(XLL_HANDLEX, "c", "is a handle to a curve."),
 		Arg(XLL_DOUBLE, "t", "is the forward time."),
-		Arg(XLL_DOUBLE, "_t", "is the time at which to evaluate the yield. Default is 0."),
+		Arg(XLL_DOUBLE, "_t", "is the time at which to evaluate the forward. Default is 0."),
 		})
 	.Category(CATEGORY)
-	.FunctionHelp("Return the value of a piecewise flat curve.")
+	.FunctionHelp("Return the forward value of a piecewise flat curve.")
 );
 HANDLEX WINAPI xll_pwflat_curve_value(HANDLEX c, double t, double _t)
 {
