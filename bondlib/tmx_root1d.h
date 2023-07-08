@@ -7,6 +7,7 @@ namespace tmx {
 
 	template<class X>
 	constexpr X epsilon = std::numeric_limits<X>::epsilon();
+
 	template<class X>
 	constexpr X sqrt(X a)
 	{
@@ -28,6 +29,8 @@ namespace tmx {
 
 		return x_;
 	}
+	template<class X>
+	constexpr X sqrt_epsilon = sqrt(std::numeric_limits<X>::epsilon());
 
 	namespace root1d {
 		template<class X, class Y>
@@ -48,11 +51,11 @@ namespace tmx {
 		// Find root given two initial guesses.
 		template<class F, class X = double>
 		constexpr X solve(const F& f, X x0, X x1,
-			X tol = sqrt(epsilon<X>), int iter = 100)
+			X tol = sqrt_epsilon<X>, int iter = 100)
 		{
 			auto y0 = f(x0);
 
-			while (iter-- and y0 > tol or y0 < -tol) {
+			while (iter-- and (y0 > tol or y0 < -tol)) {
 				auto y1 = f(x1);
 				x0 = root1d::secant(x0, y0, x1, y1);
 				std::swap(x0, x1);
@@ -80,10 +83,10 @@ namespace tmx {
 		// Find root given initial guess and derivative.
 		template<class F, class dF, class X = double>
 		constexpr X solve(const F& f, const dF& df, X x0,
-			double tol = sqrt(epsilon<X>), int iter = 100)
+			double tol = sqrt_epsilon<X>, int iter = 100)
 		{
 			auto y0 = f(x0);
-			while (iter-- and y0 > tol or y0 < -tol) {
+			while (iter-- and (y0 > tol or y0 < -tol)) {
 				x0 = root1d::newton(x0, y0, df(x0));
 				y0 = f(x0);
 			}

@@ -30,11 +30,11 @@ namespace tmx {
 		virtual ~instrument_view()
 		{ }
 
-		view<U> _time() const override
+		const view<U> _time() const override
 		{
 			return u;
 		}
-		view<C> _cash() const override
+		const view<C> _cash() const override
 		{
 			return c;
 		}

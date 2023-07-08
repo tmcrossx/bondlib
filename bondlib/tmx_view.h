@@ -33,23 +33,16 @@ namespace tmx {
 		size_t n;
 		T* t;
 	public:
-		constexpr view()
-			: n{ 0 }, t{ nullptr }
-		{ }
-		constexpr view(size_t n, T* t)
+		constexpr view(size_t n = 0, T* t = nullptr)
 			: n{ n }, t{ t }
 		{ }
 		template<size_t N>
 		constexpr view(T(&t)[N])
-			: n{ N }, t{ t }
+			: view(N, t)
 		{ }
 		template<std::contiguous_iterator I>
 		constexpr view(I b, I e)
 			: n{ static_cast<size_t>(std::distance(b, e)) }, t{ n ? &*b : nullptr }
-		{ }
-		template<class C>
-		constexpr view(C& t)
-			: view(t.begin(), t.end())
 		{ }
 		constexpr view(const view&) = default;
 		constexpr view& operator=(const view&) = default;
@@ -174,6 +167,8 @@ namespace tmx {
 		view<T> v;
 		size_t i;
 	public:
+		using value_type = std::remove_cv_t<T>;
+
 		view_iterable()
 			: v{}, i{ 0 }
 		{ }

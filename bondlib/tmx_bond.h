@@ -52,27 +52,6 @@ namespace tmx::bond {
 	}
 	//!!! add tests
 	*/
-	/*
-	// price given yield
-	template<class Y>
-	constexpr auto price(const simple<Y>& bond, const date::ymd& dated, Y y)
-	{
-		double p = 0;
-
-		auto mat = dated + bond.maturity;
-		date::ymd d0 = dated;
-		date::ymd d1 = d0 + bond.frequency;
-		Y D = 1;
-		while (d1 <= mat) {
-			D /= 1 + y * bond.frequency.count() / 12;
-			p += bond.day_count_fraction(d0, d1) * D;
-			d0 = d1;
-			d1 = d0 + bond.frequency;
-		}
-
-		return bond.coupon * p + D;
-	}
-	*/
 
 #ifdef _DEBUG
 
@@ -89,10 +68,10 @@ namespace tmx::bond {
 
 			auto d = 2023y / 1 / 1;
 			bond::simple<> bond{ std::chrono::years(10), 0.05, date::frequency::semiannually, date::dcf_30_360 };
-			const auto i = instrument(bond, d);
+			auto i = instrument(bond, d);
 			ensure(20 == i.size());
-			const auto u = i.time();
-			const auto c = i.cash();
+			auto u = i.time();
+			auto c = i.cash();
 			ensure(u[0] != 0);
 			ensure(c[0] == 0.05 / 2);
 			ensure(std::fabs(-c[19] + c[0] + 1) < 1e-15);

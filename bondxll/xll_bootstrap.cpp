@@ -24,16 +24,15 @@ HANDLEX WINAPI xll_tmx_bootstrap_(_FPX* pi, _FPX* pp)
 	try {
 		ensure(size(*pi) == size(*pp));
 
-		pwflat::curve<> f;
+		handle<curve<>> f_(new pwflat::curve<>{});
+		ensure(f_);
 		for (size_t i = 0; i < size(*pi); ++i) {
 			handle<instrument<>> ii(pi->array[i]);
 			ensure(ii);
-			f.push_back(bootstrap::instrument<>(*ii, f, pp->array[i]));
+			f_.as<pwflat::curve<>>()->push_back(bootstrap::instrument<>(*ii, *f_, pp->array[i]));
 		}
 
-		handle<curve<>> c_(new pwflat::curve<>(f));
-		ensure(c_);
-		result = c_.get();
+		result = f_.get();
 	}
 	catch (const std::exception& ex) {
 		XLL_ERROR(ex.what());

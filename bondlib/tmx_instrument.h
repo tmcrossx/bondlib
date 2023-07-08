@@ -10,7 +10,6 @@ namespace tmx {
 	// NVI base class for instruments
 	template<class U = double, class C = double>
 	struct instrument {
-		// instrument() = delete; ???
 		virtual ~instrument()
 		{ }
 
@@ -23,11 +22,11 @@ namespace tmx {
 		{
 			return _time().size();
 		}
-		view<U> time() const
+		const view<U> time() const
 		{
 			return _time();
 		}
-		view<C> cash() const
+		const view<C> cash() const
 		{
 			return _cash();
 		}
@@ -37,8 +36,26 @@ namespace tmx {
 			return { _time()(-1), _cash()(-1) };
 		}
 	private:
-		virtual view<U> _time() const = 0;
-		virtual view<C> _cash() const = 0;
+		virtual const view<U> _time() const = 0;
+		virtual const view<C> _cash() const = 0;
 	};
 
+	// single cash flow instrument
+	template<class U = double, class C = double>
+	class instrument_bullet : public instrument<U, C> {
+		U u;
+		C c;
+	public:
+		instrument_bullet(U u = 0, C c = 0)
+			: u{ u }, c{ c }
+		{ }
+		const view<U> _time() const override
+		{
+			return view(1, const_cast<U*>(&u));
+		}
+		const view<C> _cash() const override
+		{
+			return view(1, const_cast<C*>(&c));
+		}
+	};
 }

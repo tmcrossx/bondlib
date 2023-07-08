@@ -66,8 +66,8 @@ namespace tmx::pwflat {
 			return size() == cv.size()
 				&& t == cv.t
 				&& f == cv.f
-				&& (std::isnan(extrapolate()) and std::isnan(cv.extrapolate())
-					or extrapolate() == cv.extrapolate());
+				&& ((std::isnan(extrapolate()) and std::isnan(cv.extrapolate()))
+					or (extrapolate() == cv.extrapolate()));
 		}
 
 		size_t size() const
@@ -103,7 +103,7 @@ namespace tmx::pwflat {
 			return ti == t.end() ? _f : f[ti - t.begin()];
 		}
 
-		// int_t^u f(t) dt
+		// int_t^u f(s) ds
 		F integral(T u, T t0 = 0) const
 		{
 			if (u < t0)

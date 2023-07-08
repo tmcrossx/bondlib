@@ -14,8 +14,8 @@ namespace tmx {
 		std::vector<C> c;
 		void update()
 		{
-			instrument_view<U, C>::u = view<U>(u);
-			instrument_view<U, C>::c = view<C>(c);
+			instrument_view<U, C>::u = view<U>(u.begin(), u.end());
+			instrument_view<U, C>::c = view<C>(c.begin(), c.end());
 		}
 	public:
 		instrument_value()

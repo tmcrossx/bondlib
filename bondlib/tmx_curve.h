@@ -63,7 +63,7 @@ namespace tmx {
 	class curve_constant : public curve<T,F> {
 		F _f;
 	public:
-		constexpr curve_constant(F f)
+		constexpr curve_constant(F f = std::numeric_limits<F>::quiet_NaN())
 			: _f(f)
 		{ }
 		constexpr curve_constant(const curve_constant&) = default;
@@ -80,7 +80,7 @@ namespace tmx {
 		}
 		F _discount(T u, T t) const override
 		{
-			return exp(-(u - t)*_f);
+			return std::exp(-(u - t)*_f);
 		}
 		F _yield([[maybe_unused]] T u, [[maybe_unused]] T t) const override
 		{

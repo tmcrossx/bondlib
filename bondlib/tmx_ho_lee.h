@@ -10,8 +10,8 @@
 #pragma once
 #include <cmath>
 #include <utility>
+#include "tmx_curve.h"
 #include "tmx_instrument.h"
-//#include "tmx_pwflat.h"
 
 namespace tmx::ho_lee {
 
@@ -27,6 +27,7 @@ namespace tmx::ho_lee {
 	{
 		return σ * σ * t * t * t / 3;
 	}
+	// D(t) = E[D_t]
 	template<class X = double>
 	inline auto ED(X t, X φ, X σ)
 	{
@@ -46,11 +47,47 @@ namespace tmx::ho_lee {
 	{
 		return σ * σ * (u - t) * (u - t) * t;
 	}
+
 	// E[D_t(u)]
 	template<class X = double>
 	inline auto ED(X Dt, X Du, X t, X u, X σ)
 	{
 		return std::exp(ELogD(Dt, Du, t, u, σ) + VarLogD(t, u, σ)/2);
+	}
+	// Covariance of D_t(u) and D_t(v)
+	template<class X = double>
+	inline auto CovD(X Dt, X Du, X Dv, X t, X u, X v, X σ)
+	{
+		auto Dtu = ED(Dt, Du, t, u, σ);
+		auto Dtv = ED(Dt, Dv, t, v, σ);
+		auto cov = σ * σ * (u - t) * (v - t) * t;
+
+		return Dtv * Dtu * (std::exp(cov) - 1);
+	}
+
+	// mean and log variance of P_t = sum_{u_j > t} c_j D_t(u_j)
+	template<class U, class C, class T, class F>
+	inline std::pair<F,F> moments(T t, const instrument<U, C>& i, const curve<T, F>& f, F σ)
+	{
+		F mean = 0, var = 0;
+
+		const auto u = i.time();
+		const auto c = i.cash();
+		auto j = u.offset(t);
+
+		auto Dt = f.discount(t);
+		for (auto k = j; k < u.size(); ++k) {
+			auto Duk = f.discount(u[k]);
+			mean += c[k] * ED(Dt, Duk, t, u[k], σ);
+			for (auto l = j; l < u.size(); ++l) {
+				auto Dul = f.discount(u[l]);
+				var += c[k] * c[l] * CovD(Dt, Duk, Dul, t, u[l], u[k], σ);
+			}
+		}
+		// Var(e^N) = E[e^N]^2 (e^Var(N) - 1)
+		var = std::log(var / (mean * mean) + 1);
+
+		return { mean, var };
 	}
 
 	// Approximate sum of log-normal random variables by a single log-normal.

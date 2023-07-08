@@ -3,6 +3,7 @@
 #pragma once
 #include <cmath>
 #include <numbers>
+#include "tmx_root1d.h"
 
 namespace tmx::black {
 
@@ -62,6 +63,16 @@ namespace tmx::black {
 			auto m = moneyness(f, s, k);
 
 			return k * normal::pdf(m);
+		}
+
+		// return s with p = value(f, s, k)
+		template<class F, class P, class K>
+		inline auto implied(F f, P p, K k, P s0 = 0.1)
+		{
+			const auto v = [=](P s) { return value(f, s, k) - p; };
+			const auto dv = [=](P s) { return delta(f, s, k); };
+
+			return newton::solve(v, dv, s0);
 		}
 
 	} // namespace put

@@ -22,14 +22,14 @@ namespace tmx::value {
 
 	// Value at t of future discounted cash flows.
 	template<class U, class C, class T, class F>
-	constexpr C present(const instrument<U,C>& i, const curve<T,F>& f, T t = 0)
+	constexpr C present(const instrument<U, C>& i, const curve<T, F>& f, T t = 0)
 	{
+		C pv = 0;
+
 		const auto u = i.time();
 		const auto c = i.cash();
 
-		C pv = 0;
-		size_t j = u.offset(t);
-		for (; j < u.size(); ++j) {
+		for (size_t j = u.offset(t); j < u.size(); ++j) {
 			pv += c[j] * f.discount(u[j], t);
 		}
 
@@ -40,12 +40,12 @@ namespace tmx::value {
 	template<class U, class C, class T, class F>
 	constexpr C duration(const instrument<U, C>& i, const curve<T, F>& f, T t = 0)
 	{
+		C dur = 0;
+
 		const auto u = i.time();
 		const auto c = i.cash();
 
-		C dur = 0;
-		size_t j = u.offset(t);
-		for (; j < u.size(); ++j) {
+		for (size_t j = u.offset(t); j < u.size(); ++j) {
 			dur -= (u[j] - t) * c[j] * f.discount(u[j], t);
 		}
 
@@ -56,12 +56,12 @@ namespace tmx::value {
 	template<class U, class C, class T, class F>
 	constexpr C convexity(const instrument<U, C>& i, const curve<T, F>& f, T t = 0)
 	{
+		C cnv = 0;
+
 		const auto u = i.time();
 		const auto c = i.cash();
 
-		C cnv = 0;
-		size_t j = u.offset(t);
-		for (; j < u.size(); ++j) {
+		for (size_t j = u.offset(t); j < u.size(); ++j) {
 			cnv += (u[j] - t) * (u[j] - t) * c[j] * f.discount(u[j], t);
 		}
 
@@ -70,12 +70,12 @@ namespace tmx::value {
 
 	// Constant forward rate matching price p at _t.
 	template<class U, class C>
-	inline C yield(const instrument<U,C>& i, const C p = 0, U _t = 0,
-		C y = 0.01, C tol = std::sqrt(std::numeric_limits<C>::epsilon()), int iter = 100)
+	inline C yield(const instrument<U, C>& i, const C p = 0, U _t = 0,
+		C y = 0.01, C tol = sqrt_epsilon<C>, int iter = 100)
 	{
-		const auto pv = [&](C y_) { return present(i, curve_constant<U,C>(y_), _t) - p; };
+		const auto pv = [&](C y_) { return present(i, curve_constant<U, C>(y_), _t) - p; };
 		const auto dur = [&](C y_) { return duration(i, curve_constant<U, C>(y_), _t); };
-		
+
 		return newton::solve(pv, dur, y, tol, iter);
 	}
 
