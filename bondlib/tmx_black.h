@@ -99,6 +99,12 @@ namespace tmx::black {
 		{
 			return put::vega(f, s, k);
 		}
+		// return s with c = call::value(f, s, k)
+		template<class F, class C, class K>
+		inline auto implied(F f, C c, K k, C s0 = 0.1)
+		{
+			return put::implied(f, c - f + k, k, s0);
+		}
 
 	} // namespace call
 

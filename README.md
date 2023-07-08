@@ -67,10 +67,6 @@ compounding $(1 + y/n)^n = \exp(f)$
 
 Single call at date and price. Use time-dependent Ho-Lee with constant volatility. 
 
-$f_t = r(t) + \sigma B_t$.  
-$f(t) = r(t) - \sigma^2 t/2$.  
-$f_t(u) =  r(u - t) - \sigma^2 (u - t)^2/2$.  
-
 ## Municipal Bond Curve
 
 Municipal bonds are quoted using 5% coupon 10-year non-call par coupons.  
