@@ -12,12 +12,6 @@ namespace tmx {
 	template<class T>
 	constexpr T NaN = std::numeric_limits<T>::quiet_NaN();
 
-	template<class X>
-	constexpr bool samesign(X x, X y)
-	{
-		return x = std::copysign(x, y);
-	}
-
 	// cyclic division
 	constexpr long xmod(long x, long y)
 	{

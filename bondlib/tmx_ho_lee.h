@@ -12,6 +12,7 @@
 #pragma once
 #include <cmath>
 #include <utility>
+#include "tmx_black.h"
 #include "tmx_curve.h"
 #include "tmx_instrument.h"
 
@@ -74,14 +75,15 @@ namespace tmx::ho_lee {
 		F mean = 0, var = 0;
 
 		const auto u = i.time();
-		const auto c = i.cash();
 		auto j = u.offset(t);
+		auto m = static_cast<decltype(j)>(u.size());
+		const auto c = i.cash();
 
 		auto Dt = f.discount(t);
-		for (auto k = j; k < u.size(); ++k) {
+		for (auto k = j; k < m; ++k) {
 			auto Duk = f.discount(u[k]);
 			mean += c[k] * ED(Dt, Duk, t, u[k], σ);
-			for (auto l = j; l < u.size(); ++l) {
+			for (auto l = j; l < m; ++l) {
 				auto Dul = f.discount(u[l]);
 				var += c[k] * c[l] * CovD(Dt, Duk, Dul, t, u[l], u[k], σ);
 			}
@@ -90,6 +92,15 @@ namespace tmx::ho_lee {
 		var = std::log(var / (mean * mean) + 1);
 
 		return { mean, var };
+	}
+
+	// E[(P_t - p)^+ D_t]
+	template<class U, class C, class T, class F>
+	inline F option(const instrument<U, C>& i, const curve<T, F>& f, T t, F σ, F p)
+	{
+		auto [m, v] = moments(i, f, t, σ);
+		// σ += cov!!!
+		return black::call::value(m, std::sqrt(v), p) * f.discount(t);
 	}
 
 }

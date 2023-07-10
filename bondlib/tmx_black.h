@@ -45,6 +45,9 @@ namespace tmx::black {
 		template<class F, class S, class K>
 		inline auto value(F f, S s, K k)
 		{
+			if (s == 0) {
+				return std::max(k - f, 0);
+			}
 			auto m = moneyness(f, s, k);
 
 			return k * normal::cdf(m) - f * normal::cdf(m, s);
