@@ -1,7 +1,9 @@
 ﻿// tmx_ho_lee.h - Ho-Lee model with constant volatility.
 // D_t = exp(-int_0^t φ(s) ds - int_0^t σ(t - s) dB_s)
+//     ~ exp(-int_0^t φ(s) ds - B_t σ t/sqrt(3))
+//     = D(t) exp(-σ^2 t^3/6 - B_t σ t/sqrt(3))
 // Var(int_0^t σ(t - s) dB_s) = σ^2 int_0^t (t - s)^2 ds = σ^2 t^3/3
-// D(t) = exp(-int_0^t φ(s) ds + σ^2 t^3/6)
+// D(t) = E[D_t] = exp(-int_0^t φ(s) ds + σ^2 t^3/6)
 // D_t(u) = exp(-int_t^u φ(s) ds + σ^2 (u - t)^3/6 - σ (u - t) B_t)
 //        = D(u)/D(t) exp(σ^2 [-u^3 + t^3 + (u - t)^3]/6 - σ (u - t) B_t)
 //        = D(u)/D(t) exp(σ^2 [-3u^2 t + 3 u t^2]/6 - σ (u - t) B_t)
@@ -67,7 +69,7 @@ namespace tmx::ho_lee {
 
 	// mean and log variance of P_t = sum_{u_j > t} c_j D_t(u_j)
 	template<class U, class C, class T, class F>
-	inline std::pair<F,F> moments(T t, const instrument<U, C>& i, const curve<T, F>& f, F σ)
+	inline std::pair<F,F> moments(const instrument<U, C>& i, const curve<T, F>& f, T t, F σ)
 	{
 		F mean = 0, var = 0;
 
@@ -90,48 +92,4 @@ namespace tmx::ho_lee {
 		return { mean, var };
 	}
 
-	// Approximate sum of log-normal random variables by a single log-normal.
-	// E[sum_j exp(N_j)] = sum E[exp(N_j)].
-	// Var(sum_j exp(N_j)) = sum_j,k Cov(exp(N_j), exp(N_k))
-	// Cov(exp(N), exp(M)) = E[exp(N)] E[exp(M)] (exp(Cov(N, M)) - 1)
-	/*
-	template<class X>
-	inline std::pair<X,X> log_normal_sum(size_t n, const X* μ, const X* σ)
-	{
-	}
-	// E[sum c_j D_t(u_j)]
-	template<class U = double, class C = double, class X = double>
-	constexpr X value(size_t m, const U* u_, const C* c_, X Dt, X t, X σ)
-	{
-		X v = 0;
-
-		for (size_t j = 0; j < m; ++j) {
-			v += c_[j] * ED(Dt, Du, t, u_[j], σ);
-		}
-
-		return v;
-	}
-	template<class T = double, class F = double, class S = double>
-	class model {
-		curve::curve<T, F> f; // forward curve
-		S σ;
-	public:
-		model(const curve::curve<T, F>& f, S σ)
-			: f(f), σ(σ)
-		{ }
-		// Expected value at time t
-		template<class U = double, class C = double>
-		auto value(const instrument<U,C>& i, T t = 0) const
-		{
-			auto v = 0;
-
-			auto Dt = f.discount(t);
-			for (size_t j = 0; j < m and u[j] >= t; ++j) {
-				v += c[j] * ED(Dt, f.discount(u_[j]), t, u_[j], σ);
-			}
-
-			return v;
-		}
-	};
-*/
 }
