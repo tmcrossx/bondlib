@@ -3,6 +3,7 @@
 #pragma once
 #include <cmath>
 #include <numbers>
+//#include "ensure.h"
 #include "tmx_root1d.h"
 
 namespace tmx::black {
@@ -12,17 +13,19 @@ namespace tmx::black {
 		template<class X, class S = X>
 		inline X pdf(X x, S s = 0)
 		{
-			X xs = x - s;
-			X sqrt2pi = std::sqrt(2 * std::numbers::pi_v<X>);
+			static X sqrt2pi = std::sqrt(2 * std::numbers::pi_v<X>);
+			X x_s = x - s;
 
-			return std::exp(-xs * xs / 2) / sqrt2pi;
+			return std::exp(-x_s * x_s / 2) / sqrt2pi;
 		}
 
 		// standard normal share cumulative distribution function
 		template<class X, class S = X>
 		inline X cdf(X x, S s = 0)
 		{
-			return 0.5 * (1 + std::erf((x - s) / std::numbers::sqrt2_v<X>));
+			static X sqrt2 = std::numbers::sqrt2_v<X>;
+
+			return 0.5 * (1 + std::erf((x - s) / sqrt2));
 		}
 
 	} // namespace normal
@@ -31,6 +34,9 @@ namespace tmx::black {
 	template<class F, class S, class K>
 	inline auto moneyness(F f, S s, K k)
 	{
+		if (f <= 0 or k <= 0 or s <= 0)
+			return std::numeric_limits<F>::quiet_NaN();
+
 		return std::log(k / f) / s + s / 2;
 	}
 
@@ -70,9 +76,9 @@ namespace tmx::black {
 		inline auto implied(F f, P p, K k, P s0 = 0.1)
 		{
 			const auto v = [=](P s) { return value(f, s, k) - p; };
-			const auto dv = [=](P s) { return delta(f, s, k); };
+			const auto dv = [=](P s) { return vega(f, s, k); };
 
-			return newton::solve(v, dv, s0);
+			return root1d::newton::solve(v, dv, s0);
 		}
 
 	} // namespace put

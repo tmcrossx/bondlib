@@ -35,7 +35,7 @@ namespace tmx::bootstrap {
 		const auto pv = [&](F f0) { return value::present(i, f.extrapolate(f0)) - p; };
 		const auto dur = [&](F f0) { return value::duration(i, f.extrapolate(f0)); };
 		
-		_f = newton::solve(pv, dur, _f);
+		_f = root1d::newton::solve(pv, dur, _f);
 
 		return { _u, _f };
 	}
@@ -47,7 +47,7 @@ namespace tmx::bootstrap {
 			double r = 0.1;
 			const auto [_t, _f] = bootstrap::instrument(instrument_bullet<>(1, std::exp(r)), f, 1.);
 			assert(_t == 1);
-			assert(std::fabs(_f - r) <= sqrt_epsilon<double>);
+			assert(std::fabs(_f - r) <= root1d::sqrt_epsilon<double>);
 		}
 
 		return 0;

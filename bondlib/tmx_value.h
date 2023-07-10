@@ -71,12 +71,12 @@ namespace tmx::value {
 	// Constant forward rate matching price p at _t.
 	template<class U, class C>
 	inline C yield(const instrument<U, C>& i, const C p = 0, U _t = 0,
-		C y = 0.01, C tol = sqrt_epsilon<C>, int iter = 100)
+		C y = 0.01, C tol = root1d::sqrt_epsilon<C>, int iter = 100)
 	{
 		const auto pv = [&](C y_) { return present(i, curve_constant<U, C>(y_), _t) - p; };
 		const auto dur = [&](C y_) { return duration(i, curve_constant<U, C>(y_), _t); };
 
-		return newton::solve(pv, dur, y, tol, iter);
+		return root1d::newton::solve(pv, dur, y, tol, iter);
 	}
 
 #ifdef _DEBUG

@@ -100,7 +100,6 @@ double WINAPI xll_black_put_vega(double f, double s, double k)
 	return black::put::vega(f, s, k);
 }
 
-
 AddIn xai_black_call_value(
 	Function(XLL_DOUBLE, "xll_black_call_value", CATEGORY ".BLACK.CALL.VALUE")
 	.Arguments({
@@ -131,4 +130,20 @@ double WINAPI xll_black_call_delta(double f, double s, double k)
 {
 #pragma XLLEXPORT
 	return black::call::delta(f, s, k);
+}
+
+AddIn xai_black_put_implied(
+	Function(XLL_DOUBLE, "xll_black_put_implied", CATEGORY ".BLACK.PUT.IMPLIED")
+	.Arguments({
+	Arg(XLL_DOUBLE, "f", "is the forward price."),
+	Arg(XLL_DOUBLE, "p", "is the put price."),
+	Arg(XLL_DOUBLE, "k", "is the strike."),
+		})
+		.Category(CATEGORY)
+	.FunctionHelp("Return the Black implied volatility repricing a put.")
+);
+double WINAPI xll_black_put_implied(double f, double p, double k)
+{
+#pragma XLLEXPORT
+	return black::put::implied(f, p, k);
 }
