@@ -86,7 +86,7 @@ _FPX* WINAPI xll_pwflat_curve(HANDLEX c)
 }
 
 AddIn xai_pwflat_curve_shift_(
-	Function(XLL_HANDLEX, "xll_pwflat_curve_shift_", "\\" CATEGORY ".PWFLAT.CURVE.SHIFT")
+	Function(XLL_HANDLEX, "xll_pwflat_curve_shift_", "\\" CATEGORY ".CURVE.SHIFT")
 	.Arguments({
 		Arg(XLL_HANDLEX, "curve", "is handle to a curve."),
 		Arg(XLL_DOUBLE, "spread", "is the spread.")
@@ -151,7 +151,7 @@ HANDLEX WINAPI xll_pwflat_curve_translate_(HANDLEX c, double u)
 #endif // 0
 
 AddIn xai_pwflat_curve_value(
-	Function(XLL_DOUBLE, "xll_pwflat_curve_value", CATEGORY ".PWFLAT.CURVE.FORWARD")
+	Function(XLL_DOUBLE, "xll_pwflat_curve_value", CATEGORY ".CURVE.FORWARD")
 	.Arguments({
 		Arg(XLL_HANDLEX, "c", "is a handle to a curve."),
 		Arg(XLL_DOUBLE, "t", "is the forward time."),
@@ -180,7 +180,7 @@ HANDLEX WINAPI xll_pwflat_curve_value(HANDLEX c, double t, double _t)
 }
 
 AddIn xai_pwflat_curve_yield(
-	Function(XLL_DOUBLE, "xll_pwflat_curve_yield", CATEGORY ".PWFLAT.CURVE.YIELD")
+	Function(XLL_DOUBLE, "xll_pwflat_curve_yield", CATEGORY ".CURVE.YIELD")
 	.Arguments({
 		Arg(XLL_HANDLEX, "c", "is a handle to a piecewise flat curve."),
 		Arg(XLL_DOUBLE, "t", "is the yield time."),
@@ -209,7 +209,7 @@ HANDLEX WINAPI xll_pwflat_curve_yield(HANDLEX c, double t, double _t)
 }
 
 AddIn xai_pwflat_curve_discount(
-	Function(XLL_DOUBLE, "xll_pwflat_curve_discount", CATEGORY ".PWFLAT.CURVE.DISCOUNT")
+	Function(XLL_DOUBLE, "xll_pwflat_curve_discount", CATEGORY ".CURVE.DISCOUNT")
 	.Arguments({
 		Arg(XLL_HANDLEX, "c", "is a handle to a piecewise flat curve."),
 		Arg(XLL_DOUBLE, "t", "is the discount time."),

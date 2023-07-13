@@ -98,16 +98,17 @@ AddIn xai_value_ho_lee_moments(
 _FPX* WINAPI xll_value_ho_lee_moments(HANDLEX i, HANDLEX c, double t, double σ)
 {
 #pragma XLLEXPORT
-	static FPX mv(2,1);
+	static FPX mv(3,1);
 
 	try {
 		handle<instrument<>> i_(i);
 		ensure(i_);
 		handle<curve<>> c_(c);
 		ensure(c_);
-		const auto [m, v] = ho_lee::moments(*i_, *c_, t, σ);
+		const auto [m, m_, v] = ho_lee::moments(*i_, *c_, t, σ);
 		mv[0] = m;
-		mv[1] = v;
+		mv[1] = m_;
+		mv[2] = v;
 	}
 	catch (const std::exception& ex) {
 		XLL_ERROR(ex.what());

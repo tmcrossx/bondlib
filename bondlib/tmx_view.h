@@ -20,7 +20,6 @@ namespace tmx {
 		return x >= 0 ? x : x + y;
 	}
 
-
 	// non-owning view of data
 	template<class T>
 	class view {

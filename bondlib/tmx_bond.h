@@ -9,6 +9,7 @@
 
 namespace tmx::bond {
 
+	// Simple bond indicative data.
 	template<class C = double>
 	struct simple {
 		std::chrono::years maturity;

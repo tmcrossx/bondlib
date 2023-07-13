@@ -2,7 +2,6 @@
 #pragma once
 #include <algorithm>
 #include <vector>
-#include "ensure.h"
 #include "tmx_instrument.h"
 
 namespace tmx {
