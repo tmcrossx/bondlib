@@ -42,7 +42,7 @@ AddIn xai_ho_lee_ELogD(
 		Arg(XLL_DOUBLE, "σ", "is the Ho-Lee volatility."),
 		})
 		.Category(CATEGORY)
-	.FunctionHelp("Return the Ho-Lee expected value of log discount E[log D_t(u)]].")
+	.FunctionHelp("Return the Ho-Lee expected value of log zero price E[log D_t(u)]].")
 );
 double WINAPI xll_ho_lee_ELogD(double Dt, double Du, double t, double u, double σ)
 {
@@ -67,7 +67,7 @@ AddIn xai_ho_lee_VarLogD(
 		Arg(XLL_DOUBLE, "σ", "is the Ho-Lee volatility."),
 		})
 		.Category(CATEGORY)
-	.FunctionHelp("Return the Ho-Lee expected variance of log discount Var(log D_t(u)).")
+	.FunctionHelp("Return the Ho-Lee expected variance of log zero price Var(log D_t(u)).")
 );
 double WINAPI xll_ho_lee_VarLogD(double t, double u, double σ)
 {
@@ -85,7 +85,7 @@ double WINAPI xll_ho_lee_VarLogD(double t, double u, double σ)
 }
 
 AddIn xai_value_ho_lee_moments(
-	Function(XLL_FPX, "xll_value_ho_lee_moments", CATEGORY ".HO_LEE.moments")
+	Function(XLL_FPX, "xll_value_ho_lee_moments", CATEGORY ".HO_LEE.Moments")
 	.Arguments({
 		Arg(XLL_HANDLEX, "instrument", "is a handle to an instrument."),
 		Arg(XLL_HANDLEX, "curve", "is a handle to a curve."),
@@ -93,7 +93,7 @@ AddIn xai_value_ho_lee_moments(
 		Arg(XLL_DOUBLE, "σ", "is the Ho-Lee volatility."),
 		})
 		.Category(CATEGORY)
-	.FunctionHelp("Return Ho-Lee mean and log variance of instrument at time t.")
+	.FunctionHelp("Return Ho-Lee mean, forward mean, and log variance of instrument at time t.")
 );
 _FPX* WINAPI xll_value_ho_lee_moments(HANDLEX i, HANDLEX c, double t, double σ)
 {
@@ -105,7 +105,7 @@ _FPX* WINAPI xll_value_ho_lee_moments(HANDLEX i, HANDLEX c, double t, double σ)
 		ensure(i_);
 		handle<curve<>> c_(c);
 		ensure(c_);
-		const auto [m, m_, v] = ho_lee::moments(*i_, *c_, t, σ);
+		auto [m, m_, v] = ho_lee::moments(*i_, *c_, t, σ);
 		mv[0] = m;
 		mv[1] = m_;
 		mv[2] = v;
@@ -120,7 +120,7 @@ _FPX* WINAPI xll_value_ho_lee_moments(HANDLEX i, HANDLEX c, double t, double σ)
 
 
 AddIn xai_value_ho_lee_option(
-	Function(XLL_DOUBLE, "xll_value_ho_lee_option", CATEGORY ".HO_LEE.option")
+	Function(XLL_DOUBLE, "xll_value_ho_lee_option", CATEGORY ".HO_LEE.Option")
 	.Arguments({
 		Arg(XLL_HANDLEX, "instrument", "is a handle to an instrument."),
 		Arg(XLL_HANDLEX, "curve", "is a handle to a curve."),

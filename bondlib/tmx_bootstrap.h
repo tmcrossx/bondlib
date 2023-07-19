@@ -3,6 +3,7 @@
 #ifdef _DEBUG
 #include <cassert>
 #endif
+#include "ensure.h"
 #include "tmx_value.h"
 
 namespace tmx::bootstrap {
@@ -32,10 +33,10 @@ namespace tmx::bootstrap {
 			}
 		}
 
-		const auto pv = [&](F f0) { return value::present(i, f.extrapolate(f0)) - p; };
-		const auto dur = [&](F f0) { return value::duration(i, f.extrapolate(f0)); };
+		const auto vp = [&](F f0) { return value::present(i, f.extrapolate(f0)) - p; };
+		const auto vd = [&](F f0) { return value::duration(i, f.extrapolate(f0)); };
 		
-		_f = root1d::newton::solve(pv, dur, _f);
+		_f = root1d::newton::solve(vp, vd, _f);
 
 		return { _u, _f };
 	}
