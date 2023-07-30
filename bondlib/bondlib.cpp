@@ -17,6 +17,7 @@ using namespace tmx;
 //int test_monoid_i = monoid_test<int>();
 //int test_monoid_d = monoid_test<double>();
 //int test_mean_monoid_d = mean_monoid_test<double>();
+//int test_bound = root1d::bound_test<double>();
 int test_years = date::years_test();
 int test_dcf_30_360 = date::dcf_30_360_test();
 int test_view_d = view<double>::test();

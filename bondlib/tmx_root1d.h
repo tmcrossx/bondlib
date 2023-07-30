@@ -9,6 +9,8 @@ namespace tmx::root1d {
 	constexpr X NaN = std::numeric_limits<X>::quiet_NaN();
 	template<class X>
 	constexpr X epsilon = std::numeric_limits<X>::epsilon();
+	template<class X>
+	constexpr X infinity = std::numeric_limits<X>::infinity();
 
 	template<class X>
 	constexpr X sqrt(X a)
@@ -33,6 +35,8 @@ namespace tmx::root1d {
 	}
 	template<class X>
 	constexpr X sqrt_epsilon = sqrt(std::numeric_limits<X>::epsilon());
+	template<class X>
+	constexpr X phi = (X(1) + sqrt(X(5))) / X(2);
 
 	template<class X>
 	constexpr bool samesign(X x, X y)
@@ -40,6 +44,60 @@ namespace tmx::root1d {
 		//return x = std::copysign(x, y);
 		return (x > 0 and y > 0) or (x < 0 and y < 0);
 	}
+
+	template<class X>
+	constexpr X fabs(X x)
+	{
+		return x >= 0 ? x : -x;
+	}
+
+#if 0
+	// Return x0 <= a, b <= x1 with f(a) and f(b) different sign.
+	template<class F, class X>
+	constexpr std::pair<X, X> bound(const F& f, X a, X b, X x0 = -infinity<X>, X x1 = infinity<X>)
+	{
+		X fa = f(a);
+		X fb = f(b);
+
+		while (samesign(fa, fb)) {
+			X d = b - a;
+			if (fabs(fa) > fabs(fb)) {
+				a = b;
+				b = b + 2 * d;
+				if (x1 != infinity<X> and b > x1) {
+					b = (a + x1) / 2;
+				}
+			}
+			else {
+				b = a;
+				a = a - 2 * d;
+				if (x0 != -infinity<X> and a < x0) {
+					a = (x0 + b) / 2;
+				}
+			}
+		}
+
+		if (x0 != -infinity<X> and x0 == a)
+			return { NaN<X>, b };
+		if (x1 != infinity<X> and x1 == b)
+			return { a, NaN<X> };
+
+		return { a, b };
+	}
+
+#ifdef _DEBUG
+	template<class X>
+	inline int bound_test()
+	{
+		constexpr auto f = [](X x) { return x; };
+		{
+			static_assert(std::make_pair<X, X>(-1, 1) == bound(f, X(-1), X(1)));
+		}
+
+		return 0;
+	}
+#endif // _DEBUG
+#endif // 0
 
 	namespace secant {
 
