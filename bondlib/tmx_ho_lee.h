@@ -56,74 +56,53 @@ namespace tmx::ho_lee {
 		return std::exp(ELogD(Dt, Du, t, u, σ) + VarLogD(t, u, σ) / 2);
 	}
 
-	// D_t(u) D_t
-	// E[e^N e^M] = E[e^N] E[e^M] exp(Cov(N,M))
-	// E[D_t(u) D_t] = E[D_t(u)] D(t) exp(Cov(-σ(u - t)B_t, -int_0^t σB_s ds)]
+	// Cov(log D_t(u), log D_t(v))
+	//   = Cov(-σ(u - t)B_t, -σ(v - t)B_t)
+	//   = σ^2 (u - t)(v - t)t
+	template<class X = double>
+	inline X CovLogD(X t, X u, X v, X σ)
+	{
+		return σ * σ * (u - t) * (v - t) * t;
+	}
+	// Cov(D_t(u), D_t(v))
+	template<class X = double>
+	inline auto Cov(X Dt, X Du, X t, X u, X σ)
+	{
+		return std::exp(ELogD(Dt, Du, t, u, σ) + VarLogD(t, u, σ) / 2);
+	}
+	// Cov(log D_t(u), log D_t) 
+	//   = Cov(-σ(u - t)B_t, -int_0^t σB_s ds)
+	//   = σ^2 (u - t) int_0^t s ds
+	//   = σ^2 (u - t) t^2/2
 	template<class X = double>
 	inline auto CovLogD_(X t, X u, X σ)
 	{
-		return σ * σ * (u - t) * t * t / 2
-	}
-	template<class X = double>
-	inline auto ELogD_(X Dt, X Du, X t, X u, X σ)
-	{
-		return ED(Dt, Du, t, u, σ) * Dt * std::exp(σ * σ * (u - t) * t * t / 2);
+		return σ * σ * (u - t) * t * t / 2;
 	}
 
-
-
+	// Bond option valuation.
 	// E[e^N e^M] = E[e^N] E[e^M] exp(Cov(N,M))
-	// E[D_t(u) D_t] = E[D_t(u)] D(t) exp(Cov(-σ(u - t)B_t, -int_0^t σB_s ds)]
-	template<class X = double>
-	inline auto CovD(X Dt, X Du, X t, X u, X σ)
-	{
-		return ED(Dt, Du, t, u, σ) * Dt * std::exp(σ * σ * (u - t) * t * t / 2);
-	}
-	// E[e^N e^M] = E[e^N] E[e^M] exp(Cov(N,M))
-	// E[D_t(u) D_t]/D(t) = E[D_t(u)] exp(Cov(-σ(u - t)B_t, -int_0^t σB_s ds)]
-	template<class X = double>
-	inline auto ED_(X Dt, X Du, X t, X u, X σ)
-	{
-		return ED(Dt, Du, t, u, σ) * std::exp(σ * σ * (u - t) * t * t / 2);
-	}
-	// Cov(e^N, e^M) = exp(Cov(N,M))
-	// Covariance of D_t(u) and D_t(v)
-	template<class X = double>
-	inline auto Cov(X Dt, X Du, X Dv, X t, X u, X v, X σ)
-	{
-		auto Dtu = ED(Dt, Du, t, u, σ);
-		auto Dtv = ED(Dt, Dv, t, v, σ);
-		auto cov = σ * σ * (u - t) * (v - t) * t;
+	// E[f(P_t) D_t] = E[f(sum_{u_j > t} c_j D_t(u_j)) D_t]
+	//   = E[f(sum_{u_j > t} c_j D_t(u_j) e^C_j)] E[D_t],
+	// where C_j = Cov(log D_t(u_j), log D_t)
 
-		return Dtv * Dtu * std::exp(cov);
-	}
-
-	// E_t[sum_{u_j > t} c_j D_t(u_j) D_t]
+	// mean and variance of P_t = sum_{u_j > t} c_j D_t(u_j) e^C_j
 	template<class U, class C, class T, class F>
-	inline auto value(const instrument<U, C>& i, const curve<T, F>& f, T t, F σ)
+	inline std::tuple<F, F, F> moments(size_t m, const U* u, const C* c, const curve<T, F>& f, T t, F σ)
 	{
-		F mean = 0, mean_ = 0, var = 0;
-	}
+		F mean = 0, var = 0;
 
-	// mean and log variance of P_t = sum_{u_j > t} c_j D_t(u_j) and E[P_t D_t]/D(t)
-	template<class U, class C, class T, class F>
-	inline std::tuple<F, F, F> moments(const instrument<U, C>& i, const curve<T, F>& f, T t, F σ)
-	{
-		F mean = 0, mean_ = 0, var = 0;
-
-		const auto u = i.time();
-		auto j = u.offset(t);
-		auto m = static_cast<decltype(j)>(u.size());
-		const auto c = i.cash();
+		auto j0 = view(c, c + m).offset(t);
 
 		auto Dt = f.discount(t);
-		for (auto k = j; k < m; ++k) {
-			auto Duk = f.discount(u[k]);
-			mean += c[k] * ED(Dt, Duk, t, u[k], σ);
-			mean_ += c[k] * ED_(Dt, Duk, t, u[k], σ);
-			for (auto l = j; l < m; ++l) {
-				auto Dul = f.discount(u[l]);
-				var += c[k] * c[l] * Cov(Dt, Duk, Dul, t, u[l], u[k], σ);
+		for (auto j = j0; j < m; ++j) {
+			auto Duj = f.discount(u[j]);
+			auto Cj = std::exp(CovLogD_(t, u[j], σ));
+			mean += c[k] * ED(Dt, Duk, t, u[j], σ) * Cj;
+			for (auto k = j0; k < m; ++k) {
+				auto Duk = f.discount(u[k]);
+				auto Ck = std::exp(CovLogD_(t, u[k], σ));
+				var += c[j] * c[k] * Cov(Dt, Duj, Duk, t, u[j], u[k], σ) * Cj * Ck;
 			}
 		}
 		// Var(e^N) = E[e^N]^2 (e^Var(N) - 1)
