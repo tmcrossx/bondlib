@@ -1,6 +1,6 @@
 // bondlib.cpp - test
 #include <cassert>
-//#include "tmx_iterable.h"
+#include "fms_iterable.h"
 //#include "tmx_monoid.h"
 #include "tmx_view.h"
 #include "tmx_date.h"
@@ -11,9 +11,12 @@
 #include "tmx_bootstrap.h"
 //#include "tmx_muni.h"
 
+using namespace fms;
 using namespace tmx;
 
 #ifdef _DEBUG
+int test_iterable_ptr = iterable_ptr<int>::test();
+int test_iterator = iterable_iterator<std::vector<int>::iterator>::test();
 //int test_monoid_i = monoid_test<int>();
 //int test_monoid_d = monoid_test<double>();
 //int test_mean_monoid_d = mean_monoid_test<double>();

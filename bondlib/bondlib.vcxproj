@@ -135,6 +135,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ensure.h" />
+    <ClInclude Include="fms_iterable.h" />
     <ClInclude Include="tmx_black.h" />
     <ClInclude Include="tmx_bond.h" />
     <ClInclude Include="tmx_bootstrap.h" />

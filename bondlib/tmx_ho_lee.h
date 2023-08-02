@@ -64,12 +64,14 @@ namespace tmx::ho_lee {
 	{
 		return σ * σ * (u - t) * (v - t) * t;
 	}
+	// E[e^N e^M] = E[e^N] E[e^M] exp(Cov(N,M))
 	// Cov(D_t(u), D_t(v))
 	template<class X = double>
-	inline auto Cov(X Dt, X Du, X t, X u, X σ)
+	inline auto CovD(X Dt, X Du, X Dv, X t, X u, X v, X σ)
 	{
-		return std::exp(ELogD(Dt, Du, t, u, σ) + VarLogD(t, u, σ) / 2);
+		return ED(Dt, Du, t, u, σ) * ED(Dt, Dv, t, v, σ) * std::exp(CovLogD(t, u, v, σ);
 	}
+
 	// Cov(log D_t(u), log D_t) 
 	//   = Cov(-σ(u - t)B_t, -int_0^t σB_s ds)
 	//   = σ^2 (u - t) int_0^t s ds
@@ -81,14 +83,13 @@ namespace tmx::ho_lee {
 	}
 
 	// Bond option valuation.
-	// E[e^N e^M] = E[e^N] E[e^M] exp(Cov(N,M))
 	// E[f(P_t) D_t] = E[f(sum_{u_j > t} c_j D_t(u_j)) D_t]
 	//   = E[f(sum_{u_j > t} c_j D_t(u_j) e^C_j)] E[D_t],
 	// where C_j = Cov(log D_t(u_j), log D_t)
 
 	// mean and variance of P_t = sum_{u_j > t} c_j D_t(u_j) e^C_j
 	template<class U, class C, class T, class F>
-	inline std::tuple<F, F, F> moments(size_t m, const U* u, const C* c, const curve<T, F>& f, T t, F σ)
+	inline std::pair<F, F> moments(size_t m, const U* u, const C* c, const curve<T, F>& f, T t, F σ)
 	{
 		F mean = 0, var = 0;
 
@@ -102,13 +103,13 @@ namespace tmx::ho_lee {
 			for (auto k = j0; k < m; ++k) {
 				auto Duk = f.discount(u[k]);
 				auto Ck = std::exp(CovLogD_(t, u[k], σ));
-				var += c[j] * c[k] * Cov(Dt, Duj, Duk, t, u[j], u[k], σ) * Cj * Ck;
+				var += c[j] * c[k] * CovD(Dt, Duj, Duk, t, u[j], u[k], σ) * Cj * Ck;
 			}
 		}
 		// Var(e^N) = E[e^N]^2 (e^Var(N) - 1)
 		var = std::log(var / (mean * mean) + 1);
 
-		return { mean, mean_, var };
+		return { mean, var };
 	}
 	/*
 	// Cov(sum_{u_j > t} c_j D_t(u_j), D_t)
