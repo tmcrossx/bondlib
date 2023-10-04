@@ -74,3 +74,17 @@ Municipal bonds are quoted using 5% coupon 10-year non-call par coupons.
 provides daily quotes at maturities for 1 to 30 years.
 
 Bootstrap  
+
+$\Omega$, $\mathcal{A}_t$, $t\in T$, is a partition of $\Omega$, 
+$X\colon\mathcal{A}_t\to\bm{R}$ is a measurable function,
+$D\colon\mathcal{A}_t\to\bm{R}$ is a measure.
+
+`pairing(X, D, A_t)` is $\int_\Omega X\,dD$
+
+E[max{k - f exp(s X - \kappa(s)), 0}]
+
+
+
+
+
+

@@ -83,7 +83,7 @@ double WINAPI xll_ho_lee_VarLogD(double t, double u, double σ)
 
 	return result;
 }
-
+#if 0
 AddIn xai_value_ho_lee_moments(
 	Function(XLL_FPX, "xll_value_ho_lee_moments", CATEGORY ".HO_LEE.Moments")
 	.Arguments({
@@ -153,3 +153,4 @@ double WINAPI xll_value_ho_lee_option(HANDLEX i, HANDLEX c, double t, double σ,
 
 	return result;
 }
+#endif // 0

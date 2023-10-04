@@ -19,7 +19,7 @@ namespace tmx::date {
 	}
 
 	template<class Dur>
-	constexpr std::chrono::sys_days as_days(const std::chrono::sys_time<Dur>& t)
+	constexpr sys_days as_days(const std::chrono::sys_time<Dur>& t)
 	{
 		return std::chrono::time_point_cast<std::chrono::days>(t);
 	}
@@ -87,6 +87,7 @@ namespace tmx::date {
 
 #endif // _DEBUG
 
+	// Day Count Fractions
 	using dcf_t = double(const ymd&, const ymd&);
 
 	constexpr double dcf_years(const ymd& d0, const ymd& d1)

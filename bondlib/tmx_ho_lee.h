@@ -69,7 +69,7 @@ namespace tmx::ho_lee {
 	template<class X = double>
 	inline auto CovD(X Dt, X Du, X Dv, X t, X u, X v, X σ)
 	{
-		return ED(Dt, Du, t, u, σ) * ED(Dt, Dv, t, v, σ) * std::exp(CovLogD(t, u, v, σ);
+		return ED(Dt, Du, t, u, σ) * ED(Dt, Dv, t, v, σ) * std::exp(CovLogD(t, u, v, σ));
 	}
 
 	// Cov(log D_t(u), log D_t) 
@@ -99,7 +99,7 @@ namespace tmx::ho_lee {
 		for (auto j = j0; j < m; ++j) {
 			auto Duj = f.discount(u[j]);
 			auto Cj = std::exp(CovLogD_(t, u[j], σ));
-			mean += c[k] * ED(Dt, Duk, t, u[j], σ) * Cj;
+			mean += c[j] * ED(Dt, Duj, t, u[j], σ) * Cj;
 			for (auto k = j0; k < m; ++k) {
 				auto Duk = f.discount(u[k]);
 				auto Ck = std::exp(CovLogD_(t, u[k], σ));
