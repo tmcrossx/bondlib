@@ -1,10 +1,10 @@
-﻿// fms_date.h - Date and time calculation
+﻿// tmx_date.h - Date and time calculation
 #pragma once
 #include <chrono>
 #include <iterator>
 #include <tuple>
 
-namespace fms::date {
+namespace tmx::date {
 
 	// Calendar date.
 	using ymd = std::chrono::year_month_day;
@@ -138,7 +138,6 @@ namespace fms::date {
 #ifdef _DEBUG
 	static int periodic_test()
 	{
-		using year = std::chrono::year;
 		{
 			constexpr auto eff = make_ymd(2023, 1, 2);
 			constexpr auto ter = make_ymd(2025, 1, 2);
@@ -196,7 +195,7 @@ namespace fms::date {
 
 	// Day count fraction appoximately equal to time in year between dates.
 	// https://eagledocs.atlassian.net/wiki/spaces/Accounting2017/pages/439484565/Understand+Day+Count+Basis+Options
-	using dcf_ = years(*)(const ymd&, const ymd&);
+	using dcf_t = years(*)(const ymd&, const ymd&);
 	namespace dcf {
 		// Day count fraction in years from d0 to d1.
 		constexpr years _years(const ymd& d0, const ymd& d1)
@@ -417,4 +416,4 @@ namespace fms::date {
 	}
 #endif // _DEBUG
 
-} // namespace fms::date
+} // namespace tmx::date

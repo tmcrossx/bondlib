@@ -14,8 +14,8 @@ namespace tmx::bond {
 	struct simple {
 		std::chrono::years maturity;
 		C coupon;
-		unsigned short frequency;
-		date::dcf_t& day_count;
+		date::frequency frequency;
+		date::dcf_t day_count;
 	};
 
 	// Return instrument cash flows for unit notional
@@ -26,13 +26,14 @@ namespace tmx::bond {
 
 		auto mat = dated + bond.maturity;
 		auto d0 = dated;
-		auto d1 = d0 + std::chrono::months(12 / bond.frequency);
+		auto period = std::chrono::months(12/(int)bond.frequency);
+		auto d1 = d0 + period;
 		while (d1 <= mat) {
-			U u = date::dcf_years(dated, d1);
+			U u = date::dcf::_years(dated, d1);
 			C c = bond.coupon * bond.day_count(d0, d1);
 			i.push_back(u, c);
 			d0 = d1;
-			d1 = d0 + std::chrono::months(12 / bond.frequency);
+			d1 = d0 + period;
 		}
 		auto [_u, _c] = i.back();
 		i.push_back(_u, 1);
@@ -68,7 +69,7 @@ namespace tmx::bond {
 			using std::literals::chrono_literals::operator""y;
 
 			auto d = 2023y / 1 / 1;
-			bond::simple<> bond{ std::chrono::years(10), 0.05, date::frequency::semiannually, date::dcf_30_360 };
+			bond::simple<> bond{ std::chrono::years(10), 0.05, date::frequency::semiannually, date::dcf::_30_360 };
 			auto i = instrument(bond, d);
 			ensure(20 == i.size());
 			auto u = i.time();
