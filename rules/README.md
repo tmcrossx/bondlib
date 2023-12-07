@@ -2,24 +2,72 @@
 
 ## Tables
 
-### secmaster
+### security_master
 
 Security master database.
 
+`security_master/payload/instrument/debt/fixed_income/`
+
+|XPATH|type|
+| -:|:-|
+|bond_class|BondClass|
+|daycount_basis_type|ApexDaycountBasisType|
+|first_coupon_date|date|
+|interest_payment_frequency|FrequencyType|
+|issue_amount|decimal|
+|maturity_date|date|
+|nominal_value|decimal|
+|orig_principal_amount|decimal|
+|original_coupon_rate|decimal|
+|outstanding_amount|decimal|
+|call_indicator|boolean|
+|first_payment_date|date|
+|interest_calc_method|InterestCalcMethods|
+|accrued_roll_convention|ApexRollConvention|
+|payment_roll_convention|ApexRollConvention|
+|original_maturity_date|date|
+|subordination_type|GsmSubordinationType|
+
+`security_master/payload/instrument/debt/muni_details/`
+
+|XPATH|type|description|
+| -:|:-|:-|
+|capital_type|MuniCapitalType|
+|conduit_obligor_name|string[integer]|
+|issue_key|integer|
+|issue_text|string|
+|muni_issue_type|MuniSupplementalIssueType|
+|muni_security_type|MuniSecurityType|The revenues and assets available to service the payments and debt repayment of the security identified by the instrument_id.|
+|state_tax_status|MuniStateTaxType|If the bond is subject to state taxes in the home state of the issuer.|
+|use_of_proceeds|MuniUseOfProceedsType|
+|secured|MuniSecuredType|
+|sec_regulation|MuniSecRegulation|
+|purpose_class|MuniPurposeClassType|
+|purpose_sub_class|MuniPurposeSubClassType|
+
+security_master/payload/instrument/debt/call_details/call_schedule  
+security_master/payload/instrument/debt/call_details/call_schedule/call_date  
+
+security_master/payload/instrument/debt/muni_associated_obligor  
+
 ```sql
-CREATE TABLE secmaster (
+CREATE TABLE security_master (
     CUSIP char(9) PRIMARY KEY
     issue_date DATE,
+    accrual_date DATE, -- ?
     dated_date DATE,
     maturity_date DATE NOT NULL,
     coupon REAL NOT NULL,
     frequency INT NOT NULL,
+    daycount_basis_type
     day_count_basis INT NOT NULL,
+    business_day_convention_code INT NOT NULL,
+    use_of_proceeds INT NOT NULL,
     ...
 );
 ```
 
-Auxiliary tables: `frequency`, `day_count_basis`
+Auxiliary tables: `frequency`, `day_count_basis`, `business_day_convention_code`, `use_of_proceeds`
 
 ### portfolio
 
@@ -27,22 +75,62 @@ All available positions.
 
 ```sql
 CREATE TABLE positions (
-    CUSIP char(9) NOT NULL,
     clientId INT NOT NULL,
-    portfolioID INT NOT NULL,
+    portfolioId INT NOT NULL,
+    positionId INT NOT NULL,
+    CUSIP char(9) NOT NULL,
+    quantity decimal,
+    purchase_date date,
+    purchase_price decimal,
+    --minQuantity decimal, -- goes into rules???
     ...
-    PRIMARY KEY (clientId, portfolioId, CUSIP)
+    PRIMARY KEY (clientId, portfolioId, positionId) -- ??? ensure positionId is unique
 );
 
-Auxiliary tables: `clientId`, `portfolioId`
+Auxiliary tables: `clientId`, `portfolioId`, `positionId`
+```
+
+### obligor
+
+    -- [LEI](https://www.gleif.org/en/about-lei-introducing-the-legal-entity-identifier-lei)
+
+```sql
+CREATE TABLE obligor (
+    obligorId INT NOT NULL PRIMARY KEY ,
+
+    LEI char[20],
+    name TEXT -- String containing obligor name
+    -- other ids to map to ???
+)
+```
+
+```sql
+CREATE TABLE obligor_subsidiary (
+    obligorId INT NOT NULL
+    subsidiary INT NOT NULL
+)
+
 ```
 
 ## Rules
 
 Every `clientId` and `portfolioId` pair is associated with a set of _rules_.  
-Matching happens in two stages. First the fields
-and parameters for a `CUSIP` are queried based on rules. 
+Matching happens in stages to successively eliminate non-candidates. 
+First the fields and parameters for a `CUSIP` are queried based on rules. 
 Next the matching rules are applied to the portfolio of available matches.
+
+### Portfolio
+
+Limits on portfolio aggregates.
+
+E.g., cash position must be less that 20%
+
+```sql
+SELECT (SUM(a.quantity FROM portfolio WHERE ...) AS a
+      ,(SUM(b.quantity FROM portfolio WHERE ...) AS b
+      , a/b as ab -- ?
+WHERE ab <= 0.03
+```
 
 ### Analytic rules
 
@@ -55,19 +143,20 @@ E.g., absolute yield difference less than or equal to 10 basis points
 Fields
 ```sql
 SELECT CUSIP, yield
-FROM secmaster
+FROM security_master
 WHERE CUSIP = @CUSIP
 ```
 Parameters
 ```sql
 SELECT absolute_difference_yield
-FROM rules
+FROM rules_parameters
 WHERE portfolioId = @portfolioId AND clientId = @clientId
 ```
 Analytics
 ```sql
 SELECT ABS(@yield - yield) AS absolute_difference_yield  
-WHERE absolute_difference_yield <= @absolute_difference_yield
+--WHERE absolute_difference_yield <= @absolute_difference_yield
+ORDER BY absolute_difference_yield ASC
 ```
 
 ### Category rules
