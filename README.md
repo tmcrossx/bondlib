@@ -23,14 +23,17 @@ We use the duration `std::chrono::years` to define `datetime::days_per_year`
 as the number of days per year. Every day has 86400 = 24 * 60 * 60 seconds
 so `datetime::seconds_per_year = 86400 * datetime::days_per_year`.
 
-The function `time_t datetime::add(time_t t, double y)` adds `y` years to `t`.
-The invariants are `diffyears(add(t, y), t) == y`
-and `add(t0, diffyears(t1, t0) == t1`.
+The function `time_t datetime::add_year(time_t t, double y)` adds `y` years to `t`.
+The invariants are `diffyears(add_years(t, y), t) == y`
+and `add_years(t0, diffyears(t1, t0) == t1`.
 
 ## Date
 
 The type `date::ymd` represents a calendar date with resolution to one day.
-Converting a `time_t` to a `date::ymd` depends on the time zone.
+Converting a `time_t` to a `date::ymd` depends on the time zone specified
+in the `TZ` environment variable. 
+The functions `ymd date::add_months(ymd d, int m)` and
+`ymd date::add_days(ymd d, int d)` add months and days to a date.
 
 ## Discount 
 
@@ -78,19 +81,8 @@ Single call at date and price. Use time-dependent Ho-Lee with constant volatilit
 Municipal bonds are quoted using 5% coupon 10-year non-call par coupons.  
 [EMMA](https://emma.msrb.org/ToolsAndResources/ICEYieldCurve?daily=False)
 provides daily quotes at maturities for 1 to 30 years.
+To construct a forward curve we must determine the option values past 10 years.
 
 Bootstrap  
-
-$\Omega$, $\mathcal{A}_t$, $t\in T$, is a partition of $\Omega$, 
-$X\colon\mathcal{A}_t\to\bm{R}$ is a measurable function,
-$D\colon\mathcal{A}_t\to\bm{R}$ is a measure.
-
-`pairing(X, D, A_t)` is $\int_\Omega X\,dD$
-
-E[max{k - f exp(s X - \kappa(s)), 0}]
-
-
-
-
 
 
