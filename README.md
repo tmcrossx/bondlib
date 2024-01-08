@@ -32,6 +32,13 @@ and `add_years(t0, diffyears(t1, t0) == t1`.
 The type `date::ymd` represents a calendar date with resolution to one day.
 Converting a `time_t` to a `date::ymd` depends on the time zone specified
 in the `TZ` environment variable. 
+
+// TODO: 
+ymd -> (y, m d) -> ymd
+add/sub months, days
+
+The functions `ymd date::add_months(ymd d, int m)` and
+`ymd date::add_days(ymd d, int d)` add months and days to a date.
 The functions `ymd date::add_months(ymd d, int m)` and
 `ymd date::add_days(ymd d, int d)` add months and days to a date.
 

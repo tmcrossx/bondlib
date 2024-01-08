@@ -12,6 +12,7 @@ namespace tmx::date {
 	// Calendar year/month/day date.
 	using ymd = std::chrono::year_month_day;
 
+	// TODO: too ugly
 	constexpr auto y_m_d(const ymd& d)
 	{
 		return std::make_tuple(d.year(), d.month(), d.day());
@@ -68,7 +69,8 @@ namespace tmx::date {
 	}
 #endif // _DEBUG
 
-	// Periodic times in [effective, termination] working backwards from termination in period steps.
+	// TODO: remove???
+	// Periodic times in [effective, termination] working backwards from termination in month steps.
 	class periodic {
 		ymd effective, termination;
 		int months;
