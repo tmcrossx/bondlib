@@ -16,9 +16,11 @@ namespace tmx::date {
 	{
 		return std::make_tuple(d.year(), d.month(), d.day());
 	}
+	static_assert(y_m_d(std::chrono::year(2012) / 1 / 2) == std::make_tuple(std::chrono::year(2012), std::chrono::month(1), std::chrono::day(2)));
 
 	// duration as double in years
 	using years = std::chrono::duration<double, std::chrono::years::period>;
+	//constexpr double dpy = std::chrono::years::period::num/ std::chrono::years::period::den; // days per year
 
 	// d0 - d1 in years to system clock precision.
 	// If dt = d0 - d1 then d1 = d0 - dt and d0 = d1 + dt.
