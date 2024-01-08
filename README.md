@@ -4,14 +4,36 @@ Bond pricing and analytics
 
 ## Date and Time
 
-See Howard Hinnant's [date library](https://howardhinnant.github.io/date/date.html)
-for documentation of the [`<chrono>`](https://en.cppreference.com/w/cpp/chrono)
+Every analytics library needs to convert a real world date and time
+to a floating point number representing time in years and back again. 
+
+We use the C++ [`<chrono>`](https://en.cppreference.com/w/cpp/chrono) library for that.
+The solution is not simple.
+A _clock_ consists of a starting point (or epoch) and a tick rate.
+In the the old days people used
+an unsigned integer [`time_t`](https://en.cppreference.com/w/c/chrono/time_t) for this.
+Its epoch is 1970-01-01 00:00:00 UTC with a tick rate of 1 second.
+
+C++ makes several clocks available with finer resolution.
+We use `std::system_clock` as the default clock. 
+That usually has a tick rate of a microsecond or better.
+A [`time point`](https://en.cppreference.com/w/cpp/chrono/time_point)
+is a duration of time that has passed since the epoch of a specific clock.
+A [`duration`](https://en.cppreference.com/w/cpp/chrono/duration)
+consists of a span of time, defined as some number of ticks of some time unit.
+
+Every clock can be converted to a time point. The difference between two time points
+is a duration. 
+
+
+See Howard Hinnant's [documentation](https://howardhinnant.github.io/date/date.html)
+for all the gory details.
+
+
+
 date and time library. This library uses 
 [`std::system_clock`](https://en.cppreference.com/w/cpp/chrono/system_clock)
 which represents the system-wide real time wall clock for time points.
-
-Every analytics library needs to convert real world date and time
-to a floating point number representing time in years and back again. 
 
 We use the duration `std::chrono::years` to define `tmx::date::dpy` as the number of days per year.
 
