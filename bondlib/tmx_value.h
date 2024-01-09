@@ -20,7 +20,7 @@ namespace tmx::value {
 		return X(std::log(std::pow(1 + y / n, n)));
 	}
 
-	// Value at t of future discounted cash flows.
+	// Present value at t of future discounted cash flows.
 	template<class U, class C, class T, class F>
 	constexpr C present(const instrument<U, C>& i, const curve<T, F>& f, T t = 0)
 	{
@@ -90,11 +90,17 @@ namespace tmx::value {
 		X c0 = (1 - d1 * d1) / (d1 + d1 * d1);
 		X u[] = { 1,2 };
 		X c[] = { c0, 1 + c0 };
+		// 1 = c0 exp(-y0) + (1 + c0) exp(-2 y0)
 		const auto i = instrument_view(view(u), view(c));
 
 		{
 			X y = yield(i, X(1));
 			ensure(std::fabs(y - y0) <= eps);
+		}
+		// TODO: test at forward values of time.
+		{
+			// 1 = c0 exp(-y0 * .5) + (1 + c0) exp(-y0 * 1.5)
+			// yield(i, X(1), U(0.5))???
 		}
 		{
 			X y = yield(i, X(1), X(0), y0);

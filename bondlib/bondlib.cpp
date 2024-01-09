@@ -33,7 +33,7 @@ int test_instrument_view = instrument_view<>::test();
 int test_instrument_value = instrument_value<>::test();
 int test_value_yield_d = value::yield_test<double>();
 int test_value_yield_f = value::yield_test<float>();
-int test_bond_basic = bond::bond_basic_test();
+//int test_bond_basic = bond::bond_basic_test();
 int test_bootstrap_instrument = bootstrap::instrument_test();
 //int test_muni_fit = muni::fit_test();
 #endif // _DEBUG

@@ -2,29 +2,45 @@
 
 Bond pricing and analytics
 
-## Date and Time
+## Datetime
 
-See Howard Hinnant's [date library](https://howardhinnant.github.io/date/date.html)
-for documentation of the [`<chrono>`](https://en.cppreference.com/w/cpp/chrono)
-date and time library. This library uses 
-[`std::system_clock`](https://en.cppreference.com/w/cpp/chrono/system_clock)
-which represents the system-wide real time wall clock for time points.
-
-Every analytics library needs to convert real world date and time
+Every analytics library needs to convert a real world date and time
 to a floating point number representing time in years and back again. 
 
-We use the duration `std::chrono::years` to define `tmx::date::dpy` as the number of days per year.
+A _clock_ has a starting point (or epoch) and a tick rate.
+We use the _time point_ [`time_t`](https://en.cppreference.com/w/c/chrono/time_t) for this,
+an unsigned integer with epoch midnight January 1, 1970 
+[UTC](https://www.ipses.com/eng/in-depth-analysis/standard-of-time-definition/)
+with a tick rate of 1 second.
 
-The function `date::add_years(tp, years)` returns a time point with
-years rounded to seconds and `date::sub_years(tp1, tp0)` returns `tp1 - tp0` as the number of years
-rounded to seconds between two time points.
-The invariants are `date_add(date_add(tp, years), -years))` is within one second of `tp`
-and `date_sub(date_add(tp, years), tp)` is less than `1/(dpy * 86400)`.
+A _duration_ is the difference of clock time points.
+the standard library function 
+[`difftime`](https://en.cppreference.com/w/c/chrono/difftime)
+returns the difference in seconds between two time points as a `double`.
+We implement the function `datetime::diffyears` returning the difference
+in years by dividing by the number of seconds in a year.
+We use the duration `std::chrono::years` to define `datetime::days_per_year`
+as the number of days per year. Every day has 86400 = 24 * 60 * 60 seconds
+so `datetime::seconds_per_year = 86400 * datetime::days_per_year`.
 
-Time points can be either _serial based_ or _field based_. 
-All day count fractions use the field based 
-[`std::chrono::year_month_day`](https://en.cppreference.com/w/cpp/chrono/year_month_day)
-with resolution to one day.
+The function `time_t datetime::add_year(time_t t, double y)` adds `y` years to `t`.
+The invariants are `diffyears(add_years(t, y), t) == y`
+and `add_years(t0, diffyears(t1, t0) == t1`.
+
+## Date
+
+The type `date::ymd` represents a calendar date with resolution to one day.
+Converting a `time_t` to a `date::ymd` depends on the time zone specified
+in the `TZ` environment variable. 
+
+// TODO: 
+ymd -> (y, m d) -> ymd
+add/sub months, days
+
+The functions `ymd date::add_months(ymd d, int m)` and
+`ymd date::add_days(ymd d, int d)` add months and days to a date.
+The functions `ymd date::add_months(ymd d, int m)` and
+`ymd date::add_days(ymd d, int d)` add months and days to a date.
 
 ## Discount 
 
@@ -72,19 +88,8 @@ Single call at date and price. Use time-dependent Ho-Lee with constant volatilit
 Municipal bonds are quoted using 5% coupon 10-year non-call par coupons.  
 [EMMA](https://emma.msrb.org/ToolsAndResources/ICEYieldCurve?daily=False)
 provides daily quotes at maturities for 1 to 30 years.
+To construct a forward curve we must determine the option values past 10 years.
 
 Bootstrap  
-
-$\Omega$, $\mathcal{A}_t$, $t\in T$, is a partition of $\Omega$, 
-$X\colon\mathcal{A}_t\to\bm{R}$ is a measurable function,
-$D\colon\mathcal{A}_t\to\bm{R}$ is a measure.
-
-`pairing(X, D, A_t)` is $\int_\Omega X\,dD$
-
-E[max{k - f exp(s X - \kappa(s)), 0}]
-
-
-
-
 
 

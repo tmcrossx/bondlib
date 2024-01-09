@@ -21,6 +21,7 @@ namespace tmx {
 	}
 
 	// non-owning view of data
+	// TODO: use std::span
 	template<class T>
 	class view {
 		size_t n;
@@ -54,6 +55,7 @@ namespace tmx {
 				&& std::equal(data(), data() + size(), v.begin(), v.end());
 		}
 
+		// TODO: make free function
 		// Least index with t[i] > 0.
 		constexpr ptrdiff_t offset(T u) const
 		{
@@ -101,6 +103,7 @@ namespace tmx {
 			return t[i];
 		}
 
+		// TODO: free function???
 		// Cyclic element access.
 		constexpr T operator()(long i) const
 		{

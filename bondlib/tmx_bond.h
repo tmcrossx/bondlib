@@ -17,9 +17,9 @@ namespace tmx::bond {
 		date::frequency frequency;
 		date::dcf_t day_count;
 	};
-
+#if 0
 	// Return instrument cash flows for unit notional
-	template<class U = double, class C = double>
+	template<class U = date::years, class C = double>
 	constexpr instrument_value<U, C> instrument(const simple<C>& bond, const date::ymd& dated)
 	{
 		instrument_value<U, C> i;
@@ -84,6 +84,7 @@ namespace tmx::bond {
 	}
 #pragma warning(pop)
 #endif // _DEBUG
+#endif // 0
 }
 
 // class callable : public basic { ... };
