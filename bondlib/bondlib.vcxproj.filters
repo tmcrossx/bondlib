@@ -66,6 +66,9 @@
     <ClInclude Include="fms_iterable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="tmx_date_day_count.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="bondlib.cpp">

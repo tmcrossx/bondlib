@@ -1,6 +1,35 @@
-# Tax Loss Harvesting
+# CrossX
+
+Collect _client_ _portfolio_ _positions_ that are candidates
+for trading. Clients specify _matching rules_ that can apply at
+the position or _portfolio_ level.
+
+Given a position generate all positions _matching_ at the position level. 
+
+Generate a _bundle_ of positions matching at the portfolio level.
 
 ## Tables
+
+### [clients](clients.sql)
+
+### [positions](positions.sql)
+
+Clients send a table of positions having a
+portfolio and a position identifier, CUSIP,
+quantity. If they want us to calculate tax loss
+then include the purchase date and purchase price.
+
+
+Portfolio and position identify a unique lot held
+by the customer. 
+
+Auxiliary tables: `clientId`, `portfolioId`, `positionId`
+```
+
+### Matching rules
+
+Given clientId, portfolioId, and positionId query all
+data required for subsequent operations.
 
 ### security_master
 
@@ -69,26 +98,7 @@ CREATE TABLE security_master (
 
 Auxiliary tables: `frequency`, `day_count_basis`, `business_day_convention_code`, `use_of_proceeds`
 
-### portfolio
 
-All available positions.
-
-```sql
-CREATE TABLE positions (
-    clientId INT NOT NULL,
-    portfolioId INT NOT NULL,
-    positionId INT NOT NULL,
-    CUSIP char(9) NOT NULL,
-    quantity decimal,
-    purchase_date date,
-    purchase_price decimal,
-    --minQuantity decimal, -- goes into rules???
-    ...
-    PRIMARY KEY (clientId, portfolioId, positionId) -- ??? ensure positionId is unique
-);
-
-Auxiliary tables: `clientId`, `portfolioId`, `positionId`
-```
 
 ### obligor
 
@@ -96,7 +106,7 @@ Auxiliary tables: `clientId`, `portfolioId`, `positionId`
 
 ```sql
 CREATE TABLE obligor (
-    obligorId INT NOT NULL PRIMARY KEY ,
+    obligorId INT NOT NULL PRIMARY KEY,
 
     LEI char[20],
     name TEXT -- String containing obligor name
@@ -170,3 +180,7 @@ SELECT useOfProceedsGroup
 ### Logical rules
 
 E.g., clients must be different (no crossing)
+
+```sql
+WHERE @clientId <> clientId
+```
