@@ -7,72 +7,52 @@
 #include <iterator>
 #include <tuple>
 
+#include "tmx_datetime.h"
+
 namespace tmx::date {
 
 	// Calendar year/month/day date.
 	using ymd = std::chrono::year_month_day;
 
-	constexpr ymd make_ymd(int y, unsigned int m, unsigned int d)
+	constexpr ymd to_ymd(int y, unsigned int m, unsigned int d)
 	{
-		return std::make_tuple(d.year(), d.month(), d.day());
+		return ymd(std::chrono::year(y), std::chrono::month(m), std::chrono::day(d));
 	}
-	constexpr std::tuple<std::chrono::year, std::chrono::month, std::chrono::day> from_ymd(const ymd& d)
+	constexpr std::tuple<int, unsigned, unsigned> from_ymd(const ymd& d)
 	{
-		return { d.year(), d.month(), d.day() };
+		return { d.year().operator int(), d.month().operator unsigned int(), d.day().operator unsigned int() };
 	}
-
-	// Construct sys_days time point from ymd.
-	using sys_days = std::chrono::sys_days;
-	constexpr sys_days make_days(int y, int m, int d)
+	inline time_t to_time_t(const ymd& d)
 	{
-		// ymd has operator operator sys_days conversion
-		return sys_days(make_ymd(y, m, d));
+		return std::chrono::system_clock::to_time_t(std::chrono::sys_days(d));
 	}
-
-	// duration as double in years
-	using years = std::chrono::duration<double, std::chrono::years::period>;
-	constexpr double dpy = std::chrono::years::period::num/ std::chrono::years::period::den; // days per year
 
 	// d0 - d1 in years to system clock precision.
 	// If dt = d0 - d1 then d1 = d0 - dt and d0 = d1 + dt.
-	constexpr years operator-(ymd d0, ymd d1)
+	inline auto diffyears(ymd d1, ymd d0)
 	{
-		return years(std::chrono::sys_days(d0) - std::chrono::sys_days(d1));
+		return datetime::diffyears(to_time_t(d1), to_time_t(d0));
 	}
+	
 
 #ifdef _DEBUG
-	/*
 	int basic_date_test()
 	{
 		using namespace std::chrono;
 		{
-			constexpr auto d0 = make_ymd(2023, 4, 5);
-			constexpr auto d1 = make_ymd(2024, 4, 5);
-			constexpr auto dd = d0 - d1;
-			static_assert(d1 - std::chrono::years(1) == d0);
-			static_assert(sys_days(d1) + dd == sys_days(d0));
-			static_assert(sys_days(d0) - dd == sys_days(d1));
-		}
-		{
-			constexpr auto d0 = make_ymd(2023, 4, 5);
-			constexpr auto d1 = make_ymd(2024, 6, 7);
-			constexpr auto dd = d0 - d1;
-			static_assert(sys_days(d1) + dd == sys_days(d0));
-			static_assert(sys_days(d0) - dd == sys_days(d1));
-		}
-		{
-			constexpr auto d0 = make_ymd(2023, 4, 5);
-			constexpr auto d1 = make_ymd(2024, 7, 6);
-			constexpr auto dd = d0 - d1;
-			static_assert(sys_days(d1) + dd == sys_days(d0));
-			static_assert(sys_days(d0) - dd == sys_days(d1));
-		}
+			constexpr auto d0 = to_ymd(2023, 4, 5);
+			constexpr auto d1 = to_ymd(2024, 4, 5);
+			auto dd = diffyears(d1, d0);// .count();
+			dd = dd;
+/*		assert(d1 - std::chrono::years(1) == d0);
+			assert(sys_days(d1) + dd == sys_days(d0));
+			assert(sys_days(d0) - dd == sys_days(d1));
+*/		}
 
 		return 0;
 	}
-	*/
 #endif // _DEBUG
-
+#if 0
 	// TODO: remove???
 	// Periodic times in [effective, termination] working backwards from termination in month steps.
 	class periodic {
@@ -147,8 +127,8 @@ namespace tmx::date {
 	static int periodic_test()
 	{
 		{
-			constexpr auto eff = make_ymd(2023, 1, 2);
-			constexpr auto ter = make_ymd(2025, 1, 2);
+			constexpr auto eff = to_ymd(2023, 1, 2);
+			constexpr auto ter = to_ymd(2025, 1, 2);
 			constexpr auto pi = periodic(eff, ter, 12);
 			static_assert(pi);
 			constexpr auto pi2{ pi };
@@ -158,32 +138,32 @@ namespace tmx::date {
 			static_assert(eff == *pi3);
 		}
 		{
-			constexpr auto eff = make_ymd(2023, 1, 1);
-			constexpr auto ter = make_ymd(2025, 1, 2);
+			constexpr auto eff = to_ymd(2023, 1, 1);
+			constexpr auto ter = to_ymd(2025, 1, 2);
 			constexpr auto pi = periodic(eff, ter, 12);
-			static_assert(*pi == make_ymd(2023, 1, 2));
+			static_assert(*pi == to_ymd(2023, 1, 2));
 		}
 		{
-			constexpr auto eff = make_ymd(2023, 1, 3);
-			constexpr auto ter = make_ymd(2025, 1, 2);
+			constexpr auto eff = to_ymd(2023, 1, 3);
+			constexpr auto ter = to_ymd(2025, 1, 2);
 			constexpr auto pi = periodic(eff, ter, 12);
-			static_assert(*pi == make_ymd(2024, 1, 2));
+			static_assert(*pi == to_ymd(2024, 1, 2));
 		}
 		{
-			constexpr auto eff = make_ymd(2023, 1, 1);
-			constexpr auto ter = make_ymd(2025, 2, 1);
+			constexpr auto eff = to_ymd(2023, 1, 1);
+			constexpr auto ter = to_ymd(2025, 2, 1);
 			constexpr auto pi = periodic(eff, ter, 12);
-			static_assert(*pi == make_ymd(2023, 2, 1));
+			static_assert(*pi == to_ymd(2023, 2, 1));
 		}
 		{
-			constexpr auto eff = make_ymd(2023, 3, 1);
-			constexpr auto ter = make_ymd(2025, 2, 1);
+			constexpr auto eff = to_ymd(2023, 3, 1);
+			constexpr auto ter = to_ymd(2025, 2, 1);
 			constexpr auto pi = periodic(eff, ter, 12);
-			static_assert(*pi == make_ymd(2024, 2, 1));
+			static_assert(*pi == to_ymd(2024, 2, 1));
 		}
 		{
-			auto d0 = make_ymd(2023, 4, 5);
-			auto d1 = make_ymd(2025, 4, 5);
+			auto d0 = to_ymd(2023, 4, 5);
+			auto d1 = to_ymd(2025, 4, 5);
 			auto pi = periodic(d0, d1, 12);
 			ymd ps[3];
 			ps[0] = *pi;
@@ -196,7 +176,7 @@ namespace tmx::date {
 			++pi;
 			assert(!pi);
 		}
-		*/
+
 
 		return 0;
 	}
@@ -204,7 +184,7 @@ namespace tmx::date {
 
 	// Day count fraction appoximately equal to time in year between dates.
 	// https://eagledocs.atlassian.net/wiki/spaces/Accounting2017/pages/439484565/Understand+Day+Count+Basis+Options
-	using dcf_t = double(*)(const ymd&, const ymd&);
+
 	namespace dcf {
 		// Day count fraction in years from d0 to d1.
 		constexpr years _years(const ymd& d0, const ymd& d1)
@@ -260,14 +240,14 @@ namespace tmx::date {
 
 #ifdef _DEBUG
 #define DATE_DCF_TEST(X) \
-	X(make_ymd(2003, 12, 29), make_ymd(2004, 1, 31), 31, 32, 33) \
-	X(make_ymd(2003, 12, 30), make_ymd(2004, 1, 31), 30, 30, 32) \
-	X(make_ymd(2003, 12, 31), make_ymd(2004, 1, 31), 30, 30, 31) \
-	X(make_ymd(2004, 1, 1), make_ymd(2004, 1, 31), 29, 30, 30) \
-	X(make_ymd(2003, 12, 29), make_ymd(2004, 2, 1), 32, 32, 34) \
-	X(make_ymd(2003, 12, 30), make_ymd(2004, 2, 1), 31, 31, 33) \
-	X(make_ymd(2003, 12, 31), make_ymd(2004, 2, 1), 31, 31, 32) \
-	X(make_ymd(2004, 1, 1), make_ymd(2004, 2, 1), 30, 30, 31) \
+	X(to_ymd(2003, 12, 29), to_ymd(2004, 1, 31), 31, 32, 33) \
+	X(to_ymd(2003, 12, 30), to_ymd(2004, 1, 31), 30, 30, 32) \
+	X(to_ymd(2003, 12, 31), to_ymd(2004, 1, 31), 30, 30, 31) \
+	X(to_ymd(2004, 1, 1), to_ymd(2004, 1, 31), 29, 30, 30) \
+	X(to_ymd(2003, 12, 29), to_ymd(2004, 2, 1), 32, 32, 34) \
+	X(to_ymd(2003, 12, 30), to_ymd(2004, 2, 1), 31, 31, 33) \
+	X(to_ymd(2003, 12, 31), to_ymd(2004, 2, 1), 31, 31, 32) \
+	X(to_ymd(2004, 1, 1), to_ymd(2004, 2, 1), 30, 30, 31) \
 
 		static int test()
 		{
@@ -309,51 +289,6 @@ namespace tmx::date {
 		}
 #endif // _DEBUG
 	}
-
-	// Return true if date is a holiday.
-	using holiday = bool(*)(const ymd&);
-	namespace holidays {
-
-		// Yearly holiday on month and day
-		constexpr bool month_day(const ymd& d, const std::chrono::month& month, const std::chrono::day& day)
-		{
-			return (d.month() == month) and (d.day() == day);
-		}
-
-		constexpr bool new_year_day(const ymd& d)
-		{
-			return month_day(d, std::chrono::January, std::chrono::day(1));
-		}
-
-		// ...
-
-		constexpr bool christmas_day(const ymd& d)
-		{
-			return month_day(d, std::chrono::December, std::chrono::day(25));
-		}
-
-	} // namespace holiday
-
-	// Return true on non-trading days.
-	using calendar = bool(*)(const ymd&);
-	namespace calendars {
-
-		constexpr bool weekday(const ymd& d)
-		{
-			auto w = std::chrono::year_month_weekday(d);
-			auto wd = w.weekday();
-
-			return (wd == std::chrono::Saturday) or (wd == std::chrono::Sunday);
-		}
-		constexpr bool example(const ymd& d)
-		{
-			return weekday(d) or holidays::new_year_day(d);
-		}
-
-		// constexpr bool nyse(const ymd& d) ...
-
-	} // namespace calendars
-
 	// Roll to business day conventions.
 	enum class roll {
 		none,
@@ -398,6 +333,7 @@ namespace tmx::date {
 
 		return date;
 	}
+#endif // 0
 
 	enum class frequency {
 		annually = 1,
@@ -420,11 +356,15 @@ namespace tmx::date {
 			constexpr auto d0 = year{ 2023 } / 1 / 1;
 			constexpr auto d1 = year{ 2023 } / 1 / 2;
 			constexpr auto dt = days(d1) - days(d0);
+			double d;
+			d = diffyears(d1, d0);
+			/*
 			constexpr auto dy = years(dt);
 			static_assert(0 != dy.count());
 			static_assert(1 == dt.count());
 			constexpr auto y0 = dcf::_years(d0, d1);
 			static_assert(dy == y0);
+			*/
 		}
 
 		return 0;

@@ -69,9 +69,21 @@
     <ClInclude Include="tmx_date_day_count.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="tmx_datetime.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tmx_holiday.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tmx_calendar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="bondlib.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tms_holiday.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -5,6 +5,8 @@
 
 namespace tmx::date {
 
+	using day_count_t = double(*)(const ymd&, const ymd&);
+
 	// https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicisma30360.cpp
 	inline double day_count_isma30E360(const ymd& ymd1, const ymd& ymd2)
 	{

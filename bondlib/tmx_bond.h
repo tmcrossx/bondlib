@@ -15,7 +15,7 @@ namespace tmx::bond {
 		std::chrono::years maturity;
 		C coupon;
 		date::frequency frequency;
-		date::dcf_t day_count;
+		date::day_count_t day_count;
 	};
 #if 0
 	// Return instrument cash flows for unit notional
