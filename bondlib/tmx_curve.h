@@ -1,5 +1,6 @@
 // tmx_curve.h - Interest rate curve
 #pragma once
+#include <utility>
 
 namespace tmx {
 
@@ -35,7 +36,7 @@ namespace tmx {
 		// D_t(u) = exp(-(u - t) y_t(u)).
 		F yield(T u, T t = 0) const
 		{
-			return _yield(u, t); // !!!defined in terms of discount
+			return _yield(u, t);
 		}
 
 		// parallel shift by s

@@ -8,7 +8,7 @@ namespace tmx {
 
 	// non-owning instrument view
 	template<class U = double, class C = double>
-	class instrument_view : public instrument<U, C> {
+	class instrument_view : public instrument::base<U, C> {
 	protected:
 		view<U> u;
 		view<C> c;

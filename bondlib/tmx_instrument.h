@@ -4,15 +4,15 @@
 #include <vector>
 #include "tmx_view.h"
 
-namespace tmx {
+namespace tmx::instrument {
 
 	// NVI base class for instruments
 	template<class U = double, class C = double>
-	struct instrument {
-		virtual ~instrument()
+	struct base {
+		virtual ~base()
 		{ }
 
-		bool operator==(const instrument& i) const
+		bool operator==(const base& i) const
 		{
 			return time() == i.time() and cash() == i.cash();
 		}
@@ -32,23 +32,27 @@ namespace tmx {
 		// last cash flow
 		std::pair<U, C> back() const
 		{
-			return { _time()(-1), _cash()(-1) };
+			return { _time().back(), _cash().back()};
 		}
 	private:
 		virtual const view<U> _time() const = 0;
 		virtual const view<C> _cash() const = 0;
 	};
 
-	// TODO: intrument_zero ???
+	// TODO: instrument_zero ???
 	// single cash flow instrument
 	template<class U = double, class C = double>
-	class instrument_zcb : public instrument<U, C> {
+	class zero_coupon_bond : public base<U, C> {
 		U u;
 		C c;
 	public:
-		instrument_zcb(U u = 0, C c = 0)
+		zero_coupon_bond(U u = 0, C c = 0)
 			: u{ u }, c{ c }
 		{ }
+		zero_coupon_bond(const zero_coupon_bond&) = default;
+		zero_coupon_bond& operator=(const zero_coupon_bond&) = default;
+		~zero_coupon_bond() = default;
+		
 		const view<U> _time() const override
 		{
 			return view(1, const_cast<U*>(&u));

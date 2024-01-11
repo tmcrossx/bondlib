@@ -22,7 +22,7 @@ namespace tmx::value {
 
 	// Present value at t of future discounted cash flows.
 	template<class U, class C, class T, class F>
-	constexpr C present(const instrument<U, C>& i, const curve<T, F>& f, T t = 0)
+	constexpr C present(const instrument::base<U, C>& i, const curve<T, F>& f, T t = 0)
 	{
 		C pv = 0;
 
@@ -38,7 +38,7 @@ namespace tmx::value {
 
 	// Derivative of present value with respect to a parallel shift.
 	template<class U, class C, class T, class F>
-	constexpr C duration(const instrument<U, C>& i, const curve<T, F>& f, T t = 0)
+	constexpr C duration(const instrument::base<U, C>& i, const curve<T, F>& f, T t = 0)
 	{
 		C dur = 0;
 
@@ -54,7 +54,7 @@ namespace tmx::value {
 
 	// Second derivative of present value with respect to a parallel shift.
 	template<class U, class C, class T, class F>
-	constexpr C convexity(const instrument<U, C>& i, const curve<T, F>& f, T t = 0)
+	constexpr C convexity(const instrument::base<U, C>& i, const curve<T, F>& f, T t = 0)
 	{
 		C cnv = 0;
 
@@ -70,7 +70,7 @@ namespace tmx::value {
 
 	// Constant forward rate matching price p at _t.
 	template<class U, class C>
-	inline C yield(const instrument<U, C>& i, const C p = 0, U _t = 0,
+	inline C yield(const instrument::base<U, C>& i, const C p = 0, U _t = 0,
 		C y = 0.01, C tol = root1d::sqrt_epsilon<C>, int iter = 100)
 	{
 		const auto pv = [&](C y_) { return present(i, curve_constant<U, C>(y_), _t) - p; };

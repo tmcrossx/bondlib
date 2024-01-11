@@ -14,7 +14,7 @@ namespace tmx::bootstrap {
 	// Bootstrap a single instrument.
 	// Return point on the curve repricing the instrument.
 	template<class U = double, class C = double, class T = double, class F = double>
-	constexpr std::pair<T, F> instrument(const tmx::instrument<U,C>& i, tmx::curve<T,F>& f, 
+	constexpr std::pair<T, F> instrument(const tmx::instrument::base<U,C>& i, tmx::curve<T,F>& f, 
 		F p = 0, F _f = NaN<F>)
 	{
 		ensure (i.size() != 0);
@@ -46,7 +46,7 @@ namespace tmx::bootstrap {
 		{
 			curve_constant<> f;
 			double r = 0.1;
-			auto [_t, _f] = bootstrap::instrument(instrument_zcb<>(1, std::exp(r)), f, 1.);
+			auto [_t, _f] = bootstrap::instrument(instrument::zero_coupon_bond<>(1, std::exp(r)), f, 1.);
 			assert(_t == 1);
 			assert(std::fabs(_f - r) <= root1d::sqrt_epsilon<double>);
 		}
