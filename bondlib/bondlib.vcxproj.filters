@@ -69,13 +69,13 @@
     <ClInclude Include="tmx_date_day_count.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tmx_datetime.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="tmx_date_holiday.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tmx_calendar.h">
+    <ClInclude Include="tmx_date_holiday_calendar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tmx_date_business_day.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

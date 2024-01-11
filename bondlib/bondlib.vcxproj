@@ -107,6 +107,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -136,13 +137,13 @@
   <ItemGroup>
     <ClInclude Include="ensure.h" />
     <ClInclude Include="fms_iterable.h" />
+    <ClInclude Include="tmx_date_business_day.h" />
     <ClInclude Include="tmx_date_holiday.h" />
     <ClInclude Include="tmx_black.h" />
     <ClInclude Include="tmx_bond.h" />
     <ClInclude Include="tmx_bootstrap.h" />
-    <ClInclude Include="tmx_calendar.h" />
+    <ClInclude Include="tmx_date_holiday_calendar.h" />
     <ClInclude Include="tmx_curve.h" />
-    <ClInclude Include="tmx_datetime.h" />
     <ClInclude Include="tmx_date_day_count.h" />
     <ClInclude Include="tmx_ho_lee.h" />
     <ClInclude Include="tmx_instrument.h" />
