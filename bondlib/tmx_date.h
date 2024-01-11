@@ -18,10 +18,16 @@ namespace tmx::date {
 	{
 		return ymd(std::chrono::year(y), std::chrono::month(m), std::chrono::day(d));
 	}
+	static_assert(to_ymd(2021, 1, 1) == ymd(std::chrono::year(2021), std::chrono::January, std::chrono::day(1)));
+	static_assert(to_ymd(2021, 1, 1) == std::chrono::year(2021)/1/1);
+
 	constexpr std::tuple<int, unsigned, unsigned> from_ymd(const ymd& d)
 	{
 		return { d.year().operator int(), d.month().operator unsigned int(), d.day().operator unsigned int() };
 	}
+	static_assert(from_ymd(to_ymd(2021, 1, 1)) == std::tuple(2021, 1u, 1u));
+
+	// time_t cannot be constexpr
 	inline time_t to_time_t(const ymd& d)
 	{
 		return std::chrono::system_clock::to_time_t(std::chrono::sys_days(d));
@@ -34,7 +40,7 @@ namespace tmx::date {
 		return datetime::diffyears(to_time_t(d1), to_time_t(d0));
 	}
 	
-
+/*
 #ifdef _DEBUG
 	int basic_date_test()
 	{
@@ -44,14 +50,15 @@ namespace tmx::date {
 			constexpr auto d1 = to_ymd(2024, 4, 5);
 			auto dd = diffyears(d1, d0);// .count();
 			dd = dd;
-/*		assert(d1 - std::chrono::years(1) == d0);
+		assert(d1 - std::chrono::years(1) == d0);
 			assert(sys_days(d1) + dd == sys_days(d0));
 			assert(sys_days(d0) - dd == sys_days(d1));
-*/		}
+		}
 
 		return 0;
 	}
 #endif // _DEBUG
+*/
 #if 0
 	// TODO: remove???
 	// Periodic times in [effective, termination] working backwards from termination in month steps.
@@ -345,30 +352,5 @@ namespace tmx::date {
 	{
 		return 12 / (int)f;
 	}
-
-#ifdef _DEBUG
-	int test()
-	{
-		using year = std::chrono::year;
-		using days = std::chrono::sys_days;
-		//using seconds = std::chrono::seconds;
-		{
-			constexpr auto d0 = year{ 2023 } / 1 / 1;
-			constexpr auto d1 = year{ 2023 } / 1 / 2;
-			constexpr auto dt = days(d1) - days(d0);
-			double d;
-			d = diffyears(d1, d0);
-			/*
-			constexpr auto dy = years(dt);
-			static_assert(0 != dy.count());
-			static_assert(1 == dt.count());
-			constexpr auto y0 = dcf::_years(d0, d1);
-			static_assert(dy == y0);
-			*/
-		}
-
-		return 0;
-	}
-#endif // _DEBUG
 
 } // namespace tmx::date

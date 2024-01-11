@@ -136,7 +136,7 @@
   <ItemGroup>
     <ClInclude Include="ensure.h" />
     <ClInclude Include="fms_iterable.h" />
-    <ClInclude Include="tmx_holiday.h" />
+    <ClInclude Include="tmx_date_holiday.h" />
     <ClInclude Include="tmx_black.h" />
     <ClInclude Include="tmx_bond.h" />
     <ClInclude Include="tmx_bootstrap.h" />
@@ -157,7 +157,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="bondlib.cpp" />
-    <ClCompile Include="tms_holiday.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
