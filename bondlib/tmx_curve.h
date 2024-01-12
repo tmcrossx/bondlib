@@ -1,12 +1,12 @@
-// tmx_curve.h - Interest rate curve
+// tmx_curve.h - Interest rate curve interface.
 #pragma once
 
-namespace tmx {
+namespace tmx::curve {
 
 	// NVI base class for bootstrapped curves.
 	template<class T = double, class F = double>
-	struct curve {
-		virtual ~curve() = default;
+	struct base {
+		virtual ~base() = default;
 
 		// Last point on the curve.
 		std::pair<T, F> back() const
@@ -39,13 +39,13 @@ namespace tmx {
 		}
 
 		// parallel shift by s
-		curve& shift(F s)
+		base& shift(F s)
 		{
 			return _shift(s);
 		}
 
 		// set value to use for bootstrap.
-		curve& extrapolate(F _f)
+		base& extrapolate(F _f)
 		{
 			return _extrapolate(_f);
 		}
@@ -54,21 +54,21 @@ namespace tmx {
 		virtual F _forward(T u, T t) const = 0;
 		virtual F _discount(T u, T t) const = 0;
 		virtual F _yield(T u, T t) const = 0;
-		virtual curve& _shift(F s) = 0;
-		virtual curve& _extrapolate(F _f) = 0;
+		virtual base& _shift(F s) = 0;
+		virtual base& _extrapolate(F _f) = 0;
 	};
 
 	// Constant curve.
 	template<class T = double, class F = double>
-	class curve_constant : public curve<T,F> {
+	class constant : public base<T,F> {
 		F _f;
 	public:
-		constexpr curve_constant(F f = std::numeric_limits<F>::quiet_NaN())
+		constexpr constant(F f = std::numeric_limits<F>::quiet_NaN())
 			: _f(f)
 		{ }
-		constexpr curve_constant(const curve_constant&) = default;
-		constexpr curve_constant& operator=(const curve_constant&) = default;
-		constexpr ~curve_constant() = default;
+		constexpr constant(const constant&) = default;
+		constexpr constant& operator=(const constant&) = default;
+		constexpr ~constant() = default;
 		
 		std::pair<T, F> _back() const override
 		{
@@ -86,13 +86,13 @@ namespace tmx {
 		{
 			return _f;
 		}
-		curve<T,F>& _shift(F s) override
+		base<T,F>& _shift(F s) override
 		{
 			_f += s;
 
 			return *this;
 		}
-		curve<T,F>& _extrapolate(F f) override
+		base<T,F>& _extrapolate(F f) override
 		{
 			_f = f;
 

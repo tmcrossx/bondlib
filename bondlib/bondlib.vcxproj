@@ -151,9 +151,9 @@
     <ClInclude Include="tmx_instrument_view.h" />
     <ClInclude Include="tmx_muni.h" />
     <ClInclude Include="tmx_date.h" />
-    <ClInclude Include="tmx_pwflat_curve.h" />
+    <ClInclude Include="tmx_curve_pwflat.h" />
     <ClInclude Include="tmx_root1d.h" />
-    <ClInclude Include="tmx_view.h" />
+    <ClInclude Include="tmx_span.h" />
     <ClInclude Include="tmx_value.h" />
   </ItemGroup>
   <ItemGroup>

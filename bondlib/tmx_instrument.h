@@ -2,17 +2,17 @@
 #pragma once
 #include <algorithm>
 #include <vector>
-#include "tmx_view.h"
+#include "tmx_span.h"
 
-namespace tmx {
+namespace tmx::instrument {
 
 	// NVI base class for instruments
 	template<class U = double, class C = double>
-	struct instrument {
-		virtual ~instrument()
+	struct base {
+		virtual ~base()
 		{ }
 
-		bool operator==(const instrument& i) const
+		bool operator==(const base& i) const
 		{
 			return time() == i.time() and cash() == i.cash();
 		}
@@ -21,40 +21,40 @@ namespace tmx {
 		{
 			return _time().size();
 		}
-		const view<U> time() const
+		const std::span<U> time() const
 		{
 			return _time();
 		}
-		const view<C> cash() const
+		const std::span<C> cash() const
 		{
 			return _cash();
 		}
 		// last cash flow
 		std::pair<U, C> back() const
 		{
-			return { _time()(-1), _cash()(-1) };
+			return { _time().back(), _cash().back()};
 		}
 	private:
-		virtual const view<U> _time() const = 0;
-		virtual const view<C> _cash() const = 0;
+		virtual const std::span<U> _time() const = 0;
+		virtual const std::span<C> _cash() const = 0;
 	};
 
 	// single cash flow instrument
 	template<class U = double, class C = double>
-	class instrument_zcb : public instrument<U, C> {
+	class zero_coupon_bond : public base<U, C> {
 		U u;
 		C c;
 	public:
-		instrument_zcb(U u = 0, C c = 0)
+		zero_coupon_bond(U u = 0, C c = 0)
 			: u{ u }, c{ c }
 		{ }
-		const view<U> _time() const override
+		const std::span<U> _time() const override
 		{
-			return view(1, const_cast<U*>(&u));
+			return std::span(const_cast<U*>(&u), 1);
 		}
-		const view<C> _cash() const override
+		const std::span<C> _cash() const override
 		{
-			return view(1, const_cast<C*>(&c));
+			return std::span(const_cast<C*>(&c), 1);
 		}
 	};
 }
