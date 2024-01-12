@@ -20,6 +20,7 @@ namespace tmx {
 		return x >= 0 ? x : x + y;
 	}
 
+	// TODO: use std::view
 	// non-owning view of data
 	template<class T>
 	class view {
