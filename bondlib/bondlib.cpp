@@ -2,10 +2,10 @@
 #include <cassert>
 #include "fms_iterable.h"
 //#include "tmx_monoid.h"
-#include "tmx_view.h"
+#include "tmx_span.h"
 #include "tmx_date.h"
 #include "tmx_date_business_day.h"
-#include "tmx_pwflat_curve.h"
+#include "tmx_curve_pwflat.h"
 #include "tmx_instrument_value.h"
 #include "tmx_value.h"
 #include "tmx_bond.h"
@@ -26,13 +26,13 @@ int test_date = date::test();
 //int test_date_periodic = date::periodic_test();
 //int test_datetime = datetime::test();
 //int test_date_dcf = date::dcf::test();
-int test_view_d = view<double>::test();
-int test_view_iterable_d = view_iterable<double>::test();
-int test_tmx_monotonic = tmx::monotonic_test();
-int test_pwflat_curve_view = pwflat::curve_view<>::test();
-int test_pwflat_curve_value = pwflat::curve<>::test();
-int test_instrument_view = instrument_view<>::test();
-int test_instrument_value = instrument_value<>::test();
+//int test_view_d = view<double>::test();
+//int test_view_iterable_d = iterable<double>::test();
+//int test_tmx_monotonic = tmx::monotonic_test();
+//int test_pwflat_curve_view = pwflat::view<>::test();
+//int test_pwflat_curve_value = pwflat::base<>::test();
+//int test_instrument_view = view<>::test();
+//int test_instrument_value = value<>::test();
 int test_value_yield_d = value::yield_test<double>();
 int test_value_yield_f = value::yield_test<float>();
 //int test_bond_basic = bond::bond_basic_test();

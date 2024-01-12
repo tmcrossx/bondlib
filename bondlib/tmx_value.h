@@ -22,14 +22,14 @@ namespace tmx::value {
 
 	// Present value at t of future discounted cash flows.
 	template<class U, class C, class T, class F>
-	constexpr C present(const instrument::base<U, C>& i, const curve<T, F>& f, T t = 0)
+	constexpr C present(const instrument::base<U, C>& i, const curve::base<T, F>& f, T t = 0)
 	{
 		C pv = 0;
 
 		const auto u = i.time();
 		const auto c = i.cash();
 
-		for (size_t j = u.offset(t); j < u.size(); ++j) {
+		for (size_t j = span::offset(t, u); j < u.size(); ++j) {
 			pv += c[j] * f.discount(u[j], t);
 		}
 
@@ -38,14 +38,14 @@ namespace tmx::value {
 
 	// Derivative of present value with respect to a parallel shift.
 	template<class U, class C, class T, class F>
-	constexpr C duration(const instrument::base<U, C>& i, const curve<T, F>& f, T t = 0)
+	constexpr C duration(const instrument<U, C>& i, const curve<T, F>& f, T t = 0)
 	{
 		C dur = 0;
 
 		const auto u = i.time();
 		const auto c = i.cash();
 
-		for (size_t j = u.offset(t); j < u.size(); ++j) {
+		for (size_t j = span::offset(t, u); j < u.size(); ++j) {
 			dur -= (u[j] - t) * c[j] * f.discount(u[j], t);
 		}
 
@@ -54,14 +54,14 @@ namespace tmx::value {
 
 	// Second derivative of present value with respect to a parallel shift.
 	template<class U, class C, class T, class F>
-	constexpr C convexity(const instrument::base<U, C>& i, const curve<T, F>& f, T t = 0)
+	constexpr C convexity(const instrument<U, C>& i, const curve<T, F>& f, T t = 0)
 	{
 		C cnv = 0;
 
 		const auto u = i.time();
 		const auto c = i.cash();
 
-		for (size_t j = u.offset(t); j < u.size(); ++j) {
+		for (size_t j = span::offset(t, u); j < u.size(); ++j) {
 			cnv += (u[j] - t) * (u[j] - t) * c[j] * f.discount(u[j], t);
 		}
 
@@ -73,8 +73,8 @@ namespace tmx::value {
 	inline C yield(const instrument::base<U, C>& i, const C p = 0, U _t = 0,
 		C y = 0.01, C tol = root1d::sqrt_epsilon<C>, int iter = 100)
 	{
-		const auto pv = [&](C y_) { return present(i, curve_constant<U, C>(y_), _t) - p; };
-		const auto dur = [&](C y_) { return duration(i, curve_constant<U, C>(y_), _t); };
+		const auto pv = [&](C y_) { return present(i, curve::constant<U, C>(y_), _t) - p; };
+		const auto dur = [&](C y_) { return duration(i, curve::constant<U, C>(y_), _t); };
 
 		return root1d::newton::solve(pv, dur, y, tol, iter);
 	}
@@ -91,7 +91,7 @@ namespace tmx::value {
 		X u[] = { 1,2 };
 		X c[] = { c0, 1 + c0 };
 		// 1 = c0 exp(-y0) + (1 + c0) exp(-2 y0)
-		const auto i = instrument_view(view(u), view(c));
+		const auto i = instrument::view<X,X>(std::span(u), std::span(c));
 
 		{
 			X y = yield(i, X(1));

@@ -9,26 +9,25 @@
 
 namespace tmx::bond {
 
-	// Simple bond indicative data.
+	// Basic bond indicative data.
 	template<class C = double>
-	struct simple {
-		std::chrono::years maturity;
+	struct basic {
+		double maturity;
 		C coupon;
 		date::frequency frequency;
 		date::day_count_t day_count;
 	};
+
 #if 0
 	// Return instrument cash flows for unit notional
-	template<class U = date::years, class C = double>
-	constexpr instrument_value<U, C> instrument(const simple<C>& bond, const date::ymd& dated)
+	template<class C = double>
+	constexpr instrument::value<double, C> instrument(const basic<C>& bond, const date::ymd& dated)
 	{
-		instrument_value<U, C> i;
+		instrument::value<double, C> i;
 
-		auto mat = dated + bond.maturity;
-		auto d0 = dated;
-		auto period = std::chrono::months(12/(int)bond.frequency);
-		auto d1 = d0 + period;
-		while (d1 <= mat) {
+		ymd mat = dated + std::chrono::years(bond.maturity);
+		std::chrono::months period = date::period(bond.frequency);
+		for (ymd d = mat; d > dated; d -= period ) {
 			U u = date::diffyears(dated, d1);
 			C c = bond.coupon * bond.day_count(d0, d1);
 			i.push_back(u, c);

@@ -8,13 +8,10 @@
 
 namespace tmx::bootstrap {
 
-	template<class X>
-	constexpr X NaN = std::numeric_limits<X>::quiet_NaN();
-
 	// Bootstrap a single instrument.
 	// Return point on the curve repricing the instrument.
 	template<class U = double, class C = double, class T = double, class F = double>
-	constexpr std::pair<T, F> instrument(const tmx::instrument::base<U,C>& i, tmx::curve<T,F>& f, 
+	constexpr std::pair<T, F> instrument(const instrument::base<U,C>& i, curve::base<T,F>& f, 
 		F p = 0, F _f = NaN<F>)
 	{
 		ensure (i.size() != 0);
@@ -44,7 +41,7 @@ namespace tmx::bootstrap {
 	inline int instrument_test()
 	{
 		{
-			curve_constant<> f;
+			curve::constant<> f;
 			double r = 0.1;
 			auto [_t, _f] = bootstrap::instrument(instrument::zero_coupon_bond<>(1, std::exp(r)), f, 1.);
 			assert(_t == 1);

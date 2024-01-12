@@ -2,7 +2,7 @@
 #pragma once
 #include <algorithm>
 #include <vector>
-#include "tmx_view.h"
+#include "tmx_span.h"
 
 namespace tmx::instrument {
 
@@ -21,11 +21,11 @@ namespace tmx::instrument {
 		{
 			return _time().size();
 		}
-		const view<U> time() const
+		const std::span<U> time() const
 		{
 			return _time();
 		}
-		const view<C> cash() const
+		const std::span<C> cash() const
 		{
 			return _cash();
 		}
@@ -35,11 +35,10 @@ namespace tmx::instrument {
 			return { _time().back(), _cash().back()};
 		}
 	private:
-		virtual const view<U> _time() const = 0;
-		virtual const view<C> _cash() const = 0;
+		virtual const std::span<U> _time() const = 0;
+		virtual const std::span<C> _cash() const = 0;
 	};
 
-	// TODO: instrument_zero ???
 	// single cash flow instrument
 	template<class U = double, class C = double>
 	class zero_coupon_bond : public base<U, C> {
@@ -49,17 +48,13 @@ namespace tmx::instrument {
 		zero_coupon_bond(U u = 0, C c = 0)
 			: u{ u }, c{ c }
 		{ }
-		zero_coupon_bond(const zero_coupon_bond&) = default;
-		zero_coupon_bond& operator=(const zero_coupon_bond&) = default;
-		~zero_coupon_bond() = default;
-		
 		const view<U> _time() const override
 		{
-			return view(1, const_cast<U*>(&u));
+			return std::span(const_cast<U*>(&u), 1);
 		}
-		const view<C> _cash() const override
+		const std::span<C> _cash() const override
 		{
-			return view(1, const_cast<C*>(&c));
+			return std::span(const_cast<C*>(&c), 1);
 		}
 	};
 }

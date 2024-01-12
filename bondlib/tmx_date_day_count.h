@@ -22,11 +22,12 @@ namespace tmx::date {
 			d2 = 30;
 		}
 
-		return ((y2 - y1) * 360. + (m2 - m1) * 30. + (d2 - d1))/360;
+		return ((y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1))/360.0;
 	}
 
 #ifdef _DEBUG
 
+// https://github.com/bloomberg/bde/blob/4da5189379a5fa371cb371ca9bcc6fa8b8670394/groups/bbl/bbldc/bbldc_basicisma30360.t.cpp#L178
 #define TMX_DATE_DAY_COUNT(X) \
                 X(1993,     2,     1,   1993,     3,     1,   0.0833 ) \
                 X(1996,     1,    15,   1996,     5,    31,   0.3750 ) \
@@ -86,9 +87,15 @@ namespace tmx::date {
                 X(2004,     1,    31,   2000,     3,    30,  -3.8333 ) \
                 X(2004,     1,    31,   2000,     3,    31,  -3.8333 ) \
 
-#define TMX_PREC(a, b, c) -c <= a - b && a - b <= c
+    // ??? where should this go
+    // fabs(a - b) <= eps
+    constexpr bool approx(double a, double b, double eps) {
+		return -eps <= a - b && a - b <= eps;
+	}
 
-#define DAY_COUNT_TEST(Y1, M1, D1, Y2, M2, D2, DC) static_assert(TMX_PREC(day_count_isma30360(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2)), DC, 1e-4));
+// TODO: bisect to find tests not passing
+#define DAY_COUNT_TEST(Y1, M1, D1, Y2, M2, D2, DC) \
+static_assert(approx(day_count_isma30360(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2)), DC, 1e-4));
 //	TMX_DATE_DAY_COUNT(DAY_COUNT_TEST)
 #undef DAY_COUNT_TEST
 #undef TMX_DATE_DAY_COUNT
