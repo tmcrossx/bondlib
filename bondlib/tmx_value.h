@@ -38,7 +38,7 @@ namespace tmx::value {
 
 	// Derivative of present value with respect to a parallel shift.
 	template<class U, class C, class T, class F>
-	constexpr C duration(const instrument<U, C>& i, const curve<T, F>& f, T t = 0)
+	constexpr C duration(const instrument::base<U, C>& i, const curve::base<T, F>& f, T t = 0)
 	{
 		C dur = 0;
 
@@ -54,7 +54,7 @@ namespace tmx::value {
 
 	// Second derivative of present value with respect to a parallel shift.
 	template<class U, class C, class T, class F>
-	constexpr C convexity(const instrument<U, C>& i, const curve<T, F>& f, T t = 0)
+	constexpr C convexity(const instrument::base<U, C>& i, const curve::base<T, F>& f, T t = 0)
 	{
 		C cnv = 0;
 

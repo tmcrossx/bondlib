@@ -48,7 +48,7 @@ namespace tmx::instrument {
 		zero_coupon_bond(U u = 0, C c = 0)
 			: u{ u }, c{ c }
 		{ }
-		const view<U> _time() const override
+		const std::span<U> _time() const override
 		{
 			return std::span(const_cast<U*>(&u), 1);
 		}
