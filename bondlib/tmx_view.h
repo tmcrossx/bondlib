@@ -1,13 +1,33 @@
 // tmx_view.h - Non-owning view of contiguous data.
 #pragma once
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <initializer_list>
 #include <iterator>
 #include <limits>
+#include <span>
 #include <stdexcept>
 
 namespace tmx {
+
+	// Least index with t[i] > u.
+	template<class T>
+	constexpr ptrdiff_t offset(T u, std::span<T> t)
+	{
+		return std::upper_bound(t.data(), t.data() + t.size(), u) - t;
+	}
+#ifdef _DEBUG
+	//static_assert (int i[] = { 1,2,3 }, 0 == offset(0, std::span<int, 3>(std::array<int, 3>({ 1,2,3 }))));
+#endif // _DEBUG
+
+	// t[i - 1] <= u < t[i] < ... < t[n-1]
+	template<class T>
+	constexpr std::span<T> shift(T u, std::span<T> t)
+	{
+		return t.last(t.size() - offset(u, t));
+	}
+
 
 	template<class T>
 	constexpr T NaN = std::numeric_limits<T>::quiet_NaN();
@@ -22,6 +42,7 @@ namespace tmx {
 
 	// TODO: use std::view
 	// non-owning view of data
+	// TODO: use std::span
 	template<class T>
 	class view {
 		size_t n;
@@ -55,6 +76,7 @@ namespace tmx {
 				&& std::equal(data(), data() + size(), v.begin(), v.end());
 		}
 
+		// TODO: make free function
 		// Least index with t[i] > 0.
 		constexpr ptrdiff_t offset(T u) const
 		{
@@ -102,6 +124,7 @@ namespace tmx {
 			return t[i];
 		}
 
+		// TODO: free function???
 		// Cyclic element access.
 		constexpr T operator()(long i) const
 		{

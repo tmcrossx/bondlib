@@ -4,6 +4,7 @@
 //#include "tmx_monoid.h"
 #include "tmx_view.h"
 #include "tmx_date.h"
+#include "tmx_date_business_day.h"
 #include "tmx_pwflat_curve.h"
 #include "tmx_instrument_value.h"
 #include "tmx_value.h"
@@ -21,9 +22,10 @@ int test_iterator = iterable_iterator<std::vector<int>::iterator>::test();
 //int test_monoid_d = monoid_test<double>();
 //int test_mean_monoid_d = mean_monoid_test<double>();
 //int test_bound = root1d::bound_test<double>();
-int test_basic_date = date::basic_date_test();
-int test_date_periodic = date::periodic_test();
-int test_date_dcf = date::dcf::test();
+int test_date = date::test();
+//int test_date_periodic = date::periodic_test();
+//int test_datetime = datetime::test();
+//int test_date_dcf = date::dcf::test();
 int test_view_d = view<double>::test();
 int test_view_iterable_d = view_iterable<double>::test();
 int test_tmx_monotonic = tmx::monotonic_test();

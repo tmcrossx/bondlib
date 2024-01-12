@@ -46,7 +46,7 @@ namespace tmx::bootstrap {
 		{
 			curve_constant<> f;
 			double r = 0.1;
-			auto [_t, _f] = bootstrap::instrument(instrument_bullet<>(1, std::exp(r)), f, 1.);
+			auto [_t, _f] = bootstrap::instrument(instrument_zcb<>(1, std::exp(r)), f, 1.);
 			assert(_t == 1);
 			assert(std::fabs(_f - r) <= root1d::sqrt_epsilon<double>);
 		}

@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <vector>
 #include "ensure.h"
-#include "tmx_date.h"
+#include "tmx_date_day_count.h"
 #include "tmx_instrument_value.h"
 #include "tmx_value.h"
 
@@ -15,7 +15,7 @@ namespace tmx::bond {
 		std::chrono::years maturity;
 		C coupon;
 		date::frequency frequency;
-		date::dcf_t day_count;
+		date::day_count_t day_count;
 	};
 #if 0
 	// Return instrument cash flows for unit notional
@@ -29,7 +29,7 @@ namespace tmx::bond {
 		auto period = std::chrono::months(12/(int)bond.frequency);
 		auto d1 = d0 + period;
 		while (d1 <= mat) {
-			U u = date::dcf::_years(dated, d1);
+			U u = date::diffyears(dated, d1);
 			C c = bond.coupon * bond.day_count(d0, d1);
 			i.push_back(u, c);
 			d0 = d1;
@@ -69,7 +69,7 @@ namespace tmx::bond {
 			using std::literals::chrono_literals::operator""y;
 
 			auto d = 2023y / 1 / 1;
-			bond::simple<> bond{ std::chrono::years(10), 0.05, date::frequency::semiannually, date::dcf::_30_360 };
+			bond::simple<> bond{ std::chrono::years(10), 0.05, date::frequency::semiannually, date::day_count_isma30E360 };
 			auto i = instrument(bond, d);
 			ensure(20 == i.size());
 			auto u = i.time();

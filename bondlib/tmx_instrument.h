@@ -39,13 +39,14 @@ namespace tmx {
 		virtual const view<C> _cash() const = 0;
 	};
 
+	// TODO: intrument_zero ???
 	// single cash flow instrument
 	template<class U = double, class C = double>
-	class instrument_bullet : public instrument<U, C> {
+	class instrument_zcb : public instrument<U, C> {
 		U u;
 		C c;
 	public:
-		instrument_bullet(U u = 0, C c = 0)
+		instrument_zcb(U u = 0, C c = 0)
 			: u{ u }, c{ c }
 		{ }
 		const view<U> _time() const override
