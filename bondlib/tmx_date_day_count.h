@@ -88,6 +88,7 @@ namespace tmx::date {
 
 #define TMX_PREC(a, b, c) -c <= a - b && a - b <= c
 
+// TODO: bisect to find tests not passing
 #define DAY_COUNT_TEST(Y1, M1, D1, Y2, M2, D2, DC) static_assert(TMX_PREC(day_count_isma30360(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2)), DC, 1e-4));
 //	TMX_DATE_DAY_COUNT(DAY_COUNT_TEST)
 #undef DAY_COUNT_TEST
