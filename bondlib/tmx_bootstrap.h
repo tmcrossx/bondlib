@@ -4,7 +4,7 @@
 #include <cassert>
 #endif
 #include "ensure.h"
-#include "tmx_value.h"
+#include "tmx_valuation.h"
 
 namespace tmx::bootstrap {
 

@@ -7,7 +7,7 @@ namespace tmx::date::holiday::calendar {
 	// Return true on non-trading days.
 	using calendar_t = bool(*)(const date::ymd&);
 
-	constexpr bool weekday(const date::ymd& d)
+	constexpr bool weekend(const date::ymd& d)
 	{
 		auto wd = std::chrono::year_month_weekday(d).weekday();
 
@@ -16,11 +16,11 @@ namespace tmx::date::holiday::calendar {
 
 	constexpr bool NYSE(const ymd& d)
 	{
-		return weekday(d)
+		return weekend(d)
 			|| holiday::new_year_day(d)
+			|| holiday::martin_luther_king_day(d)
 			// TODO: Add more holidays
 			|| holiday::christmas_day(d);
 	}
-
 
 } // namespace tmx::date::holiday::calendar

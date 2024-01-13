@@ -154,7 +154,7 @@
     <ClInclude Include="tmx_curve_pwflat.h" />
     <ClInclude Include="tmx_root1d.h" />
     <ClInclude Include="tmx_span.h" />
-    <ClInclude Include="tmx_value.h" />
+    <ClInclude Include="tmx_valuation.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="bondlib.cpp" />

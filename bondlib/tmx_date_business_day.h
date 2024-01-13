@@ -5,15 +5,21 @@
 namespace tmx::date::business_day {
 
 	// Roll to business day conventions.
-	enum class roll {
-		none,
-		following, // following business day
-		previous,  // previous business day
-		modified_following, // following business day unless different month
-		modified_previous,  // previous business day unless different month
-	};
+#define TMX_DATE_BUSINESS_DAY_CONVENTION(X) \
+	X(none,               "no roll") \
+	X(following,          "following business day") \
+	X(previous,           "previous business day") \
+	X(modified_following, "following business day unless different month") \
+	X(modified_previous,  "previous business day unless different month") \
 
-	constexpr ymd adjust(const ymd& date, roll convention, holiday::calendar::calendar_t cal = holiday::calendar::weekday)
+#define TMX_DATE_BUSINESS_DAY_CONVENTION_ENUM(E, S) E,
+	enum class roll {
+		TMX_DATE_BUSINESS_DAY_CONVENTION(TMX_DATE_BUSINESS_DAY_CONVENTION_ENUM)
+	};
+#undef TMX_DATE_BUSINESS_DAY_CONVENTION_ENUM
+
+	// Move date to business day using roll convention and calendar.
+	constexpr ymd adjust(const ymd& date, roll convention, holiday::calendar::calendar_t cal = holiday::calendar::weekend)
 	{
 		if (!cal(date)) {
 			return date;
