@@ -5,7 +5,7 @@
 #include "ensure.h"
 #include "tmx_date_day_count.h"
 #include "tmx_instrument_value.h"
-#include "tmx_value.h"
+#include "tmx_valuation.h"
 
 namespace tmx::bond {
 
@@ -27,7 +27,7 @@ namespace tmx::bond {
 
 		ymd mat = dated + std::chrono::years(bond.maturity);
 		std::chrono::months period = date::period(bond.frequency);
-		for (ymd d = mat; d > dated; d -= period ) {
+		for (ymd d = mat; d > dated; d -= period) {
 			U u = date::diffyears(dated, d1);
 			C c = bond.coupon * bond.day_count(d0, d1);
 			i.push_back(u, c);
@@ -87,5 +87,4 @@ namespace tmx::bond {
 }
 
 // class callable : public basic { ... };
-
 
