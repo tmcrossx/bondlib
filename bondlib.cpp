@@ -7,7 +7,7 @@
 #include "tmx_date_business_day.h"
 #include "tmx_curve_pwflat.h"
 #include "tmx_instrument_value.h"
-#include "tmx_valuation.h"
+#include "tmx_value.h"
 #include "tmx_bond.h"
 #include "tmx_bootstrap.h"
 //#include "tmx_muni.h"

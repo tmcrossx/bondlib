@@ -5,14 +5,14 @@
 #include "ensure.h"
 #include "tmx_date_day_count.h"
 #include "tmx_instrument_value.h"
-#include "tmx_valuation.h"
+#include "tmx_value.h"
 
 namespace tmx::bond {
 
 	// Basic bond indicative data.
 	template<class C = double>
 	struct basic {
-		double maturity;
+		unsigned maturity;
 		C coupon;
 		date::frequency frequency;
 		date::day_count_t day_count;

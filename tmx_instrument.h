@@ -14,7 +14,9 @@ namespace tmx::instrument {
 
 		bool operator==(const base& i) const
 		{
-			return time() == i.time() and cash() == i.cash();
+			return size() == i.size()
+				&& std::equal(time().begin(), time().end(), i.time().begin())
+				&& std::equal(cash().begin(), cash().end(), i.cash().begin());
 		}
 
 		size_t size() const

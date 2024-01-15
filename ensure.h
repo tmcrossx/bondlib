@@ -4,6 +4,8 @@
 #pragma once
 #include <stdexcept>
 
+#ifndef ensure
+
 // Define NENSURE to turn off ensure.
 #ifdef NENSURE
 #define ensure(x)
@@ -24,10 +26,15 @@
 
 #if defined(_DEBUG) && defined(DEBUG_BREAK)
 #define ensure(e) if (!(e)) { DebugBreak(); }
+#define ensure_message(e, s) if (!(e)) { DebugBreak(); }
 #else
 #define ensure(e) if (!(e)) { \
 		throw std::runtime_error(ENSURE_SPOT "\nensure: \"" #e "\" failed"); \
 		} else (void)0;
+#define ensure_message(e, s) if (!(e)) { \
+		throw std::runtime_error(std::string(ENSURE_SPOT "\nensure: \"" #e "\"\nmessage: ") + s); \
+		} else (void)0;
 #endif // _DEBUG
 
+#endif // ensure
 #endif // ensure

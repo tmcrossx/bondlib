@@ -12,10 +12,11 @@ namespace tmx::instrument {
 	class value : public instrument::view<U, C> {
 		std::vector<U> u;
 		std::vector<C> c;
-		void update()
+		// Update view with vectors.
+		void sync()
 		{
-			view<U, C>::u = view<U>(u.begin(), u.end());
-			view<U, C>::c = view<C>(c.begin(), c.end());
+			view<U, C>::u = std::span<U>(u.begin(), u.end());
+			view<U, C>::c = std::span<C>(c.begin(), c.end());
 		}
 	public:
 		value()
@@ -24,19 +25,19 @@ namespace tmx::instrument {
 		value(size_t m, const U* u, const C* c)
 			: u(u, u + m), c(c, c + m)
 		{
-			update();
+			sync();
 		}
 		value(const value& v)
 			: u(v.u), c(v.c)
 		{
-			update();
+			sync();
 		}
 		value& operator=(const value& v)
 		{
 			if (this != &v) {
 				u = v.u;
 				c = v.c;
-				update();
+				sync();
 			}
 
 			return *this;
@@ -58,17 +59,24 @@ namespace tmx::instrument {
 
 				u.push_back(_u);
 				c.push_back(_c);
-				update();
+				sync();
 			}
 
 			return *this;
 		}
-		// Make price zero
+		// Specify price making present value zero.
+		// If p = value::present(intrument, curve) 
+		// then 0 = value::present(instrument.price(p), curve)
 		value& price(C p)
 		{
-			u.insert(u.begin(), 0);
-			c.insert(c.begin(), -p);
-			update();
+			if (u.front() == 0) {
+				c.front() -= p;
+			}
+			else {
+				u.insert(u.begin(), 0);
+				c.insert(c.begin(), -p);
+				sync();
+			}
 
 			return *this;
 		}
@@ -76,6 +84,10 @@ namespace tmx::instrument {
 #ifdef _DEBUG
 		static int test()
 		{
+			{
+				value<U, C> i;
+				assert(0 == i.size());
+			}
 			{
 				value<U, C> i;
 				assert(0 == i.size());

@@ -1,4 +1,4 @@
-// tmx_valuation.h - present value, duration, convexity, yield
+// tmx_value.h - present value, duration, convexity, yield
 #pragma once
 #include <cmath>
 #include <limits>
@@ -118,4 +118,4 @@ namespace tmx::value {
 
 #endif // _DEBUG
 
-}
+} // namespace tmx::value

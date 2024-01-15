@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{3DB20384-3
 		..\docs\ICMA-Rule-Book-Rule-251-reproduced-by-permission-of-ICMA.pdf = ..\docs\ICMA-Rule-Book-Rule-251-reproduced-by-permission-of-ICMA.pdf
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bondxll", "..\bondxll\bondxll.vcxproj", "{C907C09D-CA18-41E7-BF71-0E71AC52CFE9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -28,6 +30,14 @@ Global
 		{E3EC9686-83A5-400F-B10E-A398005BCEFD}.Release|x64.Build.0 = Release|x64
 		{E3EC9686-83A5-400F-B10E-A398005BCEFD}.Release|x86.ActiveCfg = Release|Win32
 		{E3EC9686-83A5-400F-B10E-A398005BCEFD}.Release|x86.Build.0 = Release|Win32
+		{C907C09D-CA18-41E7-BF71-0E71AC52CFE9}.Debug|x64.ActiveCfg = Debug|x64
+		{C907C09D-CA18-41E7-BF71-0E71AC52CFE9}.Debug|x64.Build.0 = Debug|x64
+		{C907C09D-CA18-41E7-BF71-0E71AC52CFE9}.Debug|x86.ActiveCfg = Debug|x64
+		{C907C09D-CA18-41E7-BF71-0E71AC52CFE9}.Debug|x86.Build.0 = Debug|x64
+		{C907C09D-CA18-41E7-BF71-0E71AC52CFE9}.Release|x64.ActiveCfg = Release|x64
+		{C907C09D-CA18-41E7-BF71-0E71AC52CFE9}.Release|x64.Build.0 = Release|x64
+		{C907C09D-CA18-41E7-BF71-0E71AC52CFE9}.Release|x86.ActiveCfg = Release|x64
+		{C907C09D-CA18-41E7-BF71-0E71AC52CFE9}.Release|x86.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

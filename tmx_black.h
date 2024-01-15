@@ -102,7 +102,7 @@ namespace tmx::black {
 			const auto v = [=](P s) { return value(f, s, k) - p; };
 			const auto dv = [=](P s) { return vega(f, s, k); };
 
-			return root1d::newton::solve(v, dv, s0);
+			return root1d::newton::solve(v, dv, s0, tol, iter);
 		}
 
 	} // namespace put

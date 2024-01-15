@@ -140,7 +140,9 @@
     <ClInclude Include="tmx_date_business_day.h" />
     <ClInclude Include="tmx_date_holiday.h" />
     <ClInclude Include="tmx_black.h" />
-    <ClInclude Include="tmx_bond.h" />
+    <ClInclude Include="tmx_bond.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="tmx_bootstrap.h" />
     <ClInclude Include="tmx_date_holiday_calendar.h" />
     <ClInclude Include="tmx_curve.h" />
@@ -154,7 +156,7 @@
     <ClInclude Include="tmx_curve_pwflat.h" />
     <ClInclude Include="tmx_root1d.h" />
     <ClInclude Include="tmx_span.h" />
-    <ClInclude Include="tmx_valuation.h" />
+    <ClInclude Include="tmx_value.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="bondlib.cpp" />

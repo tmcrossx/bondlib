@@ -213,7 +213,7 @@ namespace tmx::curve {
 	class pwflat : public view<T, F> {
 		std::vector<T> t;
 		std::vector<F> f;
-		void update()
+		void sync()
 		{
 			view<T, F>::t = view<T>(t.begin(), t.end());
 			view<T, F>::f = view<F>(f.begin(), f.end());
@@ -223,12 +223,12 @@ namespace tmx::curve {
 		constexpr pwflat(F _f = NaN<F>)
 			: view<T, F>(_f), t{}, f{}
 		{
-			update();
+			sync();
 		}
 		pwflat(size_t n, const T* t_, const F* f_, F _f = NaN<F>)
 			: view<T, F>(_f), t(t_, t_ + n), f(f_, f_ + n)
 		{
-			update();
+			sync();
 		}
 		// Promote view to a value.
 		pwflat(const view<T, F>& c)
@@ -237,7 +237,7 @@ namespace tmx::curve {
 		pwflat(const pwflat& cv)
 			: view<T, F>(cv), t(cv.t), f(cv.f)
 		{
-			update();
+			sync();
 		}
 		pwflat& operator=(const pwflat& cv)
 		{
@@ -245,7 +245,7 @@ namespace tmx::curve {
 				view<T, F>::operator=(cv);
 				t = cv.t;
 				f = cv.f;
-				update();
+				sync();
 			}
 
 			return *this;
@@ -253,7 +253,7 @@ namespace tmx::curve {
 		pwflat(pwflat&& cv)
 			: view<T, F>(cv), t(std::move(cv.t)), f(std::move(cv.f))
 		{
-			update();
+			sync();
 		}
 		pwflat& operator=(pwflat&& cv)
 		{
@@ -261,7 +261,7 @@ namespace tmx::curve {
 				view<T, F>::operator=(cv);
 				t = std::move(cv.t);
 				f = std::move(cv.f);
-				update();
+				sync();
 			}
 
 			return *this;
@@ -276,7 +276,7 @@ namespace tmx::curve {
 
 			t.push_back(t_);
 			f.push_back(f_);
-			update();
+			sync();
 
 			return *this;
 		}
