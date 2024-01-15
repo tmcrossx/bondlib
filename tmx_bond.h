@@ -9,32 +9,6 @@
 
 namespace tmx::bond {
 
-	template<class T, class dT>
-	class iota {
-		T t;
-		dT dt;
-	public:
-		iota(T t, dT dt)
-			: t(t), dt(dt)
-		{ }
-		T operator*() const
-		{
-			return t;
-		}
-		iota& operator++()
-		{
-			t += dt;
-
-			return *this;
-		}
-		iota& operator--()
-		{
-			t -= dt;
-
-			return *this;
-		}
-	};
-
 	// Basic bond indicative data.
 	template<class C = double>
 	struct basic {
@@ -49,7 +23,7 @@ namespace tmx::bond {
 	template<class C = double>
 	constexpr instrument::value<double, C> instrument(const basic<C>& bond, const date::ymd& dated, date::ymd issue = date::ymd{})
 	{
-		instrument::value<double, C> i;
+		instrument::value<double, C> i(bond.maturity * static_cast<unsigned>(bond.frequency));
 
 		if (!issue.ok()) {
 			issue = dated;
@@ -57,14 +31,13 @@ namespace tmx::bond {
 
 		date::ymd maturity = dated + std::chrono::years(bond.maturity);
 		std::chrono::months period = date::period(bond.frequency);
-		auto us = iota(maturity, period);
-		auto d1 = *us;
-		auto d0 = *--us;
+		date::ymd d1 = maturity;
+		date::ymd d0 = maturity - period;
 		// increment backward from maturity to dated
 		while (d0 >= dated) {
 			i.push_front(date::diffyears(d1, issue), bond.coupon * bond.day_count(d0, d1));
 			d1 = d0;
-			d0 = *--us;
+			d0 -= period;
 		}
 		i.push_back(i.back().first, bond.redemption);
 

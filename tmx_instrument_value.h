@@ -15,13 +15,16 @@ namespace tmx::instrument {
 		// Update view with vectors.
 		void sync()
 		{
-			view<U, C>::u = std::span<U>(u.begin(), u.end());
-			view<U, C>::c = std::span<C>(c.begin(), c.end());
+			view<U, C>::u = std::span<U>(u.data(), u.size());
+			view<U, C>::c = std::span<C>(c.data(), c.size());
 		}
 	public:
-		value()
+		value(size_t n = 0)
 			: u{}, c{}
-		{ }
+		{
+			u.reserve(n);
+			c.reserve(n);
+		}
 		value(size_t m, const U* u, const C* c)
 			: u(u, u + m), c(c, c + m)
 		{
@@ -64,8 +67,26 @@ namespace tmx::instrument {
 
 			return *this;
 		}
+
+		// add cash flow keeping times sorted
+		value& push_front(U _u, C _c)
+		{
+			if (u.size() > 0 and u.front() == _u) {
+				c.front() += _c;
+			}
+			else {
+				ensure(u.size() == 0 or u.front() > _u);
+
+				u.insert(u.begin(), _u);
+				c.insert(c.begin(), _c);
+				sync();
+			}
+
+			return *this;
+		}
+
 		// Specify price making present value zero.
-		// If p = value::present(intrument, curve) 
+		// If p = value::present(instrument, curve) 
 		// then 0 = value::present(instrument.price(p), curve)
 		value& price(C p)
 		{
@@ -79,12 +100,6 @@ namespace tmx::instrument {
 			}
 
 			return *this;
-		}
-
-		// Make price zero
-		value& price(C p)
-		{
-			return push_front(U(0), -p);
 		}
 
 #ifdef _DEBUG
