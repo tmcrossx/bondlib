@@ -14,8 +14,8 @@ namespace tmx::instrument {
 		std::vector<C> c;
 		void update()
 		{
-			view<U, C>::u = view<U>(u.begin(), u.end());
-			view<U, C>::c = view<C>(c.begin(), c.end());
+			view<U, C>::u = std::span<U>(u.begin(), u.end());
+			view<U, C>::c = std::span<C>(c.begin(), c.end());
 		}
 	public:
 		value()
@@ -63,14 +63,26 @@ namespace tmx::instrument {
 
 			return *this;
 		}
+		value& push_front(U _u, C _c)
+		{
+			if (u.size() > 0 and u.front() == _u) {
+				c.front() += _c;
+			}
+			else {
+				ensure(u.size() == 0 or u.front() > _u);
+
+				u.insert(u.begin(), _u);
+				c.insert(c.begin(), _c);
+				update();
+			}
+
+			return *this;
+		}
+
 		// Make price zero
 		value& price(C p)
 		{
-			u.insert(u.begin(), 0);
-			c.insert(c.begin(), -p);
-			update();
-
-			return *this;
+			return push_front(U(0), -p);
 		}
 
 #ifdef _DEBUG

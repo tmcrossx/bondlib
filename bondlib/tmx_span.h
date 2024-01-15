@@ -9,15 +9,28 @@ namespace tmx {
 	constexpr X NaN = std::numeric_limits<X>::quiet_NaN();
 
 	namespace span {
+
 		// Least index with t[i] > u.
-		template<class T>
-		constexpr ptrdiff_t offset(T u, std::span<T> t)
+		template<class T, size_t N>
+		constexpr ptrdiff_t offset(T u, const std::span<T,N>& t)
 		{
 			return std::upper_bound(t.data(), t.data() + t.size(), u) - t.data();
 		}
 #ifdef _DEBUG
-		// TODO: come up with static_assert that works
-		//static_assert (int i[] = { 1,2,3 }, 0 == offset(0, std::span<int, 3>(std::array<int, 3>({ 1,2,3 }))));
+		static int offset_test()
+		{
+			static double t[] = { 1,2,3 };
+			constexpr std::span<double, 3> s(t);
+			assert(offset(0., s) == 0);
+			assert(offset(.5, s) == 0);
+			assert(offset(1., s) == 1);
+			assert(offset(1.5, s) == 1);
+			assert(offset(2., s) == 2);
+			assert(offset(3., s) == 3);
+			assert(offset(4., s) == 3);
+
+			return 0;
+		}
 #endif // _DEBUG
 
 	// t[i - 1] <= u < t[i] < ... < t[n-1]

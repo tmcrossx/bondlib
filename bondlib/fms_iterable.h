@@ -1,12 +1,17 @@
 // fms_iterable.h - iterable_iterator with operator bool()
 #pragma once
+#ifdef _DEBUG
+#include <cassert>
+#include <vector>
+#endif
 #include <concepts>
 #include <iterator>
+#include <span>
 
-namespace fms {
+namespace fms::iterable {
 
 	template<class I>
-	concept forward_iterable = requires (I i) {
+	concept iterable = requires (I i) {
 		//std::is_base_of_v<std::forward_iterator_tag, typename I::interator_category>;
 		//typename I::iterator_concept;
 		//typename I::iterator_category;
@@ -20,36 +25,123 @@ namespace fms {
 		//{ i.end() } -> std::same_as<I>;
 	};
 
+	// length(i, length(j)) == length(i) + length(j)
+	template<iterable I>
+	constexpr size_t length(I i, size_t n = 0)
+	{
+		return i ? length(++i, n + 1) : n;
+	}
+	
+	// Drop at most n elements from iterable.
+	template<iterable I>
+	constexpr I drop(size_t n, I i)
+	{
+		while (n && i) {
+			--n;
+			++i;
+		}
+
+		return i;
+	}
+
 	// Unsafe pointer iterable
 	template<class T>
-	class iterable_ptr {
-		const T* pt;
+	class ptr {
+		T* p;
 	public:
+		using iterator_category = std::forward_iterator_tag;
 		using value_type = T;
 
-		iterable_ptr(const T* pt)
-			: pt{ pt }
+		constexpr ptr(T* p) noexcept
+			: p{ p }
 		{ }
-		iterable_ptr(const iterable_ptr&) = default;
-		iterable_ptr& operator=(const iterable_ptr&) = default;
-		~iterable_ptr() = default;
+		constexpr ptr(const ptr& ptr)
+			: p{ ptr.p }
+		{ }
+		/*constexpr*/ ptr& operator=(const ptr& ptr)
+		{
+			if (this != &ptr) {
+				p = ptr.p;
+			}
 
-		bool operator==(const iterable_ptr& i) const
+			return *this;
+		}
+		constexpr ~ptr()
+		{ }
+
+		constexpr bool operator==(const ptr& i) const = default;
+	
+		constexpr explicit operator bool() const
 		{
-			return pt == i.pt;
+			return p != nullptr; // !!!unsafe
+		}
+		constexpr value_type operator*() const
+		{
+			return *p;
+		}
+		constexpr ptr& operator++()
+		{
+			++p;
+
+			return *this;
+		}
+#ifdef _DEBUG
+		static int test()
+		{
+			{
+				static T t[] = { 1,2,3 };
+				ptr<T> i(t);
+				assert(i);
+
+				ptr<T> i2{ i };
+				assert(i2 == i);
+				i = i2;
+				assert(!(i != i2));
+
+				assert(t[0] == *i);
+				auto i1 = ++i;
+				assert(i1);
+				assert(t[1] == *i1);
+			}
+
+			return 0;
+		}
+#endif // _DEBUG
+	};
+
+	// Non-owning span iterable.
+	template<class T>
+	class span {
+		std::span<T> s;
+	public:
+		using iterator_category = std::forward_iterator_tag;
+		using value_type = T;
+
+		constexpr span(std::span<T> s)
+			: s{s}
+		{ }
+		constexpr span(const span&) = default;
+		constexpr span& operator=(const span&) = default;
+		constexpr ~span() = default;
+
+		constexpr bool operator==(const span& i) const
+		{
+			return s.size() == i.s.size() && s.data() == i.s.data();
 		}
 
-		explicit operator bool() const
+		constexpr explicit operator bool() const
 		{
-			return true; // !!!unsafe
+			return s.size() != 0;
 		}
-		value_type operator*() const
+		constexpr value_type operator*() const
 		{
-			return *pt;
+			return s.front();
 		}
-		iterable_ptr& operator++()
+		constexpr span& operator++()
 		{
-			++pt;
+			if (operator bool()) {
+				s = s.subspan(1);
+			}
 
 			return *this;
 		}
@@ -58,10 +150,10 @@ namespace fms {
 		{
 			{
 				T t[] = { 1,2,3 };
-				iterable_ptr<T> i(t);
+				span<T> i(t); // std::span from T[n]
 				assert(i);
 
-				iterable_ptr<T> i2{ i };
+				span<T> i2{ i };
 				assert(i2 == i);
 				i = i2;
 				assert(!(i != i2));
@@ -70,6 +162,16 @@ namespace fms {
 				++i;
 				assert(i);
 				assert(t[1] == *i);
+				assert(t[2] == *++i);
+				assert(i);
+				++i;
+				assert(!i);
+			}
+			{
+				std::vector<T> v{ 1,2,3 };
+				span<T> i(v); // std::span from std::vector
+				assert(i);
+				assert(3 == length(i));
 			}
 
 			return 0;
@@ -102,7 +204,7 @@ namespace fms {
 		}
 		take& operator++()
 		{
-			if (n != 0) {
+			if (operator bool()) {
 				--n;
 				++i;
 			}
@@ -113,19 +215,19 @@ namespace fms {
 
 	// convert iterable_iterator to iterable
 	template<class I>
-	class iterable_iterator {
+	class iterator {
 		I i;
 	public:
 		using value_type = typename I::value_type;
 
-		iterable_iterator(I i)
+		iterator(I i)
 			: i{ i }
 		{ }
-		iterable_iterator(const iterable_iterator&) = default;
-		iterable_iterator& operator=(const iterable_iterator&) = default;
-		~iterable_iterator() = default;
+		iterator(const iterator&) = default;
+		iterator& operator=(const iterator&) = default;
+		~iterator() = default;
 
-		bool operator==(const iterable_iterator& j) const
+		bool operator==(const iterator& j) const
 		{
 			return i == j;
 		}
@@ -138,7 +240,7 @@ namespace fms {
 		{
 			return *i;
 		}
-		iterable_iterator& operator++()
+		iterator& operator++()
 		{
 			++i;
 
@@ -167,7 +269,7 @@ namespace fms {
 		return i;
 	}
 #define FMS_BINOP(op) \
-	template<forward_iterable I> \
+	template<iterable I> \
 	inline I operator op(I i, typename I::value_type t) \
 	{ return until(i, [t](I j) { return *j op t; }); }
 	FMS_BINOP(<)
