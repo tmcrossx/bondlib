@@ -13,10 +13,16 @@ namespace tmx::root1d {
 	constexpr X infinity = std::numeric_limits<X>::infinity();
 
 	template<class X>
+	constexpr X sgn(X x)
+	{
+		return x > 0 ? 1 : x < 0 ? -1 : 0;
+	}
+
+	template<class X>
 	constexpr bool samesign(X x, X y)
 	{
 		//return x = std::copysign(x, y);
-		return (x > 0 and y > 0) or (x < 0 and y < 0);
+		return sgn(x) == sgn(y);
 	}
 
 	template<class X>
@@ -26,32 +32,33 @@ namespace tmx::root1d {
 	}
 
 	template<class X>
-	constexpr X sqrt(X a, X x0, X x1)
+	constexpr X sqrt(X a, X x)
 	{
 		if (a < 0) {
-			return std::numeric_limits<X>::quiet_NaN();
+			return NaN<X>;
 		}
 
 		if (a == 0) {
 			return 0;
 		}
 
-		while (fabs(x1 * x1 - a) >= epsilon<X>) {
-			x0 = x1;
-			x1 = x0 / 2 + a / (2 * x0);
+		while (fabs(x * x - a) >= 4*epsilon<X>) {
+			X x_ = x / 2 + a / (2 * x);
+			x = x_;
 		}
 
-		return x1;
+		return x;
 	}
 	template<class X>
 	constexpr X sqrt(X a)
 	{
-		return sqrt(a, a, a / 2);
+		return sqrt(a, a / 2);
 	}
 	static_assert(sqrt(4.) == 2);
 
 	template<class X>
 	constexpr X sqrt_epsilon = sqrt(std::numeric_limits<X>::epsilon());
+	constexpr double xxx = sqrt(2.);// sqrt_epsilon<double>;
 	template<class X>
 	constexpr X phi = (X(1) + sqrt(X(5))) / X(2);
 
