@@ -137,6 +137,7 @@
   <ItemGroup>
     <ClInclude Include="ensure.h" />
     <ClInclude Include="fms_iterable.h" />
+    <ClInclude Include="tms_variate_normal.h" />
     <ClInclude Include="tmx_date_business_day.h" />
     <ClInclude Include="tmx_date_holiday.h" />
     <ClInclude Include="tmx_black.h" />
@@ -151,12 +152,14 @@
     <ClInclude Include="tmx_instrument.h" />
     <ClInclude Include="tmx_instrument_value.h" />
     <ClInclude Include="tmx_instrument_view.h" />
+    <ClInclude Include="tmx_math.h" />
     <ClInclude Include="tmx_muni.h" />
     <ClInclude Include="tmx_date.h" />
     <ClInclude Include="tmx_curve_pwflat.h" />
     <ClInclude Include="tmx_root1d.h" />
     <ClInclude Include="tmx_span.h" />
     <ClInclude Include="tmx_value.h" />
+    <ClInclude Include="tmx_variate.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="bondlib.cpp" />

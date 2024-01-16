@@ -78,6 +78,15 @@
     <ClInclude Include="tmx_date_business_day.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="tmx_variate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tms_variate_normal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tmx_math.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="bondlib.cpp">
