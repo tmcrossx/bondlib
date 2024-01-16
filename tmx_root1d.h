@@ -13,36 +13,16 @@ namespace tmx::root1d {
 	constexpr X infinity = std::numeric_limits<X>::infinity();
 
 	template<class X>
-	constexpr X sqrt(X a)
+	constexpr X sgn(X x)
 	{
-		if (a < 0) {
-			return std::numeric_limits<X>::quiet_NaN();
-		}
-
-		if (a == 0) {
-			return 0;
-		}
-
-		X x = a; // bad initial guess
-		X x_ = x / 2 + a / (2 * x);
-
-		while (x_ - x > 2*epsilon<X> or x_ - x < -2*epsilon<X>) {
-			x = x_;
-			x_ = x / 2 + a / (2 * x);
-		}
-
-		return x_;
+		return x > 0 ? 1 : x < 0 ? -1 : 0;
 	}
-	template<class X>
-	constexpr X sqrt_epsilon = sqrt(std::numeric_limits<X>::epsilon());
-	template<class X>
-	constexpr X phi = (X(1) + sqrt(X(5))) / X(2);
 
 	template<class X>
 	constexpr bool samesign(X x, X y)
 	{
 		//return x = std::copysign(x, y);
-		return (x > 0 and y > 0) or (x < 0 and y < 0);
+		return sgn(x) == sgn(y);
 	}
 
 	template<class X>
@@ -50,6 +30,37 @@ namespace tmx::root1d {
 	{
 		return x >= 0 ? x : -x;
 	}
+
+	template<class X>
+	constexpr X sqrt(X a, X x)
+	{
+		if (a < 0) {
+			return NaN<X>;
+		}
+
+		if (a == 0) {
+			return 0;
+		}
+
+		while (fabs(x * x - a) >= 4*epsilon<X>) {
+			X x_ = x / 2 + a / (2 * x);
+			x = x_;
+		}
+
+		return x;
+	}
+	template<class X>
+	constexpr X sqrt(X a)
+	{
+		return sqrt(a, a / 2);
+	}
+	static_assert(sqrt(4.) == 2);
+
+	template<class X>
+	constexpr X sqrt_epsilon = sqrt(std::numeric_limits<X>::epsilon());
+	constexpr double xxx = sqrt(2.);// sqrt_epsilon<double>;
+	template<class X>
+	constexpr X phi = (X(1) + sqrt(X(5))) / X(2);
 
 #if 0
 	// Return x0 <= a, b <= x1 with f(a) and f(b) different sign.
@@ -116,7 +127,7 @@ namespace tmx::root1d {
 			auto y1 = f(x1);
 			bool bounded = !samesign(y0, y1);
 
-			while (iter-- and (y0 > tol or y0 < -tol)) {
+			while (iter-- and fabs(y1) > tol) {
 				auto x = next(x0, y0, x1, y1);
 				auto y = f(x);
 				if (bounded and samesign(y, y1)) {
@@ -133,7 +144,7 @@ namespace tmx::root1d {
 				}
 			}
 
-			return iter ? x0 : NaN<X>;
+			return iter ? x1 : NaN<X>;
 		}
 #ifdef _DEBUG
 		constexpr int secant_solve_test()
