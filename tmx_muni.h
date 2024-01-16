@@ -11,13 +11,14 @@ namespace tmx::muni {
 	inline pwflat::base<T, F> fit(size_t n, const T* t, const F* y,
 		F eps = std::sqrt(std::numeric_limits<F>::quiet_NaN()))
 	{
-		base::base r(n, t, y);
+		curve::base r(n, t, y);
 		auto D = [&r](T t) { return r.discount(t); };
 
 		for (unsigned i = 0; i < 10; ++i) {
 			bond::basic bi(date::ymd{}, (unsigned)t[i], 0.05);
 			F pi = bi.price(r[i]);
 			F r_ = r[i] + 2 * eps;
+			//!!! root1d::newton
 			while (std::fabs(r_ - r[i]) > eps) {
 				F p_ = bi.present_value(bi.dated, D) - pi;
 				F dp = bi.duration(bi.dated, D);
