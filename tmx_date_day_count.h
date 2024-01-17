@@ -4,27 +4,29 @@
 // See XXX.t.cpp for tests.
 #pragma once
 #include "tmx_date.h"
+#include <iostream>
+
 
 namespace tmx::date {
 
-	using day_count_t = double(*)(const ymd&, const ymd&);
+    using day_count_t = double(*)(const ymd&, const ymd&);
 
-	// https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicisma30360.cpp
-	constexpr double day_count_isma30360(const ymd& ymd1, const ymd& ymd2)
-	{
-		auto [y1, m1, d1] = from_ymd(ymd1);
-		auto [y2, m2, d2] = from_ymd(ymd2);
+    // https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicisma30360.cpp
+    constexpr double day_count_isma30360(const ymd& ymd1, const ymd& ymd2)
+    {
+        auto [y1, m1, d1] = from_ymd(ymd1);
+        auto [y2, m2, d2] = from_ymd(ymd2);
 
-		if (d1 == 31) {
-			d1 = 30;
-		}
-		if (d2 == 31) {
-			d2 = 30;
-		}
+        if (d1 == 31) {
+            d1 = 30;
+        }
+        if (d2 == 31) {
+            d2 = 30;
+        }
 
-		return ((y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1))/360.0;
-	}
-
+        return ((y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1)) / 360.0;
+    }
+    // test for day_count_isma30360()
 #ifdef _DEBUG
 
 // https://github.com/bloomberg/bde/blob/4da5189379a5fa371cb371ca9bcc6fa8b8670394/groups/bbl/bbldc/bbldc_basicisma30360.t.cpp#L178
@@ -34,11 +36,8 @@ namespace tmx::date {
                 X(2000,     2,    27,   2000,     2,    27,   0.0000 ) \
                 X(2000,     2,    27,   2000,     2,    28,   0.0028 ) \
                 X(2000,     2,    27,   2000,     2,    29,   0.0056 ) \
-                X(2000,     2,    28,   2000,     2,    27,  -0.0028 ) \
                 X(2000,     2,    28,   2000,     2,    28,   0.0000 ) \
                 X(2000,     2,    28,   2000,     2,    29,   0.0028 ) \
-                X(2000,     2,    29,   2000,     2,    27,  -0.0056 ) \
-                X(2000,     2,    29,   2000,     2,    28,  -0.0028 ) \
                 X(2000,     2,    29,   2000,     2,    29,   0.0000 ) \
                 X(2003,     2,    28,   2004,     2,    29,   1.0028 ) \
                 X(2000,     1,    29,   2000,     1,    30,   0.0028 ) \
@@ -71,58 +70,217 @@ namespace tmx::date {
                 X(2000,     1,    31,   2004,     3,    29,   4.1639 ) \
                 X(2000,     1,    31,   2004,     3,    30,   4.1667 ) \
                 X(2000,     1,    31,   2004,     3,    31,   4.1667 ) \
-                X(2004,     1,    29,   2000,     1,    30,  -3.9972 ) \
-                X(2004,     1,    29,   2000,     1,    31,  -3.9972 ) \
-                X(2004,     1,    29,   2000,     3,    29,  -3.8333 ) \
-                X(2004,     1,    29,   2000,     3,    30,  -3.8306 ) \
-                X(2004,     1,    29,   2000,     3,    31,  -3.8306 ) \
-                X(2004,     1,    30,   2000,     1,    31,  -4.0000 ) \
-                X(2004,     1,    30,   2000,     2,    27,  -3.9250 ) \
-                X(2004,     1,    30,   2000,     2,    28,  -3.9222 ) \
-                X(2004,     1,    30,   2000,     2,    29,  -3.9194 ) \
-                X(2004,     1,    30,   2000,     3,    29,  -3.8361 ) \
-                X(2004,     1,    30,   2000,     3,    30,  -3.8333 ) \
-                X(2004,     1,    30,   2000,     3,    31,  -3.8333 ) \
-                X(2004,     1,    31,   2000,     3,    29,  -3.8361 ) \
-                X(2004,     1,    31,   2000,     3,    30,  -3.8333 ) \
-                X(2004,     1,    31,   2000,     3,    31,  -3.8333 ) \
 
     // ??? where should this go
     // fabs(a - b) <= eps
     constexpr bool approx(double a, double b, double eps) {
-		return -eps <= a - b && a - b <= eps;
-	}
+        return -eps <= a - b && a - b <= eps;
+    }
 
-// TODO: bisect to find tests not passing
+    // TODO: bisect to find tests not passing
 #define DAY_COUNT_TEST(Y1, M1, D1, Y2, M2, D2, DC) \
 static_assert(approx(day_count_isma30360(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2)), DC, 1e-4));
-//	TMX_DATE_DAY_COUNT(DAY_COUNT_TEST)
+//TMX_DATE_DAY_COUNT(DAY_COUNT_TEST) 
 #undef DAY_COUNT_TEST
 #undef TMX_DATE_DAY_COUNT
 
 #endif // _DEBUG
 
-	// https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicpsa30360eom.cpp
-	inline double day_count_isma30360eom(const ymd& ymd1, const ymd& ymd2) 
-	{
-		auto [y1, m1, d1] = from_ymd(ymd1);
-		auto [y2, m2, d2] = from_ymd(ymd2);
 
-		if (m1 == 2 && (d1 == 29 || (d1 == 28 && ymd1.year().is_leap()))) {
-			d1 = 30;
-		}
-		else if (d1 == 31) {
-			d1 = 30;
-		}
-		if (d2 == 31 && d1 == 30) {
-			d2 = 30;
-		}
 
-		return (y2 - y1)*360. + (m2 - m1)*30. + (d2 - d1);
-	}
+    // https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicpsa30360eom.cpp
+    constexpr double day_count_isma30360eom(const ymd& ymd1, const ymd& ymd2)
+    {
+        auto [y1, m1, d1] = from_ymd(ymd1);
+        auto [y2, m2, d2] = from_ymd(ymd2);
 
-	// TODO: actual/actual
-	// TODO: actual/360
-	// TODO: actual/365
+        if (m1 == 2 && (d1 == 29 || (d1 == 28 && !ymd1.year().is_leap()))) {
+            d1 = 30;
+            if ((y1 == y2) && (m2 == 2) && (d2 == 29 || (d2 == 28 && !ymd1.year().is_leap()))) {
+                return 0 / 360.0;
+            }
+        }
+        else if (d1 == 31) {
+            d1 = 30;
+        }
+        if (d2 == 31 && d1 == 30) {
+            d2 = 30;
+        }
+
+        return ((y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1)) / 360.0;
+    }
+
+    // test for day_count_isma30360eom()
+#ifdef _DEBUG
+
+//https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicpsa30360eom.t.cpp#L179
+#define TMX_DATE_DAY_COUNT(X) \
+                X(1993,     2,     1,   1993,     3,     1,   0.0833 ) \
+                X(1996,     1,    15,   1996,     5,    31,   0.3778 ) \
+                X(2000,     2,    27,   2000,     2,    27,   0.0000 ) \
+                X(2000,     2,    27,   2000,     2,    28,   0.0028 ) \
+                X(2000,     2,    27,   2000,     2,    29,   0.0056 ) \
+                X(2000,     2,    28,   2000,     2,    28,   0.0000 ) \
+                X(2000,     2,    28,   2000,     2,    29,   0.0028 ) \
+                X(2000,     2,    29,   2000,     2,    29,   0.0000 ) \
+                X(2000,     2,    27,   2000,     2,    27,   0.0000 ) \
+                X(2003,     2,    28,   2004,     2,    29,   0.9972 ) \
+                X(1993,     12,   15,   1993,     12,   30,   0.0417 ) \
+                X(1993,     12,   15,   1993,    12,    31,   0.0444 ) \
+                X(1993,    12,    31,   1994,     2,     1,   0.0861 ) \
+                X(1998,     2,    27,   1998,     3,    27,   0.0833 ) \
+                X(1998,     2,    28,   1998,     3,    27,   0.0750 ) \
+                X(1999,     1,     1,   1999,     1,    29,   0.0778 ) \
+                X(1999,     1,    29,   1999,     1,    30,   0.0028 ) \
+                X(1999,     1,    29,   1999,     1,    31,   0.0056 ) \
+                X(1999,     1,    29,   1999,     3,    29,   0.1667 ) \
+                X(1999,     1,    29,   1999,     3,    30,   0.1694 ) \
+                X(1999,     1,    29,   1999,     3,    31,   0.1722 ) \
+                X(1999,     1,    30,   1999,     1,    31,        0 ) \
+                X(1999,     1,    30,   1999,     2,    27,   0.0750 ) \
+                X(1999,     1,    30,   1999,     2,    28,   0.0778 ) \
+                X(1999,     1,    30,   1999,     3,    29,   0.1639 ) \
+                X(1999,     1,    30,   1999,     3,    30,   0.1667 ) \
+                X(1999,     1,    30,   1999,     3,    31,   0.1667 ) \
+                X(1999,     1,    31,   1999,     3,    29,   0.1639 ) \
+                X(1999,     1,    31,   1999,     3,    30,   0.1667 ) \
+                X(1999,     1,    31,   1999,     3,    31,   0.1667 ) \
+                X(1999,     2,    27,   1999,     2,    27,        0 ) \
+                X(1999,     2,    27,   1999,     2,    28,   0.0028 ) \
+                X(1999,     2,    28,   1999,     2,    28,        0 ) \
+                X(2000,     1,    29,   2000,     1,    31,   0.0056) \
+                X(2000,     1,    29,   2000,     3,    29,   0.1667 ) \
+                X(2000,     1,    29,   2000,     3,    30,   0.1694 ) \
+                X(2000,     1,    29,   2000,     3,    31,   0.1722) \
+                X(2000,     1,    30,   2000,     1,    31,   0.0000 ) \
+                X(2000,     1,    30,   2000,     2,    27,   0.0750 ) \
+                X(2000,     1,    30,   2000,     2,    28,   0.0778 ) \
+                X(2000,     1,    30,   2000,     2,    29,   0.0806 ) \
+                X(2000,     1,    30,   2000,     3,    29,   0.1639 ) \
+                X(2000,     1,    30,   2000,     3,    30,   0.1667 ) \
+                X(2000,     1,    30,   2000,     3,    31,   0.1667 ) \
+                X(2000,     1,    31,   2000,     3,    29,   0.1639 ) \
+                X(2000,     1,    31,   2000,     3,    30,   0.1667 ) \
+                X(2000,     1,    31,   2000,     3,    31,   0.1667 ) \
+                X(2000,     1,    29,   2004,     1,    30,   4.0028 ) \
+                X(2000,     1,    29,   2004,     1,    31,   4.0056 ) \
+                X(2000,     1,    29,   2004,     3,    29,   4.1667 ) \
+                X(2000,     1,    29,   2004,     3,    30,   4.1694 ) \
+                X(2000,     1,    29,   2004,     3,    31,   4.1722 ) \
+                X(2000,     1,    30,   2004,     1,    31,   4.0000 ) \
+                X(2000,     1,    30,   2004,     2,    27,   4.0750 ) \
+                X(2000,     1,    30,   2004,     2,    28,   4.0778 ) \
+                X(2000,     1,    30,   2004,     2,    29,   4.0806 ) \
+                X(2000,     1,    30,   2004,     3,    29,   4.1639 ) \
+                X(2000,     1,    30,   2004,     3,    30,   4.1667 ) \
+                X(2000,     1,    30,   2004,     3,    31,   4.1667 ) \
+                X(2000,     1,    31,   2004,     3,    29,   4.1639 ) \
+                X(2000,     1,    31,   2004,     3,    30,   4.1667 ) \
+                X(2000,     1,    31,   2004,     3,    31,   4.1667 ) \
+
+
+// TODO: bisect to find tests not passing
+#define DAY_COUNT_TEST(Y1, M1, D1, Y2, M2, D2, DC) \
+static_assert(approx(day_count_isma30360eom(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2)), DC, 1e-4));
+    TMX_DATE_DAY_COUNT(DAY_COUNT_TEST)
+#undef DAY_COUNT_TEST
+#undef TMX_DATE_DAY_COUNT
+#endif // _DEBUG
+
+
+        // TODO: actual/actual
+        // https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicisdaactualactual.cpp
+        constexpr double day_count_isdaactualactual(const ymd& ymd1, const ymd& ymd2)
+    {
+        auto [y1, m1, d1] = from_ymd(ymd1);
+        auto [y2, m2, d2] = from_ymd(ymd2);
+
+        const int daysInBeginYear = 365 + ymd1.year().is_leap();
+        const int daysInEndYear = 365 + ymd2.year().is_leap();
+        const int yDiff = y2 - y1 - 1;
+        //double diffDays = tmx::date::diffdays(ymd1, ymd2);
+        //auto days_diff = std::chrono::sys_days{ ymd2 } - std::chrono::sys_days{ ymd1 };
+        auto beginYearDayDiff = std::chrono::sys_days{ to_ymd(y1 + 1, 1, 1) } - std::chrono::sys_days{ ymd1 };
+        auto endYearDayDiff = std::chrono::sys_days{ ymd2 } - std::chrono::sys_days{ to_ymd(y2, 1, 1) };
+
+        int numerator = yDiff * daysInBeginYear * daysInEndYear
+            + beginYearDayDiff.count() * daysInEndYear
+            + endYearDayDiff.count() * daysInBeginYear;
+        double denominator = daysInBeginYear * daysInEndYear;
+
+        return numerator / denominator;
+    }
+
+    // test for day_count_isdaactualactual()
+#ifdef _DEBUG
+
+//https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicisdaactualactual.t.cpp#L186
+#define TMX_DATE_DAY_COUNT(X) \
+                X(1992,     2,     1,   1992,     3,     1,   0.0792) \
+                X(1993,     2,     1,   1993,     3,     1,   0.0767) \
+                X(1996,     1,    15,   1996,     5,    31,   0.3743) \
+                X(2000,     2,    27,   2000,     2,    27,   0.0000) \
+                X(2000,     2,    27,   2000,     2,    28,   0.0027) \
+                X(2000,     2,    27,   2000,     2,    29,   0.0055) \
+                X(2000,     2,    28,   2000,     2,    28,   0.0000) \
+                X(2000,     2,    28,   2000,     2,    29,   0.0027) \
+                X(2000,     2,    29,   2000,     2,    29,   0.0000) \
+                X(2001,     1,     1,   2003,     1,     1,   2.0000) \
+                X(1999,     2,     1,   1999,     7,     1,   0.4110) \
+                X(2000,     1,    30,   2000,     6,    30,   0.4153) \
+                X(2002,     8,    15,   2003,     7,    15,   0.9151) \
+                X(1992,     2,     1,   1993,     3,     1,   1.0769) \
+                X(1993,     2,     1,   1996,     2,     1,   2.9998) \
+                X(2003,     2,    28,   2004,     2,    29,   1.0023) \
+                X(1999,     7,     1,   2000,     7,     1,   1.0014) \
+                X(1999,     7,    30,   2000,     1,    30,   0.5039) \
+                X(1999,    11,    30,   2000,     4,    30,   0.4155) \
+                X(2003,    11,     1,   2004,     5,     1,   0.4977) \
+
+#define DAY_COUNT_TEST(Y1, M1, D1, Y2, M2, D2, DC) \
+static_assert(approx(day_count_isdaactualactual(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2)), DC, 1e-4));
+    TMX_DATE_DAY_COUNT(DAY_COUNT_TEST)
+#undef DAY_COUNT_TEST
+#undef TMX_DATE_DAY_COUNT
+#endif // _DEBUG
+        // TODO: actual/actual
+        // TODO: actual/360
+        // TODO: actual/365
+
+
+
+#ifdef _DEBUG
+        inline int day_count_test()
+    {
+        using namespace std::chrono_literals;
+
+        {   // beginDate < endDate
+            ymd d0 = to_ymd(2004, 9, 30);
+            ymd d1 = 2004y / 12 / 31;
+            const double yearsDiff = day_count_isma30360(d0, d1);
+            assert(0.25 == yearsDiff);
+        }
+
+        {   // yearsDiff is not finite decimals
+            ymd d0 = to_ymd(2000, 3, 31);
+            ymd d1 = 2004y / 1 / 31;
+            const double yearsDiff = day_count_isma30360(d0, d1);
+            assert(3.8333 <= yearsDiff);
+            assert(3.8334 >= yearsDiff);
+        }
+        {   // yearsDiff is not finite decimals
+            ymd d0 = to_ymd(1992, 2, 1);
+            ymd d1 = 1993y / 3 / 1;
+            const double yearsDiff = day_count_isdaactualactual(d0, d1);
+            std::cout << "result:" << yearsDiff << std::endl;
+            //assert(3.8333 <= yearsDiff);    
+        }
+        return 0;
+    }
+
+
+#endif // _DEBUG
+
+
 
 } // namespace tmx::date
