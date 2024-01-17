@@ -46,6 +46,12 @@ namespace tmx::variate {
 				assert(n.cdf(0) == 0.5);
 				assert(n.cgf(0) == 0);
 				assert(n.mgf(0) == 1);
+
+				base<>& b = n;
+				assert(b.pdf(0) == 1 / std::sqrt(2 * std::numbers::pi));
+				assert(b.cdf(0) == 0.5);
+				assert(b.cgf(0) == 0);
+				assert(b.mgf(0) == 1);
 			}
 
 			return 0;

@@ -38,6 +38,18 @@ namespace tmx::math {
 #endif // _DEBUG
 
 	template<class X>
+	constexpr X pow(X x, int n)
+	{
+		return n == 0 ? 1 : n > 0 ? x * pow(x, n - 1) : 1 / pow(x, -n);
+	}
+
+	template<class X>
+	constexpr bool equal_precision(X x, X y, int n)
+	{
+		return fabs(x - y) <= pow(.1, n);
+	}
+
+	template<class X>
 	constexpr X sqrt(X a, X x)
 	{
 		if (a < 0) {
