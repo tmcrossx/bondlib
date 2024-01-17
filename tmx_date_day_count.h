@@ -71,13 +71,12 @@ namespace tmx::date {
                 X(2000,     1,    31,   2004,     3,    30,   4.1667 ) \
                 X(2000,     1,    31,   2004,     3,    31,   4.1667 ) \
 
-    // ??? where should this go
+    // ??? where should this go !!! use math::equal_precision(a, b, -4)
     // fabs(a - b) <= eps
     constexpr bool approx(double a, double b, double eps) {
         return -eps <= a - b && a - b <= eps;
     }
 
-    // TODO: bisect to find tests not passing
 #define DAY_COUNT_TEST(Y1, M1, D1, Y2, M2, D2, DC) \
 static_assert(approx(day_count_isma30360(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2)), DC, 1e-4));
 //TMX_DATE_DAY_COUNT(DAY_COUNT_TEST) 
@@ -179,7 +178,6 @@ static_assert(approx(day_count_isma30360(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2))
                 X(2000,     1,    31,   2004,     3,    31,   4.1667 ) \
 
 
-// TODO: bisect to find tests not passing
 #define DAY_COUNT_TEST(Y1, M1, D1, Y2, M2, D2, DC) \
 static_assert(approx(day_count_isma30360eom(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2)), DC, 1e-4));
     TMX_DATE_DAY_COUNT(DAY_COUNT_TEST)

@@ -19,7 +19,7 @@ namespace tmx::date::business_day {
 #undef TMX_DATE_BUSINESS_DAY_CONVENTION_ENUM
 
 	// Move date to business day using roll convention and calendar.
-	constexpr ymd adjust(const ymd& date, roll convention, holiday::calendar::calendar_t cal = holiday::calendar::weekend)
+	constexpr ymd adjust(const ymd& date, roll convention, holiday::calendar::calendar_t cal = holiday::weekend)
 	{
 		if (!cal(date)) {
 			return date;

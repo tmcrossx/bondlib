@@ -7,13 +7,7 @@ namespace tmx::date::holiday::calendar {
 	// Return true on non-trading days.
 	using calendar_t = bool(*)(const date::ymd&);
 
-	constexpr bool weekend(const date::ymd& d)
-	{
-		auto wd = std::chrono::year_month_weekday(d).weekday();
-
-		return (wd == std::chrono::Saturday) || (wd == std::chrono::Sunday);
-	}
-
+	// https://www.sifma.org/resources/general/holiday-schedule/#us
 	constexpr bool NYSE(const ymd& d)
 	{
 		return weekend(d)
