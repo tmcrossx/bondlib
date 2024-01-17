@@ -8,25 +8,70 @@
 namespace tmx::math {
 
 	template<class X>
-	constexpr X abs(X x)
-	{
-		return x < 0 ? -x : x;
-	}
-	static_assert(abs(-1) == 1);
-	static_assert(abs(1) == 1);
+	constexpr X NaN = std::numeric_limits<X>::quiet_NaN();
+	template<class X>
+	constexpr X epsilon = std::numeric_limits<X>::epsilon();
+	template<class X>
+	constexpr X infinity = std::numeric_limits<X>::infinity();
 
 	template<class X>
 	constexpr X sgn(X x)
 	{
-		return x < 0 ? -1 : x > 0 ? 1 : 0;
+		return x > 0 ? 1 : x < 0 ? -1 : 0;
 	}
+#ifdef _DEBUG
 	static_assert(sgn(-2) == -1);
 	static_assert(sgn(0) == 0);
 	static_assert(sgn(2) == 1);
+#endif // _DEBUG
 
-	// Default test for convergence.
 	template<class X>
-	using epsilon = std::numeric_limits<X>::epsilon();
+	constexpr bool samesign(X x, X y)
+	{
+		//return x = std::copysign(x, y);
+		return sgn(x) == sgn(y);
+	}
+
+	template<class X>
+	constexpr X fabs(X x)
+	{
+		return x >= 0 ? x : -x;
+	}
+#ifdef _DEBUG
+	static_assert(fabs(-1) == 1);
+	static_assert(fabs(1) == 1);
+#endif // _DEBUG
+
+	template<class X>
+	constexpr X sqrt(X a, X x)
+	{
+		if (a < 0) {
+			return NaN<X>;
+		}
+
+		if (a == 0) {
+			return 0;
+		}
+
+		while (fabs(x * x - a) > a * epsilon<X>) {
+			x = x / 2 + a / (2 * x);
+		}
+
+		return x;
+	}
+	template<class X>
+	constexpr X sqrt(X a)
+	{
+		return sqrt(a, a / 2);
+	}
+#ifdef _DEBUG
+	static_assert(sqrt(4.) == 2);
+#endif // _DEBUG
+
+	template<class X>
+	constexpr X sqrt_epsilon = sqrt(std::numeric_limits<X>::epsilon());
+	template<class X>
+	constexpr X phi = (X(1) + sqrt(X(5))) / X(2);
 
 	// Generalized hypergeometric function and its derivatives.
 	// pFq(p0, ...; q0, ...; x) = sum_{n>=0} (p0)_n ... /(q0)_n ... x^n/n!
@@ -112,7 +157,7 @@ namespace tmx::math {
 					X F = pow(1 - x, -a); // 1F0(a,x)
 					X _F = pFq(1, &a, 0, (const X*)nullptr, x); // 1F0(x)
 					X dF = F - _F;
-					ensure(fabs(dF) < 2 * Eps<X>);
+					ensure(fabs(dF) < 2 * epsilon<X>);
 				}
 			}
 		}
@@ -123,10 +168,10 @@ namespace tmx::math {
 			double xs[] = { -.1, .1, .9 };
 
 			for (X x : xs) {
-				X F = _2F1(one, one, two, -x, Eps<X>);
+				X F = _2F1(one, one, two, -x, epsilon<X>);
 				X F_ = log(1 + x) / x;
 				X dF = F - F_;
-				ensure(fabs(dF) < Eps<X>);
+				ensure(fabs(dF) < epsilon<X>);
 				X one_[] = { 1, 1 };
 				X two_[] = { 2 };
 				X _F = pFq(2, one_, 1, two_, -x);

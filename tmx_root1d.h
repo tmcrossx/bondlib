@@ -2,115 +2,19 @@
 #pragma once
 #include <cmath>
 #include <limits>
+#include "tmx_math.h"
 
 namespace tmx::root1d {
 
 	template<class X>
-	constexpr X NaN = std::numeric_limits<X>::quiet_NaN();
-	template<class X>
-	constexpr X epsilon = std::numeric_limits<X>::epsilon();
-	template<class X>
-	constexpr X infinity = std::numeric_limits<X>::infinity();
+	struct secant {
+		X x0, x1;
+		X tolerance;
+		size_t iterations = 100;
 
-	template<class X>
-	constexpr X sgn(X x)
-	{
-		return x > 0 ? 1 : x < 0 ? -1 : 0;
-	}
-
-	template<class X>
-	constexpr bool samesign(X x, X y)
-	{
-		//return x = std::copysign(x, y);
-		return sgn(x) == sgn(y);
-	}
-
-	template<class X>
-	constexpr X fabs(X x)
-	{
-		return x >= 0 ? x : -x;
-	}
-
-	template<class X>
-	constexpr X sqrt(X a, X x)
-	{
-		if (a < 0) {
-			return NaN<X>;
-		}
-
-		if (a == 0) {
-			return 0;
-		}
-
-		while (fabs(x * x - a) >= 4*epsilon<X>) {
-			X x_ = x / 2 + a / (2 * x);
-			x = x_;
-		}
-
-		return x;
-	}
-	template<class X>
-	constexpr X sqrt(X a)
-	{
-		return sqrt(a, a / 2);
-	}
-	static_assert(sqrt(4.) == 2);
-
-	template<class X>
-	constexpr X sqrt_epsilon = sqrt(std::numeric_limits<X>::epsilon());
-	constexpr double xxx = sqrt(2.);// sqrt_epsilon<double>;
-	template<class X>
-	constexpr X phi = (X(1) + sqrt(X(5))) / X(2);
-
-#if 0
-	// Return x0 <= a, b <= x1 with f(a) and f(b) different sign.
-	template<class F, class X>
-	constexpr std::pair<X, X> bound(const F& f, X a, X b, X x0 = -infinity<X>, X x1 = infinity<X>)
-	{
-		X fa = f(a);
-		X fb = f(b);
-
-		while (samesign(fa, fb)) {
-			X d = b - a;
-			if (fabs(fa) > fabs(fb)) {
-				a = b;
-				b = b + 2 * d;
-				if (x1 != infinity<X> and b > x1) {
-					b = (a + x1) / 2;
-				}
-			}
-			else {
-				b = a;
-				a = a - 2 * d;
-				if (x0 != -infinity<X> and a < x0) {
-					a = (x0 + b) / 2;
-				}
-			}
-		}
-
-		if (x0 != -infinity<X> and x0 == a)
-			return { NaN<X>, b };
-		if (x1 != infinity<X> and x1 == b)
-			return { a, NaN<X> };
-
-		return { a, b };
-	}
-
-#ifdef _DEBUG
-	template<class X>
-	inline int bound_test()
-	{
-		constexpr auto f = [](X x) { return x; };
-		{
-			static_assert(std::make_pair<X, X>(-1, 1) == bound(f, X(-1), X(1)));
-		}
-
-		return 0;
-	}
-#endif // _DEBUG
-#endif // 0
-
-	namespace secant {
+		secant(X x0, X x1, X tol = math::sqrt_epsilon<X>, size_t iter = 100)
+			: x0(x0), x1(x1), tolerance(tol), iterations(iter)
+		{ }
 
 		template<class X, class Y>
 		constexpr auto next(X x0, Y y0, X x1, Y y1)
@@ -119,48 +23,55 @@ namespace tmx::root1d {
 		}
 
 		// Find root given two initial guesses.
-		template<class F, class X = double>
-		constexpr X solve(const F& f, X x0, X x1,
-			X tol = sqrt_epsilon<X>, int iter = 100)
+		template<class F, class X = double, class Y = double>
+		constexpr X solve(const F& f)
 		{
-			auto y0 = f(x0);
-			auto y1 = f(x1);
-			bool bounded = !samesign(y0, y1);
+			Y y0 = f(x0);
+			Y y1 = f(x1);
+			bool bounded = !math::samesign(y0, y1);
 
-			while (iter-- and fabs(y1) > tol) {
+			while (iterations-- and math::fabs(y1) > tolerance) {
 				auto x = next(x0, y0, x1, y1);
-				auto y = f(x);
-				if (bounded and samesign(y, y1)) {
+				Y y = f(x);
+				if (bounded and math::samesign(y, y1)) {
 					x1 = x;
 					y1 = y;
-					//assert(!samesign(y0, y1));
+					//assert(!math::samesign(y0, y1));
 				}
 				else {
 					x0 = x1;
 					y0 = y1;
 					x1 = x;
 					y1 = y;
-					bounded = !samesign(y0, y1);
+					bounded = !math::samesign(y0, y1);
 				}
 			}
 
-			return iter ? x1 : NaN<X>;
+			return iterations ? x1 : NaN<X>;
 		}
 #ifdef _DEBUG
-		constexpr int secant_solve_test()
+		constexpr int solve_test()
 		{
 			{
 				constexpr double x = solve([](double x) { return x * x - 4; }, 0., 1.);
-				static_assert(x >= 2 - sqrt(epsilon<double>));
-				static_assert(x <= 2 + sqrt(epsilon<double>));
+				static_assert(x >= 2 - math::sqrt_epsilon<double>);
+				static_assert(x <= 2 + math::sqrt_epsilon<double>);
 			}
 
 			return 0;
 		}
 #endif // _DEBUG
-	}
+	};
 
-	namespace newton {
+	template<class X = double, class Y = double>
+	struct newton {
+		X x0;
+		X tolerance;
+		size_t iterations = 100;
+
+		newton(X x0, X tol = math::sqrt_epsilon<X>, size_t iter = 100)
+			: x0(x0), tolerance(tol), iterations(iter)
+		{ }
 
 		template<class X, class Y>
 		constexpr auto next(X x0, Y y0, Y dy)
@@ -169,31 +80,79 @@ namespace tmx::root1d {
 		}
 
 		// Find positive root given initial guess and derivative.
-		template<class F, class dF, class X = double>
-		constexpr X solve(const F& f, const dF& df, X x0,
-			double tol = sqrt_epsilon<X>, int iter = 100)
+		template<class F, class dF>
+		constexpr X solve(const F& f, const dF& df)
 		{
 			auto y0 = f(x0);
-			while (iter-- and (y0 > tol or y0 < -tol)) {
+			while (iterations-- and math::fabs(y0) > tolerance) {
 				auto x = next(x0, y0, df(x0));
 				x0 = x > 0 ? x : x0 / 2;
 				y0 = f(x0);
 			}
 
-			return iter ? x0 : NaN<X>;
+			return iterations ? x0 : NaN<X>;
 		}
 #ifdef _DEBUG
-		constexpr int newton_solve_test()
+		constexpr int solve_test()
 		{
 			{
 				constexpr double x = solve([](double x) { return x * x - 4; }, [](double x) { return 2 * x; }, 1.);
-				static_assert(x >= 2 - sqrt(epsilon<double>));
-				static_assert(x <= 2 + sqrt(epsilon<double>));
+				static_assert(math::fabs(x - 2) < math::sqrt_epsilon<double>);
 			}
 
 			return 0;
 		}
 #endif // _DEBUG	
-	}
+	};
 
 } // namespace fms::secant
+
+
+#if 0
+	// Return x0 <= a, b <= x1 with f(a) and f(b) different sign.
+template<class F, class X>
+constexpr std::pair<X, X> bound(const F& f, X a, X b, X x0 = -infinity<X>, X x1 = infinity<X>)
+{
+	X fa = f(a);
+	X fb = f(b);
+
+	while (samesign(fa, fb)) {
+		X d = b - a;
+		if (fabs(fa) > fabs(fb)) {
+			a = b;
+			b = b + 2 * d;
+			if (x1 != infinity<X> and b > x1) {
+				b = (a + x1) / 2;
+			}
+		}
+		else {
+			b = a;
+			a = a - 2 * d;
+			if (x0 != -infinity<X> and a < x0) {
+				a = (x0 + b) / 2;
+			}
+		}
+	}
+
+	if (x0 != -infinity<X> and x0 == a)
+		return { NaN<X>, b };
+	if (x1 != infinity<X> and x1 == b)
+		return { a, NaN<X> };
+
+	return { a, b };
+}
+
+#ifdef _DEBUG
+template<class X>
+inline int bound_test()
+{
+	constexpr auto f = [](X x) { return x; };
+	{
+		static_assert(std::make_pair<X, X>(-1, 1) == bound(f, X(-1), X(1)));
+	}
+
+	return 0;
+}
+#endif // _DEBUG
+#endif // 0
+

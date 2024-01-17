@@ -160,6 +160,7 @@
     <ClInclude Include="tmx_span.h" />
     <ClInclude Include="tmx_value.h" />
     <ClInclude Include="tmx_variate.h" />
+    <ClInclude Include="tmx_variate_normal.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="bondlib.cpp" />

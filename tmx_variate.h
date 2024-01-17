@@ -19,12 +19,12 @@ namespace tms::variate {
 		{
 			_cdf(x, s);
 		}
-		// Cumulant generating function log E[e^{sX}].
+		// Cumulant generating function log E[exp(sX)].
 		S cgf(const S& s) const
 		{
 			return _cgf(s);
 		}
-		// Moment generating function E[e^{sX}].
+		// Moment generating function E[exp(sX)].
 		S mgf(const S& s) const
 		{
 			return _cgf(s);
@@ -35,6 +35,5 @@ namespace tms::variate {
 		virtual S _cgf(const S& s) const = 0;
 		virtual S _mgf(const S& s) const = 0;
 	};
-
 
 } // namespace tms::variate

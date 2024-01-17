@@ -43,6 +43,5 @@ int test_bootstrap_instrument = bootstrap::instrument_test();
 
 int main()
 {
-
 	return 0;
 }

@@ -7,7 +7,8 @@ namespace tmx::curve {
 	// NVI base class for bootstrapped curves.
 	template<class T = double, class F = double>
 	struct base {
-		virtual ~base() = default;
+		virtual ~base()
+		{ }
 
 		// Last point on the curve.
 		std::pair<T, F> back() const
@@ -15,14 +16,14 @@ namespace tmx::curve {
 			return _back();
 		}
 
-		// f_t(u) is the forward at u seen at time t
+		// f_t(u) = f(u + t) is the forward at u seen at time t
 		F forward(T u, T t = 0) const
 		{
-			return _forward(u, t);
+			return _forward(u + t);
 		}
 		F operator()(T u, T t = 0) const
 		{
-			return _forward(u, t);
+			return forward(u, t);
 		}
 
 		// D_t(u) is the price at time t of a zero coupon bond maturing at time u.
@@ -52,7 +53,7 @@ namespace tmx::curve {
 		}
 	private:
 		virtual	std::pair<T, F> _back() const = 0;
-		virtual F _forward(T u, T t) const = 0;
+		virtual F _forward(T u) const = 0;
 		virtual F _discount(T u, T t) const = 0;
 		virtual F _yield(T u, T t) const = 0;
 		virtual base& _shift(F s) = 0;
@@ -75,7 +76,7 @@ namespace tmx::curve {
 		{
 			return std::make_pair(std::numeric_limits<T>::infinity(), _f);
 		}
-		F _forward([[maybe_unused]] T u, [[maybe_unused]] T t) const override
+		F _forward([[maybe_unused]] T u) const override
 		{
 			return _f;
 		}
