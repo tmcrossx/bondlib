@@ -1,7 +1,7 @@
 // tmx_variate.h - Random variates.
 #pragma once
 
-namespace tms::variate {
+namespace tmx::variate {
 
 	// Standard variate with mean 0 and variance 1.
 	template<class X = double, class S = double>
@@ -10,30 +10,30 @@ namespace tms::variate {
 		{ }
 
 		// Share density function P_s(X = x) dx.
-		X pdf(const X& x, const S&s = S(0)) const
+		X pdf(X x, S s = S(0)) const
 		{
-			_pdf(x, s);
+			return _pdf(x, s);
 		}
 		// Share distribution function P_s(X <= x).
-		X cdf(const X& x, const S& s = S(0)) const
+		X cdf(X x, S s = S(0)) const
 		{
-			_cdf(x, s);
+			return _cdf(x, s);
 		}
 		// Cumulant generating function log E[exp(sX)].
-		S cgf(const S& s) const
+		S cgf(S s) const
 		{
 			return _cgf(s);
 		}
 		// Moment generating function E[exp(sX)].
-		S mgf(const S& s) const
+		S mgf(S s) const
 		{
-			return _cgf(s);
+			return _mgf(s);
 		}
 	private:
-		virtual X _pdf(const X& x, const S& s) const = 0;
-		virtual X _cdf(const X& x, const S& s) const = 0;
-		virtual S _cgf(const S& s) const = 0;
-		virtual S _mgf(const S& s) const = 0;
+		virtual X _pdf(X x, S s) const = 0;
+		virtual X _cdf(X x, S s) const = 0;
+		virtual S _cgf(S s) const = 0;
+		virtual S _mgf(S s) const = 0;
 	};
 
 } // namespace tms::variate

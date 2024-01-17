@@ -51,8 +51,10 @@ namespace tmx::date {
 	{
 		return to_time_t(d1) - to_time_t(d0);
 	}
+#ifdef _DEBUG
 	static_assert(diffseconds(to_ymd(2023, 4, 5), to_ymd(2023, 4, 4)) == seconds_per_day);
 	static_assert(diffseconds(to_ymd(2023, 4, 5), to_ymd(2023, 4, 6)) == -seconds_per_day);
+#endif // _DEBUG
 
 	// Time in days from d0 to d1.
 	constexpr double diffdays(ymd d1, ymd d0)

@@ -4,20 +4,15 @@
 #include <math.h>
 #include <functional>
 #include <limits>
+#include "tmx_math_limits.h"
 
 namespace tmx::math {
 
-	template<class X>
-	constexpr X NaN = std::numeric_limits<X>::quiet_NaN();
-	template<class X>
-	constexpr X epsilon = std::numeric_limits<X>::epsilon();
-	template<class X>
-	constexpr X infinity = std::numeric_limits<X>::infinity();
-
+	// Sign of x.
 	template<class X>
 	constexpr X sgn(X x)
 	{
-		return x > 0 ? 1 : x < 0 ? -1 : 0;
+		return x > 0 ? X(1) : x < 0 ? X(-1) : X(0);
 	}
 #ifdef _DEBUG
 	static_assert(sgn(-2) == -1);

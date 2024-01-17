@@ -1,6 +1,7 @@
 // tmx_variate_normal.h - Standard normal random variate.
 #pragma once
 #include <cmath>
+#include <numbers>
 #include "tmx_variate.h"
 
 namespace tmx::variate {
@@ -9,16 +10,17 @@ namespace tmx::variate {
 	struct normal : public base<X,S> {
 
 		// standard normal share density
-		X _pdf(X x, S s = 0) const override
+		X _pdf(X x, S s) const override
 		{
-			static X sqrt2pi = std::sqrt(2 * std::numbers::pi_v<X>);
-			X z = x - s;
+			static X sqrt2pi = std::sqrt(2 * std::numbers::pi);
+			
+			X x_ = x - s;
 
-			return std::exp(-z * z / 2) / sqrt2pi;
+			return std::exp(-x_ * x_ / 2) / sqrt2pi;
 		}
 
 		// standard normal share cumulative distribution function
-		X _cdf(X x, S s = 0) const override
+		X _cdf(X x, S s) const override
 		{
 			static X sqrt2 = std::numbers::sqrt2_v<X>;
 
@@ -35,8 +37,20 @@ namespace tmx::variate {
 		{
 			return std::exp(s * s / 2);
 		}
+#ifdef _DEBUG
+		static int test()
+		{
+			{
+				normal<> n;
+				assert(n.pdf(0) == 1 / std::sqrt(2 * std::numbers::pi));
+				assert(n.cdf(0) == 0.5);
+				assert(n.cgf(0) == 0);
+				assert(n.mgf(0) == 1);
+			}
 
-	} // namespace normal
-
+			return 0;
+		}
+#endif // _DEBUG
+	};
 
 } // namespace tmx::variate

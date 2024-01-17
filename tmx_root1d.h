@@ -10,7 +10,7 @@ namespace tmx::root1d {
 	struct secant {
 		X x0, x1;
 		X tolerance;
-		size_t iterations = 100;
+		size_t iterations;
 
 		secant(X x0, X x1, X tol = math::sqrt_epsilon<X>, size_t iter = 100)
 			: x0(x0), x1(x1), tolerance(tol), iterations(iter)
@@ -36,7 +36,6 @@ namespace tmx::root1d {
 				if (bounded and math::samesign(y, y1)) {
 					x1 = x;
 					y1 = y;
-					//assert(!math::samesign(y0, y1));
 				}
 				else {
 					x0 = x1;
@@ -47,15 +46,14 @@ namespace tmx::root1d {
 				}
 			}
 
-			return iterations ? x1 : NaN<X>;
+			return iterations ? x1 : math::NaN<X>;
 		}
 #ifdef _DEBUG
 		constexpr int solve_test()
 		{
 			{
 				constexpr double x = solve([](double x) { return x * x - 4; }, 0., 1.);
-				static_assert(x >= 2 - math::sqrt_epsilon<double>);
-				static_assert(x <= 2 + math::sqrt_epsilon<double>);
+				static_assert(math::fabs(x - 2) <= math::sqrt_epsilon<double>);
 			}
 
 			return 0;
@@ -90,7 +88,7 @@ namespace tmx::root1d {
 				y0 = f(x0);
 			}
 
-			return iterations ? x0 : NaN<X>;
+			return iterations ? x0 : math::NaN<X>;
 		}
 #ifdef _DEBUG
 		constexpr int solve_test()

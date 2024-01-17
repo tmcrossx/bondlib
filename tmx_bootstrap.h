@@ -12,7 +12,7 @@ namespace tmx::bootstrap {
 	// Return point on the curve repricing the instrument.
 	template<class U = double, class C = double, class T = double, class F = double>
 	constexpr std::pair<T, F> instrument(const instrument::base<U,C>& i, curve::base<T,F>& f, 
-		F p = 0, F _f = NaN<F>)
+		F p = 0, F _f = math::NaN<F>)
 	{
 		ensure (i.size() != 0);
 		const auto [_u, _c] = i.back();

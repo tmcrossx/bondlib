@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <vector>
 #include "ensure.h"
+#include "tmx_math_limits.h"
 #include "tmx_span.h"
 #include "tmx_curve.h"
 
@@ -33,17 +34,17 @@ namespace tmx::curve {
 		F _f; // extrapolation value
 	public:
 		// constant curve
-		view(F _f = NaN<F>)
+		view(F _f = math::NaN<F>)
 			: t{}, f{}, _f(_f)
 		{ }
-		view(view<T> t, view<F> f, F _f = NaN<F>)
+		view(view<T> t, view<F> f, F _f = math::NaN<F>)
 			: t(t), f(f), _f(_f)
 		{
 			ensure(t.size() == f.size());
 			ensure(t.size() == 0 or t[0] > 0);
 			ensure(monotonic(t));
 		}
-		view(size_t n, const T* t, const F* f, F _f = NaN<F>)
+		view(size_t n, const T* t, const F* f, F _f = math::NaN<F>)
 			: view(view<T>(n, t), view<F>(n, f), _f)
 		{ }
 		view(const view&) = default;
@@ -94,7 +95,7 @@ namespace tmx::curve {
 		F _forward(T u, T t0) const override
 		{
 			if (u < 0)
-				return NaN<F>;
+				return math::NaN<F>;
 			if (size() == 0)
 				return extrapolate();
 
@@ -107,7 +108,7 @@ namespace tmx::curve {
 		F integral(T u, T t0 = 0) const
 		{
 			if (u < t0)
-				return NaN<F>;
+				return math::NaN<F>;
 			if (u == t0)
 				return 0;
 			if (size() == 0)
@@ -141,7 +142,7 @@ namespace tmx::curve {
 		{
 			size_t i = t.offset(t0);
 
-			return u < t0 ? NaN<F>
+			return u < t0 ? math::NaN<F>
 				: i == size() ? extrapolate()
 				: u <= t[i] ? f[i]
 				: integral(u, t0) / (u - t0);
@@ -220,12 +221,12 @@ namespace tmx::curve {
 		}
 	public:
 		// constant curve
-		constexpr pwflat(F _f = NaN<F>)
+		constexpr pwflat(F _f = math::NaN<F>)
 			: view<T, F>(_f), t{}, f{}
 		{
 			sync();
 		}
-		pwflat(size_t n, const T* t_, const F* f_, F _f = NaN<F>)
+		pwflat(size_t n, const T* t_, const F* f_, F _f = math::NaN<F>)
 			: view<T, F>(_f), t(t_, t_ + n), f(f_, f_ + n)
 		{
 			sync();

@@ -5,8 +5,8 @@
 
 namespace tmx {
 
-	template<class X>
-	constexpr X NaN = std::numeric_limits<X>::quiet_NaN();
+//	template<class X>
+//	constexpr X NaN = std::numeric_limits<X>::quiet_NaN();
 
 	namespace span {
 

@@ -4,6 +4,7 @@
 //#include "tmx_monoid.h"
 #include "tmx_span.h"
 #include "tmx_date.h"
+#include "tmx_variate_normal.h"
 #include "tmx_date_business_day.h"
 #include "tmx_curve_pwflat.h"
 #include "tmx_instrument_value.h"
@@ -26,6 +27,7 @@ int test_span_offset = span::offset_test();
 //int test_mean_monoid_d = mean_monoid_test<double>();
 //int test_bound = root1d::bound_test<double>();
 int test_date = date::test();
+int test_variate_normal = variate::normal<>::test();
 //int test_date_periodic = date::periodic_test();
 //int test_datetime = datetime::test();
 //int test_date_dcf = date::dcf::test();
