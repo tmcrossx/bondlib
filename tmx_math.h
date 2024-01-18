@@ -42,6 +42,12 @@ namespace tmx::math {
 	{
 		return n == 0 ? 1 : n > 0 ? x * pow(x, n - 1) : 1 / pow(x, -n);
 	}
+#ifdef _DEBUG
+	static_assert(pow(1, 1) == 1);
+	static_assert(pow(2, 3) == 8);
+	static_assert(pow(2., -3) == 1./8);
+	static_assert(pow(2, -3) == 0);
+#endif // _DEBUG
 
 	template<class X>
 	constexpr bool equal_precision(X x, X y, int n)
@@ -79,6 +85,25 @@ namespace tmx::math {
 	constexpr X sqrt_epsilon = sqrt(std::numeric_limits<X>::epsilon());
 	template<class X>
 	constexpr X phi = (X(1) + sqrt(X(5))) / X(2);
+
+	template<class F, class X>
+	constexpr X forward_difference(const F& f, X x, X h = sqrt_epsilon<X>)
+	{
+		return (f(x + h) - f(x)) / h;
+	}
+	template<class F, class X>
+	constexpr X backward_difference(const F& f, X x, X h = sqrt_epsilon<X>)
+	{
+		return (f(x) - f(x - h)) / h;
+	}
+	template<class F, class X>
+	constexpr X symmetric_difference(const F& f, X x, X h = sqrt_epsilon<X>)
+	{
+		return (f(x + h) - 2 * f(x) + f(x - h)) / (h * h);
+	}
+#ifdef _DEBUG
+	static_assert(symmetric_difference([](double x) { return x * x; }, 1.) == 2);
+#endif // _DEBUG
 
 	// Generalized hypergeometric function and its derivatives.
 	// pFq(p0, ...; q0, ...; x) = sum_{n>=0} (p0)_n ... /(q0)_n ... x^n/n!
@@ -130,7 +155,7 @@ namespace tmx::math {
 		return pFq(1, &p, 1, &q, x, eps);
 	}
 	template<class X>
-	constexpr X exp(X x, X eps)
+	constexpr X exp(X x, X eps = sqrt_epsilon<X>)
 	{
 		return _1F1(1., 1., x, eps);
 	}
