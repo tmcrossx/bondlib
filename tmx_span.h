@@ -1,45 +1,60 @@
 // tmx_span.h - Non-owning view of contiguous data having std::dynamic_extent.
 #pragma once
+#ifdef _DEBUG
+#include <cassert>
+#endif // _DEBUG
 #include <algorithm>
 #include <span>
 
 namespace tmx {
 
-//	template<class X>
-//	constexpr X NaN = std::numeric_limits<X>::quiet_NaN();
-
 	namespace span {
 
 		// Least index with t[i] > u.
 		template<class T, size_t N>
-		constexpr ptrdiff_t offset(T u, const std::span<T,N>& t)
+		constexpr ptrdiff_t upper_index(std::span<T, N> t, T u)
 		{
-			return std::upper_bound(t.data(), t.data() + t.size(), u) - t.data();
+			auto t0 = t.data();
+
+			return std::upper_bound(t0, t0 + t.size(), u) - t.data();
 		}
 #ifdef _DEBUG
-		static int offset_test()
+		static int upper_index_test()
 		{
 			static double t[] = { 1,2,3 };
 			constexpr std::span<double, 3> s(t);
-			assert(offset(0., s) == 0);
-			assert(offset(.5, s) == 0);
-			assert(offset(1., s) == 1);
-			assert(offset(1.5, s) == 1);
-			assert(offset(2., s) == 2);
-			assert(offset(3., s) == 3);
-			assert(offset(4., s) == 3);
+			assert(upper_index(s, 0.) == 0);
+			assert(upper_index(s, .5) == 0);
+			assert(upper_index(s, 1.) == 1);
+			assert(upper_index(s, 1.5) == 1);
+			assert(upper_index(s, 2.) == 2);
+			assert(upper_index(s, 3.) == 3);
+			assert(upper_index(s, 4.) == 3);
 
 			return 0;
 		}
 #endif // _DEBUG
 
-	// t[i - 1] <= u < t[i] < ... < t[n-1]
-		template<class T, size_t E = std::dynamic_extent>
-		constexpr std::span<T, E> advance(T u, std::span<T> t)
+
+		// t[i - 1] <= u < t[i] < ... < t[n-1]
+		template<class T, size_t N = std::dynamic_extent>
+		constexpr auto drop(std::span<T, N> t, T u)
 		{
-			return t.last(t.size() - offset(u, t));
+			return t.subspan(upper_index(t, u));
 		}
 		// TODO: come up with static_assert that works
+#ifdef _DEBUG
+		static int drop_test()
+		{
+			static double t[3] = { 1,2,3 };
+			constexpr std::span s(t);
+			/*constexpr*/ auto a = drop(s, 1.5);
+			assert(a.size() == 2);
+			assert(a[0] == 2);
+
+			return 0;
+		}
+#endif // _DEBUG
 
 		/*
 		template<class T>

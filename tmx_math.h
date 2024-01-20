@@ -47,12 +47,19 @@ namespace tmx::math {
 	static_assert(pow(2, 3) == 8);
 	static_assert(pow(2., -3) == 1./8);
 	static_assert(pow(2, -3) == 0);
+	static_assert(pow(.5, 2) == .25);
+	static_assert(pow(.5, -2) == 1/.25);
+	static_assert(pow(.1, 2) == .1 * .1);
+	static_assert(pow(.1, -2) == 1 / (.1 * .1));
+	static_assert(pow(.1, -2) == 1 / pow(.1, 2));
 #endif // _DEBUG
 
+
+	// Equal up to n digits of precision.
 	template<class X>
 	constexpr bool equal_precision(X x, X y, int n)
 	{
-		return fabs(x - y) <= pow(.1, n);
+		return fabs(x - y) <= pow(10., n);
 	}
 
 	template<class X>
@@ -79,6 +86,7 @@ namespace tmx::math {
 	}
 #ifdef _DEBUG
 	static_assert(sqrt(4.) == 2);
+	static_assert(sqrt(1e-16) == 1e-8);
 #endif // _DEBUG
 
 	template<class X>
@@ -86,31 +94,68 @@ namespace tmx::math {
 	template<class X>
 	constexpr X phi = (X(1) + sqrt(X(5))) / X(2);
 
+	// (1 + x)^a = 1 + ax + a(a - 1)/2 x^2 + ... = sum_{n>=0}(a)_n x^n/n!
+	template<class X>
+	constexpr X pow1(X x, X a, X eps = sqrt_epsilon<X>)
+	{
+		if (fabs(x) == 1) {
+			return infinity<X>;
+		}
+
+		X s = 1;
+		X n = 1;
+		X anx = 1; // (a)_n x^n/n!
+		while (fabs(anx) > eps) {
+			anx *= (a - n + 1) * x / n;
+			s += anx;
+			n = n + 1;
+		}
+
+		return s;		
+	}
+#ifdef _DEBUG
+	static_assert(pow1(0., 1.) == 1);
+	static_assert(pow1(-0.5, 2.) == 0.25);
+	constexpr double xxx = pow1(-0.5, -2.);
+	//static_assert(pow1(-0.5, -2.) == 4);
+#endif // _DEBUG
+
+	// Estimate f'(x) using forward difference.
 	template<class F, class X>
 	constexpr X forward_difference(const F& f, X x, X h = sqrt_epsilon<X>)
 	{
 		return (f(x + h) - f(x)) / h;
 	}
+	// Estimate f'(x) using backward difference.
 	template<class F, class X>
 	constexpr X backward_difference(const F& f, X x, X h = sqrt_epsilon<X>)
 	{
 		return (f(x) - f(x - h)) / h;
 	}
+	// Estimate f'(x) using symmetric difference.
 	template<class F, class X>
 	constexpr X symmetric_difference(const F& f, X x, X h = sqrt_epsilon<X>)
 	{
-		return (f(x + h) - 2 * f(x) + f(x - h)) / (h * h);
+		return (f(x + h) - f(x - h)) / (2 * h);
 	}
 #ifdef _DEBUG
 	static_assert(symmetric_difference([](double x) { return x * x; }, 1.) == 2);
+	static_assert(symmetric_difference([](double x) { return x * x; }, 2.) == 4);
 #endif // _DEBUG
+
+	// Estimate f''(x) using symmetric differences.
+	template<class F, class X>
+	constexpr X second_difference(const F& f, X x, X h = sqrt_epsilon<X>)
+	{
+		return (f(x + h) - 2*f(x) + f(x - h)) / (h * h);
+	}
 
 	// Generalized hypergeometric function and its derivatives.
 	// pFq(p0, ...; q0, ...; x) = sum_{n>=0} (p0)_n ... /(q0)_n ... x^n/n!
 	// (q)_n = q(q + 1)...(q + n - 1), (q)_0 = 1
 	// (d/dx)^n pFq(p, q, x) = (p)_n/(q_n) pFq(p + n, q + n, x)
 	template<class X = double>
-	constexpr X pFq(unsigned np, const X* p, unsigned nq, const X* q, X x, X eps) //= sqrt(epsilon<X>)/*, int dn = 0 */ )
+	constexpr X pFq(unsigned np, const X* p, unsigned nq, const X* q, X x, X eps = sqrt_epsilon<X>/*, int dn = 0 */ )
 	{
 		if (np > nq + 1) { // diverges
 			return x == 0 ? 0 : std::numeric_limits<X>::infinity();
@@ -177,8 +222,9 @@ namespace tmx::math {
 	}
 
 #ifdef _DEBUG
+#if 0
 	template<class X = double>
-	inline int test_hypergeometric()
+	inline int hypergeometric_test()
 	{
 		{
 			// (1 - x)^{-a} = 1 + ax + a(a + 1)/2 x^2 + ... = sum_{n>=0}(a)_n x^n/n!
@@ -186,10 +232,10 @@ namespace tmx::math {
 			X xs[] = { -0.5, 0, 0.5 };
 			for (X a : as) {
 				for (X x : xs) {
-					X F = pow(1 - x, -a); // 1F0(a,x)
+					X F = pow1(-x, -a); // 1F0(a,x)
 					X _F = pFq(1, &a, 0, (const X*)nullptr, x); // 1F0(x)
 					X dF = F - _F;
-					ensure(fabs(dF) < 2 * epsilon<X>);
+					static_assert(fabs(dF) < 2 * epsilon<X>);
 				}
 			}
 		}
@@ -203,16 +249,17 @@ namespace tmx::math {
 				X F = _2F1(one, one, two, -x, epsilon<X>);
 				X F_ = log(1 + x) / x;
 				X dF = F - F_;
-				ensure(fabs(dF) < epsilon<X>);
+				static_assert(fabs(dF) < epsilon<X>);
 				X one_[] = { 1, 1 };
 				X two_[] = { 2 };
 				X _F = pFq(2, one_, 1, two_, -x);
 				X Fd = _F - F;
-				ensure(fabs(_F - F) < std::numeric_limits<X>::epsilon());
+				static_assert(fabs(_F - F) < std::numeric_limits<X>::epsilon());
 			}
 		}
 
 		return 0;
 	}
+#endif // 0
 #endif // _DEBUG
 } // namespace tmx::math

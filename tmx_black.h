@@ -105,9 +105,15 @@ namespace tmx::black {
 
 				double ddp = gamma(100., 0.1, 100.);
 				assert(math::equal_precision(ddp, 0.040, -3));
+				double ddp_ = math::symmetric_difference([](double f) { return delta(f, 0.1, 100.); }, 100., 1e-6);
+				assert(math::equal_precision(ddp, ddp_, -3));
+				double _ddp = math::second_difference([](double f) { return value(f, 0.1, 100.); }, 100., 1e-4);
+				assert(math::equal_precision(ddp, _ddp, -3));
 
 				double v = vega(100., 0.1, 100.);
 				assert(math::equal_precision(v, 39.844, -3));
+				double v_ = math::symmetric_difference([](double s) { return value(100., s, 100.); }, .1, 1e-6);
+				assert(math::equal_precision(v, v_, -3));
 
 			}
 

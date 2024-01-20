@@ -137,7 +137,6 @@
   <ItemGroup>
     <ClInclude Include="ensure.h" />
     <ClInclude Include="fms_iterable.h" />
-    <ClInclude Include="tms_variate_normal.h" />
     <ClInclude Include="tmx_date_business_day.h" />
     <ClInclude Include="tmx_date_holiday.h" />
     <ClInclude Include="tmx_black.h" />
