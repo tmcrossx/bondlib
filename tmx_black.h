@@ -10,8 +10,8 @@
 namespace tmx::black {
 
 	// F <= k if and only if X <= (log(k/f) + κ(s))/s
-	template<class F, class S, class K, class V>
-	inline auto moneyness(F f, S s, K k, const V& v = variate::normal<F, S>{})
+	template<class F, class S, class K>
+	inline auto moneyness(F f, S s, K k, const variate::base<F, S>& v = variate::normal<F, S>{})
 	{
 		if (f <= 0 or k <= 0 or s <= 0) {
 			return math::NaN<F>;
@@ -22,8 +22,8 @@ namespace tmx::black {
 
 	namespace put {
 
-		template<class F, class S, class K, class V>
-		inline auto value(F f, S s, K k, const V& v = variate::normal<F, S>{})
+		template<class F, class S, class K>
+		inline auto value(F f, S s, K k, const variate::base<F, S>& v = variate::normal<F, S>{})
 		{
 			if (f == 0 or k == 0) {
 				return F(0);
@@ -37,8 +37,8 @@ namespace tmx::black {
 			return k * v.cdf(x) - f * v.cdf(x, s);
 		}
 
-		template<class F, class S, class K, class V>
-		inline auto delta(F f, S s, K k, const V& v = variate::normal<F, S>{})
+		template<class F, class S, class K>
+		inline auto delta(F f, S s, K k, const variate::base<F, S>& v = variate::normal<F, S>{})
 		{
 			if (f == 0 or k == 0) {
 				return F(0);
@@ -52,8 +52,8 @@ namespace tmx::black {
 			return -v.cdf(x, s);
 		}
 
-		template<class F, class S, class K, class V>
-		inline auto gamma(F f, S s, K k, const V& v = variate::normal<F, S>{})
+		template<class F, class S, class K>
+		inline auto gamma(F f, S s, K k, const variate::base<F, S>& v = variate::normal<F, S>{})
 		{
 			if (f == 0 or k == 0) {
 				return F(0);
@@ -66,8 +66,8 @@ namespace tmx::black {
 
 			return v.pdf(x, s) / (f * s);
 		}
-		template<class F, class S, class K, class V>
-		inline auto vega(F f, S s, K k, const V& v = variate::normal<F, S>{})
+		template<class F, class S, class K>
+		inline auto vega(F f, S s, K k, const variate::base<F, S>& v = variate::normal<F, S>{})
 		{
 			if (f == 0 or k == 0) {
 				return F(0);
@@ -125,26 +125,26 @@ namespace tmx::black {
 
 	namespace call {
 
-		template<class F, class S, class K, class V>
-		inline auto value(F f, S s, K k, const V& v = variate::normal{})
+		template<class F, class S, class K>
+		inline auto value(F f, S s, K k, const variate::base<F, S>& v = variate::normal{})
 		{
 			return f - k + put::value(f, s, k, v);
 		}
 
-		template<class F, class S, class K, class V>
-		inline auto delta(F f, S s, K k, const V& v = variate::normal{})
+		template<class F, class S, class K>
+		inline auto delta(F f, S s, K k, const variate::base<F, S>& v = variate::normal{})
 		{
 			return -put::delta(f, s, k, v);
 		}
 
-		template<class F, class S, class K, class V>
-		inline auto gamma(F f, S s, K k, const V& v = variate::normal{})
+		template<class F, class S, class K>
+		inline auto gamma(F f, S s, K k, const variate::base<F, S>& v = variate::normal{})
 		{
 			return put::gamma(f, s, k, v);
 		}
 
-		template<class F, class S, class K, class V>
-		inline auto vega(F f, S s, K k, const V& v = variate::normal{})
+		template<class F, class S, class K>
+		inline auto vega(F f, S s, K k, const variate::base<F, S>& v = variate::normal{})
 		{
 			return put::vega(f, s, k, v);
 		}
