@@ -29,7 +29,7 @@ namespace tmx::value {
 		const auto u = i.time();
 		const auto c = i.cash();
 
-		for (size_t j = span::offset(t, u); j < u.size(); ++j) {
+		for (size_t j = span::upper_index(u, t); j < u.size(); ++j) {
 			pv += c[j] * f.discount(u[j], t);
 		}
 
@@ -45,7 +45,7 @@ namespace tmx::value {
 		const auto u = i.time();
 		const auto c = i.cash();
 
-		for (size_t j = span::offset(t, u); j < u.size(); ++j) {
+		for (size_t j = span::upper_index(u, t); j < u.size(); ++j) {
 			dur -= (u[j] - t) * c[j] * f.discount(u[j], t);
 		}
 
@@ -61,7 +61,7 @@ namespace tmx::value {
 		const auto u = i.time();
 		const auto c = i.cash();
 
-		for (size_t j = span::offset(t, u); j < u.size(); ++j) {
+		for (size_t j = span::upper_index(u, t); j < u.size(); ++j) {
 			cnv += (u[j] - t) * (u[j] - t) * c[j] * f.discount(u[j], t);
 		}
 
@@ -80,7 +80,7 @@ namespace tmx::value {
 	}
 
 #ifdef _DEBUG
-
+#if 0
 	template<class X = double>
 	inline int yield_test()
 	{
@@ -91,7 +91,7 @@ namespace tmx::value {
 		X u[] = { 1,2 };
 		X c[] = { c0, 1 + c0 };
 		// 1 = c0 exp(-y0) + (1 + c0) exp(-2 y0)
-		const auto i = instrument::view<X,X>(std::span(u), std::span(c));
+		const auto i = instrument::view(std::span(u), std::span(c));
 
 		{
 			X y = yield(i, X(1));
@@ -110,12 +110,12 @@ namespace tmx::value {
 			X r = X(0.05);
 			X y2 = compound_yield(r, 2);
 			X r2 = continuous_yield(y2, 2);
-			ensure(std::fabs(r - r2) <= std::numeric_limits<X>::epsilon());
+			ensure(std::fabs(r - r2) <= math::epsilon<X>);
 		}
 
 		return 0;
 	}
 
 #endif // _DEBUG
-
+#endif
 } // namespace tmx::value

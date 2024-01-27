@@ -1,8 +1,5 @@
 // tmx_variate_normal.h - Standard normal random variate.
 #pragma once
-#ifdef _DEBUG
-#include <cassert>
-#endif // _DEBUG
 #include <cmath>
 #include <numbers>
 #include "tmx_variate.h"

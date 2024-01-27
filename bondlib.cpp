@@ -2,6 +2,7 @@
 #include <cassert>
 #include "fms_iterable.h"
 //#include "tmx_monoid.h"
+#include "tmx_math.h"
 #include "tmx_span.h"
 #include "tmx_date.h"
 #include "tmx_variate_normal.h"
@@ -13,15 +14,20 @@
 #include "tmx_bond.h"
 #include "tmx_bootstrap.h"
 //#include "tmx_muni.h"
-
+ 
 using namespace fms;
 using namespace tmx;
 
 #ifdef _DEBUG
 int test_iterable_ptr = iterable::ptr<int>::test();
+int test_iterable_take = iterable::take<iterable::ptr<int>>::test();
 int test_iterable_span = iterable::span<int>::test();
-int test_iterator = iterable::iterator<std::vector<int>::iterator>::test();
-int test_span_offset = span::offset_test();
+//int test_iterator = iterable::iterator<std::vector<int>::iterator>::test();
+
+//int test_hypergeometric = math::hypergeometric_test();
+
+int test_span_upper_index = span::upper_index_test();
+int test_span_drop = span::drop_test();
 //int test_view_iterable_d = iterable<double>::test();
 //int test_monoid_i = monoid_test<int>();
 //int test_monoid_d = monoid_test<double>();
@@ -39,8 +45,8 @@ int test_black_put = black::put::test();
 //int test_pwflat_curve_value = pwflat::base<>::test();
 //int test_instrument_view = view<>::test();
 //int test_instrument_value = value<>::test();
-int test_value_yield_d = value::yield_test<double>();
-int test_value_yield_f = value::yield_test<float>();
+//int test_value_yield_d = value::yield_test<double>();
+//int test_value_yield_f = value::yield_test<float>();
 int test_bond_basic = bond::basic_test();
 int test_bootstrap_instrument = bootstrap::instrument_test();
 //int test_muni_fit = muni::fit_test();

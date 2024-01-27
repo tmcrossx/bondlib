@@ -92,14 +92,14 @@ namespace tmx::curve {
 			return { t.back(), f.back() };
 		}
 
-		F _forward(T u, T t0) const override
+		F _forward(T u) const override
 		{
 			if (u < 0)
 				return math::NaN<F>;
 			if (size() == 0)
 				return extrapolate();
 
-			auto ti = std::lower_bound(t.begin(), t.end(), u + t0);
+			auto ti = std::lower_bound(t.begin(), t.end(), u);
 
 			return ti == t.end() ? _f : f[ti - t.begin()];
 		}
@@ -117,7 +117,7 @@ namespace tmx::curve {
 			F I = 0;
 			T t_ = t0;
 
-			size_t i = t.offset(t0);
+			size_t i = span::upper_index(t0, t);
 			for (; i < size() and t[i] <= u; ++i) {
 				I += f[i] * (t[i] - t_);
 				t_ = t[i];
@@ -140,7 +140,7 @@ namespace tmx::curve {
 		// r_t(u) = f(u) if u <= t[offset]
 		constexpr F _yield(T u, T t0 = 0) const override
 		{
-			size_t i = t.offset(t0);
+			size_t i = span::upper_index(t0, t);
 
 			return u < t0 ? math::NaN<F>
 				: i == size() ? extrapolate()
@@ -216,8 +216,8 @@ namespace tmx::curve {
 		std::vector<F> f;
 		void sync()
 		{
-			view<T, F>::t = view<T>(t.begin(), t.end());
-			view<T, F>::f = view<F>(f.begin(), f.end());
+			view<T, F>::t = std::span<T>(t.begin(), t.end());
+			view<T, F>::f = std::span<F>(f.begin(), f.end());
 		}
 	public:
 		// constant curve

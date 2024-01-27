@@ -93,7 +93,7 @@ namespace tmx::ho_lee {
 	{
 		F mean = 0, var = 0;
 
-		auto j0 = view(c, c + m).offset(t);
+		auto j0 = view(c, c + m).upper_index(t);
 
 		auto Dt = f.discount(t);
 		for (auto j = j0; j < m; ++j) {
