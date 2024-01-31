@@ -70,15 +70,8 @@ namespace tmx::date {
                 X(2000,     1,    31,   2004,     3,    30,   4.1667 ) \
                 X(2000,     1,    31,   2004,     3,    31,   4.1667 ) \
 
-    // ??? where should this go
-    // fabs(a - b) <= eps
-    constexpr bool approx(double a, double b, double eps) {
-        return -eps <= a - b && a - b <= eps;
-    }
-
-
 #define DAY_COUNT_TEST(Y1, M1, D1, Y2, M2, D2, DC) \
-static_assert(approx(day_count_isma30360(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2)), DC, 1e-4));
+static_assert(math::equal_precision(day_count_isma30360(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2)), DC, -4));
     //TMX_DATE_DAY_COUNT(DAY_COUNT_TEST) 
 #undef DAY_COUNT_TEST
 #undef TMX_DATE_DAY_COUNT
@@ -134,7 +127,7 @@ static_assert(approx(day_count_isma30360(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2))
                 X(1999,     1,    29,   1999,     3,    29,   0.1667 ) \
                 X(1999,     1,    29,   1999,     3,    30,   0.1694 ) \
                 X(1999,     1,    29,   1999,     3,    31,   0.1722 ) \
-                X(1999,     1,    30,   1999,     1,    31,        0 ) \
+                X(1999,     1,    30,   1999,     1,    31,       0. ) \
                 X(1999,     1,    30,   1999,     2,    27,   0.0750 ) \
                 X(1999,     1,    30,   1999,     2,    28,   0.0778 ) \
                 X(1999,     1,    30,   1999,     3,    29,   0.1639 ) \
@@ -143,9 +136,9 @@ static_assert(approx(day_count_isma30360(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2))
                 X(1999,     1,    31,   1999,     3,    29,   0.1639 ) \
                 X(1999,     1,    31,   1999,     3,    30,   0.1667 ) \
                 X(1999,     1,    31,   1999,     3,    31,   0.1667 ) \
-                X(1999,     2,    27,   1999,     2,    27,        0 ) \
+                X(1999,     2,    27,   1999,     2,    27,       0. ) \
                 X(1999,     2,    27,   1999,     2,    28,   0.0028 ) \
-                X(1999,     2,    28,   1999,     2,    28,        0 ) \
+                X(1999,     2,    28,   1999,     2,    28,       0. ) \
                 X(2000,     1,    29,   2000,     1,    31,   0.0056) \
                 X(2000,     1,    29,   2000,     3,    29,   0.1667 ) \
                 X(2000,     1,    29,   2000,     3,    30,   0.1694 ) \
@@ -179,7 +172,7 @@ static_assert(approx(day_count_isma30360(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2))
 
 
 #define DAY_COUNT_TEST(Y1, M1, D1, Y2, M2, D2, DC) \
-static_assert(approx(day_count_isma30360eom(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2)), DC, 1e-4));
+static_assert(math::equal_precision(day_count_isma30360eom(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2)), DC, -4));
     TMX_DATE_DAY_COUNT(DAY_COUNT_TEST)
 #undef DAY_COUNT_TEST
 #undef TMX_DATE_DAY_COUNT
@@ -233,7 +226,7 @@ static_assert(approx(day_count_isma30360eom(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D
                 X(2003,    11,     1,   2004,     5,     1,   0.4977) \
 
 #define DAY_COUNT_TEST(Y1, M1, D1, Y2, M2, D2, DC) \
-static_assert(approx(day_count_isdaactualactual(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2)), DC, 1e-4));
+static_assert(math::equal_precision(day_count_isdaactualactual(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2)), DC, -4));
     TMX_DATE_DAY_COUNT(DAY_COUNT_TEST)
 #undef DAY_COUNT_TEST
 #undef TMX_DATE_DAY_COUNT
@@ -292,7 +285,7 @@ static_assert(approx(day_count_isdaactualactual(to_ymd(Y1, M1, D1), to_ymd(Y2, M
 
 
 #define DAY_COUNT_TEST(Y1, M1, D1, Y2, M2, D2, DC) \
-static_assert(approx(day_count_actual360(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2)), DC, 1e-4));
+static_assert(math::equal_precision(day_count_actual360(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2)), DC, -4));
     TMX_DATE_DAY_COUNT(DAY_COUNT_TEST)
 #undef DAY_COUNT_TEST
 #undef TMX_DATE_DAY_COUNT
@@ -337,7 +330,7 @@ static_assert(approx(day_count_actual360(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2))
 
 
 #define DAY_COUNT_TEST(Y1, M1, D1, Y2, M2, D2, DC) \
-static_assert(approx(day_count_actual365fixed(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2)), DC, 1e-4));
+static_assert(math::equal_precision(day_count_actual365fixed(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2)), DC, -4));
     TMX_DATE_DAY_COUNT(DAY_COUNT_TEST)
 #undef DAY_COUNT_TEST
 #undef TMX_DATE_DAY_COUNT
