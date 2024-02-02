@@ -26,8 +26,6 @@ int test_iterable_span = iterable::span<int>::test();
 
 //int test_hypergeometric = math::hypergeometric_test();
 
-int test_span_upper_index = span::upper_index_test();
-int test_span_drop = span::drop_test();
 //int test_view_iterable_d = iterable<double>::test();
 //int test_monoid_i = monoid_test<int>();
 //int test_monoid_d = monoid_test<double>();

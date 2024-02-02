@@ -3,29 +3,32 @@
 // https://github.com/bloomberg/bde/tree/main/groups/bbl/bbldc
 // See XXX.t.cpp for tests.
 #pragma once
+#include <functional>
+#ifdef _DEBUG
+#include "tmx_math.h"
+#endif // _DEBUG
 #include "tmx_date.h"
-
 
 namespace tmx::date {
 
-    using day_count_t = double(*)(const ymd&, const ymd&);
+	using day_count_t = double(*)(const ymd&, const ymd&);
 
-    // https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicisma30360.cpp
-    constexpr double day_count_isma30360(const ymd& ymd1, const ymd& ymd2)
-    {
-        auto [y1, m1, d1] = from_ymd(ymd1);
-        auto [y2, m2, d2] = from_ymd(ymd2);
+	// https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicisma30360.cpp
+	constexpr double day_count_isma30360(const ymd& ymd1, const ymd& ymd2)
+	{
+		auto [y1, m1, d1] = from_ymd(ymd1);
+		auto [y2, m2, d2] = from_ymd(ymd2);
 
-        if (d1 == 31) {
-            d1 = 30;
-        }
-        if (d2 == 31) {
-            d2 = 30;
-        }
+		if (d1 == 31) {
+			d1 = 30;
+		}
+		if (d2 == 31) {
+			d2 = 30;
+		}
 
-        return ((y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1)) / 360.0;
-    }
-    // test for day_count_isma30360()
+		return ((y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1)) / 360.0;
+	}
+	// test for day_count_isma30360()
 #ifdef _DEBUG
 
 // https://github.com/bloomberg/bde/blob/4da5189379a5fa371cb371ca9bcc6fa8b8670394/groups/bbl/bbldc/bbldc_basicisma30360.t.cpp#L178
@@ -72,7 +75,7 @@ namespace tmx::date {
 
 #define DAY_COUNT_TEST(Y1, M1, D1, Y2, M2, D2, DC) \
 static_assert(math::equal_precision(day_count_isma30360(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2)), DC, -4));
-    //TMX_DATE_DAY_COUNT(DAY_COUNT_TEST) 
+	//TMX_DATE_DAY_COUNT(DAY_COUNT_TEST) 
 #undef DAY_COUNT_TEST
 #undef TMX_DATE_DAY_COUNT
 
@@ -80,30 +83,30 @@ static_assert(math::equal_precision(day_count_isma30360(to_ymd(Y1, M1, D1), to_y
 
 
 
-    // https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicpsa30360eom.cpp
-    constexpr double day_count_isma30360eom(const ymd& ymd1, const ymd& ymd2)
-    {
-        auto [y1, m1, d1] = from_ymd(ymd1);
-        auto [y2, m2, d2] = from_ymd(ymd2);
+	// https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicpsa30360eom.cpp
+	constexpr double day_count_isma30360eom(const ymd& ymd1, const ymd& ymd2)
+	{
+		auto [y1, m1, d1] = from_ymd(ymd1);
+		auto [y2, m2, d2] = from_ymd(ymd2);
 
-        if (m1 == 2 && (d1 == 29 || (d1 == 28 && !ymd1.year().is_leap()))) {
-            d1 = 30;
-            if ((y1 == y2) && (m2 == 2) && (d2 == 29 || (d2 == 28 && !ymd1.year().is_leap()))) {
-                return 0 / 360.0;
-            }
-        }
-        else if (d1 == 31) {
-            d1 = 30;
-        }
-        if (d2 == 31 && d1 == 30) {
-            d2 = 30;
-        }
-        return ((y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1)) / 360.0;
-    }
+		if (m1 == 2 && (d1 == 29 || (d1 == 28 && !ymd1.year().is_leap()))) {
+			d1 = 30;
+			if ((y1 == y2) && (m2 == 2) && (d2 == 29 || (d2 == 28 && !ymd1.year().is_leap()))) {
+				return 0 / 360.0;
+			}
+		}
+		else if (d1 == 31) {
+			d1 = 30;
+		}
+		if (d2 == 31 && d1 == 30) {
+			d2 = 30;
+		}
+		return ((y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1)) / 360.0;
+	}
 
 
 #ifdef _DEBUG
-    // test for day_count_isma30360eom()
+	// test for day_count_isma30360eom()
 //https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicpsa30360eom.t.cpp#L179
 #define TMX_DATE_DAY_COUNT(X) \
                 X(1993,     2,     1,   1993,     3,     1,   0.0833 ) \
@@ -173,35 +176,35 @@ static_assert(math::equal_precision(day_count_isma30360(to_ymd(Y1, M1, D1), to_y
 
 #define DAY_COUNT_TEST(Y1, M1, D1, Y2, M2, D2, DC) \
 static_assert(math::equal_precision(day_count_isma30360eom(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2)), DC, -4));
-    TMX_DATE_DAY_COUNT(DAY_COUNT_TEST)
+	TMX_DATE_DAY_COUNT(DAY_COUNT_TEST)
 #undef DAY_COUNT_TEST
 #undef TMX_DATE_DAY_COUNT
 #endif // _DEBUG
 
 
-        // https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicisdaactualactual.cpp
-        constexpr double day_count_isdaactualactual(const ymd& ymd1, const ymd& ymd2)
-    {
-        auto [y1, m1, d1] = from_ymd(ymd1);
-        auto [y2, m2, d2] = from_ymd(ymd2);
+		// https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicisdaactualactual.cpp
+		constexpr double day_count_isdaactualactual(const ymd& ymd1, const ymd& ymd2)
+	{
+		auto [y1, m1, d1] = from_ymd(ymd1);
+		auto [y2, m2, d2] = from_ymd(ymd2);
 
-        const int daysInBeginYear = 365 + ymd1.year().is_leap();
-        const int daysInEndYear = 365 + ymd2.year().is_leap();
-        const int yDiff = y2 - y1 - 1;
-        double beginYearDayDiff = diffdays(to_ymd(y1 + 1, 1, 1), ymd1);
-        double endYearDayDiff = diffdays(ymd2, to_ymd(y2, 1, 1));
+		const int daysInBeginYear = 365 + ymd1.year().is_leap();
+		const int daysInEndYear = 365 + ymd2.year().is_leap();
+		const int yDiff = y2 - y1 - 1;
+		double beginYearDayDiff = diffdays(to_ymd(y1 + 1, 1, 1), ymd1);
+		double endYearDayDiff = diffdays(ymd2, to_ymd(y2, 1, 1));
 
-        double numerator = yDiff * daysInBeginYear * daysInEndYear
-            + beginYearDayDiff * daysInEndYear
-            + endYearDayDiff * daysInBeginYear;
-        int denominator = daysInBeginYear * daysInEndYear;
+		double numerator = yDiff * daysInBeginYear * daysInEndYear
+			+ beginYearDayDiff * daysInEndYear
+			+ endYearDayDiff * daysInBeginYear;
+		int denominator = daysInBeginYear * daysInEndYear;
 
-        return numerator / denominator;
-    }
+		return numerator / denominator;
+	}
 
 
 #ifdef _DEBUG
-    // test for day_count_isdaactualactual()
+	// test for day_count_isdaactualactual()
 //https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicisdaactualactual.t.cpp#L186
 #define TMX_DATE_DAY_COUNT(X) \
                 X(1992,     2,     1,   1992,     3,     1,   0.0792) \
@@ -227,22 +230,19 @@ static_assert(math::equal_precision(day_count_isma30360eom(to_ymd(Y1, M1, D1), t
 
 #define DAY_COUNT_TEST(Y1, M1, D1, Y2, M2, D2, DC) \
 static_assert(math::equal_precision(day_count_isdaactualactual(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2)), DC, -4));
-    TMX_DATE_DAY_COUNT(DAY_COUNT_TEST)
+	TMX_DATE_DAY_COUNT(DAY_COUNT_TEST)
 #undef DAY_COUNT_TEST
 #undef TMX_DATE_DAY_COUNT
 #endif // _DEBUG
 
-
-
-
-        // https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicactual360.cpp
-        constexpr double day_count_actual360(const ymd& ymd1, const ymd& ymd2)
-    {
-        return diffdays(ymd2, ymd1) / 360.0;
-    }
+	// https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicactual360.cpp
+	constexpr double day_count_actual360(const ymd& ymd1, const ymd& ymd2)
+	{
+		return diffdays(ymd2, ymd1) / 360.0;
+	}
 
 #ifdef _DEBUG
-    // test for day_count_actual360()
+	// test for day_count_actual360()
 //https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicactual360.t.cpp#L194
 #define TMX_DATE_DAY_COUNT(X) \
                 X(1992,     2,     1,   1992,     3,     1,   0.0806) \
@@ -286,7 +286,7 @@ static_assert(math::equal_precision(day_count_isdaactualactual(to_ymd(Y1, M1, D1
 
 #define DAY_COUNT_TEST(Y1, M1, D1, Y2, M2, D2, DC) \
 static_assert(math::equal_precision(day_count_actual360(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2)), DC, -4));
-    TMX_DATE_DAY_COUNT(DAY_COUNT_TEST)
+	TMX_DATE_DAY_COUNT(DAY_COUNT_TEST)
 #undef DAY_COUNT_TEST
 #undef TMX_DATE_DAY_COUNT
 #endif // _DEBUG     
@@ -294,15 +294,15 @@ static_assert(math::equal_precision(day_count_actual360(to_ymd(Y1, M1, D1), to_y
 
 
 
-        // https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicactual365fixed.cpp
-        constexpr double day_count_actual365fixed(const ymd& ymd1, const ymd& ymd2)
-    {
-        return diffdays(ymd2, ymd1) / 365.0;
-    }
+	// https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicactual365fixed.cpp
+	constexpr double day_count_actual365fixed(const ymd& ymd1, const ymd& ymd2)
+	{
+		return diffdays(ymd2, ymd1) / 365.0;
+	}
 
 #ifdef _DEBUG
-    // test for day_count_actual365fixed()
-    //https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicactual365fixed.t.cpp#L195
+	// test for day_count_actual365fixed()
+	//https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicactual365fixed.t.cpp#L195
 #define TMX_DATE_DAY_COUNT(X) \
                 X(1992,     2,     1,   1992,     3,     1,   0.0795) \
                 X(1992,     2,     1,   1993,     3,     1,   1.0795) \
@@ -331,7 +331,7 @@ static_assert(math::equal_precision(day_count_actual360(to_ymd(Y1, M1, D1), to_y
 
 #define DAY_COUNT_TEST(Y1, M1, D1, Y2, M2, D2, DC) \
 static_assert(math::equal_precision(day_count_actual365fixed(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2)), DC, -4));
-    TMX_DATE_DAY_COUNT(DAY_COUNT_TEST)
+	TMX_DATE_DAY_COUNT(DAY_COUNT_TEST)
 #undef DAY_COUNT_TEST
 #undef TMX_DATE_DAY_COUNT
 #endif // _DEBUG     
@@ -339,28 +339,28 @@ static_assert(math::equal_precision(day_count_actual365fixed(to_ymd(Y1, M1, D1),
 
 
 #ifdef _DEBUG
-        inline int day_count_test()
-    {
-        using namespace std::chrono_literals;
+	inline int day_count_test()
+	{
+		using namespace std::chrono_literals;
 
-        {   // beginDate < endDate
-            ymd d0 = to_ymd(2004, 9, 30);
-            ymd d1 = 2004y / 12 / 31;
-            const double yearsDiff = day_count_isma30360(d0, d1);
-            assert(0.25 == yearsDiff);
-        }
+		{   // beginDate < endDate
+			ymd d0 = to_ymd(2004, 9, 30);
+			ymd d1 = 2004y / 12 / 31;
+			const double yearsDiff = day_count_isma30360(d0, d1);
+			assert(0.25 == yearsDiff);
+		}
 
-        {   // yearsDiff is not finite decimals
-            ymd d0 = to_ymd(2000, 3, 31);
-            ymd d1 = 2004y / 1 / 31;
-            const double yearsDiff = day_count_isma30360(d0, d1);
-            assert(3.8333 <= yearsDiff);
-            assert(3.8334 >= yearsDiff);
-        }
+		{   // yearsDiff is not finite decimals
+			ymd d0 = to_ymd(2000, 3, 31);
+			ymd d1 = 2004y / 1 / 31;
+			const double yearsDiff = day_count_isma30360(d0, d1);
+			assert(3.8333 <= yearsDiff);
+			assert(3.8334 >= yearsDiff);
+		}
 
 
-        return 0;
-    }
+		return 0;
+	}
 #endif // _DEBUG
 
 } // namespace tmx::date

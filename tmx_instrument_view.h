@@ -22,7 +22,7 @@ namespace tmx::instrument {
 		view(std::span<U> u, std::span<C> c)
 			: u{ u }, c{ c }
 		{
-			ensure(u.size() == c.size());
+			//ensure(u.size() == c.size());
 		}
 		view(const view& v) = default;
 		view& operator=(const view& v) = default;

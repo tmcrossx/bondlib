@@ -12,48 +12,39 @@ namespace tmx {
 
 		// Least index with t[i] > u.
 		template<class T, size_t N>
-		constexpr ptrdiff_t upper_index(std::span<T, N> t, T u)
+		constexpr ptrdiff_t upper_index(const std::span<T, N> t, std::remove_const_t<T> u)
 		{
 			auto t0 = t.data();
 
 			return std::upper_bound(t0, t0 + t.size(), u) - t.data();
 		}
 #ifdef _DEBUG
-		static int upper_index_test()
-		{
-			static double t[] = { 1,2,3 };
-			constexpr std::span<double, 3> s(t);
-			assert(upper_index(s, 0.) == 0);
-			assert(upper_index(s, .5) == 0);
-			assert(upper_index(s, 1.) == 1);
-			assert(upper_index(s, 1.5) == 1);
-			assert(upper_index(s, 2.) == 2);
-			assert(upper_index(s, 3.) == 3);
-			assert(upper_index(s, 4.) == 3);
-
-			return 0;
+		namespace {
+			constexpr double t[] = { 1,2,3 };
+			constexpr std::span<const double, 3> s(t);
 		}
+		static_assert(s[0] == 1);
+		static_assert(upper_index(s, 0.) == 0);
+		static_assert(upper_index(s, 0.) == 0);
+		static_assert(upper_index(s, .5) == 0);
+		static_assert(upper_index(s, 1.) == 1);
+		static_assert(upper_index(s, 1.5) == 1);
+		static_assert(upper_index(s, 2.) == 2);
+		static_assert(upper_index(s, 3.) == 3);
+		static_assert(upper_index(s, 4.) == 3);
+		
 #endif // _DEBUG
 
 
 		// t[i - 1] <= u < t[i] < ... < t[n-1]
 		template<class T, size_t N = std::dynamic_extent>
-		constexpr auto drop(std::span<T, N> t, T u)
+		constexpr auto drop(std::span<T, N> t, std::remove_const_t<T> u)
 		{
 			return t.subspan(upper_index(t, u));
 		}
-		// TODO: come up with static_assert that works
 #ifdef _DEBUG
-		static int drop_test()
-		{
-			static double t[3] = { 1,2,3 };
-			constexpr std::span s(t);
-			/*constexpr*/ auto a = drop(s, 1.5);
-			assert(a.size() == 2);
-			assert(a[0] == 2);
-
-			return 0;
-		}
+		static_assert(drop(s, 1.5).size() == 2);
+		static_assert(drop(s, 1.5)[0] == 2);
 #endif // _DEBUG
 
 		/*
