@@ -152,12 +152,12 @@
     <ClInclude Include="tmx_instrument_value.h" />
     <ClInclude Include="tmx_instrument_view.h" />
     <ClInclude Include="tmx_math.h" />
+    <ClInclude Include="tmx_math_hypergeometric.h" />
     <ClInclude Include="tmx_math_limits.h" />
     <ClInclude Include="tmx_muni.h" />
     <ClInclude Include="tmx_date.h" />
-    <ClInclude Include="tmx_curve_pwflat.h" />
+    <ClInclude Include="tmx_pwflat.h" />
     <ClInclude Include="tmx_root1d.h" />
-    <ClInclude Include="tmx_span.h" />
     <ClInclude Include="tmx_value.h" />
     <ClInclude Include="tmx_variate.h" />
     <ClInclude Include="tmx_variate_normal.h" />

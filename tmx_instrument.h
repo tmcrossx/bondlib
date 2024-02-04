@@ -2,7 +2,8 @@
 #pragma once
 #include <algorithm>
 #include <vector>
-#include "tmx_span.h"
+#include <span>
+#include "fms_iterable.h"
 
 namespace tmx::instrument {
 
@@ -11,13 +12,6 @@ namespace tmx::instrument {
 	struct base {
 		virtual ~base()
 		{ }
-
-		bool operator==(const base& i) const
-		{
-			return size() == i.size()
-				&& std::equal(time().begin(), time().end(), i.time().begin())
-				&& std::equal(cash().begin(), cash().end(), i.cash().begin());
-		}
 
 		size_t size() const
 		{
@@ -34,7 +28,53 @@ namespace tmx::instrument {
 		// last cash flow
 		std::pair<U, C> back() const
 		{
-			return { _time().back(), _cash().back()};
+			return { _time().back(), _cash().back() };
+		}
+
+		template<class U = double, class C = double>
+		class iterable {
+			const base<U, C>& inst;
+			size_t i;
+		public:
+			using iterator_category = std::forward_iterator_tag;
+			using value_type = std::pair<U, C>;
+
+			iterable(const base& inst, size_t i = 0)
+				: inst{ inst }, i{ i }
+			{ }
+
+			explicit operator bool() const
+			{
+				return i < inst.size();
+			}	
+
+			value_type operator*() const
+			{
+				return { inst.time()[i], inst.cash()[i] };
+			}
+
+			iterable& operator++()
+			{
+				if (operator bool()) {
+					++i;
+				}
+
+				return *this;
+			}
+
+			iterable& operator++(int)
+			{
+				auto tmp = *this;
+				
+				operator++();
+
+				return tmp;
+			}
+		};
+
+		iterable iterate() const
+		{
+			return iterable(*this);
 		}
 	private:
 		virtual const std::span<U> _time() const = 0;
