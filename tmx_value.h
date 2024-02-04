@@ -22,15 +22,14 @@ namespace tmx::value {
 
 	// Present value at t of future discounted cash flows.
 	template<class U, class C, class T, class F>
-	constexpr C present(const instrument::base<U, C>& i, const curve::base<T, F>& f, T t = 0)
+	constexpr C present(instrument::base<U, C>& i, const curve::base<T, F>& f, T t = 0)
 	{
 		C pv = 0;
 
-		const auto u = i.time();
-		const auto c = i.cash();
-
-		for (size_t j = span::upper_index(u, t); j < u.size(); ++j) {
-			pv += c[j] * f.discount(u[j], t);
+		while (i) {
+			const auto [u, c] = *i;
+			pv += c * f.discount(u, t);
+			++i;
 		}
 
 		return pv;
@@ -38,15 +37,14 @@ namespace tmx::value {
 
 	// Derivative of present value with respect to a parallel shift.
 	template<class U, class C, class T, class F>
-	constexpr C duration(const instrument::base<U, C>& i, const curve::base<T, F>& f, T t = 0)
+	constexpr C duration(instrument::base<U, C>& i, const curve::base<T, F>& f, T t = 0)
 	{
 		C dur = 0;
 
-		const auto u = i.time();
-		const auto c = i.cash();
-
-		for (size_t j = span::upper_index(u, t); j < u.size(); ++j) {
-			dur -= (u[j] - t) * c[j] * f.discount(u[j], t);
+		while (i) {
+			const auto [u, c] = *i;
+			dur -= (u - t) * c * f.discount(u, t);
+			++i;
 		}
 
 		return dur;
@@ -54,15 +52,14 @@ namespace tmx::value {
 
 	// Second derivative of present value with respect to a parallel shift.
 	template<class U, class C, class T, class F>
-	constexpr C convexity(const instrument::base<U, C>& i, const curve::base<T, F>& f, T t = 0)
+	constexpr C convexity(instrument::base<U, C>& i, const curve::base<T, F>& f, T t = 0)
 	{
 		C cnv = 0;
 
-		const auto u = i.time();
-		const auto c = i.cash();
-
-		for (size_t j = span::upper_index(u, t); j < u.size(); ++j) {
-			cnv += (u[j] - t) * (u[j] - t) * c[j] * f.discount(u[j], t);
+		while (i) {
+			const auto [u, c] = *i;
+			cnv += (u - t) * (u - t) * c * f.discount(u, t);
+			++i;
 		}
 
 		return cnv;
@@ -70,11 +67,11 @@ namespace tmx::value {
 
 	// Constant forward rate matching price p at t.
 	template<class U, class C>
-	inline C yield(const instrument::base<U, C>& i, const C p = 0, U t = 0,
+	inline C yield(instrument::base<U, C>& i, const C p = 0, U t = 0,
 		C y = 0.01, C tol = math::sqrt_epsilon<C>, int iter = 100)
 	{
-		const auto pv = [&](C y_) { return present(i, curve::constant<U, C>(y_), t) - p; };
-		const auto dur = [&](C y_) { return duration(i, curve::constant<U, C>(y_), t); };
+		const auto pv = [=](C y_) { return present(i, curve::constant<U, C>(y_), t) - p; };
+		const auto dur = [=](C y_) { return duration(i, curve::constant<U, C>(y_), t); };
 
 		return root1d::newton(y, tol, iter).solve(pv, dur);
 	}

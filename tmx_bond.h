@@ -4,15 +4,15 @@
 #include <vector>
 #include "ensure.h"
 #include "tmx_date_day_count.h"
-#include "tmx_instrument_value.h"
+#include "tmx_instrument.h"
 #include "tmx_value.h"
 
 namespace tmx::bond {
 
 	// Basic bond indicative data.
 	template<class C = double>
-	struct basic {
-		unsigned maturity;
+	struct basic : public instrument::base<double, C> {
+		double maturity; // in years
 		C coupon;
 		date::frequency frequency = date::frequency::semiannually;
 		date::day_count_t day_count = date::day_count_isma30360;
@@ -21,28 +21,49 @@ namespace tmx::bond {
 
 	// Return instrument cash flows for unit notional with time based on issue date.
 	template<class C = double>
-	constexpr instrument::value<double, C> instrument(const basic<C>& bond, const date::ymd& dated, date::ymd issue = date::ymd{})
-	{
-		instrument::value<double, C> i(bond.maturity * static_cast<unsigned>(bond.frequency));
+	class basic_instrument : public instrument::base<double, C> {
+		const basic<C>& bond;
+		date::ymd dated, issue;
+		date::ymd maturity;
+		std::chrono::months period;
+		date::ymd d0, d1; // current period
+	public:
+		using iterator_category = std::forward_iterator_tag;
+		using value_type = std::pair<double, C>;
 
-		if (!issue.ok()) {
-			issue = dated;
+		basic_instrument(const basic<C>& bond, const date::ymd& dated, date::ymd issue = date::ymd{})
+			: bond(bond), dated(dated), issue(issue.ok() ? issue : dated), maturity(date::addyears(issue, bond.maturity)), period(date::period(bond.frequency))
+		{
+			if (!issue.ok()) {
+				issue = dated;
+			}
+			// Work back from maturity.
+			d0 = maturity;
+			while (d0 >= dated) { // TODO: d0 -= tenor*frequency
+				d1 = d0;
+				d0 -= period;
+			}
 		}
-
-		date::ymd maturity = dated + std::chrono::years(bond.maturity);
-		std::chrono::months period = date::period(bond.frequency);
-		date::ymd d1 = maturity;
-		date::ymd d0 = maturity - period;
-		// increment backward from maturity to dated
-		while (d0 >= dated) {
-			i.push_front(date::diffyears(d1, issue), bond.coupon * bond.day_count(d0, d1));
-			d1 = d0;
-			d0 -= period;
+		bool _op_bool() const override
+		{
+			return d1 <= maturity;
 		}
-		i.push_back(i.back().first, bond.redemption);
+		value_type _op_star() const override
+		{
+			C c = bond.coupon * bond.day_count(d0, d1);
+			if (d1 == maturity) {
+				c += bond.redemption;
+			}
+			return { date::diffyears(issue, d1), c };
+		}
+		basic_instrument& _op_incr() override
+		{
+			d0 = d1;
+			d1 += period;
 
-		return i;
-	}
+			return *this;
+		}
+	};
 	/*
 	template<class C>
 	constexpr auto accrued(const basic<C>& bond, const date::ymd& dated, const date::ymd& valuation)
@@ -57,7 +78,7 @@ namespace tmx::bond {
 	}
 	//!!! add tests
 	*/
-
+#if 0
 #ifdef _DEBUG
 
 	inline int basic_test()
@@ -92,8 +113,8 @@ namespace tmx::bond {
 	}
 
 #endif // _DEBUG
-
-}
+#endif // 0
+} // namespace tmx::bond
 
 // class callable : public basic { ... };
 

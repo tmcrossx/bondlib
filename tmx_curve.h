@@ -1,89 +1,134 @@
 // tmx_curve.h - Interest rate curve interface.
 #pragma once
+#include <cmath>
 #include <utility>
 #include <vector>
 #include "tmx_pwflat.h"
 
 namespace tmx::curve {
 
-	// NVI base class for piecewise flat curves.
 	template<class T = double, class F = double>
-	class pwflat {
-		std::vector<T> t;
-		std::vector<F> f;
-		F _f; // extrapolation value
-	public:
-		// constant curve
-		constexpr pwflat(F _f = math::NaN<F>)
-			: _f(_f)
-		{ }
-		pwflat(size_t n, const T* t_, const F* f_, F _f = math::NaN<F>)
-			: t(t_, t_ + n), f(f_, f_ + n), _f(_f)
-		{ }
-		pwflat& operator=(const pwflat&) = default;
-		pwflat(pwflat&&) = default;
-		pwflat& operator=(pwflat&&) = default;
-		~pwflat() = default;
+	struct base {
+		virtual ~base() {}
 
-		size_t size() const
+		// Forward value at time u.
+		F value(T u) const
 		{
-			return t.size();
+			return _value(u);
 		}
-		std::span<T> time() const
+		// Integral from t to u of forward.
+		F integral(T u, T t = 0) const
 		{
-			return std::span(t.begin(), t.end());
+			return _integral(u, t);
 		}
-		std::span<F> rate() const
+		// Extend curve by _f.
+		base& extrapolate(F _f)
 		{
-			return std::span(f.begin(), f.end());
+			return _extrapolate(_f);
 		}
-		F extrapolate() const
-		{
-			return _f;
-		}
-
-		// Last point on the curve.
+		// Return last point on the curve.
 		std::pair<T, F> back() const
 		{
-			return { t.back(), f.back() };
+			return _back();
 		}
 
-		// parallel shift by s
-		pwflat& shift(F s)
+		// Forward at u as seen from time t.
+		F forward(T u, T t = 0) const
 		{
-			std::for_each(f.begin(), f.end(), [s](F& x) { x += s; });
+			return forward(u + t);
+		}
+		// Discount at u as seen from time t.
+		F discount(T u, T t = 0) const
+		{
+			return std::exp(-integral(u,t));
+		}
+		// Spot r(u,t) satisfies D(u, t) = exp(-r(u, t)(u - t)).
+		F spot(T u, T t) const
+		{
+			// TODO: u ~= t???
+			return -std::log(discount(u, t)) / (u - t);
+		}
+
+	private:
+		virtual F _value(T u) const = 0;
+		virtual F _integral(T u, T t) const = 0;
+		virtual base& _extrapolate(F _f) = 0;
+		virtual std::pair<T, F> _back() const = 0;
+	};
+
+	// Constant curve.
+	template<class T = double, class F = double>
+	class constant : public base<T, F> {
+		F f;
+	public:
+		constant(F f = math::NaN<F>)
+			: f(f)
+		{ }
+		F _value([[maybe_unused]]T u) const override
+		{
+			return f;
+		}
+		F _integral(T u, T t) const override
+		{
+			return f * (u - t);
+		}
+		constant& _extrapolate(F _f) override
+		{
+			f = _f;
 
 			return *this;
 		}
-
-		// set value to used for bootstrap.
-		pwflat& extrapolate(F f_)
+		std::pair<T, F> _back() const override
 		{
-			_f = f_;
-
-			return *this;
-		}
-
-		F forward(T u) const
-		{
-			return pwflat::value(u, t.size(), t..data(), f.data(), _f);
-		}
-		F operator()(T u) const
-		{
-			return forward(u);
-		}
-		F integral(T u) const
-		{
-			return pwflat::integral(u, t..size(), t..data(), f.data(), _f);
-		}
-		F discount(T u) const
-		{
-			return pwflat::discount(u, t..size(), t..data(), f.data(), _f);
-		}
-		F spot(T u) const
-		{
-			return pwflat::spot(u, t..size(), t..data(), f.data(), _f);
+			return { math::infinity<T>, f };
 		}
 	};
 
+	// Add two curves.
+	template<class T = double, class F = double>
+	class plus : public base<T,F> {
+		const base<T, F>& f;
+		const base<T, F>& g;
+	public:
+		plus(const base<T, F>& f, const base<T, F>& g)
+			: f(f), g(g)
+		{ }
+		F _forward(T u) const override
+		{
+			return f.value(u) + g.value(u);
+		}
+		F _integral(T u) const override
+		{
+			return f.integral(u) + g.integral(u);
+		}
+		plus& _extrapolate(F _f) override
+		{
+			f.extrapolate(_f);
+			g.extrapolate(_f);
+
+			return *this;
+		}	
+		// Smallest last point on both curves.
+		std::pair<T, F> _back() const override
+		{
+			const auto fb = f.back();
+			const auto gb = g.back();
+			T ub = std::min(fb.first, gb.first);
+
+			return { ub, _forward(ub) };
+		}
+	};
+}
+
+// Add two curves.
+template<class T, class F>
+inline tmx::curve::plus<T, F> operator+(const tmx::curve::base<T, F>& f, const tmx::curve::base<T, F>& g)
+{
+	return tmx::curve::plus<T, F>(f, g);
+}
+// Add a constant spread.
+template<class T, class F>
+inline tmx::curve::plus<T, F> operator+(const tmx::curve::base<T, F>& f, F s)
+{
+	return tmx::curve::plus<T, F>(f, tmx::curve::constant<T, F>(s));
 }

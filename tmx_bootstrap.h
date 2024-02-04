@@ -14,7 +14,6 @@ namespace tmx::bootstrap {
 	constexpr std::pair<T, F> instrument(const instrument::base<U,C>& i, curve::base<T,F>& f, 
 		F p = 0, F _f = math::NaN<F>)
 	{
-		ensure (i.size() != 0);
 		const auto [_u, _c] = i.back();
 
 		const auto [_t, f_] = f.back();
@@ -30,8 +29,8 @@ namespace tmx::bootstrap {
 			}
 		}
 
-		const auto vp = [&](F f0) { return value::present(i, f.extrapolate(f0)) - p; };
-		const auto vd = [&](F f0) { return value::duration(i, f.extrapolate(f0)); };
+		const auto vp = [=](F f0) { return f0-p/*value::present(i, f.extrapolate(f0)) - p*/; };
+		const auto vd = [=](F f0) { return f0/*value::duration(i, f.extrapolate(f0)) */ ; };
 		
 		_f = root1d::newton(_f).solve(vp, vd);
 

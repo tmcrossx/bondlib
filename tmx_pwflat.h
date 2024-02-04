@@ -59,7 +59,7 @@ namespace tmx {
 		}
 
 		// TODO: int_u0^u f(t) dt
-		// int_0^u f(t) dt
+		// Integral from 0 to u of f.
 		template<class T, class F>
 		constexpr F integral(T u, size_t n, const T* t, const F* f, F _f = math::NaN<F>)
 		{

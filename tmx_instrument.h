@@ -10,75 +10,44 @@ namespace tmx::instrument {
 	// NVI base class for instruments
 	template<class U = double, class C = double>
 	struct base {
+		using iterator_category = std::forward_iterator_tag;
+		using value_type = std::pair<U, C>;
+
 		virtual ~base()
 		{ }
 
-		size_t size() const
-		{
-			return _time().size();
-		}
-		const std::span<U> time() const
-		{
-			return _time();
-		}
-		const std::span<C> cash() const
-		{
-			return _cash();
-		}
 		// last cash flow
 		std::pair<U, C> back() const
 		{
-			return { _time().back(), _cash().back() };
+			return _back();
 		}
 
-		template<class U = double, class C = double>
-		class iterable {
-			const base<U, C>& inst;
-			size_t i;
-		public:
-			using iterator_category = std::forward_iterator_tag;
-			using value_type = std::pair<U, C>;
-
-			iterable(const base& inst, size_t i = 0)
-				: inst{ inst }, i{ i }
-			{ }
-
-			explicit operator bool() const
-			{
-				return i < inst.size();
-			}	
-
-			value_type operator*() const
-			{
-				return { inst.time()[i], inst.cash()[i] };
-			}
-
-			iterable& operator++()
-			{
-				if (operator bool()) {
-					++i;
-				}
-
-				return *this;
-			}
-
-			iterable& operator++(int)
-			{
-				auto tmp = *this;
-				
-				operator++();
-
-				return tmp;
-			}
-		};
-
-		iterable iterate() const
+		explicit operator bool() const
 		{
-			return iterable(*this);
+			return _op_bool();
 		}
+		value_type operator*() const
+		{
+			return _op_star();
+		}
+		base& operator++()
+		{
+			return _op_incr();
+		}
+		base operator++(int)
+		{
+			base b = *this;
+
+			++*this;
+
+			return b;
+		}
+
 	private:
-		virtual const std::span<U> _time() const = 0;
-		virtual const std::span<C> _cash() const = 0;
+		virtual std::pair<U, C> _back() const = 0;
+		virtual bool _op_bool() const = 0;
+		virtual value_type _op_star() const = 0;
+		virtual base& _op_incr() = 0;
 	};
 
 	// single cash flow instrument
@@ -86,17 +55,32 @@ namespace tmx::instrument {
 	class zero_coupon_bond : public base<U, C> {
 		U u;
 		C c;
+		bool done = false;
 	public:
+		using iterator_category = std::forward_iterator_tag;
+		using value_type = std::pair<U, C>;
+
 		zero_coupon_bond(U u = 0, C c = 0)
 			: u{ u }, c{ c }
 		{ }
-		const std::span<U> _time() const override
+
+		std::pair<U, C> _back() const override
 		{
-			return std::span(const_cast<U*>(&u), 1);
+			return { u, c };
 		}
-		const std::span<C> _cash() const override
+		bool _op_bool() const override
 		{
-			return std::span(const_cast<C*>(&c), 1);
+			return !done;
+		}
+		value_type _op_star() const override
+		{
+			return { u, c };
+		}
+		zero_coupon_bond& _op_incr() override
+		{
+			done = true;
+
+			return *this;
 		}
 	};
 }
