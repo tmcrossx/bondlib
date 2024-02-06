@@ -141,9 +141,9 @@ inline tmx::curve::plus<T, F> operator+(const tmx::curve::base<T, F>& f, const t
 	return tmx::curve::plus<T, F>(f, g);
 }
 // Add a constant spread.
-// TODO: (Tianxin) put in non-contexpr test using assert.
 template<class T, class F>
 inline tmx::curve::plus<T, F> operator+(const tmx::curve::base<T, F>& f, F s)
 {
+	// TODO: (Tianxin) put in non-contexpr test using assert.
 	return tmx::curve::plus<T, F>(f, tmx::curve::constant<T, F>(s));
 }
