@@ -19,6 +19,7 @@ namespace tmx::curve {
 		pwflat(size_t n, const T* t_, const F* f_, F _f = math::NaN<F>)
 			: t(t_, t_ + n), f(f_, f_ + n), _f(_f)
 		{ }
+		pwflat(const pwflat&) = default;
 		pwflat& operator=(const pwflat&) = default;
 		pwflat(pwflat&&) = default;
 		pwflat& operator=(pwflat&&) = default;
@@ -43,6 +44,22 @@ namespace tmx::curve {
 		{
 			return { t.back(), f.back() };
 		}
+#ifdef _DEBUG
+		static int test()
+		{
+			{
+				// TODO: (Tianxin)
+				pwflat<> c; // default constructor
+				auto c2(c); // copy constructor
+				c2 = c;     // copy assignment
+			}
+			{
+				// test one case for _value, _integral, _extrapolate, and _back.
+			}
+
+			return 0;
+		}
+#endif // _DEBUG
 
 	};
 

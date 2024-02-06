@@ -1,4 +1,4 @@
-// fms_pwflat.h - piecewise flat curve
+// fms_pwflat.h - piecewise flat right-continuous curve determined by points (t[i], f[i]).
 /*
 		   { f[i] if t[i-1] < t <= t[i];
 	f(t) = { _f   if t > t[n-1];
@@ -9,6 +9,8 @@
 	x------x      ... ------x
 	|
 	0-----t[0]--- ... ---t[n-2]---t[n-1]--- T
+
+	Note f(t[i]) = f[i].
 */
 #pragma once
 #include <cmath>
@@ -53,10 +55,30 @@ namespace tmx {
 			if (n == 0)
 				return _f;
 
-			auto ti = std::lower_bound(t, t + n, u);
+			auto ti = std::lower_bound(t, t + n, u); // greatest i with t[i] <= u
 
 			return ti == t + n ? _f : f[ti - t];
 		}
+#ifdef _DEBUG
+#define IS_NAN(x) x != x
+		inline int forward_test()
+		{
+			{
+				static constexpr double t[] = { 1,2,3 };
+				static constexpr double f[] = { 4,5,6 };
+				static_assert(IS_NAN(forward(-1., 3, t, f)));
+				static_assert(f[0] == forward(0., 3, t, f));
+				static_assert(f[0] == forward(t[0], 3, t, f));
+				static_assert(f[1] == forward(1.5, 3, t, f));
+				static_assert(f[1] == forward(t[1], 3, t, f));
+				static_assert(f[2] == forward(t[2], 3, t, f));
+				static_assert(IS_NAN(forward(t[2] + 1, 3, t, f)));
+			}
+
+			return 0;
+		}
+#undef IS_NAN
+#endif // _DEBUG
 
 		// TODO: int_u0^u f(t) dt
 		// Integral from 0 to u of f.
@@ -78,12 +100,35 @@ namespace tmx {
 				I += f[i] * (t[i] - t_);
 				t_ = t[i];
 			}
-			if (fabs(u - t_) > math::epsilon<T>) {
+			if (u > t_) {
 				I += (i == n ? _f : f[i]) * (u - t_);
 			}
 
 			return I;
 		}
+#ifdef _DEBUG
+#define IS_NAN(x) x != x
+		inline int integral_test()
+		{
+			{
+				static constexpr double t[] = { 1,2,3 };
+				static constexpr double f[] = { 4,5,6 };
+				static_assert(IS_NAN(integral(-1., 3, t, f)));
+				static_assert(integral(0., 3, t, f) == 0);
+				static_assert(integral(0.5, 3, t, f) == 4*0.5);
+				static_assert(integral(1., 3, t, f) == 4);
+				static_assert(integral(1.5, 3, t, f) == 4 + 5*0.5);
+				static_assert(integral(2., 3, t, f) == 4 + 5);
+				static_assert(integral(2.5, 3, t, f) == 4 + 5 + 6*0.5);
+				static_assert(integral(3., 3, t, f) == 4 + 5 + 6);
+				static_assert(IS_NAN(integral(3.1, 3, t, f)));
+				static_assert(integral(3.5, 3, t, f, 7.) == 4 + 5 + 6 + 7*0.5);
+			}
+
+			return 0;
+		}
+#undef IS_NAN
+#endif // _DEBUG
 
 		// discount D(u) = exp(-int_0^u f(t) dt)
 		template<class T, class F>

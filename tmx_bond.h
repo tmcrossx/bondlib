@@ -44,11 +44,11 @@ namespace tmx::bond {
 				d0 -= period;
 			}
 		}
-		bool _op_bool() const override
+		explicit operator bool() const
 		{
 			return d1 <= maturity;
 		}
-		value_type _op_star() const override
+		value_type operator*() const
 		{
 			C c = bond.coupon * bond.day_count(d0, d1);
 			if (d1 == maturity) {
@@ -56,7 +56,7 @@ namespace tmx::bond {
 			}
 			return { date::diffyears(issue, d1), c };
 		}
-		basic_instrument& _op_incr() override
+		basic_instrument& operator++()
 		{
 			d0 = d1;
 			d1 += period;

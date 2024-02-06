@@ -9,6 +9,7 @@ namespace tmx::curve {
 
 	template<class T = double, class F = double>
 	struct base {
+		constexpr base() {}
 		virtual ~base() {}
 
 		// Forward value at time u.
@@ -16,7 +17,7 @@ namespace tmx::curve {
 		{
 			return _value(u);
 		}
-		// Integral from t to u of forward.
+		// Integral from t to u of forward. int_t^u f(s) ds.
 		F integral(T u, T t = 0) const
 		{
 			return _integral(u, t);
@@ -26,7 +27,7 @@ namespace tmx::curve {
 		{
 			return _extrapolate(_f);
 		}
-		// Return last point on the curve.
+		// Return last (non-extrapolated) point on the curve.
 		std::pair<T, F> back() const
 		{
 			return _back();
@@ -61,27 +62,40 @@ namespace tmx::curve {
 	class constant : public base<T, F> {
 		F f;
 	public:
-		constant(F f = math::NaN<F>)
+		constexpr constant(F f = math::NaN<F>)
 			: f(f)
 		{ }
-		F _value([[maybe_unused]]T u) const override
+		constexpr F _value([[maybe_unused]] T u) const override
 		{
 			return f;
 		}
-		F _integral(T u, T t) const override
+		constexpr F _integral(T u, T t) const override
 		{
 			return f * (u - t);
 		}
-		constant& _extrapolate(F _f) override
+		constexpr constant& _extrapolate(F _f) override
 		{
 			f = _f;
 
 			return *this;
 		}
-		std::pair<T, F> _back() const override
+		constexpr std::pair<T, F> _back() const override
 		{
 			return { math::infinity<T>, f };
 		}
+#ifdef _DEBUG
+		static int test()
+		{
+			constant c(1);
+			assert(1 == c.value(0));
+			assert(0 == c.integral(0));
+			//c.extrapolate(1);
+			//c.back();
+
+			return 0;
+		}
+#endif // _DEBUG
+	
 	};
 
 	// Add two curves.
@@ -115,7 +129,7 @@ namespace tmx::curve {
 			const auto gb = g.back();
 			T ub = std::min(fb.first, gb.first);
 
-			return { ub, _forward(ub) };
+			return { ub, fb.second + gb.second };
 		}
 	};
 }
@@ -127,6 +141,7 @@ inline tmx::curve::plus<T, F> operator+(const tmx::curve::base<T, F>& f, const t
 	return tmx::curve::plus<T, F>(f, g);
 }
 // Add a constant spread.
+// TODO: (Tianxin) put in non-contexpr test using assert.
 template<class T, class F>
 inline tmx::curve::plus<T, F> operator+(const tmx::curve::base<T, F>& f, F s)
 {

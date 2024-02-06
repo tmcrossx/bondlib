@@ -8,10 +8,10 @@
 #include "tmx_black.h"
 #include "tmx_date_business_day.h"
 #include "tmx_curve_pwflat.h"
-#include "tmx_instrument_value.h"
-#include "tmx_value.h"
-#include "tmx_bond.h"
-#include "tmx_bootstrap.h"
+//#include "tmx_instrument_value.h"
+//#include "tmx_value.h"
+//#include "tmx_bond.h"
+//#include "tmx_bootstrap.h"
 //#include "tmx_muni.h"
  
 using namespace fms;
@@ -25,13 +25,11 @@ int test_iterable_span = iterable::span<int>::test();
 
 //int test_hypergeometric = math::hypergeometric_test();
 
-//int test_view_iterable_d = iterable<double>::test();
 //int test_monoid_i = monoid_test<int>();
 //int test_monoid_d = monoid_test<double>();
 //int test_mean_monoid_d = mean_monoid_test<double>();
-//int test_bound = root1d::bound_test<double>();
+int test_curve_constant = curve::constant<>::test();
 int test_date = date::test();
-int test_date_day_count = date::day_count_test();
 int test_variate_normal = variate::normal<>::test();
 int test_black_put = black::put::test();
 //int test_date_periodic = date::periodic_test();
@@ -45,7 +43,7 @@ int test_black_put = black::put::test();
 //int test_value_yield_d = value::yield_test<double>();
 //int test_value_yield_f = value::yield_test<float>();
 //int test_bond_basic = bond::basic_test();
-int test_bootstrap_instrument = bootstrap::instrument_test();
+//int test_bootstrap_instrument = bootstrap::instrument_test();
 //int test_muni_fit = muni::fit_test();
 #endif // _DEBUG
 

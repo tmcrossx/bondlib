@@ -29,7 +29,8 @@ namespace tmx::bootstrap {
 			}
 		}
 
-		const auto vp = [=](F f0) { return f0-p/*value::present(i, f.extrapolate(f0)) - p*/; };
+		//const instrument::base<U, C>& ii = i.clone();
+		const auto vp = [&](F f0) { return value::present(i, f.extrapolate(f0)) - p; };
 		const auto vd = [=](F f0) { return f0/*value::duration(i, f.extrapolate(f0)) */ ; };
 		
 		_f = root1d::newton(_f).solve(vp, vd);

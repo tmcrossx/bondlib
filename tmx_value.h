@@ -26,10 +26,11 @@ namespace tmx::value {
 	{
 		C pv = 0;
 
-		while (i) {
-			const auto [u, c] = *i;
+		auto uc = i.iterable();
+		while (uc) {
+			const auto [u, c] = *uc;
 			pv += c * f.discount(u, t);
-			++i;
+			++uc;
 		}
 
 		return pv;

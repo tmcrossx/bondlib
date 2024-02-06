@@ -21,7 +21,7 @@ namespace fms::iterable {
 		{ !!i } -> std::same_as<bool>;
 		{ *i } -> std::convertible_to<typename I::value_type>;
 		{ ++i } -> std::same_as<I&>;
-		{ i++ } -> std::same_as<I>;
+		//{ i++ } -> std::same_as<I>;
 		//{ i.operator==(I) };
 		//{ i.end() } -> std::same_as<I>;
 	};

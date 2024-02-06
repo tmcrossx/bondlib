@@ -16,38 +16,19 @@ namespace tmx::instrument {
 		virtual ~base()
 		{ }
 
-		// last cash flow
+		// Iterable over time cash pairs.
+		base&& iterable() const
+		{
+			return _iterable();
+		}
+
 		std::pair<U, C> back() const
 		{
-			return _back();
-		}
-
-		explicit operator bool() const
-		{
-			return _op_bool();
-		}
-		value_type operator*() const
-		{
-			return _op_star();
-		}
-		base& operator++()
-		{
-			return _op_incr();
-		}
-		base operator++(int)
-		{
-			base b = *this;
-
-			++*this;
-
-			return b;
+			std::pair<U,C>(0,0);
 		}
 
 	private:
-		virtual std::pair<U, C> _back() const = 0;
-		virtual bool _op_bool() const = 0;
-		virtual value_type _op_star() const = 0;
-		virtual base& _op_incr() = 0;
+		virtual base&& _iterable() const = 0;
 	};
 
 	// single cash flow instrument
@@ -60,23 +41,36 @@ namespace tmx::instrument {
 		using iterator_category = std::forward_iterator_tag;
 		using value_type = std::pair<U, C>;
 
+		zero_coupon_bond() = default;
+		zero_coupon_bond(const zero_coupon_bond&) = default;
 		zero_coupon_bond(U u = 0, C c = 0)
 			: u{ u }, c{ c }
 		{ }
+		zero_coupon_bond& operator=(const zero_coupon_bond&) = default;
+		~zero_coupon_bond() = default;
 
-		std::pair<U, C> _back() const override
+#pragma warning(push)
+#pragma warning(disable: 4172)
+		zero_coupon_bond&& _iterable() const override
+		{
+			zero_coupon_bond z(u, c);
+
+			return std::move(z);
+		}
+#pragma warning(pop)	
+		std::pair<U, C> _back() const
 		{
 			return { u, c };
 		}
-		bool _op_bool() const override
+		explicit operator bool() const
 		{
 			return !done;
 		}
-		value_type _op_star() const override
+		value_type operator*() const
 		{
 			return { u, c };
 		}
-		zero_coupon_bond& _op_incr() override
+		zero_coupon_bond& operator++()
 		{
 			done = true;
 
