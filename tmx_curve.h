@@ -127,9 +127,8 @@ namespace tmx::curve {
 		{
 			const auto fb = f.back();
 			const auto gb = g.back();
-			T ub = std::min(fb.first, gb.first);
 
-			return { ub, fb.second + gb.second };
+			return { std::min(fb.first, gb.first), fb.second + gb.second };
 		}
 	};
 }
