@@ -132,9 +132,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="..\README.md" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="ensure.h" />
     <ClInclude Include="fms_iterable.h" />
     <ClInclude Include="tmx_curve_pwflat.h" />
@@ -165,6 +162,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="bondlib.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

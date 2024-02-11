@@ -27,16 +27,16 @@ namespace tmx::curve {
 
 		F _value(T u) const override
 		{
-			return pwflat::value(u, t.size(), t.data(), f.data(), _f);
+			return tmx::pwflat::forward(u, t.size(), t.data(), f.data(), _f);
 		}
-		F _integral(T u, T t) const override
+		F _integral(T u, T t0) const override
 		{
-			return pwflat::integral(u, t.size(), t.data(), f.data(), _f)
-				 - pwflat::integral(t, t.size(), t.data(), f.data(), _f);
+			return tmx::pwflat::integral(u, t.size(), t.data(), f.data(), _f)
+				 - tmx::pwflat::integral(t0, t.size(), t.data(), f.data(), _f);
 		}
-		pwflat& _extrapolate(F f) override
+		pwflat& _extrapolate(F e) override
 		{
-			_f = f;
+			_f = e;
 		}
 
 		// Last point on the curve.

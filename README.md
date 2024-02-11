@@ -2,6 +2,12 @@
 
 Bond pricing and analytics
 
+Pricing depends on cash flows and discount curves.
+
+An _instrument_ is an _iterable_ of (time, cash) pairs where the time is increasing.
+
+A _discount curve_ is the price of a zero coupon bond. The discount determines the forward and spot curves.
+
 ## Datetime
 
 Every analytics library needs to convert a real world date and time
