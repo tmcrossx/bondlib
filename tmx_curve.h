@@ -4,7 +4,7 @@
 #include <utility>
 #include <vector>
 #include "tmx_pwflat.h"
-
+#include <iostream>
 namespace tmx::curve {
 
 	template<class T = double, class F = double>
@@ -101,17 +101,17 @@ namespace tmx::curve {
 	// Add two curves.
 	template<class T = double, class F = double>
 	class plus : public base<T,F> {
-		const base<T, F>& f;
-		const base<T, F>& g;
+		base<T, F>& f;
+		base<T, F>& g;
 	public:
-		plus(const base<T, F>& f, const base<T, F>& g)
+		plus(base<T, F>& f, base<T, F>& g)
 			: f(f), g(g)
 		{ }
-		F _forward(T u) const override
+		F _value(T u) const override
 		{
 			return f.value(u) + g.value(u);
 		}
-		F _integral(T u) const override
+		F _integral(T u, [[maybe_unused]] T t) const override
 		{
 			return f.integral(u) + g.integral(u);
 		}
@@ -131,18 +131,52 @@ namespace tmx::curve {
 			return { std::min(fb.first, gb.first), fb.second + gb.second };
 		}
 	};
-}
+
 
 // Add two curves.
 template<class T, class F>
-inline tmx::curve::plus<T, F> operator+(const tmx::curve::base<T, F>& f, const tmx::curve::base<T, F>& g)
+inline tmx::curve::plus<T, F> operator+(tmx::curve::base<T, F>& f, tmx::curve::base<T, F>& g)
 {
-	return tmx::curve::plus<T, F>(f, g);
+	tmx::curve::plus<T, F> c(f, g);
+	//return tmx::curve::plus<T, F>(f, g);
+	return c;
+
 }
 // Add a constant spread.
 // TODO: (Tianxin) put in non-contexpr test using assert.
 template<class T, class F>
-inline tmx::curve::plus<T, F> operator+(const tmx::curve::base<T, F>& f, F s)
+inline tmx::curve::plus<T, F> operator+(tmx::curve::base<T, F>& f, F s)
 {
-	return tmx::curve::plus<T, F>(f, tmx::curve::constant<T, F>(s));
+	tmx::curve::constant<T, F> g(s);
+	std::cout << "value:" << std::endl;
+	std::cout << g.value(0) << std::endl;
+	tmx::curve::plus<T, F> p(f, g);
+	std::cout << p.value(0) << std::endl;
+	return p;
+	//return tmx::curve::plus<T, F> (f, c);
 }
+
+
+
+#ifdef _DEBUG
+inline int operator_test()
+{	
+	std::cout << "haha" << std::endl;
+	double f = 2.0;
+	tmx::curve::constant c1(1.0);
+	tmx::curve::constant c2(3.0);
+
+	tmx::curve::plus a1 = c1 + c2;
+	tmx::curve::plus a2 = c1 + f;
+	std::cout << "before" << std::endl;
+	assert(a1.value(0) == 4.0);
+	//assert(a2.value(0) == 3.0);
+	std::cout << a1.value(0) << std::endl;
+	std::cout << "after" << std::endl;
+
+	return 0;
+}
+#endif // _DEBUG
+
+
+}// namespace tmx::curve

@@ -8,6 +8,7 @@
 #include "tmx_black.h"
 #include "tmx_date_business_day.h"
 #include "tmx_curve_pwflat.h"
+#include "tmx_curve.h"
 //#include "tmx_instrument_value.h"
 //#include "tmx_value.h"
 //#include "tmx_bond.h"
@@ -32,6 +33,8 @@ int test_curve_constant = curve::constant<>::test();
 int test_date = date::test();
 int test_variate_normal = variate::normal<>::test();
 int test_black_put = black::put::test();
+int test_curve_operator = curve::operator_test();
+int test_pwflat = curve::pwflat_test();
 //int test_date_periodic = date::periodic_test();
 //int test_datetime = datetime::test();
 //int test_date_dcf = date::dcf::test();
