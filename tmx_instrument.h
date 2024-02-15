@@ -41,13 +41,9 @@ namespace tmx::instrument {
 		using iterator_category = std::forward_iterator_tag;
 		using value_type = std::pair<U, C>;
 
-		zero_coupon_bond() = default;
-		zero_coupon_bond(const zero_coupon_bond&) = default;
 		zero_coupon_bond(U u = 0, C c = 0)
 			: u{ u }, c{ c }
 		{ }
-		zero_coupon_bond& operator=(const zero_coupon_bond&) = default;
-		~zero_coupon_bond() = default;
 
 #pragma warning(push)
 #pragma warning(disable: 4172)

@@ -2,20 +2,15 @@
 #pragma once
 #ifdef _DEBUG
 #include <cassert>
-#include <vector>
 #endif
 #include <concepts>
 #include <iterator>
-#include <span>
 
 namespace fms::iterable {
 
-	template<class I, class T>
-	concept input = std::input_iterator<I> && requires(I i) {
+	template<class I, class T = typename I::value_type>
+	concept input = std::forward_iterator<I> && requires(I i) {
 		{ i.operator bool() } -> std::same_as<bool>;
-		{ *i } -> std::convertible_to<T>;
-		{ ++i } -> std::same_as<I&>;
-		{ i++ } -> std::same_as<I>;
 	};
 
-} // namespace fms
+} // namespace fms::iterable
