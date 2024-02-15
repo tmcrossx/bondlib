@@ -3,7 +3,7 @@
 #include "tmx_math.h"
 #include "tmx_pwflat.h"
 #include "tmx_curve.h"
-
+#include <iostream>
 namespace tmx::curve {
 
 	template<class T = double, class F = double>
@@ -37,6 +37,7 @@ namespace tmx::curve {
 		pwflat& _extrapolate(F e) override
 		{
 			_f = e;
+			return *this;
 		}
 
 		// Last point on the curve.
@@ -44,23 +45,42 @@ namespace tmx::curve {
 		{
 			return { t.back(), f.back() };
 		}
-#ifdef _DEBUG
-		static int test()
-		{
-			{
-				// TODO: (Tianxin)
-				pwflat<> c; // default constructor
-				auto c2(c); // copy constructor
-				c2 = c;     // copy assignment
-			}
-			{
-				// test one case for _value, _integral, _extrapolate, and _back.
-			}
 
-			return 0;
-		}
-#endif // _DEBUG
+
+
 
 	};
 
-} // namespace tms::curve
+#ifdef _DEBUG
+	inline int pwflat_test()
+	{
+		{
+			// TODO: (Tianxin)
+			std::cout << "pwflat" << std::endl;
+			pwflat<> c; // default constructor
+			auto c2(c); // copy constructor
+			c2 = c;     // copy assignment
+			std::cout << "constructor" << std::endl;
+		}
+		{
+			// test one case for _value, _integral, _extrapolate, and _back.
+			pwflat<> p1(3);
+			assert(3.0 == p1.value(0));
+			assert(15 == p1.integral(5, 0));
+			p1.extrapolate(7);
+			assert(7.0 == p1.value(0));
+			assert(21 == p1.integral(3, 0));
+			std::cout << "extrapolate" << std::endl;
+
+			//auto back = p1.back();
+			//assert(back.first);
+			std::cout << "integral" << std::endl;
+			//assert(3.0 == back.second);
+			//std::cout << back.second << std::endl;
+			//std::cout << p.integral(5, 0) << std::endl;
+		}
+
+		return 0;
+	}
+#endif // _DEBUG
+} // namespace tms::curve1
