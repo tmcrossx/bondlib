@@ -34,7 +34,7 @@ int test_date = date::test();
 int test_variate_normal = variate::normal<>::test();
 //<<<<<<< main
 //int test_black_put = black::put::test();
-//int test_curve_operator = curve::operator_test();
+int test_curve_operator = curve_operator_test();
 //int test_pwflat = curve::pwflat_test();
 //int test_option_put = option::put::test();
 //>>>>>>> main

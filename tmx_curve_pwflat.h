@@ -39,6 +39,10 @@ namespace tmx::curve {
 			_f = e;
 			return *this;
 		}
+		F _extrapolate() const override
+		{
+			return _f;
+		}
 
 		// Last point on the curve.
 		std::pair<T, F> _back() const override

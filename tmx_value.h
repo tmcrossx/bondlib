@@ -77,6 +77,23 @@ namespace tmx::value {
 		return root1d::newton(y, tol, iter).solve(pv, dur);
 	}
 
+	// TODO: (Tianxin)
+	// Find constant spread so that the present value of the instrument equals price.
+	template<class U, class C, class T, class F>
+	inline F oas(F p, instrument::base<U, C>& i, const curve::base<T, F>& f,
+		F s = 0, F tol = math::sqrt_epsilon<F>, int iter = 100)
+	{
+		//const auto pv = [=](C y_) { return present(i, curve::constant<U, C>(y_), t) - p; };
+		//const auto dur = [=](C y_) { return duration(i, curve::constant<U, C>(y_), t); };
+
+		//return root1d::newton(y, tol, iter).solve(pv, dur);
+		// Newton solve for s with p = pv(i, f + s).!!!
+
+		return s;
+	}
+	// test!!!
+
+
 #ifdef _DEBUG
 #if 0
 	template<class X = double>
