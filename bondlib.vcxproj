@@ -137,7 +137,7 @@
     <ClInclude Include="tmx_curve_pwflat.h" />
     <ClInclude Include="tmx_date_business_day.h" />
     <ClInclude Include="tmx_date_holiday.h" />
-    <ClInclude Include="tmx_black.h" />
+    <ClInclude Include="tmx_option.h" />
     <ClInclude Include="tmx_bond.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>

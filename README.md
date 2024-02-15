@@ -1,12 +1,19 @@
 # BondLib
 
-Bond pricing and analytics
+Instruments have prices $X_t$ and cash flows $C_t$ at time $t$.
 
-Pricing depends on cash flows and discount curves.
+Let $\mathcal{A}_t$ be the information at time $t$ and $D_t$ be a positive measure on $\mathcal{A}_t$.
 
-An _instrument_ is an _iterable_ of (time, cash) pairs where the time is increasing.
+$X_t D_t = (X_u D_u + \sum_{t < s \le u} C_s D_s)|_{\mathcal{A}_t}$.
 
-A _discount curve_ is the price of a zero coupon bond. The discount determines the forward and spot curves.
+The discount to time $t$ is D(t) = E[D_t] = \exp(-\int_0^t f(s)\,ds) = \exp(-t r(t))$ where
+$f(t)$ is the _forward rate__ at time $t$ and $r(t)$ is the _spot rate_ at time $t$.
+
+The price at time $t$ of a zero coupon bond maturing at $u$ is the measure $D_t(u) = D_u|_{\mathcal{A}_t}/D_t$.
+
+An _instrument_ is a sequence $(u_j, c_j)$ of increasing stopping times $u_j$ and $\mathcal{A}_{u_j}$ measurable cash flows $c_j$.
+
+## Bond pricing and analytics.
 
 ## Datetime
 

@@ -42,7 +42,7 @@
     <ClInclude Include="tmx_ho_lee.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tmx_black.h">
+    <ClInclude Include="tmx_option.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tmx_instrument_value.h">

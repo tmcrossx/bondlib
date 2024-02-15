@@ -1,4 +1,4 @@
-﻿// tmx_black.h - Fischer Black model
+﻿// tmx_option.h - Fischer Black model
 // F = f exp(sX - κ(s)) where X has mean 0, variance 1, and κ(s) = log E[exp(s X)].
 // Note E[F] = f and Var(log F) = s^2.
 #pragma once
@@ -7,7 +7,7 @@
 #include "tmx_variate_normal.h"
 #include "tmx_root1d.h"
 
-namespace tmx::black {
+namespace tmx::option {
 
 	// F <= k if and only if X <= (log(k/f) + κ(s))/s
 	template<class F, class S, class K>

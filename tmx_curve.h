@@ -27,6 +27,11 @@ namespace tmx::curve {
 		{
 			return _extrapolate(_f);
 		}
+		// Current extrapolated value.
+		F extrapolate() const
+		{
+			return _extrapolate();
+		}
 		// Return last (non-extrapolated) point on the curve.
 		std::pair<T, F> back() const
 		{
@@ -54,6 +59,7 @@ namespace tmx::curve {
 		virtual F _value(T u) const = 0;
 		virtual F _integral(T u, T t) const = 0;
 		virtual base& _extrapolate(F _f) = 0;
+		virtual F _extrapolate() const = 0;
 		virtual std::pair<T, F> _back() const = 0;
 	};
 
@@ -78,6 +84,10 @@ namespace tmx::curve {
 			f = _f;
 
 			return *this;
+		}
+		constexpr F _extrapolate() const override
+		{
+			return f;
 		}
 		constexpr std::pair<T, F> _back() const override
 		{
