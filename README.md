@@ -1,6 +1,7 @@
 # BondLib
 
-Instruments have prices $X_t$ and cash flows $C_t$ at time $t$.
+Let $I$ be a set of instruments and $\mathcal{A}_t$ be the information at time $t$.
+Instruments have prices $X_t$ and cash flows $C_t$ taking values in $\boldsymbol{R}^I$ at time $t$.
 
 Let $\mathcal{A}_t$ be the information at time $t$ and $D_t$ be a positive measure on $\mathcal{A}_t$.
 
