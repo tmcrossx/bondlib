@@ -13,9 +13,9 @@ Let $X_t\colon\mathcal{A_t}\to\boldsymbol{R}^I$ be the prices of instruments at 
 Let $C_t\colon\mathcal{A_t}\to\boldsymbol{R}^I$ be the cash flows of instruments at time $t\in T$.
 
 There is no arbitrage if there exist a positive measures $D_t$ on $\mathcal{A}_t$ such that
-\[
+$$
 X_t D_t = (X_u D_u + \sum_{t < s \le u} C_s D_s)|_{\mathcal{A}_t}, \quad t < u.
-\]
+$$
 
 
 A _stopping time_ is a random variable $\tau:\Omega\to T$ such that $\{\tau \le t\} \in \mathcal{A}_t$ for all $t\in T$.
