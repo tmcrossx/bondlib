@@ -1,11 +1,24 @@
 # BondLib
 
-Let $I$ be a set of instruments and $\mathcal{A}_t$ be the information at time $t$.
-Instruments have prices $X_t$ and cash flows $C_t$ taking values in $\boldsymbol{R}^I$ at time $t$.
+Let $\Omega$ be the sample space of all possible outcomes. 
 
-Let $\mathcal{A}_t$ be the information at time $t$ and $D_t$ be a positive measure on $\mathcal{A}_t$.
+Let $T$ be the set of all trading times.
 
-$X_t D_t = (X_u D_u + \sum_{t < s \le u} C_s D_s)|_{\mathcal{A}_t}$.
+Let $\mathcal{A}_t$, $t\in T$, be a partition of $\Omega$ that represents the information available at time $t$.
+
+Let $I$ be the set of market instruments.
+
+Let $X_t\colon\mathcal{A_t}\to\boldsymbol{R}^I$ be the prices of instruments at time $t\in T$.
+
+Let $C_t\colon\mathcal{A_t}\to\boldsymbol{R}^I$ be the cash flows of instruments at time $t\in T$.
+
+There is no arbitrage if there exist a positive measures $D_t$ on $\mathcal{A}_t$ such that
+\[
+X_t D_t = (X_u D_u + \sum_{t < s \le u} C_s D_s)|_{\mathcal{A}_t}, \quad t < u.
+\]
+
+
+A _stopping time_ is a random variable $\tau:\Omega\to T$ such that $\{\tau \le t\} \in \mathcal{A}_t$ for all $t\in T$.
 
 The discount to time $t$ is D(t) = E[D_t] = \exp(-\int_0^t f(s)\,ds) = \exp(-t r(t))$ where
 $f(t)$ is the _forward rate__ at time $t$ and $r(t)$ is the _spot rate_ at time $t$.
