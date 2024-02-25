@@ -4,9 +4,9 @@ Let $\Omega$ be the set of all possible outcomes.
 
 Let $T$ be the set of trading times.
 
-Let $\mathcal{A}_t$, $t\in T$, be a finite algebra of subsets of $\Omega$.
+Let $(\mathcal{A}_t)_{t\in T}$, be a finite algebras of subsets of $\Omega$.
 
-For $\omega\in\Omega$ let $A_\omega = \cap\{A\in\mathcal{A}\mid \omega\in A\}$ be the _atom_ containing $\omega$.
+For $\omega\in\Omega$ let $A_\omega = \cap \{A\in\mathcal{A}\mid \omega\in A \}$ be the _atom_ containing $\omega$.
 
 be a partition of $\Omega$ representing the information available at time $t\in T$.
 
