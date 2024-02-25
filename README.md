@@ -1,12 +1,14 @@
 # BondLib
 
-Let $\Omega$ be the set of all possible outcomes. 
-
 Let $T$ be the set of trading times.
 
-Let $`(\mathcal{A}_t)_{t\in T}`$, be a finite algebras of subsets of $\Omega$.
+Let $\Omega$ be the set of all possible outcomes. 
 
-For $\omega\in\Omega$ let $`A_\omega = \cap\{ A\in\mathcal{A}\mid \omega\in A\}`$ be the _atom_ containing $\omega$.
+Let $`(\mathcal{A}_t)_{t\in T}`$, be finite algebras of subsets of $\Omega$.
+
+For $\omega\in\Omega$ let $`\overline{\omega} = \cap\{ A\in\mathcal{A}\mid \omega\in A\}`$ be the _atom_ containing $\omega$.
+
+Let $`(overline{\mathcal{A}}_t) = \{\overline{\omega}\mid \omega\in\Omega\}`$ be the set of atoms of $\mathcal{A}_t$.
 
 be a partition of $\Omega$ representing the information available at time $t\in T$.
 
