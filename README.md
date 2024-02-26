@@ -28,7 +28,9 @@ A _repurchase agreement_, $f_t$, is an instrument with price $1$ at time $t$ and
 The _canonical deflator_ is $D_t = \exp(-\int_0^t f_s\,ds)P$ where $P$ is a probability measure on $\Omega$.
 
 A _stopping time_ is a random variable $\tau:\Omega\to T$ such that $`\{\tau \le t\} \in \mathcal{A}_t`$ for all $t\in T$.
-The algebra $`\mathcal{A}_\tau = \{\{A\subseteq\Omega\mid A\cap\{\tau \le t\}\in\mathcal{A}_t, t\in T\}`$.
+The algebra $`\mathcal{A}_\tau = \{A\subseteq\Omega\mid A\cap\{\tau \le t\}\in\mathcal{A}_t, t\in T\}`$.
+If trading times and algebras are finite then $\mathcal{A}_\tau$ is the partition
+$`\{\{\tau = t\}\mid t\in T\}`$.
 
 A _trading strategy_ is a finite sequence $(\tau_j, \Gamma_j)$ of increasing stopping times $\tau_j$
 and trades $\Gamma_j\colon\mathcal{A}_{\tau_j}\to(\boldsymbol{R}^I)^*$.
