@@ -37,14 +37,11 @@ and trades $\Gamma_j\colon\mathcal{A}_{\tau_j}\to(\boldsymbol{R}^I)^*$.
 The _position_ at time $t$ is $`\Delta_t = \sum_{\tau_j < t} \Gamma_j = \sum_{s < t} \Gamma_s`$
 where $`\Gamma_s(\omega) = \sum_j \Gamma_j(\omega)1(\tau_j(\omega) = s)`$.
 
-The _value_, or _mark-to-market_, of a trading strategy at time $t$ is $V_t = \sum_{\tau_j\le t} \Gamma_j D_{\tau_j}$.
+The _value_, or _mark-to-market_, of a trading strategy at time $t$ is $V_t = (\Delta_t + \Gamma_t)\cdot X_t$.
 
-The discount to time $t$ is D(t) = E[D_t] = \exp(-\int_0^t f(s)\,ds) = \exp(-t r(t))$ where
-$f(t)$ is the _forward rate__ at time $t$ and $r(t)$ is the _spot rate_ at time $t$.
+The _amount_ $`A_t = \Delta_t\cdot C_t - \Gamma_t\cdot X_t`$ show up in the trading account at time $t$.
 
-The price at time $t$ of a zero coupon bond maturing at $u$ is the measure $D_t(u) = D_u|_{\mathcal{A}_t}/D_t$.
-
-An _instrument_ is a sequence $(u_j, c_j)$ of increasing stopping times $u_j$ and $\mathcal{A}_{u_j}$ measurable cash flows $c_j$.
+An _instrument_ is a sequence $(u_j, c_j)$ of strictly increasing stopping times $u_j$ and payments $`c_j\colon\mathcal{A}_{u_j}\to\boldsymbol{R}`$.
 
 ## Bond pricing and analytics.
 
