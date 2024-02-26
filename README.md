@@ -32,7 +32,7 @@ The algebra $`\mathcal{A}_\tau = \{A\subseteq\Omega\mid A\cap\{\tau \le t\}\in\m
 If trading times and algebras are finite then $\mathcal{A}_\tau$ is the partition
 $`\{\{\tau = t\}\mid t\in T\}`$.
 
-A _trading strategy_ is a finite sequence $(\tau_j, \Gamma_j)$ of increasing stopping times $\tau_j$
+A _trading strategy_ is a finite sequence $(\tau_j, \Gamma_j)$ of strictly increasing stopping times $\tau_j$
 and trades $\Gamma_j\colon\mathcal{A}_{\tau_j}\to(\boldsymbol{R}^I)^*$.
 The _position_ at time $t$ is $`\Delta_t = \sum_{\tau_j < t} \Gamma_j = \sum_{s < t} \Gamma_s`$
 where $`\Gamma_s(\omega) = \sum_j \Gamma_j(\omega)1(\tau_j(\omega) = s)`$.
