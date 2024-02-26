@@ -9,13 +9,17 @@ For $\omega\in\Omega$ let $`\overline{\omega} = \cap\{A\in\mathcal{A}\mid\omega\
 Let $`\overline{\mathcal{A}} = \{\overline{\omega}\mid \omega\in\Omega\}`$ be the set of atoms of $\mathcal{A}$.
 The atoms of an algebra form a partition of $\Omega$ and represent partial information.
 
+A function $X\colon\Omega\to\boldsymbol{R}$ is $\mathcal{A}$-_measurable_ 
+if and only if it is constant on the atoms of $\mathcal{A}$.
+We write this as $`X\colon\overline{\mathcal{A}}\to\boldsymbol{R}`$.
+
 Let $`(\mathcal{A}_t)_{t\in T}`$, be finite algebras on $\Omega$ representing information available at time $t\in T$.
 
 Let $I$ be the set of market instruments.
 
-Let $X_t\colon\mathcal{A_t}\to\boldsymbol{R}^I$ be the prices of instruments at time $t\in T$.
+Let $X_t\colon\overline{\mathcal{A_t}}\to\boldsymbol{R}^I$ be the prices of instruments at time $t\in T$.
 
-Let $C_t\colon\mathcal{A_t}\to\boldsymbol{R}^I$ be the cash flows of instruments at time $t\in T$.
+Let $C_t\colon\overline{\mathcal{A_t}}\to\boldsymbol{R}^I$ be the cash flows of instruments at time $t\in T$.
 
 There is no arbitrage if there exist a positive measures $D_t$ on $\mathcal{A}_t$ such that
 
