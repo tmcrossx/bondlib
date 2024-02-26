@@ -1,14 +1,16 @@
 # BondLib
 
-Let $T$ be the set of trading times.
+Let $T$ be a totally ordered set of trading times.
 
-Let $\Omega$ be the set of all possible outcomes. 
+Let $\Omega$ be a set of all possible outcomes. 
 
-Let $`(\mathcal{A}_t)_{t\in T}`$, be finite algebras of subsets of $\Omega$.
+A set of subsets of $\Omega$ is an _algebra_ if it is closed under complement and union.
+For $\omega\in\Omega$ let $`\overline{\omega} = \cap\{A\in\mathcal{A}\mid\omega\in A\}`$ be the _atom_ containing $\omega$.
+Let $`(\overline{\mathcal{A}}) = \{\overline{\omega}\mid \omega\in\Omega\}`$ be the set of atoms of $\mathcal{A}$.
+The atoms of an algebra form a partition of $\Omega$ and represent partial information.
 
-For $\omega\in\Omega$ let $`\overline{\omega} = \cap\{ A\in\mathcal{A}\mid \omega\in A\}`$ be the _atom_ containing $\omega$.
+Let $`(\mathcal{A}_t)_{t\in T}`$, be finite algebras on $\Omega$ representing information available at time $t\in T$.
 
-Let $`(overline{\mathcal{A}}_t) = \{\overline{\omega}\mid \omega\in\Omega\}`$ be the set of atoms of $\mathcal{A}_t$.
 
 be a partition of $\Omega$ representing the information available at time $t\in T$.
 
