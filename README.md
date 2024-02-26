@@ -41,7 +41,14 @@ The _value_, or _mark-to-market_, of a trading strategy at time $t$ is $V_t = (\
 
 The _amount_ $`A_t = \Delta_t\cdot C_t - \Gamma_t\cdot X_t`$ show up in the trading account at time $t$.
 
-An _instrument_ is a sequence $(u_j, c_j)$ of strictly increasing stopping times $u_j$ and payments $`c_j\colon\mathcal{A}_{u_j}\to\boldsymbol{R}`$.
+These definitions imply
+
+$$
+V_t D_t = (V_u D_u + \sum_{t < s \le u} A_s D_s)|_{\mathcal{A}_t}, \quad t < u.
+$$
+
+An _instrument_ is a sequence $(\upsilon_j, c_j)$ of strictly increasing stopping times $\upsilon_j$ and payments 
+$`c_j\colon\mathcal{A}_{\upsilon_j}\to\boldsymbol{R}`$.
 
 ## Bond pricing and analytics.
 
