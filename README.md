@@ -2,17 +2,14 @@
 
 Let $T$ be a totally ordered set of trading times.
 
-Let $\Omega$ be a set of all possible outcomes. 
+Let $\Omega$ be the set of all possible outcomes. 
 
 A set of subsets of $\Omega$ is an _algebra_ if it is closed under complement and union.
 For $\omega\in\Omega$ let $`\overline{\omega} = \cap\{A\in\mathcal{A}\mid\omega\in A\}`$ be the _atom_ containing $\omega$.
-Let $`(\overline{\mathcal{A}}) = \{\overline{\omega}\mid \omega\in\Omega\}`$ be the set of atoms of $\mathcal{A}$.
+Let $`\overline{\mathcal{A}} = \{\overline{\omega}\mid \omega\in\Omega\}`$ be the set of atoms of $\mathcal{A}$.
 The atoms of an algebra form a partition of $\Omega$ and represent partial information.
 
 Let $`(\mathcal{A}_t)_{t\in T}`$, be finite algebras on $\Omega$ representing information available at time $t\in T$.
-
-
-be a partition of $\Omega$ representing the information available at time $t\in T$.
 
 Let $I$ be the set of market instruments.
 
@@ -30,7 +27,8 @@ A _repurchase agreement_, $f_t$, is an instrument with price $1$ at time $t$ and
 
 The _canonical deflator_ is $D_t = \exp(-\int_0^t f_s\,ds)P$ where $P$ is a probability measure on $\Omega$.
 
-A _stopping time_ is a random variable $\tau:\Omega\to T$ such that $\{\tau \le t\} \in \mathcal{A}_t$ for all $t\in T$.
+A _stopping time_ is a random variable $\tau:\Omega\to T$ such that $`\{\tau \le t\} \in \mathcal{A}_t`$ for all $t\in T$.
+The algebra $`\mathcal{A}_\tau = \{\{A\subseteq\Omega\mid A\cap\{\tau \le t\}\in\mathcal{A}_t, t\in T\}`$.
 
 A _trading strategy_ is a finite sequence $(\tau_j, \Gamma_j)$ of increasing stopping times $\tau_j$
 and trades $\Gamma_j\colon\mathcal{A}_{\tau_j}\to(\boldsymbol{R}^I)^*$.
