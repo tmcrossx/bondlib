@@ -20,7 +20,7 @@ Let $C_t\colon\mathcal{A_t}\to\boldsymbol{R}^I$ be the cash flows of instruments
 There is no arbitrage if there exist a positive measures $D_t$ on $\mathcal{A}_t$ such that
 
 $$
-X_t D_t = (X_u D_u + \sum_{t < s \le u} C_s D_s)|_{\mathcal{A}_t}, \quad t < u.
+X_t D_t = (X_u D_u + \sum_{t < s \le u} C_s D_s)|_{\mathcal{A}_t}, \quad t < u. \eqref{eq1}
 $$
 
 A _repurchase agreement_, $f_t$, is an instrument with price $1$ at time $t$ and cash flow $\exp(f_t\,dt)$ at time $t+dt$.
@@ -39,12 +39,12 @@ where $`\Gamma_s(\omega) = \sum_j \Gamma_j(\omega)1(\tau_j(\omega) = s)`$.
 
 The _value_, or _mark-to-market_, of a trading strategy at time $t$ is $V_t = (\Delta_t + \Gamma_t)\cdot X_t$.
 
-The _amount_ $`A_t = \Delta_t\cdot C_t - \Gamma_t\cdot X_t`$ show up in the trading account at time $t$.
+The _amount_ $`A_t = \Delta_t\cdot C_t - \Gamma_t\cdot X_t`$ shows up in the trading account at time $t$.
 
 These definitions imply
 
 $$
-V_t D_t = (V_u D_u + \sum_{t < s \le u} A_s D_s)|_{\mathcal{A}_t}, \quad t < u.
+V_t D_t = (V_u D_u + \sum_{t < s \le u} A_s D_s)|_{\mathcal{A}_t}, \quad t < u. \eqref{eq2}
 $$
 
 An _instrument_ is a sequence $(\upsilon_j, c_j)$ of strictly increasing stopping times $\upsilon_j$ and payments 
