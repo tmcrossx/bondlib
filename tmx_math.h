@@ -1,12 +1,18 @@
 // tmx_math.h - constexpr math functions
 #pragma once
 #define _USE_MATH_DEFINES
-#include <math.h>
+#include <cmath>
 #include <functional>
 #include <limits>
 #include "tmx_math_limits.h"
 
 namespace tmx::math {
+
+	template<class X>
+	constexpr bool isnan(X x)
+	{
+		return x != x;
+	}
 
 	// Sign of x.
 	template<class X>

@@ -52,6 +52,10 @@ $`c_j\colon\mathcal{A}_{\upsilon_j}\to\boldsymbol{R}`$.
 
 ## Bond pricing and analytics.
 
+## Forward values
+
+The forward over the interval $[t, u]$ i
+
 ## Datetime
 
 Every analytics library needs to convert a real world date and time

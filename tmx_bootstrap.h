@@ -1,9 +1,10 @@
-// tmx_bootstrap.h - Bootstrap a curve forward curve.
+// tmx_bootstrap.h - Bootstrap a piecewise-flat curve forward curve.
 #pragma once
 #ifdef _DEBUG
 #include <cassert>
 #endif
 #include "ensure.h"
+#include "tmx_curve_pwflat.h"
 #include "tmx_value.h"
 
 namespace tmx::bootstrap {

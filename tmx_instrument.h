@@ -1,76 +1,42 @@
 // tmx_instrument.h - times and cash flows
 #pragma once
 #include <algorithm>
-#include <vector>
+#include <concepts>
 #include <span>
-#include "fms_iterable.h"
+#include <vector>
 
-namespace tmx::instrument {
+namespace tmx {
 
-	// NVI base class for instruments
-	template<class U = double, class C = double>
-	struct base {
-		using iterator_category = std::forward_iterator_tag;
-		using value_type = std::pair<U, C>;
+	template<class U, class C>
+	struct instrument {
+		virtual ~instrument() { }
 
-		virtual ~base()
-		{ }
-
-		// Iterable over time cash pairs.
-		base&& iterable() const
+		// Advance to next cash flow strictly after u.
+		instrument& advance(const U& u)
 		{
-			return _iterable();
-		}
-
-		std::pair<U, C> back() const
-		{
-			std::pair<U,C>(0,0);
-		}
-
-	private:
-		virtual base&& _iterable() const = 0;
-	};
-
-	// single cash flow instrument
-	template<class U = double, class C = double>
-	class zero_coupon_bond : public base<U, C> {
-		U u;
-		C c;
-		bool done = false;
-	public:
-		using iterator_category = std::forward_iterator_tag;
-		using value_type = std::pair<U, C>;
-
-		zero_coupon_bond(U u = 0, C c = 0)
-			: u{ u }, c{ c }
-		{ }
-
-#pragma warning(push)
-#pragma warning(disable: 4172)
-		zero_coupon_bond&& _iterable() const override
-		{
-			zero_coupon_bond z(u, c);
-
-			return std::move(z);
-		}
-#pragma warning(pop)	
-		std::pair<U, C> _back() const
-		{
-			return { u, c };
-		}
-		explicit operator bool() const
-		{
-			return !done;
-		}
-		value_type operator*() const
-		{
-			return { u, c };
-		}
-		zero_coupon_bond& operator++()
-		{
-			done = true;
+			while (*this && **this <= u) {
+				++*this;
+			}
 
 			return *this;
 		}
+
+		explicit operator bool() const
+		{
+			return op_bool();
+		}
+		std::pair<U, C> operator*() const
+		{
+			return op_star();
+		}
+		instrument& operator++()
+		{
+			return op_incr();
+		}
+	private:
+		virtual bool op_bool() const = 0;
+		virtual std::pair<U, C> op_star() const = 0;
+		virtual instrument& op_incr() = 0;
 	};
+
 }

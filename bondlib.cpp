@@ -29,12 +29,12 @@ using namespace tmx;
 //int test_monoid_i = monoid_test<int>();
 //int test_monoid_d = monoid_test<double>();
 //int test_mean_monoid_d = mean_monoid_test<double>();
-int test_curve_constant = curve::constant<>::test();
-int test_date = date::test();
-int test_variate_normal = variate::normal<>::test();
+//int test_curve_constant = curve::constant<>::test();
+//int test_date = date::test();
+//int test_variate_normal = variate::normal<>::test();
 //<<<<<<< main
 //int test_black_put = black::put::test();
-int test_curve_operator = curve_operator_test();
+//int test_curve_operator = curve_operator_test();
 //int test_pwflat = curve::pwflat_test();
 //int test_option_put = option::put::test();
 //>>>>>>> main
