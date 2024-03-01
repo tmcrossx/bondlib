@@ -9,6 +9,7 @@
 #include "tmx_date_business_day.h"
 #include "tmx_curve_pwflat.h"
 #include "tmx_curve.h"
+#include "tmx_curve_constant.h"
 //#include "tmx_instrument_value.h"
 //#include "tmx_value.h"
 //#include "tmx_bond.h"
@@ -30,11 +31,11 @@ using namespace tmx;
 //int test_monoid_d = monoid_test<double>();
 //int test_mean_monoid_d = mean_monoid_test<double>();
 //int test_curve_constant = curve::constant<>::test();
-//int test_date = date::test();
+int test_date = date::test();
 //int test_variate_normal = variate::normal<>::test();
 //<<<<<<< main
 //int test_black_put = black::put::test();
-//int test_curve_operator = curve_operator_test();
+int test_curve_operator = curve::constant<>::test();
 //int test_pwflat = curve::pwflat_test();
 //int test_option_put = option::put::test();
 //>>>>>>> main

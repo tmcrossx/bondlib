@@ -5,14 +5,14 @@
 #include <span>
 #include <vector>
 
-namespace tmx {
+namespace tmx::instrument {
 
 	template<class U, class C>
-	struct instrument {
-		virtual ~instrument() { }
+	struct base {
+		virtual ~base() { }
 
 		// Advance to next cash flow strictly after u.
-		instrument& advance(const U& u)
+		base& advance(const U& u)
 		{
 			while (*this && **this <= u) {
 				++*this;
@@ -29,14 +29,14 @@ namespace tmx {
 		{
 			return op_star();
 		}
-		instrument& operator++()
+		base& operator++()
 		{
 			return op_incr();
 		}
 	private:
 		virtual bool op_bool() const = 0;
 		virtual std::pair<U, C> op_star() const = 0;
-		virtual instrument& op_incr() = 0;
+		virtual base& op_incr() = 0;
 	};
 
 }

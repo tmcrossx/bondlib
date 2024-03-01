@@ -3,7 +3,7 @@
 #include <cmath>
 #include <limits>
 #include "tmx_instrument.h"
-#include "tmx_curve.h"
+#include "tmx_curve_constant.h"
 #include "tmx_root1d.h"
 
 namespace tmx::value {
@@ -22,7 +22,7 @@ namespace tmx::value {
 
 	// Present value at t of future discounted cash flows.
 	template<class U, class C, class T, class F>
-	constexpr C present(instrument<U, C>& i, const curve::base<T, F>& f, T t = 0)
+	constexpr C present(instrument<U, C>::base& i, const curve::base<T, F>& f, T t = 0)
 	{
 		C pv = 0;
 
@@ -37,7 +37,7 @@ namespace tmx::value {
 
 	// Derivative of present value with respect to a parallel shift.
 	template<class U, class C, class T, class F>
-	constexpr C duration(instrument<U, C>& i, const curve::base<T, F>& f, T t = 0)
+	constexpr C duration(instrument<U, C>::base& i, const curve::base<T, F>& f, T t = 0)
 	{
 		C dur = 0;
 
@@ -52,7 +52,7 @@ namespace tmx::value {
 
 	// Second derivative of present value with respect to a parallel shift.
 	template<class U, class C, class T, class F>
-	constexpr C convexity(instrument<U, C>& i, const curve::base<T, F>& f, T t = 0)
+	constexpr C convexity(instrument<U, C>::base& i, const curve::base<T, F>& f, T t = 0)
 	{
 		C cnv = 0;
 
@@ -67,7 +67,7 @@ namespace tmx::value {
 
 	// Constant forward rate matching price p at t.
 	template<class U, class C>
-	inline C yield(instrument<U, C>& i, const C p = 0, U t = 0,
+	inline C yield(instrument<U, C>::base& i, const C p = 0, U t = 0,
 		C y = 0.01, C tol = math::sqrt_epsilon<C>, int iter = 100)
 	{
 		const auto pv = [=](C y_) { return present(i, curve::constant<U, C>(y_), t) - p; };
@@ -79,7 +79,7 @@ namespace tmx::value {
 	// TODO: (Tianxin)
 	// Find constant spread so that the present value of the instrument equals price.
 	template<class U, class C, class T, class F>
-	inline F oas(F p, instrument<U, C>& i, const curve::base<T, F>& f,
+	inline F oas(F p, instrument<U, C>::base& i, const curve::base<T, F>& f,
 		F s = 0, F tol = math::sqrt_epsilon<F>, int iter = 100)
 	{
 		//const auto pv = [=](C y_) { return present(i, curve::constant<U, C>(y_), t) - p; };
