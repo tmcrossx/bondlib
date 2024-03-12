@@ -16,19 +16,29 @@ namespace tmx::instrument {
 		virtual ~base()
 		{ }
 
-		// Iterable over time cash pairs.
-		base&& iterable() const
+		explicit operator bool() const
 		{
-			return _iterable();
+			return _op_bool();
 		}
-
+		value_type operator*() const
+		{
+			return _op_star();
+		}
+		base& operator++()
+		{
+			return _op_incr();
+		}
 		std::pair<U, C> back() const
 		{
-			std::pair<U,C>(0,0);
+			_back();
 		}
 
 	private:
-		virtual base&& _iterable() const = 0;
+		virtual bool _op_bool() const = 0;
+		virtual value_type _op_star() const = 0;
+		virtual base& _op_incr() = 0;
+		virtual std::pair<U, C> _back() const = 0;
+	};
 	};
 
 	// single cash flow instrument
@@ -45,20 +55,11 @@ namespace tmx::instrument {
 			: u{ u }, c{ c }
 		{ }
 
-#pragma warning(push)
-#pragma warning(disable: 4172)
-		zero_coupon_bond&& _iterable() const override
-		{
-			zero_coupon_bond z(u, c);
-
-			return std::move(z);
-		}
-#pragma warning(pop)	
 		std::pair<U, C> _back() const
 		{
 			return { u, c };
 		}
-		explicit operator bool() const
+		explicit _op_bool() const override
 		{
 			return !done;
 		}
