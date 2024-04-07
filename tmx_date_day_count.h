@@ -81,8 +81,6 @@ static_assert(math::equal_precision(day_count_isma30360(to_ymd(Y1, M1, D1), to_y
 
 #endif // _DEBUG
 
-
-
 	// https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicpsa30360eom.cpp
 	constexpr double day_count_isma30360eom(const ymd& ymd1, const ymd& ymd2)
 	{
