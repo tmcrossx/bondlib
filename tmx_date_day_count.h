@@ -186,18 +186,16 @@ static_assert(math::equal_precision(day_count_isma30360eom(to_ymd(Y1, M1, D1), t
 		auto [y1, m1, d1] = from_ymd(ymd1);
 		auto [y2, m2, d2] = from_ymd(ymd2);
 
-		const int daysInBeginYear = 365 + ymd1.year().is_leap();
-		const int daysInEndYear = 365 + ymd2.year().is_leap();
-		const int yDiff = y2 - y1 - 1;
-		double beginYearDayDiff = diffdays(to_ymd(y1 + 1, 1, 1), ymd1);
-		double endYearDayDiff = diffdays(ymd2, to_ymd(y2, 1, 1));
+		const int db = 365 + ymd1.year().is_leap();
+		const int de = 365 + ymd2.year().is_leap();
+		const int dy = y2 - y1 - 1;
+		double dbd = diffdays(to_ymd(y1 + 1, 1, 1), ymd1);
+		double dde = diffdays(ymd2, to_ymd(y2, 1, 1));
 
-		double numerator = yDiff * daysInBeginYear * daysInEndYear
-			+ beginYearDayDiff * daysInEndYear
-			+ endYearDayDiff * daysInBeginYear;
-		int denominator = daysInBeginYear * daysInEndYear;
+		double num = dy * db * de + dbd * de + dde * db;
+		int den = db * de;
 
-		return numerator / denominator;
+		return num / den;
 	}
 
 
@@ -233,8 +231,8 @@ static_assert(math::equal_precision(day_count_isdaactualactual(to_ymd(Y1, M1, D1
 #undef TMX_DATE_DAY_COUNT
 #endif // _DEBUG
 
-	// https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicactual360.cpp
-	constexpr double day_count_actual360(const ymd& ymd1, const ymd& ymd2)
+		// https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicactual360.cpp
+		constexpr double day_count_actual360(const ymd& ymd1, const ymd& ymd2)
 	{
 		return diffdays(ymd2, ymd1) / 360.0;
 	}
@@ -292,8 +290,8 @@ static_assert(math::equal_precision(day_count_actual360(to_ymd(Y1, M1, D1), to_y
 
 
 
-	// https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicactual365fixed.cpp
-	constexpr double day_count_actual365fixed(const ymd& ymd1, const ymd& ymd2)
+		// https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicactual365fixed.cpp
+		constexpr double day_count_actual365fixed(const ymd& ymd1, const ymd& ymd2)
 	{
 		return diffdays(ymd2, ymd1) / 365.0;
 	}
@@ -337,7 +335,7 @@ static_assert(math::equal_precision(day_count_actual365fixed(to_ymd(Y1, M1, D1),
 
 
 #ifdef _DEBUG
-	inline int day_count_test()
+		inline int day_count_test()
 	{
 		using namespace std::chrono_literals;
 
