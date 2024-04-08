@@ -1,4 +1,4 @@
-// fms_pwflat.h - piecewise flat right-continuous curve determined by points (t[i], f[i]).
+// fms_pwflat.h - piecewise flat right-continuous forward curve determined by points (t[i], f[i]).
 /*
 		   { f[i] if t[i-1] < t <= t[i];
 	f(t) = { _f   if t > t[n-1];
@@ -34,6 +34,9 @@ namespace tmx {
 		inline int monotonic_test()
 		{
 			{
+				static_assert(monotonic(0, (int*)0));
+			}
+			{
 				static constexpr double t[] = { 1,2,3 };
 				static_assert(monotonic(3, t));
 			}
@@ -50,10 +53,8 @@ namespace tmx {
 		template<class T = double, class F = double>
 		constexpr F forward(T u, size_t n, const T* t, const F* f, F _f = math::NaN<F>)
 		{
-			if (u < 0)
-				return math::NaN<F>;
-			if (n == 0)
-				return _f;
+			if (u < 0)  return math::NaN<F>;
+			if (n == 0) return _f;
 
 			auto ti = std::lower_bound(t, t + n, u); // greatest i with t[i] <= u
 
@@ -80,17 +81,14 @@ namespace tmx {
 #undef IS_NAN
 #endif // _DEBUG
 
-		// TODO: int_u0^u f(t) dt
+		// TODO: int_0^u f(t) dt
 		// Integral from 0 to u of f.
 		template<class T, class F>
 		constexpr F integral(T u, size_t n, const T* t, const F* f, F _f = math::NaN<F>)
 		{
-			if (u < 0)
-				return math::NaN<F>;
-			if (u == 0)
-				return 0;
-			if (n == 0)
-				return u * _f;
+			if (u < 0)  return math::NaN<F>;
+			if (u == 0) return 0;
+			if (n == 0) return u * _f;
 
 			F I = 0;
 			T t_ = 0;
@@ -142,8 +140,9 @@ namespace tmx {
 		template<class T, class F>
 		constexpr F spot(T u, size_t n, const T* t, const F* f, F _f = math::NaN<F>)
 		{
-			return n == 0 ? _f
-				: u <= t[0] ? forward(u, n, t, f, _f) : integral(u, n, t, f, _f) / u;
+			if (n == 0) return _f;
+			
+			return u <= t[0] ? forward(u, n, t, f, _f) : integral(u, n, t, f, _f) / u;
 		}
 
 	} // namespace pwflat

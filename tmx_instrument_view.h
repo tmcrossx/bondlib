@@ -8,7 +8,7 @@ namespace tmx::instrument {
 
 	// non-owning instrument view
 	template<class U = double, class C = double>
-	class view : public instrument::base<U, C> {
+	class view : public tmx::instrument<U, C> {
 	protected:
 		std::span<U> u;
 		std::span<C> c;
@@ -29,13 +29,20 @@ namespace tmx::instrument {
 		virtual ~view()
 		{ }
 
-		const std::span<U> _time() const override
+		explicit op_bool() const override
 		{
-			return u;
+			return u.size() > 0;
 		}
-		const std::span<C> _cash() const override
+		std::pair<U, C> op_star() const override
 		{
-			return c;
+			return std::make_pair(u[0], c[0]);
+		}
+		view& op_incr() override
+		{
+			u = u.subspan(1);
+			c = c.subspan(1);
+
+			return *this;
 		}
 
 #ifdef _DEBUG

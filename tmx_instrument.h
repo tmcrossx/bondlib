@@ -1,44 +1,36 @@
 // tmx_instrument.h - times and cash flows
 #pragma once
 #include <algorithm>
-#include <vector>
+#include <concepts>
 #include <span>
-#include "fms_iterable.h"
+#include <vector>
 
 namespace tmx::instrument {
 
-	// NVI base class for instruments
-	template<class U = double, class C = double>
+	template<class U, class C>
 	struct base {
-		using iterator_category = std::forward_iterator_tag;
-		using value_type = std::pair<U, C>;
+		virtual ~base() { }
 
-		virtual ~base()
-		{ }
+		// Advance to next cash flow strictly after u.
+		base& advance(const U& u)
+		base&& iterable() const
+		base&& iterable() const
+		base&& iterable() const
+		base&& iterable() const
+		base&& iterable() const
+		base&& iterable() const
+		base&& iterable() const
+		{
+			return _iterable();
+		}
 
-		explicit operator bool() const
-		{
-			return _op_bool();
-		}
-		value_type operator*() const
-		{
-			return _op_star();
-		}
-		base& operator++()
-		{
-			return _op_incr();
-		}
 		std::pair<U, C> back() const
 		{
-			_back();
+			std::pair<U,C>(0,0);
 		}
 
 	private:
-		virtual bool _op_bool() const = 0;
-		virtual value_type _op_star() const = 0;
-		virtual base& _op_incr() = 0;
-		virtual std::pair<U, C> _back() const = 0;
-	};
+		virtual base&& _iterable() const = 0;
 	};
 
 	// single cash flow instrument
@@ -55,23 +47,35 @@ namespace tmx::instrument {
 			: u{ u }, c{ c }
 		{ }
 
+#pragma warning(push)
+#pragma warning(disable: 4172)
+		zero_coupon_bond&& _iterable() const override
+		{
+			zero_coupon_bond z(u, c);
+
+			return std::move(z);
+		}
+#pragma warning(pop)	
 		std::pair<U, C> _back() const
 		{
 			return { u, c };
 		}
-		explicit _op_bool() const override
+		explicit operator bool() const
 		{
-			return !done;
+			return op_bool();
 		}
-		value_type operator*() const
+		std::pair<U, C> operator*() const
 		{
-			return { u, c };
+			return op_star();
 		}
-		zero_coupon_bond& operator++()
+		base& operator++()
 		{
-			done = true;
-
-			return *this;
+			return op_incr();
 		}
+	private:
+		virtual bool op_bool() const = 0;
+		virtual std::pair<U, C> op_star() const = 0;
+		virtual base& op_incr() = 0;
 	};
+
 }
