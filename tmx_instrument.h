@@ -2,80 +2,137 @@
 #pragma once
 #include <algorithm>
 #include <concepts>
-#include <span>
-#include <vector>
+#include <functional>
 
 namespace tmx::instrument {
 
+	// Stream of cash flow time and amount.
 	template<class U, class C>
 	struct base {
 		virtual ~base() { }
 
-		// Advance to next cash flow strictly after u.
-		base& advance(const U& u)
-		base&& iterable() const
-		base&& iterable() const
-		base&& iterable() const
-		base&& iterable() const
-		base&& iterable() const
-		base&& iterable() const
-		base&& iterable() const
+		bool done() const
 		{
-			return _iterable();
+			return _done();
 		}
+		std::pair<U, C> read() const
+		{
+			return _read();
+		}
+		// Advance to next cash flow strictly after u.
+		base& next()
+		{
+			return _next();
+		}
+
+	private:
+		virtual bool _done() const = 0;
+		virtual std::pair<U, C> _read() const = 0;
+		virtual base& _next() = 0;
+	};
+
+	// Combine two streams of cash flows in time order.
+	template<class U, class C>
+	struct combine : public base<U, C> {
+		base<U, C>& u0;
+		base<U, C>& u1;
+
+		combine(base<U,C>& u0, base<U,C>& u1)
+			: u0(u0), u1(u1)
+		{ }
+
+		bool _done() const override
+		{
+			return u0.done() and u1.done();
+		}
+		std::pair<U,C> _read() const override
+		{
+			const auto v0 = u0.read();
+			const auto v1 = u1.read();	
+
+			return v0.first < v1.first ? v0 : v1;
+		}
+		combine& _next() override
+		{
+			if (u0.read().first < u1.read().first) {
+				u0.next();
+			}
+			else {
+				u1.next();
+			}
 
 		std::pair<U, C> back() const
 		{
 			std::pair<U,C>(0,0);
 		}
-
-	private:
-		virtual base&& _iterable() const = 0;
 	};
 
-	// single cash flow instrument
-	template<class U = double, class C = double>
-	class zero_coupon_bond : public base<U, C> {
+	// Zero coupon bond has a singe cash flow c at time u.
+	template<class U, class C>
+	struct zero_coupon_bond : public base<U, C> {
 		U u;
 		C c;
-		bool done = false;
-	public:
-		using iterator_category = std::forward_iterator_tag;
-		using value_type = std::pair<U, C>;
-
-		zero_coupon_bond(U u = 0, C c = 0)
-			: u{ u }, c{ c }
+		zero_coupon_bond(const U& u, const C& c)
+			: u(u), c(c)
 		{ }
+		zero_coupon_bond(const zero_coupon_bond&) = default;
+		zero_coupon_bond& operator=(const zero_coupon_bond&) = default;
+		~zero_coupon_bond() override { }
 
-#pragma warning(push)
-#pragma warning(disable: 4172)
-		zero_coupon_bond&& _iterable() const override
+		bool _done() const override
 		{
-			zero_coupon_bond z(u, c);
+			return c != 0;
+		}
+		std::pair<U, C> _read() const override
+		{
+			return std::pair(u, c);
+		}
+		zero_coupon_bond& _next() override
+		{
+			c = 0;
 
-			return std::move(z);
+			return *this;
 		}
-#pragma warning(pop)	
-		std::pair<U, C> _back() const
-		{
-			return { u, c };
-		}
-		explicit operator bool() const
-		{
-			return op_bool();
-		}
-		std::pair<U, C> operator*() const
-		{
-			return op_star();
-		}
-		base& operator++()
-		{
-			return op_incr();
-		}
-	private:
-		virtual bool op_bool() const = 0;
-		virtual std::pair<U, C> op_star() const = 0;
-		virtual base& op_incr() = 0;
 	};
 
+	// Advance until predicate is true.
+	template<class U, class C>
+	base<U, C>& until(base<U, C>& i, const std::function<bool(const std::pair<U, C>&)>& pred)
+	{
+		while (!i.done() and !pred(i.read())) {
+			i.next();
+		}
+
+		return i;
+	}
+
+	// Pair of iterators.
+	template<class U, class C>
+	struct iterator : base<U, C> {
+		U u;
+		C c;
+
+		iterator(const U& u, const C& c)
+			: u(u), c(c)
+		{ }
+		iterator(const iterator&) = default;
+		iterator& operator=(const iterator&) = default;
+		~iterator() override { }
+
+		bool _done() const override
+		{
+			return u && c;
+		}
+		auto _read() const override
+		{
+			return std::pair(*u, *c);
+		}
+		auto _next() override
+		{
+			++u;
+			++c;
+
+			return *this;
+		}
+	};
 }
