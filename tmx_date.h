@@ -142,6 +142,12 @@ namespace tmx::date {
 
 			return *this;
 		}
+		constexpr periodic& operator--()
+		{
+			d -= m;
+
+			return *this;
+		}
 #ifdef _DEBUG
 		static int test()
 		{
@@ -174,6 +180,16 @@ namespace tmx::date {
 #endif // _DEBUG
 	};
 
-	// Work backward from termination/maturity to first calculation date.
+	// Work backward from termination/maturity to first calculation/coupon date.
+	constexpr ymd first_calculation_date(ymd effective, ymd termination, frequency f)
+	{
+		periodic p(termination, f);
+
+		while (*p > effective) {
+			--p;
+		}
+
+		return *++p;
+	}
 
 } // namespace tmx::date
