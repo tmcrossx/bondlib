@@ -7,9 +7,10 @@ namespace tmx::date::holiday::calendar {
 	// Return true on non-trading days.
 	using calendar_t = bool(*)(const date::ymd&);
 
+	// TODO: Add more calendars
 	// https://www.sifma.org/resources/general/holiday-schedule/#us
 	constexpr bool NYSE(const ymd& d)
-	{	// TODO: Add more holidays
+	{	
 		return weekend(d)
 			|| holiday::new_year_day(d)
 			|| holiday::martin_luther_king_day(d)

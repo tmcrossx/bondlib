@@ -119,4 +119,61 @@ namespace tmx::date {
 		return std::chrono::months(12 / static_cast<int>(f));
 	}
 
+	// iterable periodic dates
+	class periodic {
+		ymd d;
+		std::chrono::months m;
+	public:
+		constexpr periodic(const ymd& d, const frequency& f)
+			: d(d), m(period(f))
+		{ }
+
+		constexpr explicit operator bool() const
+		{
+			return true;
+		}
+		constexpr ymd operator*() const
+		{
+			return d;
+		}
+		constexpr periodic& operator++()
+		{
+			d += m;
+
+			return *this;
+		}
+#ifdef _DEBUG
+		static int test()
+		{
+			using std::literals::chrono_literals::operator""y;
+			{
+				ymd d = 2024y / 5 / 6;
+				periodic p(d, frequency::annually);
+				assert(p);
+				assert(*p == 2024y / 5 / 6);
+				++p;
+				assert(*p == 2025y / 5 / 6);
+				assert(p);
+			}
+			{
+				ymd d = 2024y / 11 / 6;
+				periodic p(d, frequency::monthly);
+				assert(p);
+				assert(*p == 2024y / 11 / 6);
+				++p;
+				assert(*p == 2024y / 12 / 6);
+				++p;
+				assert(*p == 2025y / 1 / 6);
+				++p;
+				assert(*p == 2025y / 2 / 6);
+				assert(p);
+			}
+
+			return 0;
+		}
+#endif // _DEBUG
+	};
+
+	// Work backward from termination/maturity to first calculation date.
+
 } // namespace tmx::date

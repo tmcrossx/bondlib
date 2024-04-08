@@ -10,7 +10,7 @@
 #include "tmx_curve_pwflat.h"
 #include "tmx_curve.h"
 #include "tmx_curve_constant.h"
-//#include "tmx_instrument_value.h"
+#include "tmx_instrument.h"
 //#include "tmx_value.h"
 //#include "tmx_bond.h"
 //#include "tmx_bootstrap.h"
@@ -39,12 +39,13 @@ int test_curve_operator = curve::constant<>::test();
 //int test_pwflat = curve::pwflat_test();
 //int test_option_put = option::put::test();
 //>>>>>>> main
-//int test_date_periodic = date::periodic_test();
+int test_date_periodic = date::periodic::test();
 //int test_datetime = datetime::test();
 //int test_date_dcf = date::dcf::test();
 //int test_tmx_monotonic = tmx::monotonic_test();
 //int test_pwflat_curve_view = pwflat::view<>::test();
 //int test_pwflat_curve_value = pwflat::base<>::test();
+int test_instrument = instrument::combine<>::test();
 //int test_instrument_view = view<>::test();
 //int test_instrument_value = value<>::test();
 //int test_value_yield_d = value::yield_test<double>();

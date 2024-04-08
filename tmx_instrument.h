@@ -1,38 +1,71 @@
 // tmx_instrument.h - times and cash flows
 #pragma once
-#include <algorithm>
-#include <concepts>
+#ifdef _DEBUG
+#include <cassert>
+#endif // _DEBUG
 #include <functional>
+#include <limits>
 
 namespace tmx::instrument {
 
 	// Stream of cash flow time and amount.
-	template<class U, class C>
+	template<class U = double, class C = double>
 	struct base {
 		virtual ~base() { }
 
-		bool done() const
+		explicit operator bool() const
 		{
-			return _done();
+			return op_bool();
 		}
-		std::pair<U, C> read() const
+		std::pair<U, C> operator*() const
 		{
-			return _read();
+			return op_star();
 		}
 		// Advance to next cash flow strictly after u.
-		base& next()
+		base& operator++()
 		{
-			return _next();
+			return op_incr();
 		}
 
 	private:
-		virtual bool _done() const = 0;
-		virtual std::pair<U, C> _read() const = 0;
-		virtual base& _next() = 0;
+		virtual bool op_bool() const = 0;
+		virtual std::pair<U, C> op_star() const = 0;
+		virtual base& op_incr() = 0;
+	};
+
+	// Zero coupon bond has a singe cash flow c at time u.
+	template<class U = double, class C = double>
+	class zero_coupon_bond : public base<U, C> {
+		U u;
+		C c;
+		static constexpr U infty = std::numeric_limits<U>::infinity();
+	public:
+		zero_coupon_bond(const U& u = infty, const C& c = 0)
+			: u(u), c(c)
+		{ }
+		zero_coupon_bond(const zero_coupon_bond&) = default;
+		zero_coupon_bond& operator=(const zero_coupon_bond&) = default;
+		~zero_coupon_bond() override { }
+
+		bool op_bool() const override
+		{
+			return u != infty;
+		}
+		std::pair<U, C> op_star() const override
+		{
+			return std::pair(u, c);
+		}
+		zero_coupon_bond& op_incr() override
+		{
+			u = infty;
+			c = 0;
+
+			return *this;
+		}
 	};
 
 	// Combine two streams of cash flows in time order.
-	template<class U, class C>
+	template<class U = double, class C = double>
 	struct combine : public base<U, C> {
 		base<U, C>& u0;
 		base<U, C>& u1;
@@ -41,71 +74,74 @@ namespace tmx::instrument {
 			: u0(u0), u1(u1)
 		{ }
 
-		bool _done() const override
+		bool op_bool() const override
 		{
-			return u0.done() and u1.done();
+			return u0 || u1;
 		}
-		std::pair<U,C> _read() const override
+		std::pair<U,C> op_star() const override
 		{
-			const auto v0 = u0.read();
-			const auto v1 = u1.read();	
-
-			return v0.first < v1.first ? v0 : v1;
+			return (*u0).first < (*u1).first ? *u0 : *u1;
 		}
-		combine& _next() override
+		combine& op_incr() override
 		{
-			if (u0.read().first < u1.read().first) {
-				u0.next();
+			if ((*u0).first < (*u1).first) {
+				++u0;
 			}
 			else {
-				u1.next();
+				++u1;
 			}
-
-		std::pair<U, C> back() const
-		{
-			std::pair<U,C>(0,0);
-		}
-	};
-
-	// Zero coupon bond has a singe cash flow c at time u.
-	template<class U, class C>
-	struct zero_coupon_bond : public base<U, C> {
-		U u;
-		C c;
-		zero_coupon_bond(const U& u, const C& c)
-			: u(u), c(c)
-		{ }
-		zero_coupon_bond(const zero_coupon_bond&) = default;
-		zero_coupon_bond& operator=(const zero_coupon_bond&) = default;
-		~zero_coupon_bond() override { }
-
-		bool _done() const override
-		{
-			return c != 0;
-		}
-		std::pair<U, C> _read() const override
-		{
-			return std::pair(u, c);
-		}
-		zero_coupon_bond& _next() override
-		{
-			c = 0;
 
 			return *this;
 		}
+#ifdef _DEBUG
+		static int test()
+		{
+			{
+				zero_coupon_bond z(1, 2);
+				assert(z);
+				assert(*z == std::pair(1, 2));
+				++z;
+				assert(!z);
+			}
+			{
+				zero_coupon_bond z0(1., 2.), z1(3., 4.);
+				combine i(z0, z1);
+				assert(i);
+				assert(*i == std::pair(1., 2.));
+				++i;
+				assert(i);
+				assert(*i == std::pair(3., 4.));
+				++i;
+				assert(!i);
+			}
+			{
+				zero_coupon_bond z0(1., 2.), z1(3., 4.);
+				combine i(z1, z0);
+				assert(i);
+				assert(*i == std::pair(1., 2.));
+				++i;
+				assert(i);
+				assert(*i == std::pair(3., 4.));
+				++i;
+				assert(!i);
+			}
+
+			return 0;
+		}
+#endif // _DEBUG
 	};
 
 	// Advance until predicate is true.
 	template<class U, class C>
 	base<U, C>& until(base<U, C>& i, const std::function<bool(const std::pair<U, C>&)>& pred)
 	{
-		while (!i.done() and !pred(i.read())) {
-			i.next();
+		while (i and !pred(*i)) {
+			++i;
 		}
 
 		return i;
 	}
-
+	/*
 	// Pair of iterators.
 	template<class U, class C>
 	struct iterator : base<U, C> {
@@ -119,15 +155,15 @@ namespace tmx::instrument {
 		iterator& operator=(const iterator&) = default;
 		~iterator() override { }
 
-		bool _done() const override
+		bool op_bool() const override
 		{
-			return u && c;
+			return u and c;
 		}
-		auto _read() const override
+		std::pair<U::value_type,C::value_type> op_star() const override
 		{
 			return std::pair(*u, *c);
 		}
-		auto _next() override
+		auto op_incr() override
 		{
 			++u;
 			++c;
@@ -135,4 +171,5 @@ namespace tmx::instrument {
 			return *this;
 		}
 	};
+	*/
 }
