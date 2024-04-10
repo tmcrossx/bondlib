@@ -26,11 +26,11 @@ namespace tmx::curve {
 		pwflat& operator=(pwflat&&) = default;
 		~pwflat() = default;
 
-		F _forward(T u, T t) const override
+		F _forward(T u, T t = 0) const noexcept override
 		{
 			return tmx::pwflat::forward(u - t, t_.size(), t_.data(), f_.data(), _f);
 		}
-		F _integral(T u, T t0) const override
+		F _integral(T u, T t0 = 0) const noexcept override
 		{
 			return tmx::pwflat::integral(u, t_.size(), t_.data(), f_.data(), _f)
 				 - tmx::pwflat::integral(t0, t_.size(), t_.data(), f_.data(), _f);

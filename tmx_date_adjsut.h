@@ -1,4 +1,4 @@
-// fms_date_periodic.h - Periodic dates with roll and holiday adjustments
+// tmx_date_adjust.h - Adjust periodic dates with roll and holiday adjustments
 #pragma once
 #include "tmx_date_business_day.h"
 
@@ -16,7 +16,7 @@ namespace tmx::date {
 
 		explicit operator bool() const
 		{
-			return true;
+			return p;
 		}
 		ymd operator*() const
 		{

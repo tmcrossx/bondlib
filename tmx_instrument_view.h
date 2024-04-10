@@ -8,7 +8,7 @@ namespace tmx::instrument {
 
 	// non-owning instrument view
 	template<class U = double, class C = double>
-	class view : public tmx::instrument<U, C> {
+	class view : public base<U,C> {
 	protected:
 		std::span<U> u;
 		std::span<C> c;

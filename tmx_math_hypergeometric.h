@@ -23,7 +23,7 @@ namespace tmx::math {
 		X s = 1;    // n = 0
 
 		X ds = 1;
-		for (unsigned n = 1; abs(ds) > eps || abs(x_n) > eps; ++n) {
+		for (unsigned n = 1; fabs(ds) > eps || fabs(x_n) > eps; ++n) {
 			unsigned int i = 0;
 			while (i < np && i < nq) {
 				p_qn *= (p[i] + n - 1) / (q[i] + n - 1);
@@ -44,6 +44,9 @@ namespace tmx::math {
 
 		return s;
 	}
+#ifdef _DEBUG
+	static_assert(pFq(0, (const double*)nullptr, 0, (const double*)nullptr, 0.) == 1);
+#endif // _DEBUG
 
 	//
 	// Well known functions
@@ -58,6 +61,11 @@ namespace tmx::math {
 	{
 		return _1F1(1., 1., x, eps);
 	}
+#ifdef _DEBUG
+	// constexpr double ee = math::exp(1.);
+	static_assert(exp(1.) == 2.7182818282861687); 
+	                            // 2.71828182845904523536028747135266249775724709369995
+#endif // _DEBUG
 
 	template<class X = double>
 	constexpr X _2F1(X a, X b, X c, X x, X eps)
@@ -76,19 +84,19 @@ namespace tmx::math {
 	}
 
 #ifdef _DEBUG
-#if 0
+//#if 0
 	template<class X = double>
 	inline int hypergeometric_test()
 	{
 		{
 			// (1 - x)^{-a} = 1 + ax + a(a + 1)/2 x^2 + ... = sum_{n>=0}(a)_n x^n/n!
-			X as[] = { -0.1, 0, 0.1, 1, 2 };
-			X xs[] = { -0.5, 0, 0.5 };
+			constexpr X as[] = { -0.1, 0, 0.1, 1, 2 };
+			constexpr X xs[] = { -0.5, 0, 0.5 };
 			for (X a : as) {
 				for (X x : xs) {
-					X F = pow1(-x, -a); // 1F0(a,x)
-					X _F = pFq(1, &a, 0, (const X*)nullptr, x); // 1F0(x)
-					X dF = F - _F;
+					constexpr X F = pow1(-x, -a); // 1F0(a,x)
+					constexpr X _F = pFq(1, &a, 0, (const X*)nullptr, x); // 1F0(x)
+					constexpr X dF = F - _F;
 					static_assert(fabs(dF) < 2 * epsilon<X>);
 				}
 			}
@@ -108,12 +116,12 @@ namespace tmx::math {
 				X two_[] = { 2 };
 				X _F = pFq(2, one_, 1, two_, -x);
 				X Fd = _F - F;
-				static_assert(fabs(_F - F) < std::numeric_limits<X>::epsilon());
+				static_assert(fabs(_F - F) < epsilon<X>);
 			}
 		}
 
 		return 0;
 	}
-#endif // 0
+//#endif // 0
 #endif // _DEBUG
 } // namespace tmx::math

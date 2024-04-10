@@ -21,7 +21,7 @@ namespace tmx::option {
 	}
 	// exp(rt)X = F, sigma = s sqrt(t)
 	template<class R, class X, class S, class K, class T>
-	inline auto moneyness(R r, X x, S sigma, K k, T t, const variate::base<X, S>& v = variate::normal<F, S>{})
+	inline auto moneyness(R r, X x, S sigma, K k, T t, const variate::base<X, S>& v = variate::normal<X, S>{})
 	{
 		return moneyness(exp(r*t) * x, sigma * sqrt(t), k, v);
 	}

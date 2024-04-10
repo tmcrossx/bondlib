@@ -131,16 +131,6 @@ namespace tmx::instrument {
 #endif // _DEBUG
 	};
 
-	// Advance until predicate is true.
-	template<class U, class C>
-	base<U, C>& until(base<U, C>& i, const std::function<bool(const std::pair<U, C>&)>& pred)
-	{
-		while (i and !pred(*i)) {
-			++i;
-		}
-
-		return i;
-	}
 	/*
 	// Pair of iterators.
 	template<class U, class C>

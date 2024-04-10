@@ -33,7 +33,6 @@ namespace tmx::date {
 	// year/month/day to UTC time_t
 	constexpr time_t to_time_t(const ymd& ymd)
 	{
-		// ??? use std::chrono::zoned_time
 		return std::chrono::sys_days(ymd).time_since_epoch().count() * seconds_per_day;
 	}
 	// Not guaranteed to be true.
@@ -42,9 +41,19 @@ namespace tmx::date {
 	// UTC time_t to year/month/day
 	inline ymd from_time_t(time_t t)
 	{
-		return ymd{ std::chrono::round<std::chrono::days>(std::chrono::system_clock::from_time_t(t)) };
+		return ymd{ std::chrono::floor<std::chrono::days>(std::chrono::system_clock::from_time_t(t)) };
 	}
 	// static_assert(from_time_t(0) == to_ymd(1970, 1, 1)); // not constexpr
+#ifdef _DEBUG
+	inline int from_time_t_test()
+	{
+		assert(from_time_t(0) == to_ymd(1970, 1, 1));
+		assert(from_time_t(seconds_per_day) == to_ymd(1970, 1, 2));
+		assert(from_time_t(-seconds_per_day) == to_ymd(1969, 12, 31));
+
+		return 0;
+	}
+#endif // _DEBUG
 
 	// Time in seconds from d0 to d1.
 	constexpr time_t diffseconds(ymd d1, ymd d0)
@@ -180,7 +189,7 @@ namespace tmx::date {
 #endif // _DEBUG
 	};
 
-	// Work backward from termination/maturity to first calculation/coupon date.
+	// Work backward from termination/maturity to first calculation/coupon date after effective/issue date.
 	constexpr ymd first_calculation_date(ymd effective, ymd termination, frequency f)
 	{
 		periodic p(termination, f);
