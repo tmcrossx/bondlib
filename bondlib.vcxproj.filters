@@ -90,9 +90,6 @@
     <ClInclude Include="tmx_curve_pwflat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tmx_curve_plus.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="tmx_date_adjsut.h">
       <Filter>Header Files</Filter>
     </ClInclude>

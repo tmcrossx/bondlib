@@ -158,7 +158,7 @@ namespace tmx::option {
 		// return s with c = call::value(f, s, k)
 		template<class F = double, class C = double, class K = double>
 		inline auto implied(F f, C c, K k, C s0 = 0.1,
-			double tol = root1d::sqrt_epsilon<C>, int iter = 100)
+			double tol = math::sqrt_epsilon<C>, int iter = 100)
 		{
 			return put::implied(f, c - f + k, k, s0);
 		}

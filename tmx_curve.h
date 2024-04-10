@@ -49,6 +49,9 @@ namespace tmx::curve {
 		constexpr constant(F f = math::NaN<F>) noexcept
 			: f(f)
 		{ }
+		constexpr constant(const constant& c) = default;
+		constexpr constant& operator=(const constant& c) = default;
+		constexpr ~constant() = default;
 
 		constexpr F _forward(T u, T t = 0) const noexcept override
 		{
