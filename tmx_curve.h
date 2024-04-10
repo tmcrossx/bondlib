@@ -6,14 +6,14 @@
 #include<cassert>
 #endif // _DEBUG
 #include <utility>
-#include "gcem/include/gcem.hpp"
-#include "tmx_math.h"
+#include "tmx_math_hypergeometric.h"
 
 namespace tmx::curve {
 
 	template<class T = double, class F = double>
 	struct base {
-		virtual ~base() {}
+		constexpr base() noexcept = default;
+		constexpr virtual ~base() {}
 
 		// Forward over [t, u].
 		F forward(T u, T t = 0) const noexcept
@@ -28,7 +28,7 @@ namespace tmx::curve {
 		// Price at time t of one unit received at time u.
 		F discount(T u, T t = 0) const noexcept
 		{
-			return u >= t ? gcem::exp(-integral(u, t)) : math::NaN<F>;
+			return u >= t ? math::exp(-integral(u, t)) : math::NaN<F>;
 		}
 		// Spot over [t, u]
 		F spot(T u, T t = 0) const noexcept
@@ -50,20 +50,49 @@ namespace tmx::curve {
 			: f(f)
 		{ }
 
-		constexpr F _forward(T, T) const noexcept override
+		constexpr F _forward(T u, T t = 0) const noexcept override
 		{
-			return f;
+			return (u >= t and t >= 0) ? f : math::NaN<F>;
 		}
-		constexpr F _integral(T u, T t) const noexcept override
+		constexpr F _integral(T u, T t = 0) const noexcept override
 		{
-			return f * (u - t);
+			return (u >= t and t >= 0) ? f * (u - t) : math::NaN<F>;
 		}
 	};
 #ifdef _DEBUG
-//	static_assert(constant(1.)._forward(0., 0.) == 1);
-//	static_assert(constant(1.).integral(0., 0.) == 0);
-//	static_assert(constant(1.).integral(2., 0.) == 2.);
+	static_assert(math::isnan(constant(1.)._forward(-1., 0.)));
+	static_assert(constant(1.)._forward(0., 0.) == 1);
+	static_assert(constant(1.)._integral(0., 0.) == 0);
+	static_assert(constant(1.)._integral(2., 0.) == 2.);
 //	static_assert(constant(1.).spot(0., 0.) == 1);
+#endif // _DEBUG
+
+	// Linear curve.
+	template<class T = double, class F = double>
+	class linear : public base<T, F> {
+		F f, df;
+	public:
+		constexpr linear(F f = math::NaN<F>, F df = 0) noexcept
+			: f(f), df(df)
+		{ }
+
+		constexpr F _forward(T u, T t = 0) const noexcept override
+		{
+			return (u >= t and t >= 0) ? f + df*(u - t) : math::NaN<F>;
+		}
+		constexpr F _integral(T u, T t = 0) const noexcept override
+		{
+			return (u >= t and t >= 0) ? f * (u - t) + df * (u - t)*(u - t)/2 : math::NaN<F>;
+		}
+	};
+#ifdef _DEBUG
+	/*
+	static_assert(math::isnan(linear(1.)._forward(-1., 0.)));
+	static_assert(linear(1.)._forward(0., 0.) == 1);
+	static_assert(linear(1.)._integral(0., 0.) == 0);
+	static_assert(linear(1.)._integral(2., 0.) == 2.);
+	//	static_assert(linear(1.).spot(0., 0.) == 1);
+	*/
 #endif // _DEBUG
 
 	// Add two curves.
@@ -82,19 +111,17 @@ namespace tmx::curve {
 		plus& operator=(const plus& p) = default;
 		~plus() = default;
 
-		F _forward(T u, T t) const override
+		F _forward(T u, T t = 0) const override
 		{
 			return f.forward(u, t) + g.forward(u, t);
 		}
-		F _integral(T u, T t) const override
+		F _integral(T u, T t = 0) const override
 		{
 			return f.integral(u, t) + g.integral(u, t);
 		}
 	};
 
-
 } // namespace tmx::curve
-
 
  // Add two curves.
 template<class T, class F>

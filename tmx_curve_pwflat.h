@@ -35,6 +35,15 @@ namespace tmx::curve {
 			return tmx::pwflat::integral(u, t_.size(), t_.data(), f_.data(), _f)
 				 - tmx::pwflat::integral(t0, t_.size(), t_.data(), f_.data(), _f);
 		}
+
+		std::pair<T, F> back() const noexcept
+		{
+			return t_.size() ? std::make_pair(t_.back(), f_.back()) : std::make_pair(math::infinity<T>, _f);
+		}
+		F extrapolate(F f_ = math::NaN<F>) noexcept
+		{
+			return _f = f_;
+		}
 	};
 
 #ifdef _DEBUG
