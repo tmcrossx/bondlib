@@ -198,7 +198,6 @@ static_assert(math::equal_precision(day_count_isma30360eom(to_ymd(Y1, M1, D1), t
 		return num / den;
 	}
 
-
 #ifdef _DEBUG
 	// test for day_count_isdaactualactual()
 //https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicisdaactualactual.t.cpp#L186
@@ -231,8 +230,8 @@ static_assert(math::equal_precision(day_count_isdaactualactual(to_ymd(Y1, M1, D1
 #undef TMX_DATE_DAY_COUNT
 #endif // _DEBUG
 
-		// https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicactual360.cpp
-		constexpr double day_count_actual360(const ymd& ymd1, const ymd& ymd2)
+	// https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicactual360.cpp
+	constexpr double day_count_actual360(const ymd& ymd1, const ymd& ymd2)
 	{
 		return diffdays(ymd2, ymd1) / 360.0;
 	}
@@ -287,11 +286,8 @@ static_assert(math::equal_precision(day_count_actual360(to_ymd(Y1, M1, D1), to_y
 #undef TMX_DATE_DAY_COUNT
 #endif // _DEBUG     
 
-
-
-
-		// https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicactual365fixed.cpp
-		constexpr double day_count_actual365fixed(const ymd& ymd1, const ymd& ymd2)
+	// https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicactual365fixed.cpp
+	constexpr double day_count_actual365fixed(const ymd& ymd1, const ymd& ymd2)
 	{
 		return diffdays(ymd2, ymd1) / 365.0;
 	}
@@ -323,8 +319,6 @@ static_assert(math::equal_precision(day_count_actual360(to_ymd(Y1, M1, D1), to_y
                 X(1998,     2,    27,   1998,     3,    27,   0.0767) \
                 X(1998,     2,    28,   1998,     3,    27,   0.0740) \
 
-
-
 #define DAY_COUNT_TEST(Y1, M1, D1, Y2, M2, D2, DC) \
 static_assert(math::equal_precision(day_count_actual365fixed(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2)), DC, -4));
 	TMX_DATE_DAY_COUNT(DAY_COUNT_TEST)
@@ -332,28 +326,24 @@ static_assert(math::equal_precision(day_count_actual365fixed(to_ymd(Y1, M1, D1),
 #undef TMX_DATE_DAY_COUNT
 #endif // _DEBUG     
 
-
-
 #ifdef _DEBUG
-		inline int day_count_test()
+	inline int day_count_test()
 	{
 		using namespace std::chrono_literals;
 
-		{   // beginDate < endDate
-			ymd d0 = to_ymd(2004, 9, 30);
+		{
+            ymd d0 = to_ymd(2004, 9, 30);
 			ymd d1 = 2004y / 12 / 31;
 			const double yearsDiff = day_count_isma30360(d0, d1);
 			assert(0.25 == yearsDiff);
 		}
-
-		{   // yearsDiff is not finite decimals
+		{
 			ymd d0 = to_ymd(2000, 3, 31);
 			ymd d1 = 2004y / 1 / 31;
 			const double yearsDiff = day_count_isma30360(d0, d1);
 			assert(3.8333 <= yearsDiff);
 			assert(3.8334 >= yearsDiff);
 		}
-
 
 		return 0;
 	}

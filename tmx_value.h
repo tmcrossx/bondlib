@@ -3,7 +3,7 @@
 #include <cmath>
 #include <limits>
 #include "tmx_instrument.h"
-#include "tmx_curve_constant.h"
+#include "tmx_curve.h"
 #include "tmx_root1d.h"
 
 namespace tmx::value {
@@ -20,6 +20,13 @@ namespace tmx::value {
 		return X(std::log(std::pow(1 + y / n, n)));
 	}
 
+	// Present value at t of cash flow.
+	template<class U, class C, class T, class F>
+	constexpr auto present(const instrument::cash_flow<U, C>& uc, const curve::base<T, F>& f, T t = 0)
+	{
+		return uc.c * f.discount(uc.u, t);
+	}
+
 	// Present value at t of future discounted cash flows.
 	template<class U, class C, class T, class F>
 	constexpr C present(instrument<U, C>::base& i, const curve::base<T, F>& f, T t = 0)
@@ -27,8 +34,7 @@ namespace tmx::value {
 		C pv = 0;
 
 		while (i) {
-			const auto [u, c] = *i;
-			pv += c * f.discount(u, t);
+			pv += present(*i, f, t);
 			++i;
 		}
 
@@ -42,8 +48,7 @@ namespace tmx::value {
 		C dur = 0;
 
 		while (i) {
-			const auto [u, c] = *i;
-			dur -= (u - t) * c * f.discount(u, t);
+			dur -= (u - t) * present(*i, f, t);
 			++i;
 		}
 
@@ -57,8 +62,7 @@ namespace tmx::value {
 		C cnv = 0;
 
 		while (i) {
-			const auto [u, c] = *i;
-			cnv += (u - t) * (u - t) * c * f.discount(u, t);
+			cnv += (u - t) * (u - t) * present(*i, f, t)
 			++i;
 		}
 

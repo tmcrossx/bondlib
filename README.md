@@ -1,5 +1,25 @@
 # BondLib
 
+A fixed income security is a portfolio of zero coupon bonds.
+The _price_ of a zero coupon bond is the _discount_.
+The _present value_ of a fixed income security
+is the sum of discounted future future cash flows.
+_Duration_ is the derivative of the present value with respect to
+a parallel shift in the yield curve. _Convexity_ is the second derivative.
+
+Discounts are quoted in terms of rates.
+If $D(t)$ is the discount of 1 unit of currency
+paid at time $t$ then the _spot_/_yield_ rate $r$ is defined
+by $D(t) = \exp(-t r(t))$. The _forward_ rate $f(t)$ is
+defined by $D(t) = \exp(-\int_0^t f(s)\,ds)$.
+This implies the spot $r(t) = (1/t)\int_0^t f(s)\,ds$
+is the average forward rate over the interval $[0, t]$.
+
+
+## [Curve](tmx_curve.h)
+
+We model discount using piecewise flat/constant forward rates.
+
 Let $T$ be a totally ordered set of trading times.
 
 Let $\Omega$ be the set of all possible outcomes. 
@@ -112,7 +132,7 @@ where $f_t(u)$ is the forward curve at time $t$. Note $f(t) = f_0(t)$.
 
 The _forward yield_ at $t$ defined by $D_t(u) = \exp(-(u - t)y_t(u)$.
 
-The implementation uses [piecewise flat](tmx_pwflat.h) forwards.
+The implementation uses [piecewise flat](tmx_curve_pwflat.h) forwards.
 
 ## Fixed Income
 
