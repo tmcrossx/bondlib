@@ -7,12 +7,13 @@
 #ifdef _DEBUG
 #include<cassert>
 #endif // _DEBUG
-// Use <cmath> once exp() is constexpr.
+// Use <cmath> once std::exp is constexpr.
 #include "tmx_math_hypergeometric.h"
 
 namespace tmx::curve {
 
-	// NVI idiom
+	// NVI idiom compiles to non-virtual function calls.
+	// Enforce preconditions for all derived curves.
 	template<class T = double, class F = double>
 	struct base {
 		constexpr base() noexcept = default;
@@ -39,14 +40,18 @@ namespace tmx::curve {
 		// Spot/yield over [t, u]
 		F spot(T u, T t = 0) const noexcept
 		{
-			return u >= t && t >= 0 ? (u > t + math::sqrt_epsilon<T> ? -_integral(u, t) / (u - t) : _forward(u, t)) : math::NaN<F>;
+			return u >= t && t >= 0 
+				? (u > t + math::sqrt_epsilon<T> 
+					? _integral(u, t) / (u - t) 
+					: _forward(u, t)) 
+				: math::NaN<F>;
 		}
 
 	private:
 		virtual F _forward(T u, T t) const noexcept = 0;
 		virtual F _integral(T u, T t) const noexcept = 0;
 	};
-
+	
 	// Constant curve.
 	template<class T = double, class F = double>
 	class constant : public base<T, F> {
@@ -59,7 +64,7 @@ namespace tmx::curve {
 		constexpr constant& operator=(const constant& c) = default;
 		constexpr ~constant() = default;
 
-		constexpr F _forward(T u, T t = 0) const noexcept override
+		constexpr F _forward(T, T) const noexcept override
 		{
 			return f;
 		}
@@ -69,21 +74,33 @@ namespace tmx::curve {
 		}
 	};
 #ifdef _DEBUG
-//	static_assert(math::isnan(constant(1.)._forward(-1., 0.)));
-//	static_assert(constant(1.)._forward(0., 0.) == 1);
-//	static_assert(constant(1.)._integral(0., 0.) == 0);
-//	static_assert(constant(1.)._integral(2., 0.) == 2.);
-//	static_assert(constant(1.).spot(0., 0.) == 1);
+	inline int constant_test()
+	{
+		{
+			constant c(1.);
+			assert(math::isnan(constant(1.).forward(-1., 0.)));
+			assert(c.forward(0., 0.) == 1);
+			assert(c.forward(2., 1.) == 1);
+			assert(c.integral(0., 0.) == 0);
+			assert(c.integral(2., 0.) == 2.);
+			assert(c.spot(0., 0.) == 1);
+			assert(c.spot(1., 0.) == 1);
+			assert(c.spot(2., 1.) == 1);
+		}
+
+		return 0;
+	}
+
 #endif // _DEBUG
 	
-	// f on [t0, t1], 0 elsewhere.
+	// s on [t0, t1], 0 elsewhere.
 	template<class T = double, class F = double>
 	class bump : public base<T, F> {
-		F f;
+		F s;
 		T t0, t1;
 	public:
-		constexpr bump(F f, T t0, T t1) noexcept
-			: f(f), t0(t0), t1(t1)
+		constexpr bump(F s, T t0, T t1) noexcept
+			: s(s), t0(t0), t1(t1)
 		{ }
 		constexpr bump(const bump& c) = default;
 		constexpr bump& operator=(const bump& c) = default;
@@ -91,15 +108,29 @@ namespace tmx::curve {
 
 		constexpr F _forward(T u, T t = 0) const noexcept override
 		{
-			return f * (t0 <= u - t) * (u - t <= t1);
+			return s * (t0 <= u - t) * (u - t <= t1);
 		}
 		constexpr F _integral(T u, T t = 0) const noexcept override
 		{
-			return f * (std::min(u - t, t1) - std::max(u - t, t0));
+			return s * (std::min(u - t, t1) - std::max(u - t, t0)); // fix!!!
 		}
 	};
 #ifdef _DEBUG
-//	static_assert(bump(1., 0., 1.)._forward(0., 0.) == 1);
+	inline int bump_test()
+	{
+		{
+			bump b(0.5, 1., 2.);
+			assert(b.forward(0.9) == 0);
+			assert(b.forward(1) == 0.5);
+			assert(b.forward(2) == 0.5);
+			assert(b.forward(2.1) == 0);
+			assert(b.integral(0) == 0);
+			assert(b.integral(1) == 0);
+			assert(b.integral(2) == 0.5);
+		}
+
+		return 0;
+	}
 #endif // _DEBUG
 
 	// Add two curves.
@@ -113,6 +144,9 @@ namespace tmx::curve {
 		{ }
 		plus(const base<T, F>& f, F s)
 			: f(f), g(constant(s))
+		{ }
+		plus(const base<T, F>& f, F s, T t0, T t1)
+			: f(f), g(bump(s, t0, t1))
 		{ }
 		plus(const plus& p) = default;
 		plus& operator=(const plus& p) = default;
@@ -136,6 +170,7 @@ inline tmx::curve::plus<T, F> operator+(const tmx::curve::base<T, F>& f, const t
 {
 	return tmx::curve::plus<T, F>(f, g);
 }
+
 // Add a constant spread.
 template<class T, class F>
 inline tmx::curve::plus<T, F> operator+(tmx::curve::base<T, F>& f, F s)

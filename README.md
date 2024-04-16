@@ -4,6 +4,7 @@ A fixed income security is a portfolio of zero coupon bonds.
 The _price_ of a zero coupon bond is the _discount_.
 The _present value_ of a fixed income security
 is the sum of discounted future future cash flows.
+
 _Duration_ is the derivative of the present value with respect to
 a parallel shift in the yield curve. _Convexity_ is the second derivative.
 
@@ -15,10 +16,27 @@ defined by $D(t) = \exp(-\int_0^t f(s)\,ds)$.
 This implies the spot $r(t) = (1/t)\int_0^t f(s)\,ds$
 is the average forward rate over the interval $[0, t]$.
 
-
 ## [Curve](tmx_curve.h)
 
-We model discount using piecewise flat/constant forward rates.
+The `tmx::curve::base` class provides an interface to
+discount, forward, and spot/yield. C++ does not have
+the `interface` keyword but the NVI idiom can be used
+to help the compiler eliminate virtual function calls.
+
+Subclasses must override the pure virtual `_forward` and `_integral` functions.
+The `tmx::curve::constant` and `tmx::curve::bump` classes
+are examples of how to do this.
+
+The `tmx::curve::plus` class adds two curves. It uses references to avoid copying
+any data used in the implementation of the `curve::base` interface.
+It requires the lifetime of the referenced curves to be longer than the lifetime of the `plus` object.
+
+### Piecewise Flat
+
+[`tmx::curve::pwflat`](tmx_curve_pwflat.h) implements `tmx::curve::base` as a 
+[value type](https://learn.microsoft.com/en-us/cpp/cpp/value-types-modern-cpp?view=msvc-170). 
+It uses the standalone functions in [tmx::pwflat](tmx_pwflat.h).
+
 
 Let $T$ be a totally ordered set of trading times.
 
