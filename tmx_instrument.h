@@ -42,20 +42,22 @@ namespace tmx::instrument {
 	static_assert(!(cash_flow(1., 2) < cash_flow(1, 2.)));
 #endif // _DEBUG
 
-	// Stream of cash flow time and amount.
+	// Stream of cash flows.
 	template<class U = double, class C = double>
 	struct base {
 		virtual ~base() { }
 
+		// Detect end of stream.
 		explicit operator bool() const
 		{
 			return op_bool();
 		}
+		// Current cash flow.
 		cash_flow<U, C> operator*() const
 		{
 			return op_star();
 		}
-		// Advance to next cash flow strictly after u.
+		// Advance to next cash flow.
 		base& operator++()
 		{
 			return op_incr();
@@ -67,7 +69,7 @@ namespace tmx::instrument {
 		virtual base& op_incr() = 0;
 	};
 
-	// Zero coupon bond has a single cash flow.
+	// A zero coupon bond has a single cash flow.
 	template<class U = double, class C = double>
 	class zero_coupon_bond : public base<U, C> {
 		cash_flow<U, C> uc;
@@ -93,15 +95,15 @@ namespace tmx::instrument {
 			return uc < z.uc;
 		}
 
-		bool op_bool() const override
+		constexpr bool op_bool() const override
 		{
 			return uc.u != math::infinity<U>;
 		}
-		cash_flow<U, C> op_star() const override
+		constexpr cash_flow<U, C> op_star() const override
 		{
 			return uc;
 		}
-		zero_coupon_bond& op_incr() override
+		constexpr zero_coupon_bond& op_incr() override
 		{
 			uc = cash_flow<U, C>{};
 
@@ -125,72 +127,6 @@ namespace tmx::instrument {
 #endif // _DEBUG
 	};
 
-	// Concatenate two streams of cash flows.
-	template<class U0 = double, class C0 = double, class U1 = double, class C1 = double,
-		class U = std::common_type_t<U0,U1>, class C = std::common_type_t<C0,C1>>
-	struct concatenate : public base<U, C> {
-		base<U0, C0>& u0;
-		base<U1, C1>& u1;
-
-		concatenate(base<U0, C0>& u0, base<U1, C1>& u1)
-			: u0(u0), u1(u1)
-		{ }
-
-		bool op_bool() const override
-		{
-			return u0 || u1;
-		}
-		cash_flow<U, C> op_star() const override
-		{
-			return u0 ? *u0 : u1 ? *u1 : cash_flow<U, C>{};
-		}
-		concatenate& op_incr() override
-		{
-			if (u0) {
-				++u0;
-			}
-			else {
-				++u1;
-			}
-
-			return *this;
-		}
-#ifdef _DEBUG
-		static int test()
-		{
-			{
-				zero_coupon_bond z0(1., 2.);
-				zero_coupon_bond z1(3., 4.);
-				concatenate i(z0, z1);
-				assert(i);
-				assert(*i == cash_flow(1., 2.));
-				assert(*i == *z0);
-				++i;
-				assert(i);
-				assert(*i == cash_flow(3., 4.));
-				assert(*i == *z1);
-				++i;
-				assert(!i);
-			}
-			{
-				zero_coupon_bond z0(1., 2.), z1(3., 4.);
-				concatenate i(z1, z0);
-				assert(i);
-				assert(*i == cash_flow(3., 4.));
-				assert(*i == *z1);
-				++i;
-				assert(i);
-				assert(*i == cash_flow(1., 2.));
-				assert(*i == *z0);
-				++i;
-				assert(!i);
-			}
-
-			return 0;
-		}
-#endif // _DEBUG
-	};
-
 	// Combine two streams of cash flows in time order.
 	template<class U0 = double, class C0 = double, class U1 = double, class C1 = double,
 		class U = std::common_type_t<U0, U1>, class C = std::common_type_t<C0, C1>>
@@ -198,19 +134,19 @@ namespace tmx::instrument {
 		base<U0, C0>& u0;
 		base<U0, C1>& u1;
 
-		merge(base<U0,C0>& u0, base<U1,C1>& u1)
+		constexpr merge(base<U0,C0>& u0, base<U1,C1>& u1)
 			: u0(u0), u1(u1)
 		{ }
 
-		bool op_bool() const override
+		constexpr bool op_bool() const override
 		{
 			return u0 || u1;
 		}
-		cash_flow<U,C> op_star() const override
+		constexpr cash_flow<U,C> op_star() const override
 		{
 			return *u0 < *u1 ? *u0 : *u1;
 		}
-		merge& op_incr() override
+		constexpr merge& op_incr() override
 		{
 			if (*u0 < *u1) {
 				++u0;
@@ -252,35 +188,11 @@ namespace tmx::instrument {
 #endif // _DEBUG
 	};
 
-	/*
-	// Pair of iterators.
-	template<class U, class C>
-	struct iterator : base<U, C> {
-		U u;
-		C c;
-
-		iterator(const U& u, const C& c)
-			: u(u), c(c)
-		{ }
-		iterator(const iterator&) = default;
-		iterator& operator=(const iterator&) = default;
-		~iterator() override { }
-
-		bool op_bool() const override
-		{
-			return u and c;
-		}
-		std::pair<U::value_type,C::value_type> op_star() const override
-		{
-			return std::pair(*u, *c);
-		}
-		auto op_incr() override
-		{
-			++u;
-			++c;
-
-			return *this;
-		}
-	};
-	*/
 }
+/*
+template<class U, class C>
+constexpr auto operator,(tmx::instrument::base<U, C>& u...)
+{
+	return tmx::instrument::merge(u0, u1);
+}
+*/

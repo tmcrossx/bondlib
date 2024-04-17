@@ -112,7 +112,7 @@ namespace tmx::curve {
 		}
 		constexpr F _integral(T u, T t = 0) const noexcept override
 		{
-			return s * (std::min(u - t, t1) - std::max(u - t, t0)); // fix!!!
+			return s * (std::min(u, t1) - std::max(t, t0)) * (u >= t0) * (t <= t1);
 		}
 	};
 #ifdef _DEBUG

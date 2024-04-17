@@ -5,22 +5,22 @@ The _price_ of a zero coupon bond is the _discount_.
 The _present value_ of a fixed income security
 is the sum of discounted future future cash flows.
 
-_Duration_ is the derivative of the present value with respect to
-a parallel shift in the yield curve. _Convexity_ is the second derivative.
-
 Discounts are quoted in terms of rates.
-If $D(t)$ is the discount of 1 unit of currency
-paid at time $t$ then the _spot_/_yield_ rate $r$ is defined
+If $D(t)$ is the price of 1 unit of currency
+paid at time $t$ then the _spot rate_/_yield_ $r$ is defined
 by $D(t) = \exp(-t r(t))$. The _forward_ rate $f(t)$ is
 defined by $D(t) = \exp(-\int_0^t f(s)\,ds)$.
 This implies the spot $r(t) = (1/t)\int_0^t f(s)\,ds$
 is the average forward rate over the interval $[0, t]$.
+This also shows $f(t) = r(t) + t r'(t)$.
+We use a forward curve to implement spot and discount
+since integration is numerically more stable than differentiation.
 
-## [Curve](tmx_curve.h)
+## Curve
 
-The `tmx::curve::base` class provides an interface to
-discount, forward, and spot/yield. C++ does not have
-the `interface` keyword but the NVI idiom can be used
+The [`tmx::curve::base`](tmx_curve.h) class provides an interface to
+discount, forward, and spot. C++ does not have
+a notion of interface but the NVI idiom can be used
 to help the compiler eliminate virtual function calls.
 
 Subclasses must override the pure virtual `_forward` and `_integral` functions.
@@ -31,12 +31,53 @@ The `tmx::curve::plus` class adds two curves. It uses references to avoid copyin
 any data used in the implementation of the `curve::base` interface.
 It requires the lifetime of the referenced curves to be longer than the lifetime of the `plus` object.
 
+## Instrument
+
+The [`tmx::instrument::base`](tmx_instrument.h) class provides an interface to a stream
+of cash flows. It uses `operator bool()` to detect when there are no further cash flows,
+`operator*()` to get the time and amount of the current cash flow, 
+and `operator++()` to advance to the next cash flow.
+
+The class `tmx::instrument::zero_coupon_bond` implements an instrument with exactly one cash flow.
+
+The class `tmx::instrument::merge` combines two instrument cash flow streams
+while preserving the time order of cash flows.
+
+## Value
+
+The functions in the `[tmx::value](tmx_value.h)` namespace calculate 
+fixed income analytics using the curve and instrument interfaces.
+
+The functions `compound_yield` and `continuous_yield` convert between
+the continuously compounded yield used in the internal implementation
+and the compounded yields quoted in the market.
+
+There are also functions for computing the present value, duration, convexity, yield
+and option adjusted spread of a fixed income security.
+
+These calculations do not require the discount curve.
+
 ### Piecewise Flat
 
 [`tmx::curve::pwflat`](tmx_curve_pwflat.h) implements `tmx::curve::base` as a 
 [value type](https://learn.microsoft.com/en-us/cpp/cpp/value-types-modern-cpp?view=msvc-170). 
-It uses the standalone functions in [tmx::pwflat](tmx_pwflat.h).
+It uses the standalone functions from [tmx::pwflat](tmx_pwflat.h).
 
+It has methods to extrapolate the curve and add points so it can be used in the bootstrap algorithm.
+
+## Bootstrap
+
+Given a set of fixed income instruments and their prices how can we find a discount curve
+that reprices them? This is a highly underdetermined problem but the _bootstrap_ algorithm
+provides a unique solution.
+
+Order the instruments by maturity and find a yield that reprices the first instrument.
+This determines the segment of the piecewise flat forward curve to the shortest maturity.
+Keeping that fixed, find the extrapolated yield that reprices the second instrument.
+Repeat until all instruments are repriced.
+
+It is popular to use splines to get a smooth forward curve, but that introduces
+mathematical artifacts that have nothing to do with market prices.
 
 Let $T$ be a totally ordered set of trading times.
 

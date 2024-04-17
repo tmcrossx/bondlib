@@ -81,7 +81,7 @@ namespace tmx::value {
 	}
 
 	// TODO: (Tianxin)
-	// Find constant spread so that the present value of the instrument equals price.
+	// Constant spread so that the present value of the instrument equals price.
 	template<class U, class C, class T, class F>
 	inline F oas(F p, instrument<U, C>::base& i, const curve::base<T, F>& f,
 		F s = 0, F tol = math::sqrt_epsilon<F>, int iter = 100)
