@@ -3,16 +3,12 @@
 #ifdef _DEBUG
 #include <cassert>
 #endif
-#include <concepts>
-#include <iterator>
+#include <compare>
 
 namespace fms::iterable {
 
 	template<class T>
 	struct base {
-		base() = default;
-		base(const base&) = default;
-		base& operator=(const base&) = default;
 		virtual ~base() {};
 		
 		explicit operator bool() const
@@ -34,7 +30,7 @@ namespace fms::iterable {
 	};
 
 	template<class T>
-	inline bool equal(base<T>& i, base<T>& j) noexcept
+	inline auto equal(base<T>& i, base<T>& j) noexcept
 	{
 		while (i && j) {
 			if (*i != *j) {
@@ -144,7 +140,8 @@ namespace fms::iterable {
 		}
 		zero_pointer& op_incr() noexcept override
 		{
-			++p;
+			if (op_bool())
+				++p;
 
 			return *this;
 		}
@@ -183,12 +180,13 @@ namespace fms::iterable {
 	};
 
 	template<class T, size_t N>
-	inline auto array(T(&a)[N])
+	inline auto array(T(&a)[N]) noexcept
 	{
-		//pointer<T> p(&a[0]);
+		pointer<T> p(&a[0]);
 
-		return take<T>(pointer<T>(&a[0]), N);
+		return take<T>(p, N);
 	}
+
 #if 0
 
 	// Drop at most n elements.
@@ -209,7 +207,7 @@ namespace fms::iterable {
 		base<T>& i0;
 		base<T>& i1;
 	public:
-		concatenate(base<T> i0, base<T> i1)
+		concatenate(base<T>& i0, base<T>& i1)
 			: i0(i0), i1(i1)
 		{ }
 		bool op_bool() const override
