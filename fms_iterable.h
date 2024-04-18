@@ -73,19 +73,6 @@ namespace fms::iterable {
 		constant(T c) noexcept
 			: c(c)
 		{ }
-		constant(const constant& c) noexcept
-			: c(c.c)
-		{ }
-		constant& operator=(const constant&) noexcept
-		{
-			if (this != &c) {
-				c = c.c;
-			}
-			
-			return *this;
-		}
-		~constant()
-		{ }
 
 		bool op_bool() const noexcept override
 		{
@@ -111,19 +98,6 @@ namespace fms::iterable {
 		pointer(T* p) noexcept
 			: p(p)
 		{ }
-		pointer(const pointer& p) noexcept
-			: p(p.p)
-		{ }
-		pointer& operator=(const pointer& p) noexcept
-		{
-			if (this != &p) {
-				p = p.p;
-			}
-
-			return *this;
-		}
-		~pointer() noexcept
-		{ }
 
 		bool op_bool() const noexcept override
 		{
@@ -148,19 +122,6 @@ namespace fms::iterable {
 	public:
 		null_terminated_pointer(T* p) noexcept
 			: p(p)
-		{ }
-		null_terminated_pointer(const null_terminated_pointer& p) noexcept
-			: p(p.p)
-		{ }
-		null_terminated_pointer& operator=(const null_terminated_pointer&) noexcept
-		{
-			if (this != &p) {
-				p = p.p;
-			}
-
-			return *this;
-		}
-		~null_terminated_pointer() noexcept
 		{ }
 
 		bool op_bool() const noexcept override
@@ -189,20 +150,6 @@ namespace fms::iterable {
 		take(const I& i, std::size_t n)
 			: i(i), n(n)
 		{ }
-		take(const take& t) noexcept
-			: i(t.i), n(t.n)
-		{ }
-		take& operator=(const take& t) noexcept
-		{
-			if (this != &t) {
-				i = t.i;
-				n = t.n;
-			}
-
-			return *this;
-		}
-		~take() noexcept
-		{ }
 
 		bool op_bool() const noexcept override
 		{
@@ -223,6 +170,7 @@ namespace fms::iterable {
 		}
 	};
 
+	// Assumes lifetime of a[N].
 	template<class T, std::size_t N>
 	inline auto array(T(&a)[N]) noexcept
 	{

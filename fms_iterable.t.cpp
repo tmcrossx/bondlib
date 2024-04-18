@@ -6,6 +6,8 @@ using namespace fms::iterable;
 
 int test_constant = []() {
 	constant c(1);
+	constant c2(c);
+	c = c2;
 	assert(c);
 	assert(*c == 1);
 	++c;
@@ -18,6 +20,8 @@ int test_constant = []() {
 int test_pointer = []() {
 	int i[] = {1, 2, 3};
 	pointer p(i);
+	pointer p2(p);
+	p = p2;
 	assert(p);
 	assert(*p == 1);
 	++p;
@@ -48,6 +52,8 @@ int test_take = []() {
 	{
 		pointer p(i);
 		take<pointer<int>,int> t(p, 3);
+		auto t2(t);
+		t = t2;
 		assert(t);
 		assert(*t == 1);
 		++t;
