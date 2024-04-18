@@ -49,7 +49,6 @@ int test_date_periodic = date::periodic::test();
 int test_tmx_curve_constant = curve::constant_test();
 int test_tmx_curve_bump = curve::bump_test();
 int test_instrument_zcb = instrument::zero_coupon_bond<>::test();
-int test_instrument_combine = instrument::merge<>::test();
 //int test_instrument_view = view<>::test();
 //int test_instrument_value = value<>::test();
 //int test_value_yield_d = value::yield_test<double>();

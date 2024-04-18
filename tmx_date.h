@@ -39,7 +39,7 @@ namespace tmx::date {
 	static_assert(to_time_t(to_ymd(1970, 1, 1)) == 0);
 
 	// UTC time_t to year/month/day
-	inline ymd from_time_t(time_t t)
+	constexpr ymd from_time_t(time_t t)
 	{
 		return ymd{ std::chrono::floor<std::chrono::days>(std::chrono::system_clock::from_time_t(t)) };
 	}
@@ -202,3 +202,13 @@ namespace tmx::date {
 	}
 
 } // namespace tmx::date
+
+// Date difference in years
+constexpr double operator-(const tmx::date::ymd& d1, const tmx::date::ymd& d0)
+{
+	return tmx::date::diffyears(d1, d0);
+}
+inline tmx::date::ymd operator+(const tmx::date::ymd& d, double y)
+{
+	return tmx::date::addyears(d, y);
+}

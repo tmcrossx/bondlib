@@ -180,8 +180,8 @@ static_assert(math::equal_precision(day_count_isma30360eom(to_ymd(Y1, M1, D1), t
 #endif // _DEBUG
 
 
-		// https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicisdaactualactual.cpp
-		constexpr double day_count_isdaactualactual(const ymd& ymd1, const ymd& ymd2)
+	// https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicisdaactualactual.cpp
+	constexpr double day_count_isdaactualactual(const ymd& ymd1, const ymd& ymd2)
 	{
 		auto [y1, m1, d1] = from_ymd(ymd1);
 		auto [y2, m2, d2] = from_ymd(ymd2);
