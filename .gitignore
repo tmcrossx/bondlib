@@ -51,3 +51,5 @@
 /x64/Debug/bondlib.pdb
 /x64/Debug
 /out/build/x64-Debug
+/x64/Release
+*.swp
