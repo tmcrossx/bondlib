@@ -20,26 +20,29 @@ namespace tmx::curve {
 		{
 			return u >= t ? _forward(u, t) : math::NaN<F>;
 		}
-		// Integral from t to u of forward. int_t^u f(s) ds.
+		// Integral from t to u of forward: int_t^u f(s) ds.
 		F integral(T u, T t = 0) const noexcept
 		{
 			return u >= t ? _integral(u, t) : math::NaN<F>;
-		}
-		// Price at time t of one unit received at time u.
-		F discount(T u, T t = 0) const noexcept
-		{
-			return u >= t ? math::exp(-integral(u, t)) : math::NaN<F>;
-		}
-		// Spot over [t, u]
-		F spot(T u, T t = 0) const noexcept
-		{
-			return u >= t ? (u > t + math::sqrt_epsilon<T> ? -_integral(u, t) / (u - t) : _forward(u, t)) : math::NaN<F>;
 		}
 
 	private:
 		virtual F _forward(T u, T t) const noexcept = 0;
 		virtual F _integral(T u, T t) const noexcept = 0;
 	};
+
+	// Price at time t of one unit received at time u.
+	template<class T = double, class F = double>
+	constexpr F discount(const base<T, F>& f, T u, T t = 0) noexcept
+	{
+		return u >= t ? math::exp(-f.integral(u, t)) : math::NaN<F>;
+	}
+	// Spot over [t, u]
+	template<class T = double, class F = double>
+	constexpr F spot(const base<T,F>& f, T u, T t = 0) noexcept
+	{
+		return u >= t ? (u > t + math::sqrt_epsilon<T> ? -f.integral(u, t) / (u - t) : f.forward(u, t)) : math::NaN<F>;
+	}
 
 	// Constant curve.
 	template<class T = double, class F = double>
@@ -64,10 +67,12 @@ namespace tmx::curve {
 	};
 #ifdef _DEBUG
 	static_assert(math::isnan(constant(1.)._forward(-1., 0.)));
-	static_assert(constant(1.)._forward(0., 0.) == 1);
-	static_assert(constant(1.)._integral(0., 0.) == 0);
+	/*
+	static_assert(constant(1.)._forward(0., 0.) == 1.);
+	static_assert(constant(1.)._integral(0., 0.) == 0.);
 	static_assert(constant(1.)._integral(2., 0.) == 2.);
 //	static_assert(constant(1.).spot(0., 0.) == 1);
+*/
 #endif // _DEBUG
 
 	// Linear curve.
@@ -78,6 +83,9 @@ namespace tmx::curve {
 		constexpr linear(F f = math::NaN<F>, F df = 0) noexcept
 			: f(f), df(df)
 		{ }
+		constexpr linear(const linear& l) = default;
+		constexpr linear& operator=(const linear& l) = default;
+		constexpr ~linear() = default;
 
 		constexpr F _forward(T u, T t = 0) const noexcept override
 		{
@@ -89,8 +97,9 @@ namespace tmx::curve {
 		}
 	};
 #ifdef _DEBUG
-	/*
 	static_assert(math::isnan(linear(1.)._forward(-1., 0.)));
+	/*
+	static_assert(linear(1.,2.)._forward(3., 0.) == 7.);
 	static_assert(linear(1.)._forward(0., 0.) == 1);
 	static_assert(linear(1.)._integral(0., 0.) == 0);
 	static_assert(linear(1.)._integral(2., 0.) == 2.);

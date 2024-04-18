@@ -12,10 +12,10 @@ namespace tmx::math {
 	constexpr X pFq(unsigned np, const X* p, unsigned nq, const X* q, X x, X eps = sqrt_epsilon<X>/*, int dn = 0 */)
 	{
 		if (np > nq + 1) { // diverges
-			return x == 0 ? 0 : std::numeric_limits<X>::infinity();
+			return x == 0 ? 0 : infinity<X>;
 		}
 		if (np == nq + 1 and abs(x) >= 1) {
-			return std::numeric_limits<X>::infinity();
+			return infinity<X>;
 		}
 
 		X p_qn = 1; // (p0)_n .../(q0)_n ...
@@ -64,23 +64,23 @@ namespace tmx::math {
 #ifdef _DEBUG
 	// constexpr double ee = math::exp(1.);
 	static_assert(exp(1.) == 2.7182818282861687); 
-	                            // 2.71828182845904523536028747135266249775724709369995
+	                      // 2.71828182845904523536028747135266249775724709369995
 #endif // _DEBUG
-
-	template<class X = double>
-	constexpr X _2F1(X a, X b, X c, X x, X eps)
-	{
-		X _p[2] = { a, b };
-
-		return pFq(2, _p, 1, &c, x, eps);
-	}
 
 	// (lower) incomplete gamma function
 	// int_0^x t^{a - 1} e^{-t} dt 
 	template<class X>
-	constexpr X incomplete_gamma(X a, X x, X eps)
+	constexpr X incomplete_gamma(X a, X x, X eps = sqrt_epsilon<X>)
 	{
 		return (pow(x, a) * exp(x, eps) / a) * _1F1(1, 1 + a, x, eps);
+	}
+
+	template<class X = double>
+	constexpr X _2F1(X a, X b, X c, X x, X eps = sqrt_epsilon<X>)
+	{
+		X _p[2] = { a, b };
+
+		return pFq(2, _p, 1, &c, x, eps);
 	}
 
 #ifdef _DEBUG
