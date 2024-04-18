@@ -90,12 +90,15 @@
     <ClInclude Include="tmx_curve_pwflat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tmx_date_adjsut.h">
+    <ClInclude Include="tmx_date_adjust.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="bondlib.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fms_iterable.t.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -49,7 +49,7 @@ namespace tmx {
 		}	
 #endif // _DEBUG
 
-		// f(u) assuming t[i] monotonically increasing
+		// f(u) assuming t is monotonically increasing
 		template<class T = double, class F = double>
 		constexpr F forward(T u, size_t n, const T* t, const F* f, F _f = math::NaN<F>)
 		{

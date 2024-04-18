@@ -136,7 +136,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="ensure.h" />
-    <ClInclude Include="tmx_date_adjsut.h" />
+    <ClInclude Include="tmx_date_adjust.h" />
     <ClInclude Include="fms_iterable.h" />
     <ClInclude Include="tmx_curve_pwflat.h" />
     <ClInclude Include="tmx_date_business_day.h" />
@@ -166,6 +166,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="bondlib.cpp" />
+    <ClCompile Include="fms_iterable.t.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
