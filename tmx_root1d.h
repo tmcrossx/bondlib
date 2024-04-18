@@ -1,7 +1,5 @@
 // fmx_root1d.h - 1-d root using secant method
 #pragma once
-#include <cmath>
-#include <limits>
 #include "tmx_math.h"
 
 namespace tmx::root1d {

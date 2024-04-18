@@ -78,6 +78,8 @@ Repeat until all instruments are repriced.
 
 It is popular to use splines to get a smooth forward curve, but that introduces
 mathematical artifacts that have nothing to do with market prices.
+It is better to introduce interpolated instruments with prices that
+make sense to traders.
 
 Let $T$ be a totally ordered set of trading times.
 

@@ -98,6 +98,9 @@
     <ClCompile Include="bondlib.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="fms_iterable.t.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
