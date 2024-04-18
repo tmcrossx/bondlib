@@ -9,6 +9,7 @@ namespace fms::iterable {
 
 	template<class T>
 	struct base {
+		using value_type = T;
 		virtual ~base() {};
 		
 		explicit operator bool() const
@@ -29,8 +30,8 @@ namespace fms::iterable {
 		virtual base& op_incr() = 0;
 	};
 
-	template<class T>
-	inline auto equal(base<T>& i, base<T>& j) noexcept
+	template<class I, class J>
+	inline bool equal(I i, J j) noexcept
 	{
 		while (i && j) {
 			if (*i != *j) {
@@ -43,8 +44,8 @@ namespace fms::iterable {
 		return !i && !j;	
 	}
 
-	template<class T>
-	inline size_t length(base<T>& i, size_t n = 0) noexcept
+	template<class I>
+	inline std::size_t length(I i, std::size_t n = 0) noexcept
 	{
 		while (i) {
 			++i;
@@ -54,8 +55,8 @@ namespace fms::iterable {
 		return n;
 	}
 
-	template<class T>
-	inline base<T>& skip(base<T>& i, size_t n) noexcept
+	template<class I>
+	inline I skip(I i, std::size_t n) noexcept
 	{
 		while (i && n > 0) {
 			++i;
@@ -72,9 +73,19 @@ namespace fms::iterable {
 		constant(T c) noexcept
 			: c(c)
 		{ }
-		constant(const constant&) noexcept = default;
-		constant& operator=(const constant&) noexcept = default;
-		~constant() noexcept = default;
+		constant(const constant& c) noexcept
+			: c(c.c)
+		{ }
+		constant& operator=(const constant&) noexcept
+		{
+			if (this != &c) {
+				c = c.c;
+			}
+			
+			return *this;
+		}
+		~constant()
+		{ }
 
 		bool op_bool() const noexcept override
 		{
@@ -90,6 +101,8 @@ namespace fms::iterable {
 		}
 	};
 
+	// sequence
+
 	// Unsafe pointer interface.
 	template<class T>
 	class pointer : public base<T> {
@@ -98,9 +111,19 @@ namespace fms::iterable {
 		pointer(T* p) noexcept
 			: p(p)
 		{ }
-		pointer(const pointer&) noexcept = default;
-		pointer& operator=(const pointer&) noexcept = default;
-		~pointer() noexcept = default;
+		pointer(const pointer& p) noexcept
+			: p(p.p)
+		{ }
+		pointer& operator=(const pointer& p) noexcept
+		{
+			if (this != &p) {
+				p = p.p;
+			}
+
+			return *this;
+		}
+		~pointer() noexcept
+		{ }
 
 		bool op_bool() const noexcept override
 		{
@@ -120,15 +143,25 @@ namespace fms::iterable {
 
 	// Terminate on 0
 	template<class T>
-	class zero_pointer : public base<T> {
+	class null_terminated_pointer : public base<T> {
 		T* p;
 	public:
-		zero_pointer(T* p) noexcept
+		null_terminated_pointer(T* p) noexcept
 			: p(p)
 		{ }
-		zero_pointer(const zero_pointer&) noexcept = default;
-		zero_pointer& operator=(const zero_pointer&) noexcept = default;
-		~zero_pointer() noexcept = default;
+		null_terminated_pointer(const null_terminated_pointer& p) noexcept
+			: p(p.p)
+		{ }
+		null_terminated_pointer& operator=(const null_terminated_pointer&) noexcept
+		{
+			if (this != &p) {
+				p = p.p;
+			}
+
+			return *this;
+		}
+		~null_terminated_pointer() noexcept
+		{ }
 
 		bool op_bool() const noexcept override
 		{
@@ -138,7 +171,7 @@ namespace fms::iterable {
 		{
 			return *p;
 		}
-		zero_pointer& op_incr() noexcept override
+		null_terminated_pointer& op_incr() noexcept override
 		{
 			if (op_bool())
 				++p;
@@ -148,17 +181,28 @@ namespace fms::iterable {
 	};
 
 	// Take at most n elements.
-	template<class T>
+	template<class I, class T = I::value_type>
 	class take : public base<T> {
-		base<T>& i;
-		size_t n;
+		I i;
+		std::size_t n;
 	public:
-		take(base<T>& i, size_t n)
+		take(const I& i, std::size_t n)
 			: i(i), n(n)
 		{ }
-		take(const take&) noexcept = default;
-		take& operator=(const take&) noexcept = default;
-		~take() noexcept = default;
+		take(const take& t) noexcept
+			: i(t.i), n(t.n)
+		{ }
+		take& operator=(const take& t) noexcept
+		{
+			if (this != &t) {
+				i = t.i;
+				n = t.n;
+			}
+
+			return *this;
+		}
+		~take() noexcept
+		{ }
 
 		bool op_bool() const noexcept override
 		{
@@ -179,37 +223,22 @@ namespace fms::iterable {
 		}
 	};
 
-	template<class T, size_t N>
+	template<class T, std::size_t N>
 	inline auto array(T(&a)[N]) noexcept
 	{
-		pointer<T> p(&a[0]);
-
-		return take<T>(p, N);
-	}
-
-#if 0
-
-	// Drop at most n elements.
-	template<class T>
-	base<T>& drop(base<T>& i, size_t n)
-	{
-		while (i && n > 0) {
-			++i;
-			--n;
-		}
-
-		return i;
+		return take<pointer<T>, T>(pointer<T>(a), N);
 	}
 
 	// i0 then i1
-	template<class T>
+	template<class I0, class I1, class T = std::common_type_t<typename I0::value_type, typename I1::value_type>>
 	class concatenate : public base<T> {
-		base<T>& i0;
-		base<T>& i1;
+		I0 i0;
+		I1 i1;
 	public:
-		concatenate(base<T>& i0, base<T>& i1)
+		concatenate(const I0& i0, const I1& i1)
 			: i0(i0), i1(i1)
 		{ }
+
 		bool op_bool() const override
 		{
 			return i0 || i1;
@@ -231,15 +260,16 @@ namespace fms::iterable {
 		}
 	};
 
-	// i0 and i1 in order
-	template<class T>
+	// sorted i0 and i1 in order
+	template<class I0, class I1, class T = std::common_type_t<typename I0::value_type, typename I1::value_type>>
 	class merge : public base<T> {
-		base<T>& i0;
-		base<T>& i1;
+		I0 i0;
+		I1 i1;
 	public:
-		merge(base<T> i0, base<T> i1)
+		merge(const I0& i0, const I1& i1)
 			: i0(i0), i1(i1)
 		{ }
+
 		bool op_bool() const override
 		{
 			return i0 || i1;
@@ -259,6 +289,6 @@ namespace fms::iterable {
 			return *this;
 		}
 	};
-#endif // 0
+	
 
 } // namespace fms::iterable
