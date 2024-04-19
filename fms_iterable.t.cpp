@@ -34,15 +34,30 @@ int test_pointer = []() {
 }();
 
 int test_zero_pointer = []() {
-	int i[] = { 1, 2, 0 };
-	null_terminated_pointer p(i);
-	assert(p);
-	assert(*p == 1);
-	++p;
-	assert(p);
-	assert(*p == 2);
-	++p;
-	assert(!p);
+	{
+		int i[] = { 1, 2, 0 };
+		null_terminated_pointer p(i);
+		assert(p);
+		assert(*p == 1);
+		++p;
+		assert(p);
+		assert(*p == 2);
+		++p;
+		assert(!p);
+	}
+	{
+		char s[] = "abc";
+		null_terminated_pointer p(s);
+		assert(p);
+		assert(*p == 'a');
+		++p;
+		assert(p);
+		++p;
+		assert(*p == 'c');
+		++p;
+		assert(!p);
+
+	}
 
 	return 0;
 }();

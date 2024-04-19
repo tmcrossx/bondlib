@@ -24,24 +24,26 @@ a notion of interface but the NVI idiom can be used
 to help the compiler eliminate virtual function calls.
 
 Subclasses must override the pure virtual `_forward` and `_integral` functions.
+Spot and discount are implemented in terms of these.
 The `tmx::curve::constant` and `tmx::curve::bump` classes
 are examples of how to do this.
 
 The `tmx::curve::plus` class adds two curves. It uses references to avoid copying
 any data used in the implementation of the `curve::base` interface.
-It requires the lifetime of the referenced curves to be longer than the lifetime of the `plus` object.
+It requires the lifetime of the referenced curves to be longer than the lifetime of the `plus` object
+but is much more efficient than copying the data.
+Its semantics are similar to [`std::span`](https://en.cppreference.com/w/cpp/container/span).
 
 ## Instrument
 
-The [`tmx::instrument::base`](tmx_instrument.h) class provides an interface to a stream
-of cash flows. It uses `operator bool()` to detect when there are no further cash flows,
+The [`tmx::instrument::base`](tmx_instrument.h) class provides an interface to an iterable stream
+of cash flows. All instruments publicly inherit from
+[`fms::iterable::base`](fms_iterable.h) that uses `operator bool()` 
+to detect when there are no further cash flows,
 `operator*()` to get the time and amount of the current cash flow, 
 and `operator++()` to advance to the next cash flow.
 
 The class `tmx::instrument::zero_coupon_bond` implements an instrument with exactly one cash flow.
-
-The class `tmx::instrument::merge` combines two instrument cash flow streams
-while preserving the time order of cash flows.
 
 ## Value
 

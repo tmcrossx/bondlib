@@ -1,9 +1,6 @@
-// fms_iterable.h - iterable_iterator with operator bool()
+// fms_iterable.h - iterator with operator bool()
 #pragma once
-#ifdef _DEBUG
-#include <cassert>
-#endif
-#include <compare>
+#include <type_traits>
 
 namespace fms::iterable {
 
@@ -29,42 +26,6 @@ namespace fms::iterable {
 		virtual T op_star() const = 0;
 		virtual base& op_incr() = 0;
 	};
-
-	template<class I, class J>
-	inline bool equal(I i, J j) noexcept
-	{
-		while (i && j) {
-			if (*i != *j) {
-				return false;
-			}
-			++i;
-			++j;
-		}
-
-		return !i && !j;	
-	}
-
-	template<class I>
-	inline std::size_t length(I i, std::size_t n = 0) noexcept
-	{
-		while (i) {
-			++i;
-			++n;
-		}
-
-		return n;
-	}
-
-	template<class I>
-	inline I skip(I i, std::size_t n) noexcept
-	{
-		while (i && n > 0) {
-			++i;
-			--n;
-		}
-
-		return i;
-	}
 
 	template<class T>
 	class constant : public base<T> {
@@ -237,6 +198,41 @@ namespace fms::iterable {
 			return *this;
 		}
 	};
-	
+
+	template<class I, class J>
+	inline bool equal(I i, J j) noexcept
+	{
+		while (i && j) {
+			if (*i != *j) {
+				return false;
+			}
+			++i;
+			++j;
+		}
+
+		return !i && !j;
+	}
+
+	template<class I>
+	inline std::size_t length(I i, std::size_t n = 0) noexcept
+	{
+		while (i) {
+			++i;
+			++n;
+		}
+
+		return n;
+	}
+
+	template<class I>
+	inline I skip(I i, std::size_t n) noexcept
+	{
+		while (i && n > 0) {
+			++i;
+			--n;
+		}
+
+		return i;
+	}
 
 } // namespace fms::iterable
