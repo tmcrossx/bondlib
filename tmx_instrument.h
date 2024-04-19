@@ -4,7 +4,6 @@
 #include <cassert>
 #endif // _DEBUG
 #include <concepts>
-#include <limits>
 #include "tmx_math_limits.h"
 #include "fms_iterable.h"
 

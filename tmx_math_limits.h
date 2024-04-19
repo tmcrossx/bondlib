@@ -1,5 +1,6 @@
 // tmx_math_limits.h - Short names for numeric limits
 #pragma once
+#include <limits>
 
 namespace tmx::math {
 

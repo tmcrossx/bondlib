@@ -39,7 +39,7 @@ namespace tmx::date {
 	static_assert(to_time_t(to_ymd(1970, 1, 1)) == 0);
 
 	// UTC time_t to year/month/day
-	constexpr ymd from_time_t(time_t t)
+	inline ymd from_time_t(time_t t)
 	{
 		return ymd{ std::chrono::floor<std::chrono::days>(std::chrono::system_clock::from_time_t(t)) };
 	}
