@@ -1,4 +1,4 @@
-// fms_iterable.h - iterable_iterator with operator bool()
+// fms_iterable.h - iterator with operator bool()
 #pragma once
 #ifdef _DEBUG
 #include <cassert>

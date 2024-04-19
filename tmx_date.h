@@ -6,6 +6,8 @@
 #include <tuple>
 #include <chrono>
 
+using std::literals::chrono_literals::operator""y;
+
 namespace tmx::date {
 
 	// Use calendar year/month/day from <chrono> for dates.
@@ -15,13 +17,14 @@ namespace tmx::date {
 	constexpr time_t seconds_per_year = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::years{ 1 }).count();
 	constexpr time_t seconds_per_day = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::days{ 1 }).count();
 	constexpr double days_per_year = static_cast<double>(seconds_per_year) / seconds_per_day;
+	constexpr auto unix_epoch = std::chrono::system_clock::time_point(std::chrono::seconds(0));
 
 	// Broken down date to ymd.
 	constexpr ymd to_ymd(int y, unsigned int m, unsigned int d)
 	{
 		return ymd(std::chrono::year(y), std::chrono::month(m), std::chrono::day(d));
 	}
-	static_assert(to_ymd(2023, 4, 5) == std::chrono::year(2023) / 4 / 5);
+	static_assert(to_ymd(2023, 4, 5) == 2023y / 4 / 5);
 
 	// Break down ymd to tuple.
 	constexpr auto from_ymd(const ymd& d)
@@ -41,6 +44,7 @@ namespace tmx::date {
 	// UTC time_t to year/month/day
 	inline ymd from_time_t(time_t t)
 	{
+		constexpr auto ut = std::chrono::system_clock::time_point(std::chrono::seconds(t));
 		return ymd{ std::chrono::floor<std::chrono::days>(std::chrono::system_clock::from_time_t(t)) };
 	}
 	// static_assert(from_time_t(0) == to_ymd(1970, 1, 1)); // not constexpr
