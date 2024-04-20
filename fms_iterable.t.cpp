@@ -142,20 +142,32 @@ int test_pointer = []() {
 }();
 
 int test_zero_pointer = []() {
-	int i[] = { 1, 2, 0 };
-	null_terminated_pointer p(i);
-	auto i2(i);
-	assert(i == i2);
-	//i = i2; // int[3] not assignable
-	//assert(!(i2 != i));
+	{
+		int i[] = { 1, 2, 0 };
+		null_terminated_pointer p(i);
+		auto i2(i);
+		assert(i == i2);
+		//i = i2; // int[3] not assignable
+		//assert(!(i2 != i));
 
-	assert(p);
-	assert(*p == 1);
-	++p;
-	assert(p);
-	assert(*p == 2);
-	++p;
-	assert(!p);
+		assert(p);
+		assert(*p == 1);
+		++p;
+		assert(p);
+		assert(*p == 2);
+		++p;
+		assert(!p);
+	}
+	{
+		char i[] = "ab";
+		null_terminated_pointer s(i);
+		assert(s);
+		assert(*s =='a');
+		++s;
+		assert(*s == 'b');
+		++s;
+		assert(!s);
+	}
 
 	return 0;
 }();

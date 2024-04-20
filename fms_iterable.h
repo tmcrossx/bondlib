@@ -1,13 +1,13 @@
 // fms_iterable.h - iterator with operator bool()
 #pragma once
-#ifdef _DEBUG
-#include <cassert>
-#endif
 #include <compare>
 #include <functional>
 
 namespace fms::iterable {
 
+	// TODO: add fms::iterable::input concept
+
+	// NVI interface for iterable.
 	template<class T>
 	struct base {
 		using value_type = T;
@@ -32,6 +32,7 @@ namespace fms::iterable {
 		virtual base& op_incr() = 0;
 	};
 
+	// TODO: replace class with iterable::input concept
 	template<class I, class J>
 	inline bool equal(I i, J j) noexcept
 	{
@@ -46,6 +47,7 @@ namespace fms::iterable {
 		return !i && !j;	
 	}
 
+	// length(i, length(j)) = length(i) + length(j)
 	template<class I>
 	inline std::size_t length(I i, std::size_t n = 0) noexcept
 	{
@@ -57,6 +59,7 @@ namespace fms::iterable {
 		return n;
 	}
 
+	// Drop at most n from the beginning.
 	template<class I>
 	inline I skip(I i, std::size_t n) noexcept
 	{
@@ -68,6 +71,7 @@ namespace fms::iterable {
 		return i;
 	}
 
+	// Last iterable element if finite length.
 	template<class I>
 	inline I last(I i)
 	{
@@ -91,6 +95,7 @@ namespace fms::iterable {
 		return i;
 	}
 
+	// Constant iterable.
 	template<class T>
 	class constant : public base<T> {
 		T c;
@@ -120,6 +125,7 @@ namespace fms::iterable {
 	};
 	static_assert(std::is_same_v<constant<int>::value_type, base<int>::value_type>);
 
+	// t, t+1, t+2, ...
 	template<class T>
 	class iota : public base<T> {
 		T t;
@@ -149,7 +155,7 @@ namespace fms::iterable {
 		}
 	};
 
-	// tn, tn*t, tn*t*t
+	// tn, tn*t, tn*t*t, ...
 	template<class T>
 	class power : public base<T> {
 		T t, tn;
@@ -238,7 +244,7 @@ namespace fms::iterable {
 		}
 	};
 
-	// Terminate on 0
+	// Terminate on 0 value.
 	template<class T>
 	class null_terminated_pointer : public base<T> {
 		T* p;
@@ -433,6 +439,7 @@ namespace fms::iterable {
 		}
 	};
 
+	// Apply a binary operation to elements of two iterable.
 	template<class BinOp, class I0, class I1, class T0 = typename I0::value_type, class T1 = typename I1::value_type,
 		class T = std::invoke_result_t<BinOp, T0, T1>>
 	class binop : public base<T> {
@@ -480,7 +487,7 @@ namespace fms::iterable {
 		}
 	};
 
-	// t, op(t, *i), op(op(t, *i), *++i), ...
+	// Right fold: t, op(t, *i), op(op(t, *i), *++i), ...
 	template<class BinOp, class I, class T = typename I::value_type>
 	class fold : public base<T>
 	{
@@ -555,6 +562,7 @@ namespace fms::iterable {
 
 } // namespace fms::iterable
 
+// TODO: use fms::iterable::input concept
 template<class I, class J, class T = std::common_type_t<typename I::value_type, typename J::value_type>>
 inline auto operator+(I i, J j)
 {

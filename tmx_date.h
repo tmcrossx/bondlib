@@ -44,7 +44,6 @@ namespace tmx::date {
 	// UTC time_t to year/month/day
 	inline ymd from_time_t(time_t t)
 	{
-		constexpr auto ut = std::chrono::system_clock::time_point(std::chrono::seconds(t));
 		return ymd{ std::chrono::floor<std::chrono::days>(std::chrono::system_clock::from_time_t(t)) };
 	}
 	// static_assert(from_time_t(0) == to_ymd(1970, 1, 1)); // not constexpr

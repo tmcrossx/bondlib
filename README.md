@@ -28,11 +28,8 @@ Spot and discount are implemented in terms of these.
 The `tmx::curve::constant` and `tmx::curve::bump` classes
 are examples of how to do this.
 
-The `tmx::curve::plus` class adds two curves. It uses references to avoid copying
+The `tmx::curve::plus` class adds two curves. It uses const references to avoid copying
 any data used in the implementation of the `curve::base` interface.
-It requires the lifetime of the referenced curves to be longer than the lifetime of the `plus` object
-but is much more efficient than copying the data.
-Its semantics are similar to [`std::span`](https://en.cppreference.com/w/cpp/container/span).
 
 ## Instrument
 
