@@ -125,6 +125,36 @@ namespace fms::iterable {
 	};
 	static_assert(std::is_same_v<constant<int>::value_type, base<int>::value_type>);
 
+	template<class T>
+	class once : public base<T> {
+		T t;
+		bool b;
+	public:
+		once(T t) noexcept
+			: t(t), b(true)
+		{ }
+
+		bool operator==(const once& o) const
+		{
+			return t == o.t && b == o.b;
+		}
+
+		bool op_bool() const noexcept override
+		{
+			return b;
+		}
+		T op_star() const noexcept override
+		{
+			return t;
+		}
+		once& op_incr() noexcept override
+		{
+			b = false;
+
+			return *this;
+		}
+	};
+
 	// t, t+1, t+2, ...
 	template<class T>
 	class iota : public base<T> {

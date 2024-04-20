@@ -36,10 +36,10 @@ namespace tmx::curve {
 		{
 			return tmx::pwflat::forward(u - t, t_.size(), t_.data(), f_.data(), _f);
 		}
-		F _integral(T u, T t0 = 0) const noexcept override
+		F _integral(T u, T t = 0) const noexcept override
 		{
 			return tmx::pwflat::integral(u, t_.size(), t_.data(), f_.data(), _f)
-				 - t0 == 0 ? 0 : tmx::pwflat::integral(t0, t_.size(), t_.data(), f_.data(), _f);
+				 - tmx::pwflat::integral(t, t_.size(), t_.data(), f_.data(), _f);
 		}
 
 		std::size_t size() const

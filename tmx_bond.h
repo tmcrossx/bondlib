@@ -12,16 +12,19 @@ namespace tmx::bond {
 	// Basic bond indicative data.
 	template<class C = double>
 	struct basic : public instrument::base<double, C> {
-		double maturity; // in years
+		date::ymd dated; // when interest starts accruing
+		date::ymd maturity; // 
 		C coupon;
 		date::frequency frequency = date::frequency::semiannually;
 		date::day_count_t day_count = date::day_count_isma30360;
 		C redemption = 1;
 	};
 
+	// fix(basic bond, date::ymd pvdate, ...) -> instrument::base
+
 	// Return instrument cash flows for unit notional with time based on issue date.
 	template<class C = double>
-	class basic_instrument : public instrument::base<double, C> {
+	class basic_instrument : public instrument::base<instrument::cash_flow<U,C>> {
 		const basic<C>& bond;
 		date::ymd dated, issue;
 		date::ymd maturity;

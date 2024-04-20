@@ -20,6 +20,23 @@ int test_constant = []() {
 	return 0;
 }();
 
+int test_once = []() {
+	{
+		once o(1);
+		once o2(o);
+		o = o2;
+		assert(o == o2);
+		assert(!(o2 != o));
+
+		assert(o);
+		assert(*o == 1);
+		++o;
+		assert(!o);
+	}
+
+	return 0;
+}();
+
 int test_iota = []() {
 	{
 		iota i(2);

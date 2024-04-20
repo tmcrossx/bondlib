@@ -40,6 +40,11 @@ namespace tmx::instrument {
 	static_assert(!(cash_flow(1., 2) < cash_flow(1, 2.)));
 #endif // _DEBUG
 
+	template<class U = double, class C = double>
+	inline auto merge(const fms::iterable::base<cash_flow<U, C>>& i, const cash_flow<U, C>& uc)
+	{
+		return fms::iterable::merge(i, fms::iterable::once(uc));
+	}
 
 	// A zero coupon bond has a single cash flow.
 	template<class U = double, class C = double>

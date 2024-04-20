@@ -1,6 +1,7 @@
 // tmx_instrument_view.h - non-owning view of instrument
 #pragma once
 #include <algorithm>
+#include <span>
 #include <vector>
 #include "tmx_instrument.h"
 
