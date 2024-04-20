@@ -1,9 +1,11 @@
 // tmx_curve_pwflat.h - Piecewise flat forward curve
 #pragma once
-#include "tmx_math.h"
+#include <compare>
+#include <span>
+#include <vector>
+#include "tmx_math_limits.h"
 #include "tmx_pwflat.h"
 #include "tmx_curve.h"
-#include <iostream>
 
 namespace tmx::curve {
 
@@ -20,11 +22,15 @@ namespace tmx::curve {
 		pwflat(size_t n, const T* t_, const F* f_, F _f = math::NaN<F>)
 			: t_(t_, t_ + n), f_(f_, f_ + n), _f(_f)
 		{ }
+		/*
 		pwflat(const pwflat&) = default;
 		pwflat& operator=(const pwflat&) = default;
 		pwflat(pwflat&&) = default;
 		pwflat& operator=(pwflat&&) = default;
 		~pwflat() = default;
+		*/
+
+		auto constexpr operator<=>(const pwflat&) const = default;
 
 		F _forward(T u, T t = 0) const noexcept override
 		{
@@ -33,16 +39,37 @@ namespace tmx::curve {
 		F _integral(T u, T t0 = 0) const noexcept override
 		{
 			return tmx::pwflat::integral(u, t_.size(), t_.data(), f_.data(), _f)
-				 - tmx::pwflat::integral(t0, t_.size(), t_.data(), f_.data(), _f);
+				 - t0 == 0 ? 0 : tmx::pwflat::integral(t0, t_.size(), t_.data(), f_.data(), _f);
 		}
 
+		std::size_t size() const
+		{
+			return t_.size();
+		}
+		auto time() const
+		{
+			return std::span(t_.begin(), t_.end());
+		}
+		auto rate() const
+		{
+			return std::span(f_.begin(), f_.end());
+		}
+
+		// Last point on curve.
 		std::pair<T, F> back() const noexcept
 		{
 			return t_.size() ? std::make_pair(t_.back(), f_.back()) : std::make_pair(math::infinity<T>, _f);
 		}
-		F extrapolate(F f_ = math::NaN<F>) noexcept
+
+		// Get extrapolation level.
+		F extrapolate() const noexcept
 		{
-			return _f = f_;
+			return _f;
+		}
+		// Set extrapolation level.
+		F extrapolate(F f = math::NaN<F>) noexcept
+		{
+			return _f = f;
 		}
 	};
 
@@ -50,12 +77,9 @@ namespace tmx::curve {
 	inline int pwflat_test()
 	{
 		{
-			// TODO: (Tianxin)
-			std::cout << "pwflat" << std::endl;
 			pwflat<> c; // default constructor
 			auto c2(c); // copy constructor
 			c2 = c;     // copy assignment
-			std::cout << "constructor" << std::endl;
 		}
 		{
 			// test one case for _value, _integral, _extrapolate, and _back.
