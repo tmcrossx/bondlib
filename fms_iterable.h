@@ -767,24 +767,17 @@ namespace fms::iterable {
 
 } // namespace fms::iterable
 
-// TODO: use fms::iterable::input concept
-template<fms::iterable::input I, fms::iterable::input J, class T = std::common_type_t<typename I::value_type, typename J::value_type>>
-inline auto operator+(I i, J j)
-{
-	return fms::iterable::binop(std::plus<T>{}, i, j);
-}
-template<fms::iterable::input I, fms::iterable::input J, class T = std::common_type_t<typename I::value_type, typename J::value_type>>
-inline auto operator-(I i, J j)
-{
-	return fms::iterable::binop(std::minus<T>{}, i, j);
-}
-template<fms::iterable::input I, fms::iterable::input J, class T = std::common_type_t<typename I::value_type, typename J::value_type>>
-inline auto operator*(I i, J j)
-{
-	return fms::iterable::binop(std::multiplies<T>{}, i, j);
-}
-template<fms::iterable::input I, fms::iterable::input J, class T = std::common_type_t<typename I::value_type, typename J::value_type>>
-inline auto operator/(I i, J j)
-{
-	return fms::iterable::binop(std::divides<T>{}, i, j);
-}
+#define FMS_ITERABLE_OPERATOR(X) \
+X(+, std::plus<T>{}) \
+X(-, std::minus<T>{}) \
+X(*, std::multiplies<T>{}) \
+X(/, std::divides<T>{}) \
+X(%, std::modulus<T>{}) \
+
+#define FMS_ITERABLE_OPERATOR_FUNCTION(OP, OP_) \
+template<fms::iterable::input I, fms::iterable::input J, class T = std::common_type_t<typename I::value_type, typename J::value_type>> \
+inline auto operator OP(I i, J j) \
+{ return fms::iterable::binop(OP_, i, j); }
+
+FMS_ITERABLE_OPERATOR(FMS_ITERABLE_OPERATOR_FUNCTION)
+#undef FMS_ITERABLE_OPERATOR_FUNCTION
