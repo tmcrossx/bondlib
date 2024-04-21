@@ -30,7 +30,7 @@ namespace tmx::curve {
 		~pwflat() = default;
 		*/
 
-		auto constexpr operator<=>(const pwflat&) const = default;
+		auto operator<=>(const pwflat&) const = default;
 
 		F _forward(T u, T t = 0) const noexcept override
 		{

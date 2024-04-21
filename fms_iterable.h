@@ -2,10 +2,25 @@
 #pragma once
 #include <compare>
 #include <functional>
+#include <limits>
+#include <type_traits>
 
 namespace fms::iterable {
+	
+	/*
+	template<class T> struct base;
 
-	// TODO: add fms::iterable::input concept
+	template <typename I>
+	concept IsReferenceToBase = std::is_base_of_v<fms::iterable::base<typename I::value_type>, std::remove_reference_t<I>>;
+	*/
+
+	template<class I>
+	concept input = requires (I i) {
+		{ i.operator bool() } -> std::same_as<bool>;
+		{ *i } -> std::convertible_to<typename I::value_type>;
+//		{ ++i } -> IsReferenceToBase;
+	};
+
 
 	// NVI interface for iterable.
 	template<class T>
@@ -33,7 +48,7 @@ namespace fms::iterable {
 	};
 
 	// TODO: replace class with iterable::input concept
-	template<class I, class J>
+	template<input I, input J>
 	inline bool equal(I i, J j) noexcept
 	{
 		while (i && j) {
@@ -48,7 +63,7 @@ namespace fms::iterable {
 	}
 
 	// length(i, length(j)) = length(i) + length(j)
-	template<class I>
+	template<input I>
 	inline std::size_t length(I i, std::size_t n = 0) noexcept
 	{
 		while (i) {
@@ -60,7 +75,7 @@ namespace fms::iterable {
 	}
 
 	// Drop at most n from the beginning.
-	template<class I>
+	template<input I>
 	inline I skip(I i, std::size_t n) noexcept
 	{
 		while (i && n > 0) {
@@ -72,13 +87,13 @@ namespace fms::iterable {
 	}
 
 	// Last iterable element if finite length.
-	template<class I>
+	template<input I>
 	inline I last(I i)
 	{
 		I _i(i);
 
 		while (++_i) {
-			i = _i;
+			i = _i; // move, swap???
 		}
 
 		return i;
@@ -113,37 +128,6 @@ namespace fms::iterable {
 		}
 	};
 	static_assert(std::is_same_v<constant<int>::value_type, base<int>::value_type>);
-
-	// Singleton iterable.
-	template<class T>
-	class once : public base<T> {
-		T t;
-		bool b;
-	public:
-		once(T t) noexcept
-			: t(t), b(true)
-		{ }
-
-		bool operator==(const once& o) const
-		{
-			return t == o.t && b == o.b;
-		}
-
-		bool op_bool() const noexcept override
-		{
-			return b;
-		}
-		T op_star() const noexcept override
-		{
-			return t;
-		}
-		once& op_incr() noexcept override
-		{
-			b = false;
-
-			return *this;
-		}
-	};
 
 	// t, t+1, t+2, ...
 	template<class T>
@@ -308,8 +292,39 @@ namespace fms::iterable {
 		}
 	};
 
+	// Singleton iterable.
+	template<class T>
+	class once : public base<T> {
+		T t;
+		bool b;
+	public:
+		once(T t) noexcept
+			: t(t), b(true)
+		{ }
+
+		bool operator==(const once& o) const
+		{
+			return t == o.t && b == o.b;
+		}
+
+		bool op_bool() const noexcept override
+		{
+			return b;
+		}
+		T op_star() const noexcept override
+		{
+			return t;
+		}
+		once& op_incr() noexcept override
+		{
+			b = false;
+
+			return *this;
+		}
+	};
+
 	// Take at most n elements.
-	template<class I, class T = I::value_type>
+	template<input I, class T = I::value_type>
 	class take : public base<T> {
 		I i;
 		std::size_t n;
@@ -350,7 +365,7 @@ namespace fms::iterable {
 	}
 
 	// i0 then i1
-	template<class I0, class I1, class T = std::common_type_t<typename I0::value_type, typename I1::value_type>>
+	template<input I0, input I1, class T = std::common_type_t<typename I0::value_type, typename I1::value_type>>
 	class concatenate : public base<T> {
 		I0 i0;
 		I1 i1;
@@ -381,7 +396,7 @@ namespace fms::iterable {
 	};
 
 	// sorted i0 and i1 in order
-	template<class I0, class I1, class T = std::common_type_t<typename I0::value_type, typename I1::value_type>>
+	template<input I0, input I1, class T = std::common_type_t<typename I0::value_type, typename I1::value_type>>
 	class merge : public base<T> {
 		I0 i0;
 		I1 i1;
@@ -402,7 +417,7 @@ namespace fms::iterable {
 		}
 		merge& op_incr() override
 		{
-			i0&& i1
+			i0 && i1
 				? *i0 < *i1 ? ++i0 : ++i1
 				: i0 ? ++i0 : ++i1;
 
@@ -411,7 +426,7 @@ namespace fms::iterable {
 	};
 
 	// Apply a function to elements of an iterable.
-	template<class F, class I, class T = typename I::value_type,
+	template<class F, input I, class T = typename I::value_type,
 		class U = std::invoke_result_t<F, T>>
 		class apply : public base <U>
 	{
@@ -460,7 +475,7 @@ namespace fms::iterable {
 	};
 
 	// Apply a binary operation to elements of two iterable.
-	template<class BinOp, class I0, class I1, class T0 = typename I0::value_type, class T1 = typename I1::value_type,
+	template<class BinOp, input I0, input I1, class T0 = typename I0::value_type, class T1 = typename I1::value_type,
 		class T = std::invoke_result_t<BinOp, T0, T1>>
 	class binop : public base<T> {
 		const BinOp& op;
@@ -508,7 +523,7 @@ namespace fms::iterable {
 	};
 
 	// Elements satisfying predicate.
-	template<class P, class I, class T = typename I::value_type>
+	template<class P, input I, class T = typename I::value_type>
 		class filter : public base <T>
 	{
 		const P& p;
@@ -561,7 +576,7 @@ namespace fms::iterable {
 	};
 
 	// Apply a predicate to elements of an iterable.
-	template<class P, class I, class T = typename I::value_type>
+	template<class P, input I, class T = typename I::value_type>
 	class until : public base <T>
 	{
 		const P& p;
@@ -608,7 +623,7 @@ namespace fms::iterable {
 	};
 
 	// Right fold: t, op(t, *i), op(op(t, *i), *++i), ...
-	template<class BinOp, class I, class T = typename I::value_type>
+	template<class BinOp, input I, class T = typename I::value_type>
 	class fold : public base<T>
 	{
 		const BinOp& op;
@@ -656,31 +671,19 @@ namespace fms::iterable {
 			return *this;
 		}
 	};
-	template<class I, class T = typename I::value_type>
+	template<input I, class T = typename I::value_type>
 	inline auto sum(I i)
 	{
 		return fold(std::plus<T>{}, i, T(0)) ;
 	} 
-	template<class I, class T = typename I::value_type>
-	inline T series(I i, T eps = std::numeric_limits<T>::epsilon())
-	{
-		T s = 0;
-
-		while (i && std::fabs(*i) > eps) {
-			s += *i;
-			++i;
-		}
-
-		return s;
-	}
-	template<class I, class T = typename I::value_type>
+	template<input I, class T = typename I::value_type>
 	inline auto prod(I i)
 	{
 		return fold(std::multiplies<T>{}, i, T(1));
 	}
 
 	// Precompute values.
-	template<class T, std::size_t N>
+	template<input I, class T, std::size_t N>
 	class cache : public base<T> {
 		T a[N];
 		std::size_t n;
@@ -709,27 +712,78 @@ namespace fms::iterable {
 
 			return *this;
 		}
-	}
+	};
+
+	// d(++*i, *i) ...
+	template<class D, input I, class T = typename I::value_type>
+	class delta : public base<T> {
+		const D& d;
+		I i;
+		T t;
+	public:
+		delta(const D& d, const I& i)
+			: d(d), i(i), t(*i)
+		{
+			if (i) {
+				op_incr();
+			}
+		}
+		delta(const delta& d)
+			: delta(d.d, d.i)
+		{ }
+		delta& operator=(const delta& _d)
+		{
+			if (this != &_d) {
+				i = _d.i;
+				t = _d.t;
+			}
+
+			return *this;
+		}
+		~delta()
+		{ }
+
+		bool operator==(const delta& _d) const
+		{
+			return i == _d.i && t == _d.t;
+		}
+
+		bool op_bool() const override
+		{
+			return i.op_bool();
+		}
+		T op_star() const override
+		{
+			return d(*i, t);
+		}
+		delta& op_incr() override
+		{
+			t = *i;
+			++i;
+
+			return *this;
+		}
+	};
 
 } // namespace fms::iterable
 
 // TODO: use fms::iterable::input concept
-template<class I, class J, class T = std::common_type_t<typename I::value_type, typename J::value_type>>
+template<fms::iterable::input I, fms::iterable::input J, class T = std::common_type_t<typename I::value_type, typename J::value_type>>
 inline auto operator+(I i, J j)
 {
 	return fms::iterable::binop(std::plus<T>{}, i, j);
 }
-template<class I, class J, class T = std::common_type_t<typename I::value_type, typename J::value_type>>
+template<fms::iterable::input I, fms::iterable::input J, class T = std::common_type_t<typename I::value_type, typename J::value_type>>
 inline auto operator-(I i, J j)
 {
 	return fms::iterable::binop(std::minus<T>{}, i, j);
 }
-template<class I, class J, class T = std::common_type_t<typename I::value_type, typename J::value_type>>
+template<fms::iterable::input I, fms::iterable::input J, class T = std::common_type_t<typename I::value_type, typename J::value_type>>
 inline auto operator*(I i, J j)
 {
 	return fms::iterable::binop(std::multiplies<T>{}, i, j);
 }
-template<class I, class J, class T = std::common_type_t<typename I::value_type, typename J::value_type>>
+template<fms::iterable::input I, fms::iterable::input J, class T = std::common_type_t<typename I::value_type, typename J::value_type>>
 inline auto operator/(I i, J j)
 {
 	return fms::iterable::binop(std::divides<T>{}, i, j);

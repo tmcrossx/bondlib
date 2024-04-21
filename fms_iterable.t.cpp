@@ -364,6 +364,23 @@ int test_merge = []() {
 	return 0;
 }();
 
+int test_delta = []() {
+	{
+		delta d(std::minus<int>{}, power<int>(2));
+		auto d2(d);
+		assert(d == d2);
+		d = d2;
+		assert(!(d2 == d));
+
+		assert(d);
+		assert(*d == 2 - 1);
+		++d;
+		assert(*d == 4 - 2);
+	}
+
+	return 0;
+}();
+
 int test_exp = []() {
 	{
 		double x = 1;

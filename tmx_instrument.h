@@ -40,6 +40,12 @@ namespace tmx::instrument {
 	static_assert(!(cash_flow(1., 2) < cash_flow(1, 2.)));
 #endif // _DEBUG
 
+	template<fms::iterable::input U, fms::iterable::input C>
+	inline auto iterable(const U& u, const C& c)
+	{
+		return fms::iterable::binop(cash_flow<typename U::value_type,typename C::value_type>{}, u, c);
+	}
+
 	// A zero coupon bond has a single cash flow.
 	template<class U = double, class C = double>
 	class zero_coupon_bond : public fms::iterable::base<cash_flow<U, C>> {
