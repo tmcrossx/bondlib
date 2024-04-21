@@ -9,7 +9,7 @@ namespace tmx::instrument {
 
 	// non-owning instrument view
 	template<class U = double, class C = double>
-	class view : public base<U,C> {
+	class view : public iterable::base<cash_flow<U,C>> {
 	protected:
 		std::span<U> u;
 		std::span<C> c;
@@ -34,9 +34,9 @@ namespace tmx::instrument {
 		{
 			return u.size() > 0;
 		}
-		std::pair<U, C> op_star() const override
+		cash_flow<U, C> op_star() const override
 		{
-			return std::make_pair(u[0], c[0]);
+			return cash_flow(u[0], c[0]);
 		}
 		view& op_incr() override
 		{

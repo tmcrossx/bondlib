@@ -1,6 +1,7 @@
 // fms_iterable.t.cpp - test fms::iterable
 #include <cassert>
 #include "fms_iterable.h"
+#include "fms_time.h"
 
 using namespace fms::iterable;
 
@@ -95,6 +96,63 @@ int test_factorial = []() {
 
 	return 0;
 }();
+
+int test_apply = []() {
+	{
+		apply a([](int x) { return 0.5 * x; }, iota<int>{});
+		auto a2(a);
+		assert(a == a2);
+		a = a2;
+		assert(!(a2 != a));
+
+		assert(a);
+		assert(*a == 0.);
+		++a;
+		assert(a);
+		assert(*a == 0.5);
+		++a;
+		assert(a);
+		assert(*a == 1.);
+	}
+
+	return 0;
+	}();
+
+int test_until = []() {
+	{
+		until a([](double x) { return x <= std::numeric_limits<double>::epsilon(); }, power(0.5));
+		auto a2(a);
+		assert(a == a2);
+		a = a2;
+		assert(!(a2 != a));
+
+		auto len = length(a);
+		assert(len == 52);
+	}
+
+	return 0;
+}();
+
+int test_filter = []() {
+	{
+		filter a([](int i) { return i % 2; }, iota<int>{});
+		auto a2(a);
+		assert(a == a2);
+		a = a2;
+		assert(!(a2 != a));
+
+		assert(a);
+		assert(*a == 1);
+		++a;
+		assert(a);
+		assert(*a == 3);
+		++a;
+		assert(a);
+		assert(*a == 5);
+	}
+
+	return 0;
+	}();
 
 int test_fold = []() {
 	{
@@ -306,37 +364,21 @@ int test_merge = []() {
 	return 0;
 }();
 
-
-int test_apply = []() {
-	{
-		apply a([](int x) { return 0.5 * x; }, iota<int>{});
-		auto a2(a);
-		assert(a == a2);
-		a = a2;
-		assert(!(a2 != a));
-
-		assert(a);
-		assert(*a == 0.);
-		++a;
-		assert(a);
-		assert(*a == 0.5);
-		++a;
-		assert(a);
-		assert(*a == 1.);
-	}
-
-	return 0;
-}();
-
 int test_exp = []() {
 	{
 		double x = 1;
-		const auto eps = [](double x) { return fabs(x) <= std::numeric_limits<double>::epsilon(); };
-		auto expx = series(power(x) / factorial());
+		const auto eps = [](double x) { return x + 1 == 1; };
+		auto expx = sum(until(eps, power(x)/factorial()));
+		auto len = length(expx);
+		len = len; // 19
 		double exp1 = std::exp(1.);
 		double diff;
-		diff = expx - exp1;
+		diff = *last(expx) - exp1;
 		diff = diff;
+		auto dt1 = fms::time<std::chrono::microseconds>([]() { std::exp(1.); }, 10'000);
+		auto dt = fms::time([expx]() { *last(expx); }, 10'000);
+		auto dd = 1000*dt / dt1; // ~250
+		dd = dd;
 	}
 
 	return 0;

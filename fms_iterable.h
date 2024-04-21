@@ -84,17 +84,6 @@ namespace fms::iterable {
 		return i;
 	}
 
-	// skip until predicate is true
-	template<class P, class I>
-	inline I until(const P& p, I i)
-	{
-		while (i && !p(*i)) {
-			++i;
-		}
-
-		return i;
-	}
-
 	// Constant iterable.
 	template<class T>
 	class constant : public base<T> {
@@ -125,6 +114,7 @@ namespace fms::iterable {
 	};
 	static_assert(std::is_same_v<constant<int>::value_type, base<int>::value_type>);
 
+	// Singleton iterable.
 	template<class T>
 	class once : public base<T> {
 		T t;
@@ -517,6 +507,106 @@ namespace fms::iterable {
 		}
 	};
 
+	// Elements satisfying predicate.
+	template<class P, class I, class T = typename I::value_type>
+		class filter : public base <T>
+	{
+		const P& p;
+		I i;
+		void incr()
+		{
+			while (++i && !p(*i)) {
+				;
+			}
+		}
+	public:
+		filter(const P& p, const I& i)
+			: p(p), i(i)
+		{
+			incr();
+		}
+		filter(const filter& a)
+			: p(a.p), i(a.i)
+		{ }
+		filter& operator=(const filter& a)
+		{
+			if (this != &a) {
+				i = a.i;
+			}
+
+			return *this;
+		}
+		~filter()
+		{ }
+
+		bool operator==(const filter& a) const
+		{
+			return p == a.p and i == a.i;
+		}
+
+		bool op_bool() const override
+		{
+			return i.op_bool();
+		}
+		T op_star() const override
+		{
+			return *i;
+		}
+		filter& op_incr() override
+		{
+			incr();
+
+			return *this;
+		}
+	};
+
+	// Apply a predicate to elements of an iterable.
+	template<class P, class I, class T = typename I::value_type>
+	class until : public base <T>
+	{
+		const P& p;
+		I i;
+	public:
+		until(const P& p, const I& i)
+			: p(p), i(i)
+		{ }
+		until(const until& a)
+			: p(a.p), i(a.i)
+		{ }
+		until& operator=(const until& a)
+		{
+			if (this != &a) {
+				i = a.i;
+			}
+
+			return *this;
+		}
+		~until()
+		{ }
+
+		bool operator==(const until& a) const
+		{
+			return p == a.p and i == a.i;
+		}
+
+		bool op_bool() const override
+		{
+			return i.op_bool() && !p(*i);
+		}
+		T op_star() const override
+		{
+			return *i;
+		}
+		until& op_incr() override
+		{
+			if (op_bool()) {
+				++i;
+			}
+
+			return *this;
+		}
+	};
+
 	// Right fold: t, op(t, *i), op(op(t, *i), *++i), ...
 	template<class BinOp, class I, class T = typename I::value_type>
 	class fold : public base<T>
@@ -589,6 +679,37 @@ namespace fms::iterable {
 		return fold(std::multiplies<T>{}, i, T(1));
 	}
 
+	// Precompute values.
+	template<class T, std::size_t N>
+	class cache : public base<T> {
+		T a[N];
+		std::size_t n;
+	public:
+		cache(I i)
+			: n(0)
+		{
+			while (i && n < N) {
+				a[n++] = *i;
+				++i;
+			}
+			n = 0;
+		}
+
+		bool op_bool() const override
+		{
+			return n < N;
+		}
+		T op_star() const override
+		{
+			return a[n];
+		}
+		cache& op_incr() override
+		{
+			++n;
+
+			return *this;
+		}
+	}
 
 } // namespace fms::iterable
 

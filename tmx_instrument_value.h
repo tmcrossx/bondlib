@@ -52,9 +52,6 @@ namespace tmx::instrument {
 
 			return *this;
 		}
-		// TODO: test these
-		value(value&& v) = default;
-		value& operator=(value&& v) = default;
 		~value()
 		{ }
 
