@@ -776,8 +776,7 @@ X(%, std::modulus<T>{}) \
 
 #define FMS_ITERABLE_OPERATOR_FUNCTION(OP, OP_) \
 template<fms::iterable::input I, fms::iterable::input J, class T = std::common_type_t<typename I::value_type, typename J::value_type>> \
-inline auto operator OP(I i, J j) \
-{ return fms::iterable::binop(OP_, i, j); }
+inline auto operator OP(I i, J j) { return fms::iterable::binop(OP_, i, j); }
 
 FMS_ITERABLE_OPERATOR(FMS_ITERABLE_OPERATOR_FUNCTION)
 #undef FMS_ITERABLE_OPERATOR_FUNCTION
