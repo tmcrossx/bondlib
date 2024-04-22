@@ -370,7 +370,7 @@ int test_delta = []() {
 		auto d2(d);
 		assert(d == d2);
 		d = d2;
-		assert(!(d2 == d));
+		assert(!(d2 != d));
 
 		assert(d);
 		assert(*d == 2 - 1);

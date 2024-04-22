@@ -55,6 +55,11 @@ namespace tmx::instrument {
 			: uc(u,c)
 		{ }
 
+		zero_coupon_bond* clone() const override
+		{
+			return new zero_coupon_bond(*this);
+		}
+
 		constexpr bool op_bool() const override
 		{
 			return uc.u != math::infinity<U>;

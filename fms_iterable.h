@@ -3,6 +3,7 @@
 #include <compare>
 #include <functional>
 #include <limits>
+#include <memory>
 #include <type_traits>
 
 namespace fms::iterable {
@@ -28,6 +29,8 @@ namespace fms::iterable {
 		using value_type = T;
 
 		virtual ~base() { };
+
+		virtual base* clone() const = 0;
 		
 		explicit operator bool() const
 		{
@@ -114,6 +117,11 @@ namespace fms::iterable {
 			return c == _c.c;
 		}
 
+		constant* clone() const override
+		{
+			return new constant(*this);
+		}
+
 		bool op_bool() const noexcept override
 		{
 			return true;
@@ -127,7 +135,6 @@ namespace fms::iterable {
 			return *this;
 		}
 	};
-	static_assert(std::is_same_v<constant<int>::value_type, base<int>::value_type>);
 
 	// t, t+1, t+2, ...
 	template<class T>
@@ -141,6 +148,11 @@ namespace fms::iterable {
 		bool operator==(const iota& i) const
 		{
 			return t == i.t;
+		}
+
+		iota* clone() const override
+		{
+			return new iota(*this);
 		}
 
 		bool op_bool() const noexcept override
@@ -173,6 +185,11 @@ namespace fms::iterable {
 			return t == p.t && tn == p.tn;
 		}
 
+		power* clone() const override
+		{
+			return new power(*this);
+		}
+
 		bool op_bool() const override
 		{
 			return true;
@@ -200,6 +217,11 @@ namespace fms::iterable {
 		bool operator==(const factorial& f) const
 		{
 			return t == f.t && n == f.n;
+		}
+
+		factorial* clone() const override
+		{
+			return new factorial(*this);
 		}
 
 		bool op_bool() const override
@@ -230,6 +252,11 @@ namespace fms::iterable {
 		bool operator==(const pointer& _p) const
 		{
 			return p == _p.p;
+		}
+
+		pointer* clone() const override
+		{
+			return new pointer(*this);
 		}
 
 		bool op_bool() const noexcept override
@@ -275,6 +302,11 @@ namespace fms::iterable {
 			return p == _p.p;
 		}
 
+		null_terminated_pointer* clone() const override
+		{
+			return new null_terminated_pointer(*this);
+		}
+
 		bool op_bool() const noexcept override
 		{
 			return *p != 0;
@@ -307,6 +339,11 @@ namespace fms::iterable {
 			return t == o.t && b == o.b;
 		}
 
+		once* clone() const override
+		{
+			return new once(*this);
+		}
+
 		bool op_bool() const noexcept override
 		{
 			return b;
@@ -336,6 +373,11 @@ namespace fms::iterable {
 		bool operator==(const take& t) const
 		{
 			return i == t.i && n == t.n;
+		}
+
+		take* clone() const override
+		{
+			return new take(*this);
 		}
 
 		bool op_bool() const noexcept override
@@ -374,6 +416,11 @@ namespace fms::iterable {
 			: i0(i0), i1(i1)
 		{ }
 
+		concatenate* clone() const override
+		{
+			return new concatenate(*this);
+		}
+
 		bool op_bool() const override
 		{
 			return i0 || i1;
@@ -404,6 +451,11 @@ namespace fms::iterable {
 		merge(const I0& i0, const I1& i1)
 			: i0(i0), i1(i1)
 		{ }
+
+		merge* clone() const override
+		{
+			return new merge(*this);
+		}
 
 		bool op_bool() const override
 		{
@@ -458,6 +510,11 @@ namespace fms::iterable {
 			return f == a.f and i == a.i;
 		}
 
+		apply* clone() const override
+		{
+			return new apply(*this);
+		}
+
 		bool op_bool() const override
 		{
 			return i.op_bool();
@@ -503,6 +560,11 @@ namespace fms::iterable {
 		bool operator==(const binop& o) const
 		{
 			return i0 == o.i0 && i1 == o.i1;
+		}
+
+		binop* clone() const override
+		{
+			return new binop(*this);
 		}
 
 		bool op_bool() const override
@@ -559,6 +621,11 @@ namespace fms::iterable {
 			return p == a.p and i == a.i;
 		}
 
+		filter* clone() const override
+		{
+			return new filter(*this);
+		}
+
 		bool op_bool() const override
 		{
 			return i.op_bool();
@@ -602,6 +669,11 @@ namespace fms::iterable {
 		bool operator==(const until& a) const
 		{
 			return p == a.p and i == a.i;
+		}
+		
+		until* clone() const override
+		{
+			return new until(*this);
 		}
 
 		bool op_bool() const override
@@ -653,6 +725,11 @@ namespace fms::iterable {
 			return i == f.i && t == f.t; // BinOp is part of type
 		}
 
+		fold* clone() const override
+		{
+			return new fold(*this);
+		}
+
 		bool op_bool() const override
 		{
 			return i.op_bool();
@@ -698,6 +775,11 @@ namespace fms::iterable {
 			n = 0;
 		}
 
+		cache* clone() const override
+		{
+			return new cache(*this);
+		}
+
 		bool op_bool() const override
 		{
 			return n < N;
@@ -719,23 +801,26 @@ namespace fms::iterable {
 	class delta : public base<T> {
 		const D& d;
 		I i;
-		T t;
+		T t, _t;
 	public:
-		delta(const D& d, const I& i)
-			: d(d), i(i), t(*i)
+		delta(const D& _d, const I& _i)
+			: d(_d), i(_i)
 		{
 			if (i) {
-				op_incr();
+				t = *i;
+				++i;
+				_t = i ? *i : t;
 			}
 		}
-		delta(const delta& d)
-			: delta(d.d, d.i)
+		delta(const delta& _d)
+			: d(_d.d), i(_d.i), t(_d.t), _t(_d._t)
 		{ }
 		delta& operator=(const delta& _d)
 		{
 			if (this != &_d) {
 				i = _d.i;
 				t = _d.t;
+				_t = _d._t;
 			}
 
 			return *this;
@@ -745,7 +830,12 @@ namespace fms::iterable {
 
 		bool operator==(const delta& _d) const
 		{
-			return i == _d.i && t == _d.t;
+			return i == _d.i && t == _d.t && _t == _d._t;
+		}
+
+		delta* clone() const override
+		{
+			return new delta(*this);
 		}
 
 		bool op_bool() const override
