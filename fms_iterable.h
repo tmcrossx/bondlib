@@ -31,6 +31,7 @@ namespace fms::iterable {
 		virtual ~base() { };
 
 		virtual base* clone() const = 0;
+		virtual void destroy() = 0;
 		
 		explicit operator bool() const
 		{
@@ -50,7 +51,6 @@ namespace fms::iterable {
 		virtual base& op_incr() = 0;
 	};
 
-	// TODO: replace class with iterable::input concept
 	template<input I, input J>
 	inline bool equal(I i, J j) noexcept
 	{
@@ -91,7 +91,7 @@ namespace fms::iterable {
 
 	// Last iterable element if finite length.
 	template<input I>
-	inline I last(I i)
+	inline I back(I i)
 	{
 		I _i(i);
 
@@ -120,6 +120,10 @@ namespace fms::iterable {
 		constant* clone() const override
 		{
 			return new constant(*this);
+		}
+		void destroy() override
+		{
+			delete this;
 		}
 
 		bool op_bool() const noexcept override
@@ -153,6 +157,10 @@ namespace fms::iterable {
 		iota* clone() const override
 		{
 			return new iota(*this);
+		}
+		void destroy() override
+		{
+			delete this;
 		}
 
 		bool op_bool() const noexcept override
@@ -189,6 +197,10 @@ namespace fms::iterable {
 		{
 			return new power(*this);
 		}
+		void destroy() override
+		{
+			delete this;
+		}
 
 		bool op_bool() const override
 		{
@@ -222,6 +234,10 @@ namespace fms::iterable {
 		factorial* clone() const override
 		{
 			return new factorial(*this);
+		}
+		void destroy() override
+		{
+			delete this;
 		}
 
 		bool op_bool() const override
@@ -257,6 +273,10 @@ namespace fms::iterable {
 		pointer* clone() const override
 		{
 			return new pointer(*this);
+		}
+		void destroy() override
+		{
+			delete this;
 		}
 
 		bool op_bool() const noexcept override
@@ -306,6 +326,10 @@ namespace fms::iterable {
 		{
 			return new null_terminated_pointer(*this);
 		}
+		void destroy() override
+		{
+			delete this;
+		}
 
 		bool op_bool() const noexcept override
 		{
@@ -343,6 +367,10 @@ namespace fms::iterable {
 		{
 			return new once(*this);
 		}
+		void destroy() override
+		{
+			delete this;
+		}
 
 		bool op_bool() const noexcept override
 		{
@@ -378,6 +406,10 @@ namespace fms::iterable {
 		take* clone() const override
 		{
 			return new take(*this);
+		}
+		void destroy() override
+		{
+			delete this;
 		}
 
 		bool op_bool() const noexcept override
@@ -420,6 +452,10 @@ namespace fms::iterable {
 		{
 			return new concatenate(*this);
 		}
+		void destroy() override
+		{
+			delete this;
+		}
 
 		bool op_bool() const override
 		{
@@ -455,6 +491,10 @@ namespace fms::iterable {
 		merge* clone() const override
 		{
 			return new merge(*this);
+		}
+		void destroy() override
+		{
+			delete this;
 		}
 
 		bool op_bool() const override
@@ -514,6 +554,10 @@ namespace fms::iterable {
 		{
 			return new apply(*this);
 		}
+		void destroy() override
+		{
+			delete this;
+		}
 
 		bool op_bool() const override
 		{
@@ -565,6 +609,10 @@ namespace fms::iterable {
 		binop* clone() const override
 		{
 			return new binop(*this);
+		}
+		void destroy() override
+		{
+			delete this;
 		}
 
 		bool op_bool() const override
@@ -625,6 +673,10 @@ namespace fms::iterable {
 		{
 			return new filter(*this);
 		}
+		void destroy() override
+		{
+			delete this;
+		}
 
 		bool op_bool() const override
 		{
@@ -674,6 +726,10 @@ namespace fms::iterable {
 		until* clone() const override
 		{
 			return new until(*this);
+		}
+		void destroy() override
+		{
+			delete this;
 		}
 
 		bool op_bool() const override
@@ -729,6 +785,10 @@ namespace fms::iterable {
 		{
 			return new fold(*this);
 		}
+		void destroy() override
+		{
+			delete this;
+		}
 
 		bool op_bool() const override
 		{
@@ -762,7 +822,7 @@ namespace fms::iterable {
 	// Precompute values.
 	template<input I, class T, std::size_t N>
 	class cache : public base<T> {
-		T a[N];
+		std::array<T,N> a;
 		std::size_t n;
 	public:
 		cache(I i)
@@ -778,6 +838,10 @@ namespace fms::iterable {
 		cache* clone() const override
 		{
 			return new cache(*this);
+		}
+		void destroy() override
+		{
+			delete this;
 		}
 
 		bool op_bool() const override
@@ -836,6 +900,10 @@ namespace fms::iterable {
 		delta* clone() const override
 		{
 			return new delta(*this);
+		}
+		void destroy() override
+		{
+			delete this;
 		}
 
 		bool op_bool() const override

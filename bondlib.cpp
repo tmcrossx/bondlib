@@ -20,12 +20,7 @@ using namespace fms;
 using namespace tmx;
 
 #ifdef _DEBUG
-//int test_iterable_ptr = iterable::ptr<int>::test();
-//int test_iterable_take = iterable::take<iterable::ptr<int>>::test();
-//int test_iterable_span = iterable::span<int>::test();
-//int test_iterator = iterable::iterator<std::vector<int>::iterator>::test();
-
-//int test_hypergeometric = math::hypergeometric_test();
+int test_hypergeometric = math::hypergeometric_test();
 
 //int test_monoid_i = monoid_test<int>();
 //int test_monoid_d = monoid_test<double>();

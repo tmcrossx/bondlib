@@ -40,6 +40,10 @@ namespace tmx::instrument {
 	static_assert(!(cash_flow(1., 2) < cash_flow(1, 2.)));
 #endif // _DEBUG
 
+	// NVI base class for all instruments
+	template<class U = double, class C = double>
+	using base = fms::iterable::base<cash_flow<U, C>>;
+
 	template<fms::iterable::input U, fms::iterable::input C>
 	inline auto iterable(const U& u, const C& c)
 	{
@@ -58,6 +62,10 @@ namespace tmx::instrument {
 		zero_coupon_bond* clone() const override
 		{
 			return new zero_coupon_bond(*this);
+		}
+		void destroy() override
+		{
+			delete this;
 		}
 
 		constexpr bool op_bool() const override

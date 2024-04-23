@@ -26,10 +26,13 @@ namespace tmx::value {
 	{
 		return uc.c * f.discount(uc.u, t);
 	}
+#ifdef _DEBUG
+	static_assert(present<int,int,int,int>(instrument::cash_flow(1, 1), curve::constant(0)) == 1);
+#endif // _DEBUG
 
 	// Present value at t of future discounted cash flows.
 	template<class U, class C, class T, class F>
-	constexpr C present(instrument<U, C>::base& i, const curve::base<T, F>& f, T t = 0)
+	constexpr C present(instrument<U, C>::base i, const curve::base<T, F>& f, T t = 0)
 	{
 		C pv = 0;
 
@@ -40,6 +43,9 @@ namespace tmx::value {
 
 		return pv;
 	}
+#ifdef _DEBUG
+	static_assert(present<int,int,int,int>(instrument::zero_coupon_bond(1, 2), curve::constant(0)) == 2);
+#endif // _DEBUG
 
 	// Derivative of present value with respect to a parallel shift.
 	template<class U, class C, class T, class F>

@@ -190,7 +190,7 @@ int test_fold = []() {
 	{
 		fold f(std::multiplies<int>{}, iota<int>(1), 1);
 		// 1 * 1 * 2 * 3
-		auto f_ = last(take(f, 4));
+		auto f_ = back(take(f, 4));
 		assert(*f_ == 6);
 	}
 
@@ -390,10 +390,10 @@ int test_exp = []() {
 		len = len; // 19
 		double exp1 = std::exp(1.);
 		double diff;
-		diff = *last(expx) - exp1;
+		diff = *back(expx) - exp1;
 		diff = diff;
 		auto dt1 = fms::time<std::chrono::microseconds>([]() { std::exp(1.); }, 10'000);
-		auto dt = fms::time([expx]() { *last(expx); }, 10'000);
+		auto dt = fms::time([expx]() { *back(expx); }, 10'000);
 		auto dd = 1000*dt / dt1; // ~250
 		dd = dd;
 	}
