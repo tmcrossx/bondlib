@@ -1,4 +1,4 @@
-// fms_iterable.h - iterator with operator bool()
+// fms_iterable.h - iterator with operator bool() to detect the end
 #pragma once
 #include <compare>
 #include <functional>

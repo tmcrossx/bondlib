@@ -44,13 +44,8 @@ namespace tmx::instrument {
 	template<class U = double, class C = double>
 	using base = fms::iterable::base<cash_flow<U, C>>;
 
-	template<fms::iterable::input U, fms::iterable::input C>
-	inline auto iterable(const U& u, const C& c)
-	{
-		return fms::iterable::binop(cash_flow<typename U::value_type,typename C::value_type>{}, u, c);
-	}
-
 	// A zero coupon bond has a single cash flow.
+	// Equivalent to once(cash_flow(u,c)).
 	template<class U = double, class C = double>
 	class zero_coupon_bond : public fms::iterable::base<cash_flow<U, C>> {
 		cash_flow<U, C> uc;
