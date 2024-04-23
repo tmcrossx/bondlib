@@ -5,8 +5,8 @@ namespace tmx::variate {
 
 	// Standard variate with mean 0 and variance 1.
 	template<class X = double, class S = double>
-	struct base {
-		virtual ~base()
+	struct interface {
+		virtual ~interface()
 		{ }
 
 		// Share density function P_s(X = x) dx.

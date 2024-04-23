@@ -12,7 +12,7 @@ namespace tmx::bootstrap {
 	// Bootstrap a single instrument.
 	// Return point on the curve repricing the instrument.
 	template<class U = double, class C = double, class T = double, class F = double>
-	constexpr std::pair<T, F> instrument(const instrument::base<U,C>& i, curve::base<T,F>& f, 
+	constexpr std::pair<T, F> instrument(const instrument::interface<U,C>& i, curve::interface<T,F>& f, 
 		F p = 0, F _f = math::NaN<F>)
 	{
 		const auto [_u, _c] = i.back();
@@ -30,7 +30,7 @@ namespace tmx::bootstrap {
 			}
 		}
 
-		//const instrument::base<U, C>& ii = i.clone();
+		//const instrument::interface<U, C>& ii = i.clone();
 		const auto vp = [&](F f0) { return value::present(i, f.extrapolate(f0)) - p; };
 		const auto vd = [=](F f0) { return f0/*value::duration(i, f.extrapolate(f0)) */ ; };
 		

@@ -11,7 +11,7 @@ namespace tmx::option {
 
 	// F <= k if and only if X <= (log(k/f) + κ(s))/s
 	template<class F, class S, class K>
-	inline auto moneyness(F f, S s, K k, const variate::base<F, S>& v = variate::normal<F, S>{})
+	inline auto moneyness(F f, S s, K k, const variate::interface<F, S>& v = variate::normal<F, S>{})
 	{
 		if (f <= 0 or k <= 0 or s <= 0) {
 			return math::NaN<F>;
@@ -21,7 +21,7 @@ namespace tmx::option {
 	}
 	// exp(rt)X = F, sigma = s sqrt(t)
 	template<class R, class X, class S, class K, class T>
-	inline auto moneyness(R r, X x, S sigma, K k, T t, const variate::base<X, S>& v = variate::normal<X, S>{})
+	inline auto moneyness(R r, X x, S sigma, K k, T t, const variate::interface<X, S>& v = variate::normal<X, S>{})
 	{
 		return moneyness(exp(r*t) * x, sigma * sqrt(t), k, v);
 	}
@@ -29,7 +29,7 @@ namespace tmx::option {
 	namespace put {
 
 		template<class F, class S, class K>
-		inline auto value(F f, S s, K k, const variate::base<F, S>& v = variate::normal<F, S>{})
+		inline auto value(F f, S s, K k, const variate::interface<F, S>& v = variate::normal<F, S>{})
 		{
 			if (f == 0 or k == 0) {
 				return F(0);
@@ -44,7 +44,7 @@ namespace tmx::option {
 		}
 
 		template<class F, class S, class K>
-		inline auto delta(F f, S s, K k, const variate::base<F, S>& v = variate::normal<F, S>{})
+		inline auto delta(F f, S s, K k, const variate::interface<F, S>& v = variate::normal<F, S>{})
 		{
 			if (f == 0 or k == 0) {
 				return F(0);
@@ -59,7 +59,7 @@ namespace tmx::option {
 		}
 
 		template<class F, class S, class K>
-		inline auto gamma(F f, S s, K k, const variate::base<F, S>& v = variate::normal<F, S>{})
+		inline auto gamma(F f, S s, K k, const variate::interface<F, S>& v = variate::normal<F, S>{})
 		{
 			if (f == 0 or k == 0) {
 				return F(0);
@@ -73,7 +73,7 @@ namespace tmx::option {
 			return v.pdf(x, s) / (f * s);
 		}
 		template<class F, class S, class K>
-		inline auto vega(F f, S s, K k, const variate::base<F, S>& v = variate::normal<F, S>{})
+		inline auto vega(F f, S s, K k, const variate::interface<F, S>& v = variate::normal<F, S>{})
 		{
 			if (f == 0 or k == 0) {
 				return F(0);
@@ -132,25 +132,25 @@ namespace tmx::option {
 	namespace call {
 
 		template<class F, class S, class K>
-		inline auto value(F f, S s, K k, const variate::base<F, S>& v = variate::normal{})
+		inline auto value(F f, S s, K k, const variate::interface<F, S>& v = variate::normal{})
 		{
 			return f - k + put::value(f, s, k, v);
 		}
 
 		template<class F, class S, class K>
-		inline auto delta(F f, S s, K k, const variate::base<F, S>& v = variate::normal{})
+		inline auto delta(F f, S s, K k, const variate::interface<F, S>& v = variate::normal{})
 		{
 			return -put::delta(f, s, k, v);
 		}
 
 		template<class F, class S, class K>
-		inline auto gamma(F f, S s, K k, const variate::base<F, S>& v = variate::normal{})
+		inline auto gamma(F f, S s, K k, const variate::interface<F, S>& v = variate::normal{})
 		{
 			return put::gamma(f, s, k, v);
 		}
 
 		template<class F, class S, class K>
-		inline auto vega(F f, S s, K k, const variate::base<F, S>& v = variate::normal{})
+		inline auto vega(F f, S s, K k, const variate::interface<F, S>& v = variate::normal{})
 		{
 			return put::vega(f, s, k, v);
 		}

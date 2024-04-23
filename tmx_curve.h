@@ -15,9 +15,9 @@ namespace tmx::curve {
 	// NVI idiom compiles to non-virtual function calls.
 	// Enforce preconditions for all derived curves.
 	template<class T = double, class F = double>
-	struct base {
-		constexpr base() noexcept = default;
-		constexpr virtual ~base() {}
+	struct interface {
+		constexpr interface() noexcept = default;
+		constexpr virtual ~interface() {}
 
 		// Forward over [t, u].
 		F forward(T u, T t = 0) const noexcept
@@ -54,7 +54,7 @@ namespace tmx::curve {
 
 	// Constant curve.
 	template<class T = double, class F = double>
-	class constant : public base<T, F> {
+	class constant : public interface<T, F> {
 		F f;
 	public:
 		constexpr constant(F f = math::NaN<F>) noexcept
@@ -92,7 +92,7 @@ namespace tmx::curve {
 
 	// s on [t0, t1], 0 elsewhere.
 	template<class T = double, class F = double>
-	class bump : public base<T, F> {
+	class bump : public interface<T, F> {
 		F s;
 		T t0, t1;
 	public:
@@ -132,17 +132,17 @@ namespace tmx::curve {
 
 	// Add two curves.
 	template<class T = double, class F = double>
-	class plus : public base<T, F> {
-		const base<T, F>& f;
-		const base<T, F>& g;
+	class plus : public interface<T, F> {
+		const interface<T, F>& f;
+		const interface<T, F>& g;
 	public:
-		plus(const base<T, F>& f, const base<T, F>& g)
+		plus(const interface<T, F>& f, const interface<T, F>& g)
 			: f(f), g(g)
 		{ }
-		plus(const base<T, F>& f, F s)
+		plus(const interface<T, F>& f, F s)
 			: f(f), g(constant(s))
 		{ }
-		plus(const base<T, F>& f, F s, T t0, T t1)
+		plus(const interface<T, F>& f, F s, T t0, T t1)
 			: f(f), g(bump(s, t0, t1))
 		{ }
 		plus(const plus& p) = default;
@@ -163,14 +163,14 @@ namespace tmx::curve {
 
 // Add two curves.
 template<class T, class F>
-inline tmx::curve::plus<T, F> operator+(const tmx::curve::base<T, F>& f, const tmx::curve::base<T, F>& g)
+inline tmx::curve::plus<T, F> operator+(const tmx::curve::interface<T, F>& f, const tmx::curve::interface<T, F>& g)
 {
 	return tmx::curve::plus<T, F>(f, g);
 }
 
 // Add a constant spread.
 template<class T, class F>
-inline tmx::curve::plus<T, F> operator+(tmx::curve::base<T, F>& f, F s)
+inline tmx::curve::plus<T, F> operator+(tmx::curve::interface<T, F>& f, F s)
 {
 	return tmx::curve::plus<T, F>(f, s);
 }

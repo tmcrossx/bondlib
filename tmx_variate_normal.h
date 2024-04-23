@@ -10,7 +10,7 @@
 namespace tmx::variate {
 
 	template<class X = double, class S = double>
-	struct normal : public base<X,S> {
+	struct normal : public interface<X,S> {
 
 		// standard normal share density
 		X _pdf(X x, S s) const override
@@ -50,7 +50,7 @@ namespace tmx::variate {
 				assert(n.cgf(0) == 0);
 				assert(n.mgf(0) == 1);
 
-				base<>& b = n;
+				interface<>& b = n;
 				assert(b.pdf(0) == 1 / std::sqrt(2 * std::numbers::pi));
 				assert(b.cdf(0) == 0.5);
 				assert(b.cgf(0) == 0);

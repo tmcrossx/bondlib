@@ -9,7 +9,7 @@ namespace tmx::instrument {
 
 	// non-owning instrument view
 	template<class U = double, class C = double>
-	class view : public fms::iterable::base<cash_flow<U,C>> {
+	class view : public fms::iterable::interface<cash_flow<U,C>> {
 	protected:
 		std::span<U> u;
 		std::span<C> c;

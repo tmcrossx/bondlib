@@ -9,10 +9,10 @@
 namespace fms::iterable {
 	
 	/*
-	template<class T> struct base;
+	template<class T> struct interface;
 
 	template <typename I>
-	concept IsReferenceToBase = std::is_base_of_v<fms::iterable::base<typename I::value_type>, std::remove_reference_t<I>>;
+	concept IsReferenceToBase = std::is_base_of_v<fms::iterable::interface<typename I::value_type>, std::remove_reference_t<I>>;
 	*/
 
 	template<class I>
@@ -25,12 +25,12 @@ namespace fms::iterable {
 
 	// NVI interface for iterable.
 	template<class T>
-	struct base {
+	struct interface {
 		using value_type = T;
 
-		virtual ~base() { };
+		virtual ~interface() { };
 
-		virtual base* clone() const = 0;
+		virtual interface* clone() const = 0;
 		virtual void destroy() = 0;
 		
 		explicit operator bool() const
@@ -41,14 +41,14 @@ namespace fms::iterable {
 		{
 			return op_star();
 		}
-		base& operator++()
+		interface& operator++()
 		{
 			return op_incr();
 		}
 	private:
 		virtual bool op_bool() const = 0;
 		virtual T op_star() const = 0;
-		virtual base& op_incr() = 0;
+		virtual interface& op_incr() = 0;
 	};
 
 	template<input I, input J>
@@ -104,7 +104,7 @@ namespace fms::iterable {
 
 	// Constant iterable.
 	template<class T>
-	class constant : public base<T> {
+	class constant : public interface<T> {
 		T c;
 	public:
 		constant(T c) noexcept
@@ -142,7 +142,7 @@ namespace fms::iterable {
 
 	// t, t+1, t+2, ...
 	template<class T>
-	class iota : public base<T> {
+	class iota : public interface<T> {
 		T t;
 	public:
 		iota(T t = 0) noexcept
@@ -181,7 +181,7 @@ namespace fms::iterable {
 
 	// tn, tn*t, tn*t*t, ...
 	template<class T>
-	class power : public base<T> {
+	class power : public interface<T> {
 		T t, tn;
 	public:
 		power(T t, T tn = 1)
@@ -219,7 +219,7 @@ namespace fms::iterable {
 	};
 
 	template<class T = double>
-	class factorial : public base<T> {
+	class factorial : public interface<T> {
 		T t, n;
 	public:
 		factorial(T t = 1)
@@ -258,7 +258,7 @@ namespace fms::iterable {
 
 	// Unsafe pointer interface.
 	template<class T>
-	class pointer : public base<T> {
+	class pointer : public interface<T> {
 		T* p;
 	public:
 		pointer(T* p) noexcept
@@ -297,7 +297,7 @@ namespace fms::iterable {
 
 	// Terminate on 0 value.
 	template<class T>
-	class null_terminated_pointer : public base<T> {
+	class null_terminated_pointer : public interface<T> {
 		T* p;
 	public:
 		null_terminated_pointer(T* p) noexcept
@@ -350,7 +350,7 @@ namespace fms::iterable {
 
 	// Singleton iterable.
 	template<class T>
-	class once : public base<T> {
+	class once : public interface<T> {
 		T t;
 		bool b;
 	public:
@@ -390,7 +390,7 @@ namespace fms::iterable {
 
 	// Take at most n elements.
 	template<input I, class T = I::value_type>
-	class take : public base<T> {
+	class take : public interface<T> {
 		I i;
 		std::size_t n;
 	public:
@@ -440,7 +440,7 @@ namespace fms::iterable {
 
 	// i0 then i1
 	template<input I0, input I1, class T = std::common_type_t<typename I0::value_type, typename I1::value_type>>
-	class concatenate : public base<T> {
+	class concatenate : public interface<T> {
 		I0 i0;
 		I1 i1;
 	public:
@@ -480,7 +480,7 @@ namespace fms::iterable {
 
 	// sorted i0 and i1 in order
 	template<input I0, input I1, class T = std::common_type_t<typename I0::value_type, typename I1::value_type>>
-	class merge : public base<T> {
+	class merge : public interface<T> {
 		I0 i0;
 		I1 i1;
 	public:
@@ -520,7 +520,7 @@ namespace fms::iterable {
 	// Apply a function to elements of an iterable.
 	template<class F, input I, class T = typename I::value_type,
 		class U = std::invoke_result_t<F, T>>
-		class apply : public base <U>
+		class apply : public interface <U>
 	{
 		const F& f;
 		I i;
@@ -578,7 +578,7 @@ namespace fms::iterable {
 	// Apply a binary operation to elements of two iterable.
 	template<class BinOp, input I0, input I1, class T0 = typename I0::value_type, class T1 = typename I1::value_type,
 		class T = std::invoke_result_t<BinOp, T0, T1>>
-	class binop : public base<T> {
+	class binop : public interface<T> {
 		const BinOp& op;
 		I0 i0;
 		I1 i1;
@@ -634,7 +634,7 @@ namespace fms::iterable {
 
 	// Elements satisfying predicate.
 	template<class P, input I, class T = typename I::value_type>
-		class filter : public base <T>
+		class filter : public interface <T>
 	{
 		const P& p;
 		I i;
@@ -696,7 +696,7 @@ namespace fms::iterable {
 
 	// Apply a predicate to elements of an iterable.
 	template<class P, input I, class T = typename I::value_type>
-	class until : public base <T>
+	class until : public interface <T>
 	{
 		const P& p;
 		I i;
@@ -752,7 +752,7 @@ namespace fms::iterable {
 
 	// Right fold: t, op(t, *i), op(op(t, *i), *++i), ...
 	template<class BinOp, input I, class T = typename I::value_type>
-	class fold : public base<T>
+	class fold : public interface<T>
 	{
 		const BinOp& op;
 		I i;
@@ -821,7 +821,7 @@ namespace fms::iterable {
 
 	// Precompute values.
 	template<input I, class T, std::size_t N>
-	class cache : public base<T> {
+	class cache : public interface<T> {
 		std::array<T,N> a;
 		std::size_t n;
 	public:
@@ -862,7 +862,7 @@ namespace fms::iterable {
 
 	// d(++*i, *i) ...
 	template<class D, input I, class T = typename I::value_type>
-	class delta : public base<T> {
+	class delta : public interface<T> {
 		const D& d;
 		I i;
 		T t, _t;

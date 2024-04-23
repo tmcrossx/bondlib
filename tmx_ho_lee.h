@@ -89,7 +89,7 @@ namespace tmx::ho_lee {
 
 	// mean and variance of P_t = sum_{u_j > t} c_j D_t(u_j) e^C_j
 	template<class U, class C, class T, class F>
-	inline std::pair<F, F> moments(size_t m, const U* u, const C* c, const curve::base<T, F>& f, T t, F σ)
+	inline std::pair<F, F> moments(size_t m, const U* u, const C* c, const curve::interface<T, F>& f, T t, F σ)
 	{
 		F mean = 0, var = 0;
 
@@ -124,7 +124,7 @@ namespace tmx::ho_lee {
 	// = E[(sum_{u_j > t} c_j D_t(u_j) - p)^+ D_t]
 	// = E[(sum_{u_j > t} c_j D_t(u_j) exp(σ^2(u_j - t) - p)^+] D(t)
 	template<class U, class C, class T, class F>
-	inline F option(const instrument::base<U, C>& i, const curve::base<T, F>& f, T t, F σ, F p)
+	inline F option(const instrument::interface<U, C>& i, const curve::interface<T, F>& f, T t, F σ, F p)
 	{
 		auto [m, m_, v] = moments(i, f, t, σ);
 		// σ += cov!!!

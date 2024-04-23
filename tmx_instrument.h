@@ -40,14 +40,14 @@ namespace tmx::instrument {
 	static_assert(!(cash_flow(1., 2) < cash_flow(1, 2.)));
 #endif // _DEBUG
 
-	// NVI base class for all instruments
+	// NVI interface class for all instruments
 	template<class U = double, class C = double>
-	using base = fms::iterable::base<cash_flow<U, C>>;
+	using interface = fms::iterable::interface<cash_flow<U, C>>;
 
 	// A zero coupon bond has a single cash flow.
 	// Equivalent to once(cash_flow(u,c)).
 	template<class U = double, class C = double>
-	class zero_coupon_bond : public fms::iterable::base<cash_flow<U, C>> {
+	class zero_coupon_bond : public fms::iterable::interface<cash_flow<U, C>> {
 		cash_flow<U, C> uc;
 	public:
 		constexpr zero_coupon_bond(const U& u = math::infinity<U>, const C& c = 0)
@@ -97,7 +97,7 @@ namespace tmx::instrument {
 
 /*
 template<class U, class C>
-constexpr auto operator,(tmx::instrument::base<U, C>& u...)
+constexpr auto operator,(tmx::instrument::interface<U, C>& u...)
 {
 	return tmx::instrument::merge(u0, u1);
 }

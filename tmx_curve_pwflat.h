@@ -10,7 +10,7 @@
 namespace tmx::curve {
 
 	template<class T = double, class F = double>
-	class pwflat : public base<T, F> {
+	class pwflat : public interface<T, F> {
 		std::vector<T> t_;
 		std::vector<F> f_;
 		F _f; // extrapolation value
