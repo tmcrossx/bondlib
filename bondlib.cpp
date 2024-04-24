@@ -12,7 +12,7 @@
 #include "tmx_curve.h"
 #include "tmx_instrument.h"
 #include "tmx_valuation.h"
-//#include "tmx_bond.h"
+#include "tmx_bond.h"
 //#include "tmx_bootstrap.h"
 //#include "tmx_muni.h"
  
@@ -49,6 +49,7 @@ int test_instrument_zcb = instrument::zero_coupon_bond<>::test();
 int test_valuation_yield_d = valuation::yield_test<double>();
 //int test_value_yield_f = value::yield_test<float>();
 //int test_bond_basic = bond::basic_test();
+int test_bond_elementary = bond::elementary_test();
 //int test_bootstrap_instrument = bootstrap::instrument_test();
 //int test_muni_fit = muni::fit_test();
 #endif // _DEBUG

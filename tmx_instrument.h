@@ -19,7 +19,7 @@ namespace tmx::instrument {
 		U u; // time
 		C c; // amount
 
-		constexpr cash_flow(U u = math::infinity<U>, C c = 0)
+		constexpr cash_flow(U u = math::infinity<U>, C c = math::NaN<C>)
 			: u(u), c(c)
 		{ }
 
@@ -100,4 +100,11 @@ namespace tmx::instrument {
 #endif // _DEBUG
 	};
 
+}
+
+// Add cash flows having the same time.
+template<class U, class C>
+inline tmx::instrument::cash_flow<U,C> operator+(const tmx::instrument::cash_flow<U,C>& uc1, const tmx::instrument::cash_flow<U,C>& uc2)
+{
+	return uc1.u == uc2.u ? tmx::instrument::cash_flow(uc1.u, uc1.c + uc2.c) : tmx::instrument::cash_flow{};
 }

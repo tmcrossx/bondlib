@@ -11,22 +11,54 @@ using namespace fms::iterable;
 
 namespace tmx::bond {
 
+	// Elementary bond.
 	template<class U = double, class C = double>
-	inline auto elementary(const U& maturity, const C& coupon, const date::frequency& frequency)
+	inline auto elementary(const U& maturity, const C& coupon = 0.05, size_t frequency = 2)
 	{
-		return binop(cash_flow, constant(maturity/frequency)*iota(U(1)), constant(coupon));
-	}
+		const U period = 1. / frequency;
+		const size_t count = static_cast<size_t>(maturity * frequency);
+		const auto uc = [](U u, C c) { return instrument::cash_flow(u, c); };
 
+		return merge(take(binop(uc, constant(period) * iota(U(1)), constant(coupon / frequency)), count), instrument::zero_coupon_bond(maturity, C(1)));
+	}
+#ifdef _DEBUG
+	inline int elementary_test()
+	{
+		{
+			auto e = elementary(10., 0.05, 2);
+			assert(20 == length(e));
+			assert(*e == instrument::cash_flow(0.5, 0.025));
+			e = skip(e, 19);
+			assert(e);
+			assert(*e == instrument::cash_flow(10, 1.025));
+			assert(!++e);
+		}
+
+		return 0;
+	}
+#endif // _DEBUG
 	// Basic bond indicative data.
 	template<class C = double>
-	struct basic : public instrument::interface<double, C> {
+	struct basic 
+	{
 		date::ymd dated; // when interest starts accruing
 		date::ymd maturity; // 
-		C coupon;
+		C coupon; // not in percent
 		date::frequency frequency = date::frequency::semiannually;
 		date::day_count_t day_count = date::day_count_isma30360;
 		C redemption = 1;
 	};
+
+
+	// Return cash flows for basic bond from present value date.
+	template<class C>
+	inline auto fix(const basic<C>& b, const date::ymd& pvdate)
+	{
+		return pvdate;
+	}
+
+
+#if 0
 
 	// fix(basic bond, date::ymd pvdate, ...) -> instrument::interface
 
@@ -89,7 +121,6 @@ namespace tmx::bond {
 	}
 	//!!! add tests
 	*/
-#if 0
 #ifdef _DEBUG
 
 	inline int basic_test()

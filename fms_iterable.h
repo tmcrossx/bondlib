@@ -6,6 +6,7 @@
 #include <limits>
 #include <memory>
 #include <type_traits>
+#include <vector>
 
 namespace fms::iterable {
 	
@@ -86,7 +87,9 @@ namespace fms::iterable {
 		}
 		container& op_incr() override
 		{
-			++i;
+			if (op_bool()) {
+				++i;
+			}
 
 			return *this;
 		}
@@ -125,7 +128,9 @@ namespace fms::iterable {
 		}
 		list& op_incr() override
 		{
-			++i;
+			if (op_bool()) {
+				++i;
+			}
 
 			return *this;
 		}
@@ -583,15 +588,40 @@ namespace fms::iterable {
 		}
 		T op_star() const override
 		{
-			return i0 && i1
-				? (*i0 < *i1 ? *i0 : *i1)
-				: i0 ? *i0 : *i1;
+			if (i0 && i1) {
+				if (*i0 < *i1) {
+					return *i0;
+				}
+				else if (*i1 < *i0) {
+					return *i1;
+				}
+				else {
+					return *i0 + *i1;
+				}
+			}
+
+			return i0 ? *i0 : *i1;
 		}
 		merge& op_incr() override
 		{
-			i0 && i1
-				? *i0 < *i1 ? ++i0 : ++i1
-				: i0 ? ++i0 : ++i1;
+			if (i0 && i1) {
+				if (*i0 < *i1) {
+					++i0;
+				}
+				else if (*i1 < *i0) {
+					++i1;
+				}
+				else {
+					++i0;
+					++i1;
+				}
+			}
+			else if (i0) {
+				++i0;
+			}
+			else if (i1) {
+				++i1;
+			}
 
 			return *this;
 		}
