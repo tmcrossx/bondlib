@@ -17,9 +17,12 @@ namespace tmx::bond {
 	{
 		const U period = 1. / frequency;
 		const size_t count = static_cast<size_t>(maturity * frequency);
-		const auto uc = [](U u, C c) { return instrument::cash_flow(u, c); };
 
-		return merge(take(binop(uc, constant(period) * iota(U(1)), constant(coupon / frequency)), count), instrument::zero_coupon_bond(maturity, C(1)));
+		auto u = constant(period) * iota(U(1));
+		auto c = constant(coupon / frequency);
+		auto i = instrument::make(u, c);
+
+		return merge(take(i, count), instrument::zero_coupon_bond(maturity, C(1)));
 	}
 #ifdef _DEBUG
 	inline int elementary_test()
@@ -37,6 +40,7 @@ namespace tmx::bond {
 		return 0;
 	}
 #endif // _DEBUG
+
 	// Basic bond indicative data.
 	template<class C = double>
 	struct basic 
@@ -54,9 +58,12 @@ namespace tmx::bond {
 	template<class C>
 	inline auto fix(const basic<C>& b, const date::ymd& pvdate)
 	{
-		return pvdate;
-	}
+		const auto [d0, _] = date::first_calculation_date(b.dated < pvdate ? pvdate : b.dated, b.maturity, b.frequency);
+		auto u = singleton(pvdate), date::periodic(b.frequency, d0 + period(b.frequency), b.maturity);
+		auto c = constant(b.coupon) * delta(u, b.day_count);
 
+		return instrument::make(u, c), instrument::zero_coupon_bond(b.day_count(pvdate, b.maturity), b.redemption);
+	}
 
 #if 0
 

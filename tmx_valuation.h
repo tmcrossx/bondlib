@@ -22,7 +22,7 @@ namespace tmx::valuation {
 		return X(n*(std::exp(r/n) - 1));
 	}
 
-	// Present value at t of cash flow.
+	// Present value at t of a zero coupon bond with cash flow c at time u.
 	template<class U, class C, class T, class F>
 	constexpr auto present(const instrument::cash_flow<U, C>& uc, const curve::interface<T, F>& f, T t = 0)
 	{
@@ -41,6 +41,7 @@ namespace tmx::valuation {
 #ifdef _DEBUG
 	//static_assert(present<int,int,int,int>(instrument::zero_coupon_bond(1, 2), curve::constant(0)) == 2);
 #endif // _DEBUG
+
 	// Derivative of present value with respect to a parallel shift.
 	template<input I, class T, class F>
 	constexpr auto duration(I i, const curve::interface<T, F>& f, T t = 0)
@@ -55,7 +56,7 @@ namespace tmx::valuation {
 		return sum(apply([&f, t](const auto& uc) { return (uc.u - t) * (uc.u - t) * present(uc, f, t); }, i));
 	}
 
-	// Constant forward rate matching price p at t.
+	// Constant yield matching price p at t.
 	template<input I, class U = typename I::value_type::time_type, class C = typename I::value_type::cash_type>
 	inline C yield(I i, const C p = 0, U t = 0,
 		C y = 0.01, C tol = math::sqrt_epsilon<C>, int iter = 100)
@@ -85,7 +86,7 @@ namespace tmx::valuation {
 		using fms::iterable::concatenate;
 		using instrument::zero_coupon_bond;
 
-		X eps = std::sqrt(std::numeric_limits<X>::epsilon());
+		X eps = math::sqrt_epsilon<X>;
 		X y0 = X(0.03);
 		X d1 = std::exp(-y0);
 		X c0 = (1 - d1 * d1) / (d1 + d1 * d1);
@@ -94,7 +95,7 @@ namespace tmx::valuation {
 		// 1 = c0 exp(-y0) + (1 + c0) exp(-2 y0)
 		const auto i = concatenate(zero_coupon_bond(u[0], c[0]), zero_coupon_bond(u[1], c[1]));
 		X pv = present(i, curve::constant<X, X>(y0));
-		assert(std::fabs(pv - 1) <= math::sqrt_epsilon<X>);
+		assert(std::fabs(pv - 1) <= eps);
 
 		{
 			X y = yield(i, X(1));
@@ -113,7 +114,7 @@ namespace tmx::valuation {
 			X r = X(0.05);
 			X y2 = compound_yield(r, 2);
 			X r2 = continuous_yield(y2, 2);
-			assert(std::fabs(r - r2) <= eps);
+			assert(std::fabs(r - r2) <= math::epsilon<X>);
 		}
 
 		return 0;

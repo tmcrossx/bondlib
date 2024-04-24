@@ -23,6 +23,16 @@ namespace tmx::instrument {
 			: u(u), c(c)
 		{ }
 
+		cash_flow operator()(U u_, C c_) const
+		{
+			return cash_flow(u_, c_);
+		}
+
+		std::pair<U, C> pair() const
+		{
+			return { u, c };
+		}
+
 		template<class U_, class C_> 
 		constexpr bool operator==(const cash_flow<U_,C_>& cf) const
 		{
@@ -47,17 +57,13 @@ namespace tmx::instrument {
 	template<class U = double, class C = double>
 	using interface = fms::iterable::interface<cash_flow<U, C>>;
 
-	template<class U = double, class C = double>
-	concept input = fms::iterable::input<interface<U, C>>;
-
-
 	// A zero coupon bond has a single cash flow.
 	// Equivalent to singleton(cash_flow(u,c)).
 	template<class U = double, class C = double>
-	class zero_coupon_bond : public fms::iterable::interface<cash_flow<U, C>> {
+	class zero_coupon_bond : public interface<U, C> {
 		cash_flow<U, C> uc;
 	public:
-		constexpr zero_coupon_bond(const U& u = math::infinity<U>, const C& c = 0)
+		constexpr zero_coupon_bond(const U& u = math::infinity<U>, const C& c = math::NaN<C>)
 			: uc(u,c)
 		{ }
 
@@ -99,6 +105,13 @@ namespace tmx::instrument {
 		}
 #endif // _DEBUG
 	};
+
+	// Make instrument from time and cash flow iterables.
+	template<fms::iterable::input U, fms::iterable::input C>
+	inline auto make(U u, C c)
+	{
+		return fms::iterable::binop(cash_flow{}, u, c);
+	}
 
 }
 

@@ -131,32 +131,32 @@ namespace tmx::date {
 		return std::chrono::months(12 / static_cast<int>(f));
 	}
 
-	// iterable periodic dates
+	// iterable periodic dates from beginning to end at frequency.
 	class periodic {
-		ymd d;
 		std::chrono::months m;
+		ymd b, e;
 	public:
-		constexpr periodic(const ymd& d, const frequency& f)
-			: d(d), m(period(f))
+		constexpr periodic(const frequency& f, const ymd& b, const ymd& e = ymd{})
+			: m(period(f)), b(b), e(e)
 		{ }
 
 		constexpr explicit operator bool() const
 		{
-			return true;
+			return e.ok() ? b <= e : true;
 		}
 		constexpr ymd operator*() const
 		{
-			return d;
+			return b;
 		}
 		constexpr periodic& operator++()
 		{
-			d += m;
+			b += m;
 
 			return *this;
 		}
 		constexpr periodic& operator--()
 		{
-			d -= m;
+			b -= m;
 
 			return *this;
 		}
@@ -166,7 +166,7 @@ namespace tmx::date {
 			using std::literals::chrono_literals::operator""y;
 			{
 				ymd d = 2024y / 5 / 6;
-				periodic p(d, frequency::annually);
+				periodic p(frequency::annually, d);
 				assert(p);
 				assert(*p == 2024y / 5 / 6);
 				++p;
@@ -175,7 +175,7 @@ namespace tmx::date {
 			}
 			{
 				ymd d = 2024y / 11 / 6;
-				periodic p(d, frequency::monthly);
+				periodic p(frequency::monthly, d);
 				assert(p);
 				assert(*p == 2024y / 11 / 6);
 				++p;
@@ -192,16 +192,18 @@ namespace tmx::date {
 #endif // _DEBUG
 	};
 
-	// Work backward from termination/maturity to first calculation/coupon date after effective/issue date.
-	constexpr ymd first_calculation_date(ymd effective, ymd termination, frequency f)
+	// Work backward from termination to first calculation date prior to effective.
+	constexpr std::pair<ymd, size_t> first_calculation_date(ymd effective, ymd termination, frequency f)
 	{
-		periodic p(termination, f);
+		size_t n = 0;
+		periodic p(f, termination);
 
 		while (*p > effective) {
 			--p;
+			++n;
 		}
 
-		return *++p;
+		return { *p, n };
 	}
 
 } // namespace tmx::date

@@ -89,7 +89,7 @@ namespace tmx::curve {
 
 #endif // _DEBUG
 
-	// Exponential curve.
+	// Exponential curve e^{rt}
 	template<class T = double, class F = double>
 	class exp : public interface<T, F> {
 		F r;
