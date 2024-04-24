@@ -1,10 +1,59 @@
 // fms_iterable.t.cpp - test fms::iterable
 #include <cassert>
+#include <vector>
 #include "fms_iterable.h"
 #include "fms_time.h"
 #include "tmx_math_limits.h"
 
 using namespace fms::iterable;
+
+int test_container = []() {
+	{
+		std::vector v{ 1,2,3 };
+		container c(v);
+		auto c2(c);
+		assert(c == c2);
+		// c = c2; // cannot reseat const reference
+		assert(!(c2 != c));
+
+		assert(c);
+		assert(*c == 1);
+		++c;
+		assert(c);
+		assert(*c == 2);
+		++c;
+		assert(*c == 3);
+		++c;
+		assert(!c);
+	}
+
+	return 0;
+}();
+
+int test_list = []() {
+	{
+		list c({ 1,2,3 });
+		assert(c);
+		auto c2(c);
+		assert(c == c2);
+		c = c2;
+		assert(!(c2 != c));
+		++c2;
+		assert(c2 != c);
+
+		assert(*c == 1);
+		++c;
+		assert(c);
+		assert(*c == 2);
+		++c;
+		assert(*c == 3);
+		++c;
+		assert(!c);
+	}
+
+	return 0;
+}();
+
 
 int test_constant = []() {
 	constant c(1);
@@ -367,7 +416,7 @@ int test_merge = []() {
 
 int test_delta = []() {
 	{
-		delta d(power<int>(2));
+		delta d(power<int>(2)/*, std::minus<int>{}*/);
 		auto d2(d);
 		assert(d == d2);
 		d = d2;

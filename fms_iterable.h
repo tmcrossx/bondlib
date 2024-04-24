@@ -52,6 +52,85 @@ namespace fms::iterable {
 		virtual interface& op_incr() = 0;
 	};
 
+	// Make STL container iterable. Assumes lifetime of c.
+	template<class C, class T = typename C::value_type>
+	class container : public interface<T> {
+		const C& c;
+		typename C::const_iterator i;
+	public:
+		container(const C& _c)
+			: c(_c), i(c.begin())
+		{ }
+
+		container* clone() const override
+		{
+			return new container(*this);
+		}
+		void destroy() override
+		{
+			delete this;
+		}
+
+		bool operator==(const container& _c) const
+		{
+			return &c == &_c.c && i == _c.i;
+		}
+
+		bool op_bool() const override
+		{
+			return i != c.end();
+		}
+		T op_star() const override
+		{
+			return *i;
+		}
+		container& op_incr() override
+		{
+			++i;
+
+			return *this;
+		}
+	};
+
+	template<class T>
+	class list : public interface<T> {
+		std::vector<T> l;
+		size_t i;
+	public:
+		list(std::initializer_list<T> t)
+			: l(t), i(0)
+		{ }
+
+		list* clone() const override
+		{
+			return new list(*this);
+		}
+		void destroy() override
+		{
+			delete this;
+		}
+
+		bool operator==(const list& _l) const
+		{
+			return l == _l.l && i == _l.i;
+		}
+
+		bool op_bool() const override
+		{
+			return i < l.size();
+		}
+		T op_star() const override
+		{
+			return l[i];
+		}
+		list& op_incr() override
+		{
+			++i;
+
+			return *this;
+		}
+	};
+
 	template<input I, input J>
 	inline bool equal(I i, J j) noexcept
 	{
@@ -933,6 +1012,49 @@ namespace fms::iterable {
 				++i;
 			}
 
+			return *this;
+		}
+	};
+
+	template<input I, class T = typename I::value_type>
+	inline auto uptick(I i)
+	{
+		return delta(i, [](T a, T b) { return std::max<T>(b - a, 0); });
+	}
+	template<input I, class T = typename I::value_type>
+	inline auto downtick(I i)
+	{
+		return delta(i, [](T a, T b) { return std::min<T>(b - a, 0); });
+	}
+
+	// f(), f(), ...
+	template<class F, class T = std::invoke_result_t<F>>
+	class call : public interface<T> {
+		const F& f;
+	public:
+		call(const F& f)
+			: f(f)
+		{ }
+
+		call* clone() const override
+		{
+			return new call(*this);
+		}
+		void destroy() override
+		{
+			delete this;
+		}
+
+		bool op_bool() const override
+		{
+			return true;
+		}
+		T op_star() const override
+		{
+			return f();
+		}
+		call& op_incr() override
+		{
 			return *this;
 		}
 	};
