@@ -3,7 +3,6 @@
 #ifdef _DEBUG
 #include <cassert>
 #endif
-#include "ensure.h"
 #include "tmx_instrument.h"
 #include "tmx_curve_pwflat.h"
 #include "tmx_valuation.h"
@@ -29,7 +28,7 @@ namespace tmx::bootstrap {
 			}
 		}
 		else {
-			ensure(_u > _t);
+			assert(_u > _t);
 			if (std::isnan(_f)) {
 				_f = f_; // use last rate
 			}

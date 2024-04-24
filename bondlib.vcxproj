@@ -138,7 +138,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="ensure.h" />
     <ClInclude Include="fms_time.h" />
     <ClInclude Include="tmx_date_adjust.h" />
     <ClInclude Include="fms_iterable.h" />

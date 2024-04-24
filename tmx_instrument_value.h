@@ -2,7 +2,6 @@
 #pragma once
 #include <algorithm>
 #include <vector>
-#include "ensure.h"
 #include "tmx_instrument_view.h"
 
 namespace tmx::instrument {
@@ -33,7 +32,7 @@ namespace tmx::instrument {
 		value(const std::span <U>& u, const std::span<C>& c)
 			: value(u.size(), u.data(), c.data())
 		{
-			//ensure(u.size() == c.size());
+			//assert(u.size() == c.size());
 
 			sync();
 		}
@@ -71,7 +70,7 @@ namespace tmx::instrument {
 				c.back() += _c;
 			}
 			else {
-				//ensure(u.size() == 0 or u.back() < _u);
+				//assert(u.size() == 0 or u.back() < _u);
 
 				u.push_back(_u);
 				c.push_back(_c);
@@ -88,7 +87,7 @@ namespace tmx::instrument {
 				c.front() += _c;
 			}
 			else {
-				//ensure(u.size() == 0 or u.front() > _u);
+				//assert(u.size() == 0 or u.front() > _u);
 
 				u.insert(u.begin(), _u);
 				c.insert(c.begin(), _c);

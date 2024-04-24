@@ -2,7 +2,6 @@
 #pragma once
 #include <algorithm>
 #include <vector>
-#include "ensure.h"
 #include "tmx_date_day_count.h"
 #include "tmx_instrument.h"
 #include "tmx_valuation.h"
@@ -139,22 +138,22 @@ namespace tmx::bond {
 			auto d = 2023y / 1 / 1;
 			bond::basic<> bond{ 10, 0.05, frequency::semiannually, day_count_isma30360 };
 			auto i = instrument(bond, d, d);
-			ensure(20 == i.size());
+			assert(20 == i.size());
 			auto u = i.time();
 			auto c = i.cash();
-			ensure(u[0] != 0);
-			ensure(c[0] == 0.05 / 2);
-			ensure(std::fabs(-c[19] + c[0] + 1) < 1e-15);
-			ensure(std::fabs(-u[19] + 10) <= 1/date::days_per_year);
+			assert(u[0] != 0);
+			assert(c[0] == 0.05 / 2);
+			assert(std::fabs(-c[19] + c[0] + 1) < 1e-15);
+			assert(std::fabs(-u[19] + 10) <= 1/date::days_per_year);
 
 			bond::basic<> bond2{ 10, 0.05 };
 			auto i2 = instrument(bond2, d);
-			ensure(i.size() == i2.size());
+			assert(i.size() == i2.size());
 			auto u2 = i2.time();
 			auto c2 = i2.cash();
 			for (size_t n = 0; n < i.size(); ++n) {
-				ensure(u[n] == u2[n]);
-				ensure(c[n] == c2[n]);
+				assert(u[n] == u2[n]);
+				assert(c[n] == c2[n]);
 			}
 		}
 

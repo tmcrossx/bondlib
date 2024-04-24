@@ -18,9 +18,6 @@
     <ClInclude Include="tmx_date.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ensure.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="tmx_valuation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
