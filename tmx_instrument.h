@@ -9,10 +9,13 @@
 
 namespace tmx::instrument {
 
-	// Cash flow at time u and amount c.
+	// Cash flow at time u of amount c.
 	template<class U = double, class C = double>
 		requires std::totally_ordered<U> && std::equality_comparable<C>
 	struct cash_flow {
+		using time_type = U;
+		using cash_type = C;
+
 		U u; // time
 		C c; // amount
 
@@ -40,12 +43,16 @@ namespace tmx::instrument {
 	static_assert(!(cash_flow(1., 2) < cash_flow(1, 2.)));
 #endif // _DEBUG
 
-	// NVI interface class for all instruments
+	// A fixed income instrument is a sequence of cash flows.
 	template<class U = double, class C = double>
 	using interface = fms::iterable::interface<cash_flow<U, C>>;
 
+	template<class U = double, class C = double>
+	concept input = fms::iterable::input<interface<U, C>>;
+
+
 	// A zero coupon bond has a single cash flow.
-	// Equivalent to once(cash_flow(u,c)).
+	// Equivalent to singleton(cash_flow(u,c)).
 	template<class U = double, class C = double>
 	class zero_coupon_bond : public fms::iterable::interface<cash_flow<U, C>> {
 		cash_flow<U, C> uc;
@@ -94,11 +101,3 @@ namespace tmx::instrument {
 	};
 
 }
-
-/*
-template<class U, class C>
-constexpr auto operator,(tmx::instrument::interface<U, C>& u...)
-{
-	return tmx::instrument::merge(u0, u1);
-}
-*/

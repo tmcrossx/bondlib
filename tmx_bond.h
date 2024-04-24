@@ -5,9 +5,17 @@
 #include "ensure.h"
 #include "tmx_date_day_count.h"
 #include "tmx_instrument.h"
-#include "tmx_value.h"
+#include "tmx_valuation.h"
+
+using namespace fms::iterable;
 
 namespace tmx::bond {
+
+	template<class U = double, class C = double>
+	inline auto elementary(const U& maturity, const C& coupon, const date::frequency& frequency)
+	{
+		return binop(cash_flow, constant(maturity/frequency)*iota(U(1)), constant(coupon));
+	}
 
 	// Basic bond indicative data.
 	template<class C = double>

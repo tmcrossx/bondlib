@@ -2,6 +2,7 @@
 #include <cassert>
 #include "fms_iterable.h"
 #include "fms_time.h"
+#include "tmx_math_limits.h"
 
 using namespace fms::iterable;
 
@@ -23,8 +24,8 @@ int test_constant = []() {
 
 int test_once = []() {
 	{
-		once o(1);
-		once o2(o);
+		singleton o(1);
+		singleton o2(o);
 		o = o2;
 		assert(o == o2);
 		assert(!(o2 != o));
@@ -366,7 +367,7 @@ int test_merge = []() {
 
 int test_delta = []() {
 	{
-		delta d(std::minus<int>{}, power<int>(2));
+		delta d(power<int>(2));
 		auto d2(d);
 		assert(d == d2);
 		d = d2;
@@ -386,16 +387,9 @@ int test_exp = []() {
 		double x = 1;
 		const auto eps = [](double x) { return x + 1 == 1; };
 		auto expx = sum(until(eps, power(x)/factorial()));
-		auto len = length(expx);
-		len = len; // 19
 		double exp1 = std::exp(1.);
-		double diff;
-		diff = *back(expx) - exp1;
-		diff = diff;
-		auto dt1 = fms::time<std::chrono::microseconds>([]() { std::exp(1.); }, 10'000);
-		auto dt = fms::time([expx]() { *back(expx); }, 10'000);
-		auto dd = 1000*dt / dt1; // ~250
-		dd = dd;
+		double diff = expx - exp1;
+		assert(std::fabs(diff) <= 2*tmx::math::epsilon<double>);
 	}
 
 	return 0;

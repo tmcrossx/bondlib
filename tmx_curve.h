@@ -16,8 +16,7 @@ namespace tmx::curve {
 	// Enforce preconditions for all derived curves.
 	template<class T = double, class F = double>
 	struct interface {
-		constexpr interface() noexcept = default;
-		constexpr virtual ~interface() {}
+		virtual ~interface() {}
 
 		// Forward over [t, u].
 		F forward(T u, T t = 0) const noexcept
@@ -83,6 +82,43 @@ namespace tmx::curve {
 			assert(c.spot(0., 0.) == 1);
 			assert(c.spot(1., 0.) == 1);
 			assert(c.spot(2., 1.) == 1);
+		}
+
+		return 0;
+	}
+
+#endif // _DEBUG
+
+	// Exponential curve.
+	template<class T = double, class F = double>
+	class exp : public interface<T, F> {
+		F r;
+	public:
+		constexpr exp(F r = 0) noexcept
+			: r(r)
+		{ }
+
+		constexpr F _forward(T u, T t = 0) const noexcept override
+		{
+			return math::exp(r * (u - t));
+		}
+		constexpr F _integral(T u, T t = 0) const noexcept override
+		{
+			T dt = u - t;
+
+			return math::fabs(r * dt) < math::sqrt_epsilon<F> ? dt * (1 + r * dt) / 2 : (math::exp(r * u) - math::exp(r * t)) / r;
+		}
+	};
+#ifdef _DEBUG
+	inline int exp_test()
+	{
+		{
+			exp c(1.);
+			assert(math::isnan(exp(1.).forward(-1., 0.)));
+			assert(c.forward(0., 0.) == 1);
+			assert(c.forward(2., 1.) == math::exp(1.));
+			assert(c.integral(0., 0.) == 0);
+			assert(c.integral(2., 1.) == 2.);
 		}
 
 		return 0;

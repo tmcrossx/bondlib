@@ -164,7 +164,7 @@
     <ClInclude Include="tmx_date.h" />
     <ClInclude Include="tmx_pwflat.h" />
     <ClInclude Include="tmx_root1d.h" />
-    <ClInclude Include="tmx_value.h" />
+    <ClInclude Include="tmx_valuation.h" />
     <ClInclude Include="tmx_variate.h" />
     <ClInclude Include="tmx_variate_normal.h" />
   </ItemGroup>

@@ -2,6 +2,7 @@
 #pragma once
 #include <compare>
 #include <functional>
+#include <initializer_list>
 #include <limits>
 #include <memory>
 #include <type_traits>
@@ -348,24 +349,24 @@ namespace fms::iterable {
 		}
 	};
 
-	// Singleton iterable.
+	// Iterable having exactly one element.
 	template<class T>
-	class once : public interface<T> {
+	class singleton : public interface<T> {
 		T t;
 		bool b;
 	public:
-		once(T t) noexcept
+		singleton(T t) noexcept
 			: t(t), b(true)
 		{ }
 
-		bool operator==(const once& o) const
+		bool operator==(const singleton& o) const
 		{
 			return t == o.t && b == o.b;
 		}
 
-		once* clone() const override
+		singleton* clone() const override
 		{
-			return new once(*this);
+			return new singleton(*this);
 		}
 		void destroy() override
 		{
@@ -380,7 +381,7 @@ namespace fms::iterable {
 		{
 			return t;
 		}
-		once& op_incr() noexcept override
+		singleton& op_incr() noexcept override
 		{
 			b = false;
 
@@ -634,7 +635,7 @@ namespace fms::iterable {
 
 	// Elements satisfying predicate.
 	template<class P, input I, class T = typename I::value_type>
-		class filter : public interface <T>
+	class filter : public interface <T>
 	{
 		const P& p;
 		I i;
@@ -694,7 +695,7 @@ namespace fms::iterable {
 		}
 	};
 
-	// Apply a predicate to elements of an iterable.
+	// Stop at first element satisfying predicate.
 	template<class P, input I, class T = typename I::value_type>
 	class until : public interface <T>
 	{
@@ -809,15 +810,26 @@ namespace fms::iterable {
 		}
 	};
 	template<input I, class T = typename I::value_type>
-	inline auto sum(I i)
+	inline auto sum(I i, T t = 0)
 	{
-		return fold(std::plus<T>{}, i, T(0)) ;
+		while (i) {
+			t += *i;
+			++i;
+		}
+
+		return t;
 	} 
 	template<input I, class T = typename I::value_type>
-	inline auto prod(I i)
+	inline auto prod(I i, T t = 1)
 	{
-		return fold(std::multiplies<T>{}, i, T(1));
+		while (i) {
+			t *= *i;
+			++i;
+		}
+
+		return t;
 	}
+	//inline auto horner(I i, T x, T t = 1)
 
 	// Precompute values.
 	template<input I, class T, std::size_t N>
@@ -860,14 +872,14 @@ namespace fms::iterable {
 		}
 	};
 
-	// d(++*i, *i) ...
-	template<class D, input I, class T = typename I::value_type>
+	// d(*++i, *i), d(*++++i, *++i), ...
+	template<input I, class T = typename I::value_type, class D = std::minus<T>>
 	class delta : public interface<T> {
 		const D& d;
 		I i;
 		T t, _t;
 	public:
-		delta(const D& _d, const I& _i)
+		delta(const I& _i, const D& _d = std::minus<T>{})
 			: d(_d), i(_i)
 		{
 			if (i) {
@@ -916,8 +928,10 @@ namespace fms::iterable {
 		}
 		delta& op_incr() override
 		{
-			t = *i;
-			++i;
+			if (i) {
+				t = *i;
+				++i;
+			}
 
 			return *this;
 		}
@@ -934,7 +948,11 @@ X(%, std::modulus<T>{}) \
 
 #define FMS_ITERABLE_OPERATOR_FUNCTION(OP, OP_) \
 template<fms::iterable::input I, fms::iterable::input J, class T = std::common_type_t<typename I::value_type, typename J::value_type>> \
-inline auto operator OP(I i, J j) { return fms::iterable::binop(OP_, i, j); }
+inline auto operator OP(I i, J j) { return fms::iterable::binop(OP_, i, j); } \
+
+  //template<fms::iterable::input J, class T = typename J::value_type> \
+//inline auto operator OP(const T& i, J j) { return fms::iterable::binop(OP_, fms::iterable::constant(i), j); } \
 
 FMS_ITERABLE_OPERATOR(FMS_ITERABLE_OPERATOR_FUNCTION)
 #undef FMS_ITERABLE_OPERATOR_FUNCTION
+
