@@ -1,7 +1,6 @@
 // tmx_valuation.h - present value, duration, convexity, yield, oas
 #pragma once
 #include <cmath>
-#include <limits>
 #include "tmx_instrument.h"
 #include "tmx_curve.h"
 #include "tmx_root1d.h"
