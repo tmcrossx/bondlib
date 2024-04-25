@@ -1,8 +1,7 @@
 // bondlib.cpp - test
 #include <cassert>
-#include "fms_iterable.h"
 //#include "tmx_monoid.h"
-#include "tmx_math.h"
+#include "fms_iterable.h"
 #include "tmx_math_hypergeometric.h"
 #include "tmx_date.h"
 #include "tmx_variate_normal.h"
@@ -20,11 +19,11 @@ using namespace fms;
 using namespace tmx;
 
 #ifdef _DEBUG
+
+int test_sd = math::sd_test();
+
 int test_hypergeometric = math::hypergeometric_test();
 
-//int test_monoid_i = monoid_test<int>();
-//int test_monoid_d = monoid_test<double>();
-//int test_mean_monoid_d = mean_monoid_test<double>();
 //int test_curve_constant = curve::constant<>::test();
 int test_date = date::test();
 //int test_variate_normal = variate::normal<>::test();

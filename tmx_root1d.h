@@ -68,13 +68,18 @@ namespace tmx::root1d {
 			: x0(x0), tolerance(tol), iterations(iter)
 		{ }
 
+		constexpr auto next(X x, Y y, decltype(y/x) df)
+		{
+			return x - y / df;
+		}
+
 		// Find positive root given initial guess and derivative.
 		template<class F, class dF>
 		constexpr X solve(const F& f, const dF& df)
 		{
 			auto y0 = f(x0);
 			while (iterations-- and math::fabs(y0) > tolerance) {
-				auto x = x0 - y0/df(x0);
+				auto x = next(x0, y0, df(x0));
 				x0 = x > 0 ? x : x0 / 2;
 				y0 = f(x0);
 			}

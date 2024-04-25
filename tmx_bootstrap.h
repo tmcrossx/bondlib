@@ -6,7 +6,7 @@
 #include "tmx_instrument.h"
 #include "tmx_curve_pwflat.h"
 #include "tmx_valuation.h"
-#include "tmx_math.h"
+#include "tmx_math_limits.h"
 
 namespace tmx::bootstrap {
 
@@ -19,24 +19,22 @@ namespace tmx::bootstrap {
 	inline std::pair<T, F> instrument(I i, curve::pwflat<T,F>& f, 
 		F p = 0, F _f = math::NaN<F>)
 	{
-		const auto [_u, _c] = back(i).pair();
-
-		const auto [_t, f_] = f.back();
-		if (std::isnan(f_)) { // empty curve
-			if (std::isnan(_f)) {
-				_f = 0.01;
-			}
-		}
-		else {
-			assert(_u > _t);
-			if (std::isnan(_f)) {
-				_f = f_; // use last rate
-			}
+		const auto uc = back(i);
+		const auto [t_, f_] = f.back();
+		if (uc.u <= t_) { // maturity before last point on curve
+			return { math::NaN<T>, math::NaN<F> };
 		}
 
-		//const instrument::interface<U, C>& ii = i.clone();
+		// fix up initial guess
+		if (std::isnan(_f)) {
+			_f = f_; // last forward rate
+		}
+		if (std::isnan(_f)) {
+			_f = 0.01;
+		}
+
 		const auto vp = [&](F f0) { return valuation::present(i, f.extrapolate(f0)) - p; };
-		const auto vd = [=](F f0) { return f0/*value::duration(i, f.extrapolate(f0)) */ ; };
+		const auto vd = [=](F f0) { return valuation::duration(i, f.extrapolate(f0)); };
 		
 		_f = root1d::newton(_f).solve(vp, vd);
 

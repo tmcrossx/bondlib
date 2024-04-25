@@ -1,13 +1,13 @@
 // tmx_curve.h - Forward curve interface.
-// Values depend on the discount over the interval [t, u]. Default is t = 0.
+// D(u, t) is the discount over [t, u].
 // Forward f and spot/yield r are related to discount by
 // D(u, t) = exp(-int_t^u f(s) ds) = exp(-r(u, t)(u - t)).
-// so r(u, t) = 1/(u - t) int_t^u f(s) ds is the average forward rate over [t, u].
+// Note r(u, t) = int_t^u f(s) ds/(u - t) is the average forward rate over [t, u].
 #pragma once
 #ifdef _DEBUG
 #include<cassert>
 #endif // _DEBUG
-// Use <cmath> once std::exp is constexpr.
+// TODO: Use <cmath> once it is constexpr.
 #include "tmx_math_hypergeometric.h"
 
 namespace tmx::curve {
@@ -15,31 +15,36 @@ namespace tmx::curve {
 	// NVI idiom compiles to non-virtual function calls.
 	// Enforce preconditions for all derived curves.
 	template<class T = double, class F = double>
-	struct interface {
+	class interface {
+		bool valid(T u, T t) const noexcept
+		{
+			return 0 <= t && t <= u;
+		}
+	public:
 		virtual ~interface() {}
 
 		// Forward over [t, u].
 		F forward(T u, T t = 0) const noexcept
 		{
-			return u >= t && t >= 0 ? _forward(u, t) : math::NaN<F>;
+			return valid(u, t) ? _forward(u, t) : math::NaN<F>;
 		}
 
 		// Integral from t to u of forward. int_t^u f(s) ds.
 		F integral(T u, T t = 0) const noexcept
 		{
-			return u >= t && t >= 0 ? _integral(u, t) : math::NaN<F>;
+			return valid(u, t) ? _integral(u, t) : math::NaN<F>;
 		}
 
 		// Price at time t of one unit received at time u.
 		F discount(T u, T t = 0) const noexcept
 		{
-			return u >= t && t >= 0 ? math::exp(-integral(u, t)) : math::NaN<F>;
+			return valid(u, t) ? math::exp(-integral(u, t)) : math::NaN<F>;
 		}
 
-		// Spot/yield over [t, u]
+		// Spot/yield is the average of the forward over [t, u]
 		F spot(T u, T t = 0) const noexcept
 		{
-			return u >= t && t >= 0
+			return valid(u, t)
 				? (u > t + math::sqrt_epsilon<T>
 					? _integral(u, t) / (u - t)
 					: _forward(u, t))

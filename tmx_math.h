@@ -86,6 +86,7 @@ namespace tmx::math {
 			return 0;
 		}
 
+		// Newton-Raphson
 		while (fabs(x * x - a) > a * epsilon<X>) {
 			x = x / 2 + a / (2 * x);
 		}
@@ -107,6 +108,7 @@ namespace tmx::math {
 	template<class X>
 	constexpr X phi = (X(1) + sqrt(X(5))) / X(2);
 
+	// Newton binomial formula.
 	// (1 + x)^a = 1 + ax + a(a - 1)/2 x^2 + ... = sum_{n>=0}(a)_n x^n/n!
 	template<class X>
 	constexpr X pow1(X x, X a, X eps = sqrt_epsilon<X>)
@@ -158,9 +160,23 @@ namespace tmx::math {
 
 	// Estimate f''(x) using symmetric differences.
 	template<class F, class X>
-	constexpr X second_difference(const F& f, X x, X h = sqrt_epsilon<X>)
+	constexpr X second_difference(const F& f, X x, X h)
 	{
 		return (f(x + h) - 2*f(x) + f(x - h)) / (h * h);
 	}
+#ifdef _DEBUG
+	//static_assert(second_difference([](double x) { return x * x; }, 1., .05) == 2);
+	inline int sd_test()
+	{
+		// TODO: why these approximations get worse as h gets smaller?
+		double xyz = second_difference([](double x) { return x * x; }, 2., .1);
+		xyz = second_difference([](double x) { return x * x; }, 2., .01);
+		xyz = second_difference([](double x) { return x * x; }, 2., .001);
+		xyz = second_difference([](double x) { return x * x; }, 2., .0001);
+
+		return 0;
+	}
+	//static_assert(fabs(second_difference([](double x) { return x * x; }, 2.) - 2) <= 1);
+#endif // _DEBUG
 
 } // namespace tmx::math

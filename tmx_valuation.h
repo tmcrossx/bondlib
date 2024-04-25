@@ -1,4 +1,4 @@
-// tmx_valuation.h - yield, present value, duration, convexity, oas
+// tmx_valuation.h - present value, duration, convexity, yield, oas
 #pragma once
 #include <cmath>
 #include <limits>
@@ -77,7 +77,6 @@ namespace tmx::valuation {
 
 		return root1d::newton(s, tol, iter).solve(pv, dur);
 	}
-	// test!!!
 
 #ifdef _DEBUG
 	template<class X = double>

@@ -82,6 +82,14 @@ namespace tmx::math {
 
 		return pFq(2, _p, 1, &c, x, eps);
 	}
+	// _2F1(1, 1, 2, -x) = log(1 + x)/x;
+	// y = 1 + x, y - 1 = x
+	// log(y) = _2F1(1, 1, 2, 1 - y)(y - 1);
+	template<class X>
+	constexpr X log(X y, X eps = sqrt_epsilon<X>)
+	{
+		return _2F1(1., 1., 2., X(1) - y, eps) * (y - X(1));
+	}
 
 #ifdef _DEBUG
 //#if 0
