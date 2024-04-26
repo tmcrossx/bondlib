@@ -5,6 +5,7 @@
 #endif // _DEBUG
 #include <tuple>
 #include <chrono>
+#include "fms_iterable.h"
 
 using std::literals::chrono_literals::operator""y;
 
@@ -89,7 +90,7 @@ namespace tmx::date {
 	}
 
 #ifdef _DEBUG
-	int test()
+	inline int test()
 	{
 		using namespace std::chrono_literals;
 		double day = 1 / days_per_year;
@@ -114,6 +115,7 @@ namespace tmx::date {
 #endif // _DEBUG
 
 #define TMX_DATE_FREQUENCY(X) \
+	X(null ,        0) \
 	X(annually,     1) \
 	X(semiannually, 2) \
 	X(quarterly,    4) \
@@ -132,23 +134,32 @@ namespace tmx::date {
 	}
 
 	// iterable periodic dates from beginning to end at frequency.
-	class periodic {
+	class periodic : public fms::iterable::interface<ymd> {
 		std::chrono::months m;
 		ymd b, e;
 	public:
-		constexpr periodic(const frequency& f, const ymd& b, const ymd& e = ymd{})
+		periodic(const frequency& f, const ymd& b, const ymd& e = ymd{})
 			: m(period(f)), b(b), e(e)
 		{ }
 
-		constexpr explicit operator bool() const
+		periodic* clone() const override
+		{
+			return new periodic(*this);
+		}
+		void destroy() override
+		{
+			delete this;
+		}
+
+		constexpr bool op_bool() const override
 		{
 			return e.ok() ? b <= e : true;
 		}
-		constexpr ymd operator*() const
+		constexpr ymd op_star() const override
 		{
 			return b;
 		}
-		constexpr periodic& operator++()
+		constexpr periodic& op_incr() override
 		{
 			b += m;
 
@@ -193,7 +204,7 @@ namespace tmx::date {
 	};
 
 	// Work backward from termination to first calculation date prior to effective.
-	constexpr std::pair<ymd, size_t> first_calculation_date(ymd effective, ymd termination, frequency f)
+	inline std::pair<ymd, size_t> first_calculation_date(ymd effective, ymd termination, frequency f)
 	{
 		size_t n = 0;
 		periodic p(f, termination);

@@ -169,10 +169,12 @@ namespace tmx::math {
 	inline int sd_test()
 	{
 		// TODO: why these approximations get worse as h gets smaller?
+		/*
 		double xyz = second_difference([](double x) { return x * x; }, 2., .1);
 		xyz = second_difference([](double x) { return x * x; }, 2., .01);
 		xyz = second_difference([](double x) { return x * x; }, 2., .001);
 		xyz = second_difference([](double x) { return x * x; }, 2., .0001);
+		*/
 
 		return 0;
 	}

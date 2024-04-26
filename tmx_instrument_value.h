@@ -36,6 +36,19 @@ namespace tmx::instrument {
 
 			sync();
 		}
+		template<fms::iterable::input I>
+		value(const I& i)
+		{
+			auto i_ = i.clone();
+			while (*i_) {
+				const auto [u_, c_] = **i_.pair();
+				u.push_back(u_);
+				c.push_back(c_);
+				++*i;
+			}
+			i.destroy();
+			sync();
+		}
 		value(const value& v)
 			: u(v.u), c(v.c)
 		{

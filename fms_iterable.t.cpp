@@ -68,6 +68,8 @@ int test_constant = []() {
 	assert(c);
 	assert(*c == 1);
 
+	auto cc  = constant(1.)* constant(2.);
+
 	return 0;
 }();
 

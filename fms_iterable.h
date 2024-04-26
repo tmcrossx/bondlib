@@ -982,12 +982,14 @@ namespace fms::iterable {
 	};
 
 	// d(*++i, *i), d(*++++i, *++i), ...
-	template<input I, class T = typename I::value_type, class D = std::minus<T>>
-	class delta : public interface<T> {
+	template<input I, class T = typename I::value_type, class D = std::minus<T>, typename U = std::invoke_result_t<D,T,T>>
+	class delta : public interface<U> {
 		const D& d;
 		I i;
 		T t, _t;
 	public:
+		using value_type = U;
+
 		delta(const I& _i, const D& _d = std::minus<T>{})
 			: d(_d), i(_i)
 		{
@@ -1031,7 +1033,7 @@ namespace fms::iterable {
 		{
 			return i.op_bool();
 		}
-		T op_star() const override
+		U op_star() const override
 		{
 			return d(*i, t);
 		}

@@ -11,7 +11,7 @@ namespace tmx::instrument {
 
 	// Cash flow at time u of amount c.
 	template<class U = double, class C = double>
-		requires std::totally_ordered<U> && std::equality_comparable<C>
+		//requires std::totally_ordered<U> && std::equality_comparable<C>
 	struct cash_flow {
 		using time_type = U;
 		using cash_type = C;
@@ -19,7 +19,8 @@ namespace tmx::instrument {
 		U u; // time
 		C c; // amount
 
-		constexpr cash_flow(U u = math::infinity<U>, C c = math::NaN<C>)
+		constexpr cash_flow() = default;
+		constexpr cash_flow(U u, C c)
 			: u(u), c(c)
 		{ }
 
@@ -57,19 +58,20 @@ namespace tmx::instrument {
 	template<class U = double, class C = double>
 	using interface = fms::iterable::interface<cash_flow<U, C>>;
 
-	// A zero coupon bond has a single cash flow.
-	// Equivalent to singleton(cash_flow(u,c)).
-	template<class U = double, class C = double>
-	class zero_coupon_bond : public interface<U, C> {
-		cash_flow<U, C> uc;
+	// Make instrument from time and cash flow iterables.
+	template<fms::iterable::input U, fms::iterable::input C>
+	class iterable : public interface<typename U::value_type, typename C::value_type>
+	{
+		U u;
+		C c;
 	public:
-		constexpr zero_coupon_bond(const U& u = math::infinity<U>, const C& c = math::NaN<C>)
-			: uc(u,c)
+		iterable(const U& u, const C& c)
+			: u(u), c(c)
 		{ }
 
-		zero_coupon_bond* clone() const override
+		iterable* clone() const override
 		{
-			return new zero_coupon_bond(*this);
+			return new iterable(*this);
 		}
 		void destroy() override
 		{
@@ -78,46 +80,49 @@ namespace tmx::instrument {
 
 		constexpr bool op_bool() const override
 		{
-			return uc.u != math::infinity<U>;
+			return u && c;
 		}
-		constexpr cash_flow<U, C> op_star() const override
+		constexpr cash_flow<typename U::value_type, typename C::value_type> op_star() const override
 		{
-			return uc;
+			return cash_flow(*u, *c);
 		}
-		constexpr zero_coupon_bond& op_incr() override
+		constexpr iterable& op_incr() override
 		{
-			uc = cash_flow<U, C>{};
+			++u;
+			++c;
 
 			return *this;
-		}
-#ifdef _DEBUG
-		static int test()
-		{
-			{
-				zero_coupon_bond z(1, 2);
-				assert(z);
-				assert(*z == cash_flow(1, 2));
-				++z;
-				assert(!z);
-			}
+		}	
 
-			return 0;
-		}
-#endif // _DEBUG
 	};
 
-	// Make instrument from time and cash flow iterables.
-	template<fms::iterable::input U, fms::iterable::input C>
-	inline auto make(U u, C c)
+	// A zero coupon bond has a single cash flow.
+	// Equivalent to singleton(cash_flow(u,c)).
+	template<class U = double, class C = double>
+	inline auto zero_coupon_bond(const U& u, const C& c)
 	{
-		return fms::iterable::binop(cash_flow{}, u, c);
+		return fms::iterable::singleton(cash_flow(u,c));
 	}
+#ifdef _DEBUG
+	inline int zero_coupon_bond_test()
+	{
+		{
+			auto z = zero_coupon_bond(1, 2);
+			assert(z);
+			assert(*z == cash_flow(1, 2));
+			++z;
+			assert(!z);
+		}
+
+		return 0;
+	}
+#endif // _DEBUG
 
 }
 
 // Add cash flows having the same time.
 template<class U, class C>
-inline tmx::instrument::cash_flow<U,C> operator+(const tmx::instrument::cash_flow<U,C>& uc1, const tmx::instrument::cash_flow<U,C>& uc2)
+inline tmx::instrument::cash_flow<U, C> operator+(const tmx::instrument::cash_flow<U, C>& uc1, const tmx::instrument::cash_flow<U, C>& uc2)
 {
 	return uc1.u == uc2.u ? tmx::instrument::cash_flow(uc1.u, uc1.c + uc2.c) : tmx::instrument::cash_flow{};
 }

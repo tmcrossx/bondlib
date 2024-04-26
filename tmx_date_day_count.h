@@ -13,6 +13,18 @@ namespace tmx::date {
 
 	using day_count_t = double(*)(const ymd&, const ymd&);
 
+	class day_count {
+        day_count_t f;
+    public:
+        day_count(day_count_t f)
+			: f(f)
+		{ }
+		double operator()(const ymd& ymd1, const ymd& ymd2) const
+		{
+			return f(ymd1, ymd2);
+		}
+	};
+
 	// https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicisma30360.cpp
 	constexpr double day_count_isma30360(const ymd& ymd1, const ymd& ymd2)
 	{

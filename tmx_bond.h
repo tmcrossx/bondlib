@@ -6,7 +6,6 @@
 #include "tmx_instrument.h"
 #include "tmx_valuation.h"
 
-using namespace fms::iterable;
 
 namespace tmx::bond {
 
@@ -14,12 +13,14 @@ namespace tmx::bond {
 	template<class U = double, class C = double>
 	inline auto elementary(const U& maturity, const C& coupon = 0.05, size_t frequency = 2)
 	{
+		using namespace fms::iterable;
+		
 		const U period = 1. / frequency;
 		const size_t count = static_cast<size_t>(maturity * frequency);
 
 		auto u = constant(period) * iota(U(1));
 		auto c = constant(coupon / frequency);
-		auto i = instrument::make(u, c);
+		auto i = instrument::iterable(u, c);
 
 		return merge(take(i, count), instrument::zero_coupon_bond(maturity, C(1)));
 	}
@@ -32,7 +33,7 @@ namespace tmx::bond {
 			assert(*e == instrument::cash_flow(0.5, 0.025));
 			e = skip(e, 19);
 			assert(e);
-			assert(*e == instrument::cash_flow(10, 1.025));
+			assert(*e == instrument::cash_flow(10., 1.025));
 			assert(!++e);
 		}
 
@@ -57,12 +58,50 @@ namespace tmx::bond {
 	template<class C>
 	inline auto fix(const basic<C>& b, const date::ymd& pvdate)
 	{
-		const auto [d0, _] = date::first_calculation_date(b.dated < pvdate ? pvdate : b.dated, b.maturity, b.frequency);
-		auto u = singleton(pvdate), date::periodic(b.frequency, d0 + period(b.frequency), b.maturity);
-		auto c = constant(b.coupon) * delta(u, b.day_count);
+		using namespace fms::iterable;
 
-		return instrument::make(u, c), instrument::zero_coupon_bond(b.day_count(pvdate, b.maturity), b.redemption);
+		const auto [d0, _] = date::first_calculation_date(b.dated < pvdate ? pvdate : b.dated, b.maturity, b.frequency);
+		auto u = concatenate(singleton(pvdate), date::periodic(b.frequency, d0 + period(b.frequency), b.maturity));
+		auto c = fms::iterable::constant(b.coupon) * fms::iterable::delta(u, b.day_count);
+
+		return instrument::iterable(u, c);// , instrument::zero_coupon_bond(b.day_count(pvdate, b.maturity), b.redemption);
 	}
+#ifdef _DEBUG
+
+	inline int basic_test()
+	{
+		{
+			using namespace std::literals::chrono_literals;
+			using namespace date;
+
+			auto d = 2023y / 1 / 1;
+			bond::basic<> bond{ d, d + std::chrono::years(10), 0.05, frequency::semiannually, day_count_isma30360 };
+			auto i = fix(bond, d);
+			assert(20 == length(i));
+			/*
+			auto u = i.time();
+			auto c = i.cash();
+			assert(u[0] != 0);
+			assert(c[0] == 0.05 / 2);
+			assert(std::fabs(-c[19] + c[0] + 1) < 1e-15);
+			assert(std::fabs(-u[19] + 10) <= 1 / date::days_per_year);
+
+			bond::basic<> bond2{ 10, 0.05 };
+			auto i2 = instrument(bond2, d);
+			assert(i.size() == i2.size());
+			auto u2 = i2.time();
+			auto c2 = i2.cash();
+			for (size_t n = 0; n < i.size(); ++n) {
+				assert(u[n] == u2[n]);
+				assert(c[n] == c2[n]);
+			}
+			*/
+		}
+
+		return 0;
+	}
+
+#endif // _DEBUG
 
 #if 0
 
@@ -127,40 +166,6 @@ namespace tmx::bond {
 	}
 	//!!! add tests
 	*/
-#ifdef _DEBUG
-
-	inline int basic_test()
-	{
-		{
-			using namespace std::literals::chrono_literals;
-			using namespace date;
-
-			auto d = 2023y / 1 / 1;
-			bond::basic<> bond{ 10, 0.05, frequency::semiannually, day_count_isma30360 };
-			auto i = instrument(bond, d, d);
-			assert(20 == i.size());
-			auto u = i.time();
-			auto c = i.cash();
-			assert(u[0] != 0);
-			assert(c[0] == 0.05 / 2);
-			assert(std::fabs(-c[19] + c[0] + 1) < 1e-15);
-			assert(std::fabs(-u[19] + 10) <= 1/date::days_per_year);
-
-			bond::basic<> bond2{ 10, 0.05 };
-			auto i2 = instrument(bond2, d);
-			assert(i.size() == i2.size());
-			auto u2 = i2.time();
-			auto c2 = i2.cash();
-			for (size_t n = 0; n < i.size(); ++n) {
-				assert(u[n] == u2[n]);
-				assert(c[n] == c2[n]);
-			}
-		}
-
-		return 0;
-	}
-
-#endif // _DEBUG
 #endif // 0
 } // namespace tmx::bond
 
