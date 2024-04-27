@@ -57,13 +57,13 @@ int test_bond_basic = bond::basic_test();
 int main()
 {
 	date::periodic p(date::frequency::semiannually, date::to_ymd(2023, 4, 5), date::to_ymd(2033, 4, 5));
-	auto d = iterable::delta(p, date::day_count(date::day_count_isma30360));
+	auto d = iterable::nabla(p, date::day_count(date::day_count_isma30360));
 	assert(d);
 	auto d0 = *d;
 	++d;
 	auto d1 = *d;
+	assert(d1 == d0);
 	assert(d);
-	assert(d0 != d1);
 	
 	return 0;
 }

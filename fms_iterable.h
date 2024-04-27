@@ -941,19 +941,19 @@ namespace fms::iterable {
 	//inline auto horner(I i, T x, T t = 1)
 
 	// Precompute values.
-	template<input I, class T, std::size_t N>
+	template<input I, class T = typename I::value_type>
 	class cache : public interface<T> {
-		std::array<T,N> a;
+		std::vector<T> a;
 		std::size_t n;
 	public:
+		// Consume i.
 		cache(I i)
 			: n(0)
 		{
-			while (i && n < N) {
-				a[n++] = *i;
+			while (i) {
+				a.push_back(*i);
 				++i;
 			}
-			n = 0;
 		}
 
 		cache* clone() const override
@@ -967,7 +967,7 @@ namespace fms::iterable {
 
 		bool op_bool() const override
 		{
-			return n < N;
+			return n < a.size();
 		}
 		T op_star() const override
 		{
@@ -975,7 +975,9 @@ namespace fms::iterable {
 		}
 		cache& op_incr() override
 		{
-			++n;
+			if (op_bool()) {
+				++n;
+			}
 
 			return *this;
 		}
@@ -1047,6 +1049,74 @@ namespace fms::iterable {
 			return *this;
 		}
 	};
+
+	// d(*++i, *i), d(*++++i, *++i), ...
+	template<input I, class T = typename I::value_type, class D = std::minus<T>, typename U = std::invoke_result_t<D, T, T>>
+	class nabla : public interface<U> {
+		const D& d;
+		I i;
+		T t, _t;
+	public:
+		using value_type = U;
+
+		nabla(const I& _i, const D& _d = std::minus<T>{})
+			: d(_d), i(_i)
+		{
+			if (i) {
+				t = *i;
+				++i;
+				_t = i ? *i : t;
+			}
+		}
+		nabla(const nabla& _d)
+			: d(_d.d), i(_d.i), t(_d.t), _t(_d._t)
+		{ }
+		nabla& operator=(const nabla& _d)
+		{
+			if (this != &_d) {
+				i = _d.i;
+				t = _d.t;
+				_t = _d._t;
+			}
+
+			return *this;
+		}
+		~nabla()
+		{ }
+
+		bool operator==(const nabla& _d) const
+		{
+			return i == _d.i && t == _d.t && _t == _d._t;
+		}
+
+		nabla* clone() const override
+		{
+			return new nabla(*this);
+		}
+		void destroy() override
+		{
+			delete this;
+		}
+
+		bool op_bool() const override
+		{
+			return i.op_bool();
+		}
+		U op_star() const override
+		{
+			return d(t, *i);
+		}
+		nabla& op_incr() override
+		{
+			if (i) {
+				t = *i;
+				++i;
+			}
+
+			return *this;
+		}
+	};
+
 
 	template<input I, class T = typename I::value_type>
 	inline auto uptick(I i)

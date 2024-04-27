@@ -196,6 +196,8 @@ namespace tmx::date {
 				++p;
 				assert(*p == 2025y / 2 / 6);
 				assert(p);
+				--p;
+				assert(*p == 2025y / 1 / 6);
 			}
 
 			return 0;
@@ -203,8 +205,8 @@ namespace tmx::date {
 #endif // _DEBUG
 	};
 
-	// Work backward from termination to first calculation date prior to effective.
-	inline std::pair<ymd, size_t> first_calculation_date(ymd effective, ymd termination, frequency f)
+	// Work backward from termination to first date past effective.
+	inline std::pair<ymd, size_t> first_payment_date(frequency f, ymd effective, ymd termination)
 	{
 		size_t n = 0;
 		periodic p(f, termination);
@@ -213,6 +215,8 @@ namespace tmx::date {
 			--p;
 			++n;
 		}
+		++p;
+		--n;
 
 		return { *p, n };
 	}

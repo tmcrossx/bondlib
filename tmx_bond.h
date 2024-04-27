@@ -50,21 +50,22 @@ namespace tmx::bond {
 		C coupon; // not in percent
 		date::frequency frequency = date::frequency::semiannually;
 		date::day_count_t day_count = date::day_count_isma30360;
-		C redemption = 1;
+		C face = 1;
 	};
 
 
 	// Return cash flows for basic bond from present value date.
 	template<class C>
-	inline auto fix(const basic<C>& b, const date::ymd& pvdate)
+	inline auto fix(const basic<C>& bond, const date::ymd& pvdate)
 	{
 		using namespace fms::iterable;
 
-		const auto [d0, _] = date::first_calculation_date(b.dated < pvdate ? pvdate : b.dated, b.maturity, b.frequency);
-		auto u = concatenate(singleton(pvdate), date::periodic(b.frequency, d0 + period(b.frequency), b.maturity));
-		auto c = fms::iterable::constant(b.coupon) * fms::iterable::delta(u, b.day_count);
+		const auto [d0, _] = date::first_payment_date(bond.frequency, bond.dated < pvdate ? pvdate : bond.dated, bond.maturity);
+		auto t = date::periodic(bond.frequency, d0, bond.maturity);
+		auto u = apply([pvdate](auto ymd) { return date::diffyears(ymd, pvdate); }, t);
+		auto c = fms::iterable::constant(bond.face * bond.coupon) * fms::iterable::nabla(concatenate(singleton(pvdate), t), bond.day_count);
 
-		return instrument::iterable(u, c);// , instrument::zero_coupon_bond(b.day_count(pvdate, b.maturity), b.redemption);
+		return cache(instrument::iterable(u, c));// , instrument::zero_coupon_bond(diffyears(bond.maturity, pvdate), bond.face);
 	}
 #ifdef _DEBUG
 
@@ -76,8 +77,13 @@ namespace tmx::bond {
 
 			auto d = 2023y / 1 / 1;
 			bond::basic<> bond{ d, d + std::chrono::years(10), 0.05, frequency::semiannually, day_count_isma30360 };
-			auto i = fix(bond, d);
-			assert(20 == length(i));
+			auto i = fix(bond, d + std::chrono::months(1));
+			//assert(20 == length(i));
+			auto c0 = *i;
+			++i;
+			auto c2 = *i;
+			i = skip(i, 18);
+			auto cn = *i;
 			/*
 			auto u = i.time();
 			auto c = i.cash();
