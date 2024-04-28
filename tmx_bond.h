@@ -78,6 +78,7 @@ namespace tmx::bond {
 			auto d = 2023y / 1 / 1;
 			bond::basic<> bond{ d, d + std::chrono::years(10), 0.05, frequency::semiannually, day_count_isma30360 };
 			auto i = fix(bond, d + std::chrono::months(1));
+			//tmx::instrument::value v(i);
 			//assert(20 == length(i));
 			auto c0 = *i;
 			++i;

@@ -416,6 +416,31 @@ int test_merge = []() {
 	return 0;
 }();
 
+int test_cache = []() {
+	{
+		int i[] = { 1, 2, 3 };
+		auto p = array(i);
+		auto c = cache(p);
+		assert(c);
+		assert(*c == 1);
+		++c;
+		assert(c);
+		assert(*c == 2);
+		++c;
+		assert(*c == 3);
+		++c;
+		assert(!c);
+
+		auto cc = cache(c);
+		assert(equal(cc, c));
+
+		cache ccc(cc);
+		assert(equal(ccc, c));
+	}
+
+	return 0;
+	}();
+
 int test_delta = []() {
 	{
 		delta d(power<int>(2)/*, std::minus<int>{}*/);

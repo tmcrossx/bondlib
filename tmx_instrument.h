@@ -53,7 +53,14 @@ namespace tmx::instrument {
 	static_assert(!(cash_flow(1, 2) < cash_flow(1, 2)));
 	static_assert(!(cash_flow(1., 2) < cash_flow(1, 2.)));
 #endif // _DEBUG
-
+/*
+	template<class I, class U, class C>
+	concept input = requires (I i) {
+		{ i.operator bool() } -> std::same_as<bool>;
+		{ *i } -> std::convertible_to<typename I::cash_flow<U,C>>;
+		//		{ ++i } -> IsReferenceToBase;
+	};
+*/
 	// A fixed income instrument is a sequence of cash flows.
 	template<class U = double, class C = double>
 	using interface = fms::iterable::interface<cash_flow<U, C>>;

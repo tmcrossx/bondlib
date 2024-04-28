@@ -36,17 +36,14 @@ namespace tmx::instrument {
 
 			sync();
 		}
-		template<fms::iterable::input I>
-		value(const I& i)
+		template<fms::iterable::input I, class T = typename I::value_type>
+		value(I i)
 		{
-			auto i_ = i.clone();
-			while (*i_) {
-				const auto [u_, c_] = **i_.pair();
-				u.push_back(u_);
-				c.push_back(c_);
-				++*i;
+			while (i) {
+				u.push_back((*i).u);
+				c.push_back((*i).c);
+				++i;
 			}
-			i.destroy();
 			sync();
 		}
 		value(const value& v)
