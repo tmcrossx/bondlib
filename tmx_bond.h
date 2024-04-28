@@ -9,38 +9,6 @@
 
 namespace tmx::bond {
 
-	// Elementary bond.
-	template<class U = double, class C = double>
-	inline auto elementary(const U& maturity, const C& coupon = 0.05, size_t frequency = 2)
-	{
-		using namespace fms::iterable;
-		
-		const U period = 1. / frequency;
-		const size_t count = static_cast<size_t>(maturity * frequency);
-
-		auto u = constant(period) * iota(U(1));
-		auto c = constant(coupon / frequency);
-		auto i = instrument::iterable(u, c);
-
-		return merge(take(i, count), instrument::zero_coupon_bond(maturity, C(1)));
-	}
-#ifdef _DEBUG
-	inline int elementary_test()
-	{
-		{
-			auto e = elementary(10., 0.05, 2);
-			assert(20 == length(e));
-			assert(*e == instrument::cash_flow(0.5, 0.025));
-			e = skip(e, 19);
-			assert(e);
-			assert(*e == instrument::cash_flow(10., 1.025));
-			assert(!++e);
-		}
-
-		return 0;
-	}
-#endif // _DEBUG
-
 	// Basic bond indicative data.
 	template<class C = double>
 	struct basic 
@@ -50,7 +18,7 @@ namespace tmx::bond {
 		C coupon; // not in percent
 		date::frequency frequency = date::frequency::semiannually;
 		date::day_count_t day_count = date::day_count_isma30360;
-		C face = 1;
+		C face = 100;
 	};
 
 	// Return cash flows for basic bond from present value date.
@@ -75,38 +43,39 @@ namespace tmx::bond {
 
 	inline int basic_test()
 	{
-		{
-			using namespace std::literals::chrono_literals;
-			using namespace date;
+		using namespace std::literals::chrono_literals;
+		using namespace std::chrono;
+		using namespace date;
+		auto d = 2023y / 1 / 1;
+		bond::basic<> bond{ d, d + years(10), 0.05 };
 
-			auto d = 2023y / 1 / 1;
-			bond::basic<> bond{ d, d + std::chrono::years(10), 0.05, frequency::semiannually, day_count_isma30360 };
-			auto i = fix(bond, d + std::chrono::months(1));
-			//tmx::instrument::value v(i);
-			//assert(20 == length(i));
+		{
+			auto i = fix(bond, d);
+			assert(20 == length(i));
 			auto c0 = *i;
+			assert(c0.c == 2.5);
+			assert(c0.u == d + date::period(bond.frequency) - d);
+
+			i = skip(i, 19);
+			auto cn = *i;
+			assert(cn.u = bond.maturity - bond.dated);
+			assert(cn.c == 102.5);
+		}
+		{
+			auto pvdate = d + months(1);
+			auto i = fix(bond, pvdate);
+			assert(20 == length(i));
+			auto c0 = *i;
+			assert(c0.c != 2.5);
+			assert(c0.u == bond.dated + date::period(bond.frequency) - pvdate);
+
 			++i;
-			auto c2 = *i;
+			auto c1 = *i;
+			assert(c1.c == 2.5);
 			i = skip(i, 18);
 			auto cn = *i;
-			/*
-			auto u = i.time();
-			auto c = i.cash();
-			assert(u[0] != 0);
-			assert(c[0] == 0.05 / 2);
-			assert(std::fabs(-c[19] + c[0] + 1) < 1e-15);
-			assert(std::fabs(-u[19] + 10) <= 1 / date::days_per_year);
-
-			bond::basic<> bond2{ 10, 0.05 };
-			auto i2 = instrument(bond2, d);
-			assert(i.size() == i2.size());
-			auto u2 = i2.time();
-			auto c2 = i2.cash();
-			for (size_t n = 0; n < i.size(); ++n) {
-				assert(u[n] == u2[n]);
-				assert(c[n] == c2[n]);
-			}
-			*/
+			assert(cn.u = bond.maturity - pvdate);
+			assert(cn.c == 102.5);
 		}
 
 		return 0;
