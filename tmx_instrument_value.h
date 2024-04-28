@@ -80,6 +80,11 @@ namespace tmx::instrument {
 
 			return *this;
 		}
+		// add cash flow keeping times sorted
+		value& push_back(const cash_flow<U,C>& uc)
+		{
+			return push_back(uc.u, uc.c);
+		}
 
 		// add cash flow keeping times sorted
 		value& push_front(U _u, C _c)

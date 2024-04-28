@@ -32,8 +32,8 @@ namespace tmx::valuation {
 #endif // _DEBUG
 
 	// Present value at t of future discounted cash flows.
-	template<input I, class T, class F>
-	constexpr auto present(I i, const curve::interface<T, F>& f, T t = 0)
+	template<fms::iterable::input I, class T, class F>
+	constexpr auto present(const I& i, const curve::interface<T, F>& f, T t = 0)
 	{
 		return sum(apply([&f, t](const auto& uc) { return present(uc, f, t); }, i));
 	}
@@ -43,25 +43,25 @@ namespace tmx::valuation {
 
 	// Derivative of present value with respect to a parallel shift.
 	template<input I, class T, class F>
-	constexpr auto duration(I i, const curve::interface<T, F>& f, T t = 0)
+	constexpr auto duration(const I& i, const curve::interface<T, F>& f, T t = 0)
 	{
 		return sum(apply([&f, t](const auto& uc) { return -(uc.u - t) * present(uc, f, t); }, i));
 	}
 
 	// Second derivative of present value with respect to a parallel shift.
 	template<input I, class T, class F>
-	constexpr auto convexity(I i, const curve::interface<T, F>& f, T t = 0)
+	constexpr auto convexity(const I& i, const curve::interface<T, F>& f, T t = 0)
 	{
 		return sum(apply([&f, t](const auto& uc) { return (uc.u - t) * (uc.u - t) * present(uc, f, t); }, i));
 	}
 
 	// Constant yield matching price p at t.
 	template<input I, class U = typename I::value_type::time_type, class C = typename I::value_type::cash_type>
-	inline C yield(I i, const C p = 0, U t = 0,
+	inline C yield(const I& i, const C p = 0, U t = 0,
 		C y = 0.01, C tol = math::sqrt_epsilon<C>, int iter = 100)
 	{
-		const auto pv = [=](C y_) { return present(i, curve::constant<U, C>(y_), t) - p; };
-		const auto dur = [=](C y_) { return duration(i, curve::constant<U, C>(y_), t); };
+		const auto pv = [p,t,&i](C y_) { return present(i, curve::constant<U, C>(y_), t) - p; };
+		const auto dur = [p,t,&i](C y_) { return duration(i, curve::constant<U, C>(y_), t); };
 
 		return root1d::newton(y, tol, iter).solve(pv, dur);
 	}
