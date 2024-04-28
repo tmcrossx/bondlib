@@ -59,7 +59,7 @@ namespace tmx::bond {
 	{
 		using namespace fms::iterable;
 
-		const auto d0 = std::min(bond.dated, pvdate);
+		const auto d0 = std::max(bond.dated, pvdate);
 		const auto [d, _] = date::first_payment_date(bond.frequency, d0, bond.maturity);
 		const auto t = date::periodic(bond.frequency, d, bond.maturity);
 		const auto dt = nabla(concatenate(singleton(pvdate), t), bond.day_count);
