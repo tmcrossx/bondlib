@@ -53,19 +53,23 @@ namespace tmx::bond {
 		C face = 1;
 	};
 
-
 	// Return cash flows for basic bond from present value date.
 	template<class C>
 	inline auto fix(const basic<C>& bond, const date::ymd& pvdate)
 	{
 		using namespace fms::iterable;
 
-		const auto [d0, _] = date::first_payment_date(bond.frequency, bond.dated < pvdate ? pvdate : bond.dated, bond.maturity);
-		auto t = date::periodic(bond.frequency, d0, bond.maturity);
-		auto u = apply([pvdate](auto ymd) { return date::diffyears(ymd, pvdate); }, t);
-		auto c = fms::iterable::constant(bond.face * bond.coupon) * fms::iterable::nabla(concatenate(singleton(pvdate), t), bond.day_count);
+		const auto d0 = std::min(bond.dated, pvdate);
+		const auto [d, _] = date::first_payment_date(bond.frequency, d0, bond.maturity);
+		const auto t = date::periodic(bond.frequency, d, bond.maturity);
+		const auto dt = nabla(concatenate(singleton(pvdate), t), bond.day_count);
 
-		return cache(instrument::iterable(u, c));// , instrument::zero_coupon_bond(diffyears(bond.maturity, pvdate), bond.face);
+		const auto u = apply([pvdate](auto ymd) { return ymd - pvdate; }, t);
+		const auto c = constant(bond.face * bond.coupon) * dt;
+		
+		const auto f = instrument::zero_coupon_bond(bond.maturity - pvdate, bond.face);
+
+		return cache(merge(instrument::iterable(u, c), f));
 	}
 #ifdef _DEBUG
 

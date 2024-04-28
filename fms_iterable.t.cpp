@@ -54,7 +54,6 @@ int test_list = []() {
 	return 0;
 }();
 
-
 int test_constant = []() {
 	constant c(1);
 	constant c2(c);
@@ -73,7 +72,7 @@ int test_constant = []() {
 	return 0;
 }();
 
-int test_once = []() {
+int test_singleton = []() {
 	{
 		singleton o(1);
 		singleton o2(o);
@@ -103,6 +102,23 @@ int test_iota = []() {
 		++i;
 		assert(i);
 		assert(*i == 3);
+	}
+
+	return 0;
+}();
+
+int test_skip = []() {
+	{
+		iota<int> i;
+		i = skip(i, 2);
+		assert(*i != 0);
+		assert(*i == 2);
+	}
+	{
+		iota<int> i;
+		auto j = skip(i, 2);
+		assert(*i == 0);
+		assert(*j == 2);
 	}
 
 	return 0;

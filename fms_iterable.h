@@ -10,7 +10,7 @@
 
 namespace fms::iterable {
 	
-	/*
+	/* TODO: concepts
 	template<class T> struct interface;
 
 	template <typename I>
@@ -24,8 +24,7 @@ namespace fms::iterable {
 //		{ ++i } -> IsReferenceToBase;
 	};
 
-
-	// NVI interface for iterable.
+	// NVI interface for input iterable.
 	template<class T>
 	struct interface {
 		using value_type = T;
@@ -1050,7 +1049,7 @@ namespace fms::iterable {
 		}
 	};
 
-	// d(*++i, *i), d(*++++i, *++i), ...
+	// reversed delta d(*++i, *i), d(*++++i, *++i), ...
 	template<input I, class T = typename I::value_type, class D = std::minus<T>, typename U = std::invoke_result_t<D, T, T>>
 	class nabla : public interface<U> {
 		const D& d;
@@ -1117,7 +1116,6 @@ namespace fms::iterable {
 		}
 	};
 
-
 	template<input I, class T = typename I::value_type>
 	inline auto uptick(I i)
 	{
@@ -1164,11 +1162,11 @@ namespace fms::iterable {
 } // namespace fms::iterable
 
 #define FMS_ITERABLE_OPERATOR(X) \
-X(+, std::plus<T>{}) \
-X(-, std::minus<T>{}) \
-X(*, std::multiplies<T>{}) \
-X(/, std::divides<T>{}) \
-X(%, std::modulus<T>{}) \
+	X(+, std::plus<T>{}) \
+	X(-, std::minus<T>{}) \
+	X(*, std::multiplies<T>{}) \
+	X(/, std::divides<T>{}) \
+	X(%, std::modulus<T>{}) \
 
 #define FMS_ITERABLE_OPERATOR_FUNCTION(OP, OP_) \
 template<fms::iterable::input I, fms::iterable::input J, class T = std::common_type_t<typename I::value_type, typename J::value_type>> \
