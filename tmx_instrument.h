@@ -76,15 +76,6 @@ namespace tmx::instrument {
 			: u(u), c(c)
 		{ }
 
-		iterable* clone() const override
-		{
-			return new iterable(*this);
-		}
-		void destroy() override
-		{
-			delete this;
-		}
-
 		constexpr bool op_bool() const override
 		{
 			return u && c;

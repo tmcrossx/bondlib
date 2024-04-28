@@ -30,9 +30,6 @@ namespace fms::iterable {
 		using value_type = T;
 
 		virtual ~interface() { };
-
-		virtual interface* clone() const = 0;
-		virtual void destroy() = 0;
 		
 		explicit operator bool() const
 		{
@@ -61,15 +58,6 @@ namespace fms::iterable {
 		container(const C& _c)
 			: c(_c), i(c.begin())
 		{ }
-
-		container* clone() const override
-		{
-			return new container(*this);
-		}
-		void destroy() override
-		{
-			delete this;
-		}
 
 		bool operator==(const container& _c) const
 		{
@@ -102,15 +90,6 @@ namespace fms::iterable {
 		list(std::initializer_list<T> t)
 			: l(t), i(0)
 		{ }
-
-		list* clone() const override
-		{
-			return new list(*this);
-		}
-		void destroy() override
-		{
-			delete this;
-		}
 
 		bool operator==(const list& _l) const
 		{
@@ -201,15 +180,6 @@ namespace fms::iterable {
 			return c == _c.c;
 		}
 
-		constant* clone() const override
-		{
-			return new constant(*this);
-		}
-		void destroy() override
-		{
-			delete this;
-		}
-
 		bool op_bool() const noexcept override
 		{
 			return true;
@@ -236,15 +206,6 @@ namespace fms::iterable {
 		bool operator==(const iota& i) const
 		{
 			return t == i.t;
-		}
-
-		iota* clone() const override
-		{
-			return new iota(*this);
-		}
-		void destroy() override
-		{
-			delete this;
 		}
 
 		bool op_bool() const noexcept override
@@ -277,15 +238,6 @@ namespace fms::iterable {
 			return t == p.t && tn == p.tn;
 		}
 
-		power* clone() const override
-		{
-			return new power(*this);
-		}
-		void destroy() override
-		{
-			delete this;
-		}
-
 		bool op_bool() const override
 		{
 			return true;
@@ -313,15 +265,6 @@ namespace fms::iterable {
 		bool operator==(const factorial& f) const
 		{
 			return t == f.t && n == f.n;
-		}
-
-		factorial* clone() const override
-		{
-			return new factorial(*this);
-		}
-		void destroy() override
-		{
-			delete this;
 		}
 
 		bool op_bool() const override
@@ -352,15 +295,6 @@ namespace fms::iterable {
 		bool operator==(const pointer& _p) const
 		{
 			return p == _p.p;
-		}
-
-		pointer* clone() const override
-		{
-			return new pointer(*this);
-		}
-		void destroy() override
-		{
-			delete this;
 		}
 
 		bool op_bool() const noexcept override
@@ -406,15 +340,6 @@ namespace fms::iterable {
 			return p == _p.p;
 		}
 
-		null_terminated_pointer* clone() const override
-		{
-			return new null_terminated_pointer(*this);
-		}
-		void destroy() override
-		{
-			delete this;
-		}
-
 		bool op_bool() const noexcept override
 		{
 			return *p != 0;
@@ -447,15 +372,6 @@ namespace fms::iterable {
 			return t == o.t && b == o.b;
 		}
 
-		singleton* clone() const override
-		{
-			return new singleton(*this);
-		}
-		void destroy() override
-		{
-			delete this;
-		}
-
 		bool op_bool() const noexcept override
 		{
 			return b;
@@ -485,15 +401,6 @@ namespace fms::iterable {
 		bool operator==(const take& t) const
 		{
 			return i == t.i && n == t.n;
-		}
-
-		take* clone() const override
-		{
-			return new take(*this);
-		}
-		void destroy() override
-		{
-			delete this;
 		}
 
 		bool op_bool() const noexcept override
@@ -532,15 +439,6 @@ namespace fms::iterable {
 			: i0(i0), i1(i1)
 		{ }
 
-		concatenate* clone() const override
-		{
-			return new concatenate(*this);
-		}
-		void destroy() override
-		{
-			delete this;
-		}
-
 		bool op_bool() const override
 		{
 			return i0 || i1;
@@ -562,7 +460,7 @@ namespace fms::iterable {
 		}
 	};
 
-	// sorted i0 and i1 in order
+	// add sorted i0 and i1 in order
 	template<input I0, input I1, class T = std::common_type_t<typename I0::value_type, typename I1::value_type>>
 	class merge : public interface<T> {
 		I0 i0;
@@ -571,15 +469,6 @@ namespace fms::iterable {
 		merge(const I0& i0, const I1& i1)
 			: i0(i0), i1(i1)
 		{ }
-
-		merge* clone() const override
-		{
-			return new merge(*this);
-		}
-		void destroy() override
-		{
-			delete this;
-		}
 
 		bool op_bool() const override
 		{
@@ -659,15 +548,6 @@ namespace fms::iterable {
 			return f == a.f and i == a.i;
 		}
 
-		apply* clone() const override
-		{
-			return new apply(*this);
-		}
-		void destroy() override
-		{
-			delete this;
-		}
-
 		bool op_bool() const override
 		{
 			return i.op_bool();
@@ -713,15 +593,6 @@ namespace fms::iterable {
 		bool operator==(const binop& o) const
 		{
 			return i0 == o.i0 && i1 == o.i1;
-		}
-
-		binop* clone() const override
-		{
-			return new binop(*this);
-		}
-		void destroy() override
-		{
-			delete this;
 		}
 
 		bool op_bool() const override
@@ -778,15 +649,6 @@ namespace fms::iterable {
 			return p == a.p and i == a.i;
 		}
 
-		filter* clone() const override
-		{
-			return new filter(*this);
-		}
-		void destroy() override
-		{
-			delete this;
-		}
-
 		bool op_bool() const override
 		{
 			return i.op_bool();
@@ -830,15 +692,6 @@ namespace fms::iterable {
 		bool operator==(const until& a) const
 		{
 			return p == a.p and i == a.i;
-		}
-		
-		until* clone() const override
-		{
-			return new until(*this);
-		}
-		void destroy() override
-		{
-			delete this;
 		}
 
 		bool op_bool() const override
@@ -888,15 +741,6 @@ namespace fms::iterable {
 		bool operator==(const fold& f) const
 		{
 			return i == f.i && t == f.t; // BinOp is part of type
-		}
-
-		fold* clone() const override
-		{
-			return new fold(*this);
-		}
-		void destroy() override
-		{
-			delete this;
 		}
 
 		bool op_bool() const override
@@ -955,15 +799,6 @@ namespace fms::iterable {
 			}
 		}
 
-		cache* clone() const override
-		{
-			return new cache(*this);
-		}
-		void destroy() override
-		{
-			delete this;
-		}
-
 		bool op_bool() const override
 		{
 			return n < a.size();
@@ -1019,15 +854,6 @@ namespace fms::iterable {
 		bool operator==(const delta& _d) const
 		{
 			return i == _d.i && t == _d.t && _t == _d._t;
-		}
-
-		delta* clone() const override
-		{
-			return new delta(*this);
-		}
-		void destroy() override
-		{
-			delete this;
 		}
 
 		bool op_bool() const override
@@ -1088,15 +914,6 @@ namespace fms::iterable {
 			return i == _d.i && t == _d.t && _t == _d._t;
 		}
 
-		nabla* clone() const override
-		{
-			return new nabla(*this);
-		}
-		void destroy() override
-		{
-			delete this;
-		}
-
 		bool op_bool() const override
 		{
 			return i.op_bool();
@@ -1135,15 +952,6 @@ namespace fms::iterable {
 		call(const F& f)
 			: f(f)
 		{ }
-
-		call* clone() const override
-		{
-			return new call(*this);
-		}
-		void destroy() override
-		{
-			delete this;
-		}
 
 		bool op_bool() const override
 		{

@@ -142,15 +142,6 @@ namespace tmx::date {
 			: m(period(f)), b(b), e(e)
 		{ }
 
-		periodic* clone() const override
-		{
-			return new periodic(*this);
-		}
-		void destroy() override
-		{
-			delete this;
-		}
-
 		constexpr bool op_bool() const override
 		{
 			return e.ok() ? b <= e : true;

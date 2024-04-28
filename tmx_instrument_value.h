@@ -64,15 +64,6 @@ namespace tmx::instrument {
 		~value()
 		{ }
 
-		value* clone() const
-		{
-			return new value(*this);
-		}
-		void destroy() override
-		{
-			delete this;
-		}
-
 		// add cash flow keeping times sorted
 		value& push_back(U _u, C _c)
 		{

@@ -30,15 +30,6 @@ namespace tmx::instrument {
 		virtual ~view()
 		{ }
 
-		view* clone() const override
-		{
-			return new view(*this);
-		}
-		void destroy() override
-		{
-			delete this;
-		}
-
 		bool op_bool() const override
 		{
 			return u.size() > 0;

@@ -6,7 +6,6 @@
 #include "tmx_instrument.h"
 #include "tmx_valuation.h"
 
-
 namespace tmx::bond {
 
 	// Basic bond indicative data.
@@ -83,70 +82,6 @@ namespace tmx::bond {
 
 #endif // _DEBUG
 
-#if 0
-
-	// fix(basic bond, date::ymd pvdate, ...) -> instrument::interface
-
-	// Return instrument cash flows for unit notional with time based on issue date.
-	template<class C = double>
-	class basic_instrument : public instrument::interface<instrument::cash_flow<U,C>> {
-		const basic<C>& bond;
-		date::ymd dated, issue;
-		date::ymd maturity;
-		std::chrono::months period;
-		date::ymd d0, d1; // current period
-	public:
-		using iterator_category = std::forward_iterator_tag;
-		using value_type = std::pair<double, C>;
-
-		basic_instrument(const basic<C>& bond, const date::ymd& dated, date::ymd issue = date::ymd{})
-			: bond(bond), dated(dated), issue(issue.ok() ? issue : dated), maturity(date::addyears(issue, bond.maturity)), period(date::period(bond.frequency))
-		{
-			if (!issue.ok()) {
-				issue = dated;
-			}
-			// Work back from maturity.
-			d0 = maturity;
-			while (d0 >= dated) { // TODO: d0 -= tenor*frequency
-				d1 = d0;
-				d0 -= period;
-			}
-		}
-		explicit operator bool() const
-		{
-			return d1 <= maturity;
-		}
-		value_type operator*() const
-		{
-			C c = bond.coupon * bond.day_count(d0, d1);
-			if (d1 == maturity) {
-				c += bond.redemption;
-			}
-			return { date::diffyears(issue, d1), c };
-		}
-		basic_instrument& operator++()
-		{
-			d0 = d1;
-			d1 += period;
-
-			return *this;
-		}
-	};
-	/*
-	template<class C>
-	constexpr auto accrued(const basic<C>& bond, const date::ymd& dated, const date::ymd& valuation)
-	{
-		auto d = dated;
-
-		while (d + bond.frequency <= valuation) {
-			d += bond.frequency;
-		}
-
-		return bond.coupon * bond.day_count_fraction(d, valuation);
-	}
-	//!!! add tests
-	*/
-#endif // 0
 } // namespace tmx::bond
 
 // class callable : public basic { ... };
