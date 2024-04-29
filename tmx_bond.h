@@ -33,7 +33,7 @@ namespace tmx::bond {
 		const auto dt = nabla(concatenate(once(pvdate), t), bond.day_count);
 
 		// convert dates to time in years from pvdate
-		const auto u = apply([pvdate](auto ymd) { return ymd - pvdate; }, t);
+		const auto u = apply([pvdate](date::ymd ymd) { return ymd - pvdate; }, t);
 		// cash flows
 		const auto c = constant(bond.face * bond.coupon) * dt;
 		// face value at maturity
