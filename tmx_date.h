@@ -223,3 +223,8 @@ inline tmx::date::ymd operator+(const tmx::date::ymd& d, double y)
 {
 	return tmx::date::addyears(d, y);
 }
+#ifdef _DEBUG
+static_assert((std::chrono::year(2023) / 4 / 5 - std::chrono::year(2023) / 4 / 5) == 0);
+static_assert(std::chrono::year(2024) / 4 / 5 - std::chrono::year(2023) / 4 / 5 >= 1);
+static_assert(std::chrono::year(2024) / 4 / 5 - std::chrono::year(2023) / 4 / 5 <= 1.01);
+#endif // _DEBUG
