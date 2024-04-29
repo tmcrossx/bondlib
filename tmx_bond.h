@@ -1,10 +1,7 @@
 // tmx_bond.h - Bonds
 #pragma once
-#include <algorithm>
-#include <vector>
 #include "tmx_date_day_count.h"
 #include "tmx_instrument.h"
-#include "tmx_valuation.h"
 
 namespace tmx::bond {
 
@@ -20,16 +17,16 @@ namespace tmx::bond {
 		C face = 100;
 	};
 
-	// Return cash flows for basic bond from present value date.
+	// Return instrument cash flows for basic bond from present value date.
 	template<class C>
-	inline auto fix(const basic<C>& bond, const date::ymd& pvdate)
+	inline auto instrument(const basic<C>& bond, const date::ymd& pvdate)
 	{
 		using namespace fms::iterable;
 
 		const auto d0 = std::max(bond.dated, pvdate);
 		const auto [d, _] = date::first_payment_date(bond.frequency, d0, bond.maturity);
 		const auto t = date::periodic(bond.frequency, d, bond.maturity);
-		const auto dt = nabla(concatenate(singleton(pvdate), t), bond.day_count);
+		const auto dt = nabla(concatenate(once(pvdate), t), bond.day_count);
 
 		const auto u = apply([pvdate](auto ymd) { return ymd - pvdate; }, t);
 		const auto c = constant(bond.face * bond.coupon) * dt;
@@ -49,7 +46,7 @@ namespace tmx::bond {
 		bond::basic<> bond{ d, d + years(10), 0.05 };
 
 		{
-			auto i = fix(bond, d);
+			auto i = instrument(bond, d);
 			assert(20 == length(i));
 			auto c0 = *i;
 			assert(c0.c == 2.5);
@@ -62,7 +59,7 @@ namespace tmx::bond {
 		}
 		{
 			auto pvdate = d + months(1);
-			auto i = fix(bond, pvdate);
+			auto i = instrument(bond, pvdate);
 			assert(20 == length(i));
 			auto c0 = *i;
 			assert(c0.c != 2.5);

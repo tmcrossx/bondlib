@@ -359,15 +359,15 @@ namespace fms::iterable {
 
 	// Iterable having exactly one element.
 	template<class T>
-	class singleton : public interface<T> {
+	class once : public interface<T> {
 		T t;
 		bool b;
 	public:
-		singleton(T t) noexcept
+		once(T t) noexcept
 			: t(t), b(true)
 		{ }
 
-		bool operator==(const singleton& o) const
+		bool operator==(const once& o) const
 		{
 			return t == o.t && b == o.b;
 		}
@@ -380,7 +380,7 @@ namespace fms::iterable {
 		{
 			return t;
 		}
-		singleton& op_incr() noexcept override
+		once& op_incr() noexcept override
 		{
 			b = false;
 

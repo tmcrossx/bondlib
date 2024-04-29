@@ -74,8 +74,8 @@ int test_constant = []() {
 
 int test_singleton = []() {
 	{
-		singleton o(1);
-		singleton o2(o);
+		once o(1);
+		once o2(o);
 		o = o2;
 		assert(o == o2);
 		assert(!(o2 != o));

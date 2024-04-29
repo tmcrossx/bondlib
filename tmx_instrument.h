@@ -95,11 +95,11 @@ namespace tmx::instrument {
 	};
 
 	// A zero coupon bond has a single cash flow.
-	// Equivalent to singleton(cash_flow(u,c)).
+	// Equivalent to once(cash_flow(u,c)).
 	template<class U = double, class C = double>
 	inline auto zero_coupon_bond(const U& u, const C& c)
 	{
-		return fms::iterable::singleton(cash_flow(u,c));
+		return fms::iterable::once(cash_flow(u,c));
 	}
 #ifdef _DEBUG
 	inline int zero_coupon_bond_test()
