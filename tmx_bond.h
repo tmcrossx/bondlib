@@ -29,13 +29,14 @@ namespace tmx::bond {
 		const auto [d, _] = date::first_payment_date(bond.frequency, d0, bond.maturity);
 		// payment dates
 		const auto t = date::periodic(bond.frequency, d, bond.maturity);
+		// convert dates to time in years from pvdate (cache is gcc workaround)
+		const auto u = cache(apply([pvdate](const date::ymd& d) { return d - pvdate; }, t));
+
 		// day count fractions
 		const auto dt = nabla(concatenate(once(pvdate), t), bond.day_count);
-
-		// convert dates to time in years from pvdate
-		const auto u = apply([pvdate](const date::ymd& d) { return d - pvdate; }, t);
 		// cash flows
 		const auto c = constant(bond.face * bond.coupon) * dt;
+
 		// face value at maturity
 		const auto f = instrument::zero_coupon_bond(bond.maturity - pvdate, bond.face);
 

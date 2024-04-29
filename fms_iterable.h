@@ -31,7 +31,7 @@ namespace fms::iterable {
 
 		virtual ~interface() { };
 		
-		explicit operator bool() const
+		operator bool() const
 		{
 			return op_bool();
 		}
@@ -85,12 +85,13 @@ namespace fms::iterable {
 	template<class T>
 	class list : public interface<T> {
 		std::vector<T> l;
-		size_t i;
+		std::size_t i;
 	public:
 		list(std::initializer_list<T> t)
 			: l(t), i(0)
 		{ }
 
+		// same vector
 		bool operator==(const list& _l) const
 		{
 			return l == _l.l && i == _l.i;
@@ -439,6 +440,8 @@ namespace fms::iterable {
 			: i0(i0), i1(i1)
 		{ }
 
+		bool operator==(const concatenate& i) const = default;
+
 		bool op_bool() const override
 		{
 			return i0 || i1;
@@ -469,6 +472,8 @@ namespace fms::iterable {
 		merge(const I0& i0, const I1& i1)
 			: i0(i0), i1(i1)
 		{ }
+
+		bool operator==(const merge& i) const = default;
 
 		bool op_bool() const override
 		{
@@ -545,12 +550,12 @@ namespace fms::iterable {
 
 		bool operator==(const apply& a) const
 		{
-			return f == a.f and i == a.i;
+			return f == a.f && i == a.i;
 		}
 
 		bool op_bool() const override
 		{
-			return i.op_bool();
+			return i;
 		}
 		U op_star() const override
 		{
@@ -592,12 +597,12 @@ namespace fms::iterable {
 
 		bool operator==(const binop& o) const
 		{
-			return i0 == o.i0 && i1 == o.i1;
+			return op == o.op && i0 == o.i0 && i1 == o.i1;
 		}
 
 		bool op_bool() const override
 		{
-			return i0.op_bool() && i1.op_bool();
+			return i0 && i1;
 		}
 		T op_star() const override
 		{
@@ -651,7 +656,7 @@ namespace fms::iterable {
 
 		bool op_bool() const override
 		{
-			return i.op_bool();
+			return i;
 		}
 		T op_star() const override
 		{
@@ -696,7 +701,7 @@ namespace fms::iterable {
 
 		bool op_bool() const override
 		{
-			return i.op_bool() && !p(*i);
+			return i && !p(*i);
 		}
 		T op_star() const override
 		{
@@ -745,7 +750,7 @@ namespace fms::iterable {
 
 		bool op_bool() const override
 		{
-			return i.op_bool();
+			return i;
 		}
 		T op_star() const override
 		{
@@ -858,7 +863,7 @@ namespace fms::iterable {
 
 		bool op_bool() const override
 		{
-			return i.op_bool();
+			return i;
 		}
 		U op_star() const override
 		{
@@ -916,7 +921,7 @@ namespace fms::iterable {
 
 		bool op_bool() const override
 		{
-			return i.op_bool();
+			return i;
 		}
 		U op_star() const override
 		{
@@ -952,6 +957,11 @@ namespace fms::iterable {
 		call(const F& f)
 			: f(f)
 		{ }
+
+		bool operator==(const call& c) const
+		{
+			return f == c.f;
+		}
 
 		bool op_bool() const override
 		{

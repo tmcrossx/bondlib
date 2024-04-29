@@ -142,21 +142,21 @@ namespace tmx::date {
 			: m(period(f)), b(b), e(e)
 		{ }
 
-		constexpr bool op_bool() const override
+		bool op_bool() const override
 		{
 			return e.ok() ? b <= e : true;
 		}
-		constexpr ymd op_star() const override
+		ymd op_star() const override
 		{
 			return b;
 		}
-		constexpr periodic& op_incr() override
+		periodic& op_incr() override
 		{
 			b += m;
 
 			return *this;
 		}
-		constexpr periodic& operator--()
+		periodic& operator--()
 		{
 			b -= m;
 
