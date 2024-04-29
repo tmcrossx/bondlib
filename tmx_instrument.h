@@ -76,15 +76,15 @@ namespace tmx::instrument {
 			: u(u), c(c)
 		{ }
 
-		constexpr bool op_bool() const override
+		bool op_bool() const override
 		{
 			return u && c;
 		}
-		constexpr cash_flow<typename U::value_type, typename C::value_type> op_star() const override
+		cash_flow<typename U::value_type, typename C::value_type> op_star() const override
 		{
 			return cash_flow(*u, *c);
 		}
-		constexpr iterable& op_incr() override
+		iterable& op_incr() override
 		{
 			++u;
 			++c;

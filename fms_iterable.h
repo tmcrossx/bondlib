@@ -518,7 +518,7 @@ namespace fms::iterable {
 	// Apply a function to elements of an iterable.
 	template<class F, input I, class T = typename I::value_type,
 		class U = std::invoke_result_t<F, T>>
-		class apply : public interface <U>
+	class apply : public interface <U>
 	{
 		const F& f;
 		I i;

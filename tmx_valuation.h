@@ -1,7 +1,7 @@
 // tmx_valuation.h - present value, duration, convexity, yield, oas
 #pragma once
 #include <cmath>
-#include "tmx_instrument.h"
+#include "tmx_instrument_value.h"
 #include "tmx_curve.h"
 #include "tmx_root1d.h"
 
@@ -31,9 +31,10 @@ namespace tmx::valuation {
 	//static_assert(present<int,int,int,int>(instrument::cash_flow(1, 1), curve::constant(0)) == 1);
 #endif // _DEBUG
 
+	// TODO: How to use instrument::interface instead of instrument::value?
 	// Present value at t of future discounted cash flows.
-	template<fms::iterable::input I, class T, class F>
-	constexpr auto present(const I& i, const curve::interface<T, F>& f, T t = 0)
+	template<class U, class C, class T, class F>
+	auto present(const instrument::value<U,C>& i, const curve::interface<T, F>& f, T t = 0)
 	{
 		return sum(apply([&f, t](const auto& uc) { return present(uc, f, t); }, i));
 	}
@@ -42,15 +43,15 @@ namespace tmx::valuation {
 #endif // _DEBUG
 
 	// Derivative of present value with respect to a parallel shift.
-	template<input I, class T, class F>
-	constexpr auto duration(const I& i, const curve::interface<T, F>& f, T t = 0)
+	template<class U, class C, class T, class F>
+	constexpr auto duration(const instrument::value<U, C>& i, const curve::interface<T, F>& f, T t = 0)
 	{
 		return sum(apply([&f, t](const auto& uc) { return -(uc.u - t) * present(uc, f, t); }, i));
 	}
 
 	// Second derivative of present value with respect to a parallel shift.
-	template<input I, class T, class F>
-	constexpr auto convexity(const I& i, const curve::interface<T, F>& f, T t = 0)
+	template<class U, class C, class T, class F>
+	constexpr auto convexity(const instrument::value<U, C>& i, const curve::interface<T, F>& f, T t = 0)
 	{
 		return sum(apply([&f, t](const auto& uc) { return (uc.u - t) * (uc.u - t) * present(uc, f, t); }, i));
 	}
@@ -84,29 +85,35 @@ namespace tmx::valuation {
 		using fms::iterable::concatenate;
 		using instrument::zero_coupon_bond;
 
-		X eps = math::sqrt_epsilon<X>;
+		X eps = X(1e-4); // math::sqrt_epsilon<X>;
 		X y0 = X(0.03);
 		X d1 = std::exp(-y0);
 		X c0 = (1 - d1 * d1) / (d1 + d1 * d1);
 		X u[] = { 1,2 };
 		X c[] = { c0, 1 + c0 };
 		// 1 = c0 exp(-y0) + (1 + c0) exp(-2 y0)
-		const auto i = concatenate(zero_coupon_bond(u[0], c[0]), zero_coupon_bond(u[1], c[1]));
-		X pv = present(i, curve::constant<X, X>(y0));
-		assert(std::fabs(pv - 1) <= eps);
+		const auto i = instrument::value(concatenate(zero_coupon_bond(u[0], c[0]), zero_coupon_bond(u[1], c[1])));
+		{
+			X pv = present(i, curve::constant<X, X>(y0));
+			assert(std::fabs(pv - 1) <= eps);
+			X _pv = present(i, curve::constant<X, X>(y0 - eps));
+			X pv_ = present(i, curve::constant<X, X>(y0 + eps));
 
+			X dur = duration(i, curve::constant<X, X>(y0));
+			X dur_ = (pv_ - _pv) / (2 * eps);
+			assert(std::fabs(dur - dur_) <= eps);
+
+			X cvx = convexity(i, curve::constant<X, X>(y0));
+			X cvx_ = (pv_ - 2 * pv + _pv) / (eps * eps);
+			assert(fabs(cvx - cvx_) < eps);
+		}
+		{
+			X pv = present(i, curve::constant<X, X>(y0), X(0.5));
+			assert(std::fabs(pv - std::exp(y0*0.5)) <= eps);
+		}
 		{
 			X y = yield(i, X(1));
 			assert(std::fabs(y - y0) <= eps);
-		}
-		// TODO: test at forward values of time.
-		{
-			// 1 = c0 exp(-y0 * .5) + (1 + c0) exp(-y0 * 1.5)
-			// yield(i, X(1), U(0.5))???
-		}
-		{
-			//X y = yield(i, X(1), X(0), y0);
-			//ensure(std::fabs(y - y0) <= eps);
 		}
 		{
 			X r = X(0.05);

@@ -13,7 +13,7 @@
 namespace tmx::curve {
 
 	// NVI idiom compiles to non-virtual function calls.
-	// Enforce preconditions for all derived curves.
+	// Enforce preconditions for all derived classes.
 	template<class T = double, class F = double>
 	class interface {
 		bool valid(T u, T t) const noexcept

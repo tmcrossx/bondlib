@@ -113,7 +113,7 @@ namespace tmx::math {
 	template<class X>
 	constexpr X pow1(X x, X a, X eps = sqrt_epsilon<X>)
 	{
-		if (fabs(x) == 1) {
+		if (fabs(x) >= 1) {
 			return infinity<X>;
 		}
 

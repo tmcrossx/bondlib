@@ -9,12 +9,12 @@ namespace tmx::bond {
 	template<class C = double>
 	struct basic 
 	{
-		date::ymd dated; // when interest starts accruing
-		date::ymd maturity; // 
-		C coupon; // not in percent
-		date::frequency frequency = date::frequency::semiannually;
+		date::ymd         dated; // when interest starts accruing
+		date::ymd         maturity;
+		C                 coupon; // not in percent
+		date::frequency   frequency = date::frequency::semiannually;
 		date::day_count_t day_count = date::day_count_isma30360;
-		C face = 100;
+		C                 face = 100;
 	};
 
 	// Return instrument cash flows for basic bond from present value date.
@@ -23,14 +23,20 @@ namespace tmx::bond {
 	{
 		using namespace fms::iterable;
 
+		// pvdate might be before dated
 		const auto d0 = std::max(bond.dated, pvdate);
+		// first cash flow date after d0
 		const auto [d, _] = date::first_payment_date(bond.frequency, d0, bond.maturity);
+		// payment dates
 		const auto t = date::periodic(bond.frequency, d, bond.maturity);
+		// day count fractions
 		const auto dt = nabla(concatenate(once(pvdate), t), bond.day_count);
 
+		// convert dates to time in years from pvdate
 		const auto u = apply([pvdate](auto ymd) { return ymd - pvdate; }, t);
+		// cash flows
 		const auto c = constant(bond.face * bond.coupon) * dt;
-		
+		// face value at maturity
 		const auto f = instrument::zero_coupon_bond(bond.maturity - pvdate, bond.face);
 
 		return cache(merge(instrument::iterable(u, c), f));
@@ -54,7 +60,7 @@ namespace tmx::bond {
 
 			i = skip(i, 19);
 			auto cn = *i;
-			assert(cn.u = bond.maturity - bond.dated);
+			assert(cn.u == (bond.maturity - bond.dated));
 			assert(cn.c == 102.5);
 		}
 		{
@@ -70,7 +76,7 @@ namespace tmx::bond {
 			assert(c1.c == 2.5);
 			i = skip(i, 18);
 			auto cn = *i;
-			assert(cn.u = bond.maturity - pvdate);
+			assert(cn.u == (bond.maturity - pvdate));
 			assert(cn.c == 102.5);
 		}
 
