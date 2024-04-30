@@ -13,6 +13,7 @@ namespace tmx::date {
 
 	using day_count_t = double(*)(const ymd&, const ymd&);
 
+    // binary operator
 	class day_count {
         day_count_t f;
     public:

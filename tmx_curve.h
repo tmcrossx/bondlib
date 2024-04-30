@@ -16,7 +16,7 @@ namespace tmx::curve {
 	// Enforce preconditions for all derived classes.
 	template<class T = double, class F = double>
 	class interface {
-		bool valid(T u, T t) const noexcept
+		bool valid(T u, T t) const
 		{
 			return 0 <= t && t <= u;
 		}
@@ -24,25 +24,25 @@ namespace tmx::curve {
 		virtual ~interface() {}
 
 		// Forward over [t, u].
-		F forward(T u, T t = 0) const noexcept
+		F forward(T u, T t = 0) const
 		{
 			return valid(u, t) ? _forward(u, t) : math::NaN<F>;
 		}
 
 		// Integral from t to u of forward. int_t^u f(s) ds.
-		F integral(T u, T t = 0) const noexcept
+		F integral(T u, T t = 0) const
 		{
 			return valid(u, t) ? _integral(u, t) : math::NaN<F>;
 		}
 
 		// Price at time t of one unit received at time u.
-		F discount(T u, T t = 0) const noexcept
+		F discount(T u, T t = 0) const
 		{
 			return valid(u, t) ? math::exp(-integral(u, t)) : math::NaN<F>;
 		}
 
 		// Spot/yield is the average of the forward over [t, u]
-		F spot(T u, T t = 0) const noexcept
+		F spot(T u, T t = 0) const
 		{
 			return valid(u, t)
 				? (u > t + math::sqrt_epsilon<T>
@@ -52,8 +52,8 @@ namespace tmx::curve {
 		}
 
 	private:
-		virtual F _forward(T u, T t) const noexcept = 0;
-		virtual F _integral(T u, T t) const noexcept = 0;
+		virtual F _forward(T u, T t) const = 0;
+		virtual F _integral(T u, T t) const = 0;
 	};
 
 	// Constant curve.
@@ -61,15 +61,15 @@ namespace tmx::curve {
 	class constant : public interface<T, F> {
 		F f;
 	public:
-		constexpr constant(F f = math::NaN<F>) noexcept
+		constexpr constant(F f = math::NaN<F>) 
 			: f(f)
 		{ }
 
-		constexpr F _forward(T, T) const noexcept override
+		constexpr F _forward(T, T) const override
 		{
 			return f;
 		}
-		constexpr F _integral(T u, T t = 0) const noexcept override
+		constexpr F _integral(T u, T t = 0) const override
 		{
 			return f * (u - t);
 		}
@@ -99,15 +99,15 @@ namespace tmx::curve {
 	class exp : public interface<T, F> {
 		F r;
 	public:
-		constexpr exp(F r = 0) noexcept
+		constexpr exp(F r = 0) 
 			: r(r)
 		{ }
 
-		constexpr F _forward(T u, T t = 0) const noexcept override
+		constexpr F _forward(T u, T t = 0) const override
 		{
 			return math::exp(r * (u - t));
 		}
-		constexpr F _integral(T u, T t = 0) const noexcept override
+		constexpr F _integral(T u, T t = 0) const override
 		{
 			T dt = u - t;
 
@@ -137,18 +137,18 @@ namespace tmx::curve {
 		F s;
 		T t0, t1;
 	public:
-		constexpr bump(F s, T t0, T t1) noexcept
+		constexpr bump(F s, T t0, T t1) 
 			: s(s), t0(t0), t1(t1)
 		{ }
 		constexpr bump(const bump& c) = default;
 		constexpr bump& operator=(const bump& c) = default;
 		constexpr ~bump() = default;
 
-		constexpr F _forward(T u, T t = 0) const noexcept override
+		constexpr F _forward(T u, T t = 0) const override
 		{
 			return s * (t0 <= u - t) * (u - t <= t1);
 		}
-		constexpr F _integral(T u, T t = 0) const noexcept override
+		constexpr F _integral(T u, T t = 0) const override
 		{
 			return s * (std::min(u, t1) - std::max(t, t0)) * (u >= t0) * (t <= t1);
 		}
@@ -171,7 +171,7 @@ namespace tmx::curve {
 	}
 #endif // _DEBUG
 
-	// Add two curves.
+	// Add two curves. Assumes lifetime of f and g.
 	template<class T = double, class F = double>
 	class plus : public interface<T, F> {
 		const interface<T, F>& f;
@@ -179,12 +179,6 @@ namespace tmx::curve {
 	public:
 		plus(const interface<T, F>& f, const interface<T, F>& g)
 			: f(f), g(g)
-		{ }
-		plus(const interface<T, F>& f, F s)
-			: f(f), g(constant(s))
-		{ }
-		plus(const interface<T, F>& f, F s, T t0, T t1)
-			: f(f), g(bump(s, t0, t1))
 		{ }
 		plus(const plus& p) = default;
 		plus& operator=(const plus& p) = default;
@@ -207,11 +201,4 @@ template<class T, class F>
 inline tmx::curve::plus<T, F> operator+(const tmx::curve::interface<T, F>& f, const tmx::curve::interface<T, F>& g)
 {
 	return tmx::curve::plus<T, F>(f, g);
-}
-
-// Add a constant spread.
-template<class T, class F>
-inline tmx::curve::plus<T, F> operator+(tmx::curve::interface<T, F>& f, F s)
-{
-	return tmx::curve::plus<T, F>(f, s);
 }

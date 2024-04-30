@@ -1,6 +1,7 @@
 // tmx_valuation.h - present value, duration, convexity, yield, oas
 #pragma once
 #include <cmath>
+#include <functional>
 #include "tmx_instrument_value.h"
 #include "tmx_curve.h"
 #include "tmx_root1d.h"
@@ -62,18 +63,18 @@ namespace tmx::valuation {
 		C y = 0.01, C tol = math::sqrt_epsilon<C>, int iter = 100)
 	{
 		const auto pv = [p,t,&i](C y_) { return present(i, curve::constant<U, C>(y_), t) - p; };
-		const auto dur = [p,t,&i](C y_) { return duration(i, curve::constant<U, C>(y_), t); };
+		const auto dur = [t,&i](C y_) { return duration(i, curve::constant<U, C>(y_), t); };
 
 		return root1d::newton(y, tol, iter).solve(pv, dur);
 	}
 
 	// Constant spread for which the present value of the instrument equals price.
 	template<input I, class T, class F>
-	inline F oas(F p, I i, const curve::interface<T, F>& f,
+	inline F oas(I i, const curve::interface<T, F>& f, F p,
 		F s = 0, T t = 0, F tol = math::sqrt_epsilon<F>, int iter = 100)
 	{
-		const auto pv = [=](F s_) { return present(i, f + s_, t) - p; };
-		const auto dur = [=](F s_) { return duration(i, f + s_, t); };
+		const auto pv = [p,t,&i,&f](F s_) { return present(i, f + curve::constant<T,F>(s_), t) - p; };
+		const auto dur = [t,&i,&f](F s_) { return duration(i, f + curve::constant<T, F>(s_), t); };
 
 		return root1d::newton(s, tol, iter).solve(pv, dur);
 	}

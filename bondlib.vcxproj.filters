@@ -21,7 +21,7 @@
     <ClInclude Include="tmx_valuation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tmx_bond.h">
+    <ClInclude Include="tmx_instrument_bond.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tmx_muni.h">

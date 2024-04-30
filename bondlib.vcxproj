@@ -146,7 +146,7 @@
     <ClInclude Include="tmx_date_business_day.h" />
     <ClInclude Include="tmx_date_holiday.h" />
     <ClInclude Include="tmx_option.h" />
-    <ClInclude Include="tmx_bond.h">
+    <ClInclude Include="tmx_instrument_bond.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="tmx_bootstrap.h" />
