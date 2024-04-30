@@ -73,14 +73,24 @@ namespace tmx::root1d {
 			return x - y / df;
 		}
 
-		// Find positive root given initial guess and derivative.
+		// Find positive root in [a, b] given initial guess and derivative.
 		template<class F, class dF>
-		constexpr X solve(const F& f, const dF& df)
+		constexpr X solve(const F& f, const dF& df, X a = -math::infinity<X>, X b = math::infinity<X>)
 		{
 			auto y0 = f(x0);
 			while (iterations-- and math::fabs(y0) > tolerance) {
 				auto x = next(x0, y0, df(x0));
-				x0 = x > 0 ? x : x0 / 2;
+
+				if (x < a) {
+					x0 = (x0 + a) / 2;
+				}
+				else if (x > b) {
+					x0 = (x0 + b) / 2;
+				}
+				else {
+					x0 = x;
+				}
+
 				y0 = f(x0);
 			}
 
