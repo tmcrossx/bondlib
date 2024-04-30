@@ -1,5 +1,5 @@
 // fms_binomial.h - Binomial model
-#pragma once
+// f(W_tau)P(Omega) = sum_j f(W_j)P(tau = j)
 #include "fms_iterable.h"
 
 namespace fms::binomial {
