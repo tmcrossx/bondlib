@@ -1,10 +1,8 @@
-// fms_iterable.h - iterator with operator bool() to detect the end
+// fms_iterable.h - iterator with operator bool() const to detect the end
 #pragma once
-#include <compare>
 #include <functional>
 #include <initializer_list>
-#include <limits>
-#include <memory>
+
 #include <type_traits>
 #include <vector>
 
@@ -24,7 +22,7 @@ namespace fms::iterable {
 //		{ ++i } -> IsReferenceToBase;
 	};
 
-	// NVI interface for input iterable.
+	// non-virtual interface for input iterable.
 	template<class T>
 	struct interface {
 		using value_type = T;
@@ -48,6 +46,73 @@ namespace fms::iterable {
 		virtual T op_star() const = 0;
 		virtual interface& op_incr() = 0;
 	};
+
+	//
+	// Stand alone functions
+	//
+
+	// All elements equal.
+	template<input I, input J>
+	inline bool equal(I i, J j) noexcept
+	{
+		while (i && j) {
+			if (*i != *j) {
+				return false;
+			}
+			++i;
+			++j;
+		}
+
+		return !i && !j;
+	}
+
+	// length(i, length(j)) = length(i) + length(j)
+	template<input I>
+	inline std::size_t length(I i, std::size_t n = 0) noexcept
+	{
+		while (i) {
+			++i;
+			++n;
+		}
+
+		return n;
+	}
+
+	// Drop at most n from the beginning.
+	template<input I>
+	inline I drop(I i, std::size_t n) noexcept
+	{
+		while (i && n > 0) {
+			++i;
+			--n;
+		}
+
+		return i;
+	}
+
+	// Last iterable element if finite length.
+	template<input I>
+	inline I back(I i)
+	{
+		I _i(i);
+
+		while (++_i) {
+			i = _i; // move, swap???
+		}
+
+		return i;
+	}
+
+	// For use with STL
+	template<input I>
+	inline I end(I i)
+	{
+		while (i) {
+			++i;
+		}
+
+		return i;
+	}
 
 	// Make STL container iterable. Assumes lifetime of c.
 	template<class C, class T = typename C::value_type>
@@ -87,6 +152,7 @@ namespace fms::iterable {
 		std::vector<T> l;
 		std::size_t i;
 	public:
+		// E.g., list({1,2,3})
 		list(std::initializer_list<T> t)
 			: l(t), i(0)
 		{ }
@@ -114,59 +180,7 @@ namespace fms::iterable {
 			return *this;
 		}
 	};
-
-	template<input I, input J>
-	inline bool equal(I i, J j) noexcept
-	{
-		while (i && j) {
-			if (*i != *j) {
-				return false;
-			}
-			++i;
-			++j;
-		}
-
-		return !i && !j;	
-	}
-
-	// length(i, length(j)) = length(i) + length(j)
-	template<input I>
-	inline std::size_t length(I i, std::size_t n = 0) noexcept
-	{
-		while (i) {
-			++i;
-			++n;
-		}
-
-		return n;
-	}
-
-	// Drop at most n from the beginning.
-	template<input I>
-	inline I skip(I i, std::size_t n) noexcept
-	{
-		while (i && n > 0) {
-			++i;
-			--n;
-		}
-
-		return i;
-	}
-
-	// Last iterable element if finite length.
-	template<input I>
-	inline I back(I i)
-	{
-		I _i(i);
-
-		while (++_i) {
-			i = _i; // move, swap???
-		}
-
-		return i;
-	}
-
-	// Constant iterable.
+	// Constant iterable: {c, c, c, ...}
 	template<class T>
 	class constant : public interface<T> {
 		T c;
@@ -175,11 +189,7 @@ namespace fms::iterable {
 			: c(c)
 		{ }
 
-		// auto operator<=>(const constant&) const = default not working for MSVC
-		bool operator==(const constant& _c) const
-		{
-			return c == _c.c;
-		}
+		bool operator==(const constant& _c) const = default;
 
 		bool op_bool() const noexcept override
 		{
@@ -195,7 +205,7 @@ namespace fms::iterable {
 		}
 	};
 
-	// t, t+1, t+2, ...
+	// t, t + 1, t + 2, ...
 	template<class T>
 	class iota : public interface<T> {
 		T t;
@@ -255,6 +265,7 @@ namespace fms::iterable {
 		}
 	};
 
+	// 1, 1, 2, 6, 24, ...
 	template<class T = double>
 	class factorial : public interface<T> {
 		T t, n;
@@ -263,10 +274,7 @@ namespace fms::iterable {
 			: t(t), n(1)
 		{ }
 
-		bool operator==(const factorial& f) const
-		{
-			return t == f.t && n == f.n;
-		}
+		bool operator==(const factorial& f) const = default;
 
 		bool op_bool() const override
 		{
@@ -289,14 +297,12 @@ namespace fms::iterable {
 	class pointer : public interface<T> {
 		T* p;
 	public:
-		pointer(T* p) noexcept
+		// pointer() is empty iterator
+		pointer(T* p = nullptr) noexcept
 			: p(p)
 		{ }
 
-		bool operator==(const pointer& _p) const
-		{
-			return p == _p.p;
-		}
+		bool operator==(const pointer& _p) const = default;
 
 		bool op_bool() const noexcept override
 		{
@@ -322,34 +328,18 @@ namespace fms::iterable {
 		null_terminated_pointer(T* p) noexcept
 			: p(p)
 		{ }
-		null_terminated_pointer(const null_terminated_pointer& _p)
-			: p(_p.p)
-		{ }
-		null_terminated_pointer& operator=(const null_terminated_pointer& _p)
-		{
-			if (this != &_p) {
-				p = _p.p;
-			}
 
-			return *this;
-		}
-		~null_terminated_pointer()
-		{ }
-
-		bool operator==(const null_terminated_pointer& _p) const
-		{
-			return p == _p.p;
-		}
-
-		bool op_bool() const noexcept override
+		bool operator==(const null_terminated_pointer& _p) const = default;
+		
+		bool op_bool() const override
 		{
 			return *p != 0;
 		}
-		T op_star() const noexcept override
+		T op_star() const override
 		{
 			return *p;
 		}
-		null_terminated_pointer& op_incr() noexcept override
+		null_terminated_pointer& op_incr() override
 		{
 			if (op_bool())
 				++p;
@@ -358,7 +348,7 @@ namespace fms::iterable {
 		}
 	};
 
-	// Iterable having exactly one element.
+	// Iterable having exactly one element. {t}
 	template<class T>
 	class once : public interface<T> {
 		T t;
@@ -368,10 +358,7 @@ namespace fms::iterable {
 			: t(t), b(true)
 		{ }
 
-		bool operator==(const once& o) const
-		{
-			return t == o.t && b == o.b;
-		}
+		bool operator==(const once& o) const = default;
 
 		bool op_bool() const noexcept override
 		{
@@ -399,10 +386,7 @@ namespace fms::iterable {
 			: i(i), n(n)
 		{ }
 
-		bool operator==(const take& t) const
-		{
-			return i == t.i && n == t.n;
-		}
+		bool operator==(const take& t) const = default;
 
 		bool op_bool() const noexcept override
 		{
@@ -427,7 +411,7 @@ namespace fms::iterable {
 	template<class T, std::size_t N>
 	inline auto array(T(&a)[N]) noexcept
 	{
-		return take<pointer<T>, T>(pointer<T>(a), N);
+		return take(pointer<T>(a), N);
 	}
 
 	// i0 then i1
@@ -509,11 +493,13 @@ namespace fms::iterable {
 					++i1;
 				}
 			}
-			else if (i0) {
-				++i0;
-			}
-			else if (i1) {
-				++i1;
+			else {
+				if (i0) {
+					++i0;
+				}
+				else if (i1) {
+					++i1;
+				}
 			}
 
 			return *this;
@@ -625,7 +611,7 @@ namespace fms::iterable {
 		I i;
 		void incr()
 		{
-			while (++i && !p(*i)) {
+			while (i && ++i && !p(*i)) {
 				;
 			}
 		}
@@ -709,9 +695,7 @@ namespace fms::iterable {
 		}
 		until& op_incr() override
 		{
-			if (op_bool()) {
-				++i;
-			}
+			++i;
 
 			return *this;
 		}
@@ -938,6 +922,8 @@ namespace fms::iterable {
 		}
 	};
 
+
+	// uptick + downtick = delta
 	template<input I, class T = typename I::value_type>
 	inline auto uptick(I i)
 	{
@@ -949,7 +935,7 @@ namespace fms::iterable {
 		return delta(i, [](T a, T b) { return std::min<T>(b - a, 0); });
 	}
 
-	// f(), f(), ...
+	// {f(), f(), f(), ...}
 	template<class F, class T = std::invoke_result_t<F>>
 	class call : public interface<T> {
 		const F& f;

@@ -1,8 +1,8 @@
 CXXFLAGS += -g -std=c++2b -D_DEBUG -Wall -Wno-unknown-pragmas
 
-bondlib: bondlib.cpp
+bondlib: bondlib.cpp fms_iterable.t.cpp
 
-.PHONY: clean test check
+.PHONY: clean
 
 clean:
 	rm -rf *.o bondlib

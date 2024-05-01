@@ -17,7 +17,7 @@ namespace tmx::instrument {
 		using cash_type = C;
 
 		U u; // time
-		C c; // amount
+		C c; // cash
 
 		constexpr cash_flow() = default;
 		constexpr cash_flow(U u, C c)
@@ -34,33 +34,20 @@ namespace tmx::instrument {
 			return { u, c };
 		}
 
-		template<class U_, class C_> 
-		constexpr bool operator==(const cash_flow<U_,C_>& cf) const
-		{
-			return u == cf.u && c == cf.c;
-		}
+		constexpr bool operator==(const cash_flow& cf) const = default;
+
 		// ordered by time
-		template<class U_, class C_>
-		constexpr bool operator<(const cash_flow<U_,C_>& cf) const
+		constexpr bool operator<(const cash_flow& cf) const
 		{
 			return u < cf.u;
 		}
 	};
 #ifdef _DEBUG
 	static_assert(cash_flow(1, 2) == cash_flow(1, 2));
-	static_assert(cash_flow(1, 2) == cash_flow(1., 2.));
-	static_assert(cash_flow(1., 2) == cash_flow(1, 2.));
 	static_assert(!(cash_flow(1, 2) < cash_flow(1, 2)));
-	static_assert(!(cash_flow(1., 2) < cash_flow(1, 2.)));
+	static_assert(!(cash_flow(1., 2.) < cash_flow(1., 2.)));
 #endif // _DEBUG
-/*
-	template<class I, class U, class C>
-	concept input = requires (I i) {
-		{ i.operator bool() } -> std::same_as<bool>;
-		{ *i } -> std::convertible_to<typename I::cash_flow<U,C>>;
-		//		{ ++i } -> IsReferenceToBase;
-	};
-*/
+
 	// A fixed income instrument is a sequence of cash flows.
 	template<class U = double, class C = double>
 	using interface = fms::iterable::interface<cash_flow<U, C>>;

@@ -19,9 +19,9 @@ namespace tmx::bootstrap {
 	inline std::pair<T, F> instrument(I i, curve::pwflat<T,F>& f, 
 		F p = 0, F _f = math::NaN<F>)
 	{
-		const auto uc = back(i);
+		const auto _u = back(i).u;
 		const auto [t_, f_] = f.back();
-		if (uc.u <= t_) { // maturity before last point on curve
+		if (_u <= t_) { // maturity before last point on curve
 			return { math::NaN<T>, math::NaN<F> };
 		}
 
