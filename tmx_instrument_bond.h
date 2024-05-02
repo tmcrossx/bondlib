@@ -26,15 +26,15 @@ namespace tmx::bond {
 		// pvdate might be before dated
 		const auto d0 = std::max(bond.dated, pvdate);
 		// first cash flow date after d0
-		const auto [d, _] = date::first_payment_date(bond.frequency, d0, bond.maturity);
+		const auto [fpd, _] = date::first_payment_date(bond.frequency, d0, bond.maturity);
 		// apply(adjust, apply(holiday, d))
 		// payment dates
-		const auto t = date::periodic(bond.frequency, d, bond.maturity);
+		const auto pd = date::periodic(bond.frequency, fpd, bond.maturity);
 		// convert dates to time in years from pvdate (cache is gcc workaround)
-		const auto u = cache(apply([pvdate](const date::ymd& d) { return d - pvdate; }, t));
+		const auto u = cache(apply([pvdate](const date::ymd& d) { return d - pvdate; }, pd));
 
 		// day count fractions
-		const auto dt = nabla(concatenate(once(pvdate), t), bond.day_count);
+		const auto dt = nabla(concatenate(once(pvdate), pd), bond.day_count);
 		// cash flows
 		const auto c = constant(bond.face * bond.coupon) * dt;
 
@@ -60,7 +60,7 @@ namespace tmx::bond {
 			assert(c0.c == 2.5);
 			assert(c0.u == d + date::period(bond.frequency) - d);
 
-			i = skip(i, 19);
+			i = drop(i, 19);
 			auto cn = *i;
 			assert(cn.u == (bond.maturity - bond.dated));
 			assert(cn.c == 102.5);
@@ -76,7 +76,7 @@ namespace tmx::bond {
 			++i;
 			auto c1 = *i;
 			assert(c1.c == 2.5);
-			i = skip(i, 18);
+			i = drop(i, 18);
 			auto cn = *i;
 			assert(cn.u == (bond.maturity - pvdate));
 			assert(cn.c == 102.5);

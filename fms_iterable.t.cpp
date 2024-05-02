@@ -1,5 +1,6 @@
 // fms_iterable.t.cpp - test fms::iterable
 #include <cassert>
+#include <cmath>
 #include <vector>
 #include "fms_iterable.h"
 #include "fms_time.h"
@@ -110,13 +111,13 @@ int test_iota = []() {
 int test_skip = []() {
 	{
 		iota<int> i;
-		i = skip(i, 2);
+		i = drop(i, 2);
 		assert(*i != 0);
 		assert(*i == 2);
 	}
 	{
 		iota<int> i;
-		auto j = skip(i, 2);
+		auto j = drop(i, 2);
 		assert(*i == 0);
 		assert(*j == 2);
 	}
@@ -252,7 +253,7 @@ int test_fold = []() {
 	{
 		fold f(std::multiplies<int>{}, iota<int>(1), 1);
 		// 1 * 1 * 2 * 3
-		f = skip(f, 3);
+		f = drop(f, 3);
 		assert(*f == 6);
 	}
 	{
@@ -351,7 +352,7 @@ int test_take = []() {
 		auto t = array(i);
 		assert(equal(t, t));
 		assert(length(t) == 3);
-		assert(length(skip(t, 1), length(t)) == 5);
+		assert(length(drop(t, 1), length(t)) == 5);
 	}
 
 	return 0;
@@ -478,10 +479,10 @@ int test_exp = []() {
 	{
 		double x = 1;
 		const auto eps = [](double x) { return x + 1 == 1; };
+		// exp(x) = sum x^n/n!
 		auto expx = sum(until(eps, power(x)/factorial()));
 		double exp1 = std::exp(1.);
-		double diff = expx - exp1;
-		assert(std::fabs(diff) <= 2*tmx::math::epsilon<double>);
+		assert(std::fabs(expx - exp1) <= 2*tmx::math::epsilon<double>);
 	}
 
 	return 0;

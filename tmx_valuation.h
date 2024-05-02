@@ -37,7 +37,9 @@ namespace tmx::valuation {
 	template<class U, class C, class T, class F>
 	auto present(const instrument::value<U,C>& i, const curve::interface<T, F>& f, T t = 0)
 	{
-		return sum(apply([&f, t](const auto& uc) { return present(uc, f, t); }, i));
+		const auto _i = filter([t, &i](const auto& uc) { return uc.u > t; }, i);
+
+		return sum(apply([&f, t](const auto& uc) { return present(uc, f, t); }, t ? _i : i));
 	}
 #ifdef _DEBUG
 	//static_assert(present<int,int,int,int>(instrument::zero_coupon_bond(1, 2), curve::constant(0)) == 2);
@@ -47,14 +49,18 @@ namespace tmx::valuation {
 	template<class U, class C, class T, class F>
 	constexpr auto duration(const instrument::value<U, C>& i, const curve::interface<T, F>& f, T t = 0)
 	{
-		return sum(apply([&f, t](const auto& uc) { return -(uc.u - t) * present(uc, f, t); }, i));
+		const auto _i = filter([t,&i](const auto& uc) { return uc.u > t; }, i);
+
+		return sum(apply([&f, t](const auto& uc) { return -(uc.u - t) * present(uc, f, t); }, t ? _i : i));
 	}
 
 	// Second derivative of present value with respect to a parallel shift.
 	template<class U, class C, class T, class F>
 	constexpr auto convexity(const instrument::value<U, C>& i, const curve::interface<T, F>& f, T t = 0)
 	{
-		return sum(apply([&f, t](const auto& uc) { return (uc.u - t) * (uc.u - t) * present(uc, f, t); }, i));
+		const auto _i = filter([t, &i](const auto& uc) { return uc.u > t; }, i);
+
+		return sum(apply([&f, t](const auto& uc) { return (uc.u - t) * (uc.u - t) * present(uc, f, t); }, t ? _i : i));
 	}
 
 	// Constant yield matching price p at t.
