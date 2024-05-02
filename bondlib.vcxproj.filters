@@ -96,6 +96,9 @@
     <ClInclude Include="fms_binomial.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="tmx_cash_flow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="bondlib.cpp">

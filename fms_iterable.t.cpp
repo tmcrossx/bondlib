@@ -219,6 +219,12 @@ int test_filter = []() {
 		assert(a);
 		assert(*a == 5);
 	}
+	{
+		iota<int> i;
+		auto j = (i > 2);
+		assert(j);
+		//assert(*j == 3);
+	}
 
 	return 0;
 	}();

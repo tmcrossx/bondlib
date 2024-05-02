@@ -985,3 +985,15 @@ inline auto operator,(const I& i, const J& j)
 	return fms::iterable::concatenate(i, j);
 }
 
+#define FMS_ITERABLE_RELATION(X) \
+	X(==, std::equal_to<T>{}) \
+	X(!=, std::not_equal_to<T>{}) \
+	X(<, std::less<T>{}) \
+	X(<=, std::less_equal<T>{}) \
+	X(>, std::greater<T>{}) \
+	X(>=, std::greater_equal<T>{}) \
+
+#define FMS_ITERABLE_RELATION_INLINE(a, b) \
+template<fms::iterable::input I, class T = typename I::value_type> \
+inline auto operator a(const I& i, T t) { return fms::iterable::filter([t](T u) { return u a t; }, i); }
+#undef FMS_ITERABLE_RELATION_INLINE

@@ -20,8 +20,9 @@ since integration is numerically more stable than differentiation.
 
 The [`tmx::curve::base`](tmx_curve.h) class provides an interface to
 discount, forward, and spot. C++ does not have
-a notion of interface but the NVI idiom can be used
-to help the compiler eliminate virtual function calls.
+a notion of interface but the 
+[NVI idiom](https://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Non-Virtual_Interface)
+can be used to specify invariants for subclasses and help the compiler eliminate virtual function calls.
 
 Subclasses must override the pure virtual `_forward` and `_integral` functions.
 Spot and discount are implemented in terms of these.
@@ -29,11 +30,11 @@ The `tmx::curve::constant` and `tmx::curve::bump` classes
 are examples of how to do this.
 
 The `tmx::curve::plus` class adds two curves. It uses const references to avoid copying
-any data used in the implementation of the `curve::base` interface.
+any data used in the implementation of the `curve::interface` class.
 
 ## Instrument
 
-The [`tmx::instrument::base`](tmx_instrument.h) class provides an interface to an iterable stream
+The [`tmx::instrument::interface`](tmx_instrument.h) class provides an interface to an iterable stream
 of cash flows. All instruments publicly inherit from
 [`fms::iterable::base`](fms_iterable.h) that uses `operator bool()` 
 to detect when there are no further cash flows,

@@ -140,6 +140,7 @@
   <ItemGroup>
     <ClInclude Include="fms_binomial.h" />
     <ClInclude Include="fms_time.h" />
+    <ClInclude Include="tmx_cash_flow.h" />
     <ClInclude Include="tmx_date_adjust.h" />
     <ClInclude Include="fms_iterable.h" />
     <ClInclude Include="tmx_curve_pwflat.h" />

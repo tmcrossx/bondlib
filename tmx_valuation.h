@@ -24,7 +24,7 @@ namespace tmx::valuation {
 
 	// Present value at t of a zero coupon bond with cash flow c at time u.
 	template<class U, class C, class T, class F>
-	constexpr auto present(const instrument::cash_flow<U, C>& uc, const curve::interface<T, F>& f, T t = 0)
+	constexpr auto present(const cash_flow<U, C>& uc, const curve::interface<T, F>& f, T t = 0)
 	{
 		return uc.c * f.discount(uc.u, t);
 	}
