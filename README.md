@@ -30,12 +30,13 @@ The `tmx::curve::constant` and `tmx::curve::bump` classes
 are examples of how to do this.
 
 The `tmx::curve::plus` class adds two curves. It uses const references to avoid copying
-any data used in the implementation of the `curve::interface` class.
+any data used in the implementation of the `curve::interface` class. 
+The referenced data is required to outlive the `curve::plus` object.
 
 ## Instrument
 
 The [`tmx::instrument::interface`](tmx_instrument.h) class provides an interface to an iterable stream
-of cash flows. All instruments publicly inherit from
+of [`tmx::cash_flows`](tmx_cash_flow.h). All instruments publicly inherit from
 [`fms::iterable::base`](fms_iterable.h) that uses `operator bool()` 
 to detect when there are no further cash flows,
 `operator*()` to get the time and amount of the current cash flow, 

@@ -27,7 +27,7 @@ namespace tmx::bond {
 		const auto d0 = std::max(bond.dated, pvdate);
 		// first cash flow date after d0
 		const auto [fpd, _] = date::first_payment_date(bond.frequency, d0, bond.maturity);
-		// apply(adjust, apply(holiday, d))
+		//!!! apply adjust holiday
 		// payment dates
 		const auto pd = date::periodic(bond.frequency, fpd, bond.maturity);
 		// convert dates to time in years from pvdate (cache is gcc workaround)
