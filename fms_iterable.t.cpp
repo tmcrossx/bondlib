@@ -73,7 +73,7 @@ int test_constant = []() {
 	return 0;
 }();
 
-int test_singleton = []() {
+int test_once = []() {
 	{
 		once o(1);
 		once o2(o);
@@ -220,10 +220,22 @@ int test_filter = []() {
 		assert(*a == 5);
 	}
 	{
-		//iota<int> i;
-		//auto j = (i > 2);
-		//assert(j);
-		//assert(*j == 3);
+		iota<int> i;
+		auto j = (i > 2);
+		assert(j);
+		assert(*j == 3);
+		++j;
+		assert(*j == 4);
+	}
+	{
+		/*
+		iota<int> i;
+		auto j = ((i >= 2) <= 4);
+		assert(*j == 2);
+		assert(*++j == 3);
+		assert(*++j == 4);
+		assert(!++j);
+		*/
 	}
 
 	return 0;
@@ -466,7 +478,7 @@ int test_cache = []() {
 
 int test_delta = []() {
 	{
-		delta d(power<int>(2)/*, std::minus<int>{}*/);
+		delta d(power<int>(2));
 		auto d2(d);
 		assert(d == d2);
 		d = d2;

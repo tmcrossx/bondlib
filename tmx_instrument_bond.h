@@ -34,9 +34,9 @@ namespace tmx::bond {
 		const auto u = cache(apply([pvdate](const date::ymd& d) { return d - pvdate; }, pd));
 
 		// day count fractions
-		const auto dt = nabla(concatenate(once(pvdate), pd), bond.day_count);
+		const auto dcf = nabla(concatenate(once(pvdate), pd), bond.day_count);
 		// cash flows
-		const auto c = constant(bond.face * bond.coupon) * dt;
+		const auto c = constant(bond.face * bond.coupon) * dcf;
 
 		// face value at maturity
 		const auto f = instrument::zero_coupon_bond(bond.maturity - pvdate, bond.face);

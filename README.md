@@ -18,7 +18,7 @@ since integration is numerically more stable than differentiation.
 
 ## Curve
 
-The [`tmx::curve::base`](tmx_curve.h) class provides an interface to
+The [`tmx::curve::interface`](tmx_curve.h) class provides an interface to
 discount, forward, and spot. C++ does not have
 a notion of interface but the 
 [NVI idiom](https://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Non-Virtual_Interface)
@@ -44,10 +44,10 @@ and `operator++()` to advance to the next cash flow.
 
 The class `tmx::instrument::zero_coupon_bond` implements an instrument with exactly one cash flow.
 
-## Value
+## Valuation
 
-The functions in the `[tmx::value](tmx_value.h)` namespace calculate 
-fixed income analytics using the curve and instrument interfaces.
+The functions in the `[tmx::valuation](tmx_valuation.h)` namespace calculate 
+fixed income analytics using the instrument and curve interfaces.
 
 The functions `compound_yield` and `continuous_yield` convert between
 the continuously compounded yield used in the internal implementation
@@ -56,11 +56,9 @@ and the compounded yields quoted in the market.
 There are also functions for computing the present value, duration, convexity, yield
 and option adjusted spread of a fixed income security.
 
-These calculations do not require the discount curve.
-
 ### Piecewise Flat
 
-[`tmx::curve::pwflat`](tmx_curve_pwflat.h) implements `tmx::curve::base` as a 
+[`tmx::curve::pwflat`](tmx_curve_pwflat.h) implements `tmx::curve::interface` as a 
 [value type](https://learn.microsoft.com/en-us/cpp/cpp/value-types-modern-cpp?view=msvc-170). 
 It uses the standalone functions from [tmx::pwflat](tmx_pwflat.h).
 
