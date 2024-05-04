@@ -23,11 +23,10 @@ namespace tmx::bond {
 	{
 		using namespace fms::iterable;
 
-		// pvdate might be before dated
+		// If pvdate is before dated use dated.
 		const auto d0 = std::max(bond.dated, pvdate);
 		// first cash flow date after d0
 		const auto [fpd, _] = date::first_payment_date(bond.frequency, d0, bond.maturity);
-		//!!! apply adjust holiday
 		// payment dates
 		const auto pd = date::periodic(bond.frequency, fpd, bond.maturity);
 		// convert dates to time in years from pvdate (cache is gcc workaround)
@@ -70,7 +69,23 @@ namespace tmx::bond {
 			auto i = instrument(bond, pvdate);
 			assert(20 == length(i));
 			auto c0 = *i;
-			assert(c0.c != 2.5);
+			assert(c0.c < 2.5);
+			assert(c0.u == bond.dated + date::period(bond.frequency) - pvdate);
+
+			++i;
+			auto c1 = *i;
+			assert(c1.c == 2.5);
+			i = drop(i, 18);
+			auto cn = *i;
+			assert(cn.u == (bond.maturity - pvdate));
+			assert(cn.c == 102.5);
+		}
+		{
+			auto pvdate = d - months(1);
+			auto i = instrument(bond, pvdate);
+			assert(20 == length(i));
+			auto c0 = *i;
+			assert(c0.c > 2.5);
 			assert(c0.u == bond.dated + date::period(bond.frequency) - pvdate);
 
 			++i;

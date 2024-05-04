@@ -298,6 +298,37 @@ namespace fms::iterable {
 		}
 	};
 
+	// 1, n, n*(n-1)/2, ..., 1
+	template<class T = std::size_t>
+	class choose : public interface<T> {
+		T n, k, nk;
+	public:
+		choose(T n)
+			: n(n), k(0), nk(1)
+		{ }
+
+		bool operator==(const choose& c) const = default;
+
+		bool op_bool() const override
+		{
+			return k <= n;
+		}
+		T op_star() const override
+		{
+			return nk;
+		}
+		choose& op_incr() override
+		{
+			if (k < n) {
+				nk *= n - k;
+				++k;
+				nk /= k;
+			}
+
+			return *this;
+		}
+	};
+
 	// Unsafe pointer interface.
 	template<class T>
 	class pointer : public interface<T> {

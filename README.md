@@ -3,9 +3,9 @@
 A fixed income security is a portfolio of zero coupon bonds.
 The _price_ of a zero coupon bond is the _discount_.
 The _present value_ of a fixed income security
-is the sum of discounted future future cash flows.
+is the sum of discounted future cash flows.
 
-Discounts are quoted in terms of rates.
+Discounts are quoted using rates.
 If $D(t)$ is the price of 1 unit of currency
 paid at time $t$ then the _spot rate_/_yield_ $r$ is defined
 by $D(t) = \exp(-t r(t))$. The _forward_ rate $f(t)$ is
@@ -22,7 +22,7 @@ The [`tmx::curve::interface`](tmx_curve.h) class provides an interface to
 discount, forward, and spot. C++ does not have
 a notion of interface but the 
 [NVI idiom](https://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Non-Virtual_Interface)
-can be used to specify invariants for subclasses and help the compiler eliminate virtual function calls.
+can be used to specify invariants for subclasses and help the compiler eliminate vtables.
 
 Subclasses must override the pure virtual `_forward` and `_integral` functions.
 Spot and discount are implemented in terms of these.
@@ -31,7 +31,7 @@ are examples of how to do this.
 
 The `tmx::curve::plus` class adds two curves. It uses const references to avoid copying
 any data used in the implementation of the `curve::interface` class. 
-The referenced data is required to outlive the `curve::plus` object.
+The referenced data are required to outlive the `curve::plus` object.
 
 ## Instrument
 
@@ -80,6 +80,7 @@ mathematical artifacts that have nothing to do with market prices.
 It is better to introduce interpolated instruments with prices that
 make sense to traders.
 
+<!---
 Let $T$ be a totally ordered set of trading times.
 
 Let $\Omega$ be the set of all possible outcomes. 
@@ -231,3 +232,4 @@ To construct a forward curve we must determine the option values past 10 years.
 Bootstrap  
 
 
+-->
