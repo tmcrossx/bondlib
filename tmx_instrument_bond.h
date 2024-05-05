@@ -1,5 +1,6 @@
 // tmx_bond.h - Bonds
 #pragma once
+#include "tmx_date_business_day.h"
 #include "tmx_date_day_count.h"
 #include "tmx_instrument.h"
 
@@ -14,6 +15,8 @@ namespace tmx::bond {
 		C                 coupon; // not in percent
 		date::frequency   frequency = date::frequency::semiannually;
 		date::day_count_t day_count = date::day_count_isma30360;
+		date::business_day::roll roll = date::business_day::roll::modified_following;
+		date::holiday::calendar::calendar_t cal = date::holiday::calendar::weekend;
 		C                 face = 100;
 	};
 

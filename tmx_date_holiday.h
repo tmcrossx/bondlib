@@ -7,6 +7,7 @@ namespace tmx::date::holiday {
 	// Return true if date is a holiday.
 	using holiday_t = bool(*)(const date::ymd&);
 
+
 	constexpr bool weekend(const date::ymd& d)
 	{
 		auto wd = std::chrono::year_month_weekday(d).weekday();
@@ -46,10 +47,19 @@ namespace tmx::date::holiday {
 		return nth_weekday(d, std::chrono::January, std::chrono::Monday, 3);
 	}
 
+	// Third Monday in February.
+	constexpr bool presidents_day(const date::ymd& d)
+	{
+		return nth_weekday(d, std::chrono::February, std::chrono::Monday, 3);
+	}
+
 	// TODO: Add more holidays
 	// Easter Sunday.
 	// Friday before Easter.
-	//constexpr bool good_friday(const date::ymd& d);
+	constexpr bool good_friday(const date::ymd& )
+	{
+		return false; /// TODO: fix this
+	}
 
 	// Last Monday in May.
 	constexpr bool memorial_day(const date::ymd& d)
