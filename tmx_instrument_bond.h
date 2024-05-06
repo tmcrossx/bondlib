@@ -10,14 +10,14 @@ namespace tmx::bond {
 	template<class C = double>
 	struct basic 
 	{
-		date::ymd         dated; // when interest starts accruing
-		date::ymd         maturity;
-		C                 coupon; // not in percent
-		date::frequency   frequency = date::frequency::semiannually;
+		date::ymd dated; // when interest starts accruing
+		date::ymd maturity;
+		C coupon; // not in percent
+		date::frequency frequency = date::frequency::semiannually;
 		date::day_count_t day_count = date::day_count_isma30360;
 		date::business_day::roll roll = date::business_day::roll::modified_following;
 		date::holiday::calendar::calendar_t cal = date::holiday::calendar::weekend;
-		C                 face = 100;
+		C face = 100;
 	};
 
 	// Return instrument cash flows for basic bond from present value date.
@@ -32,8 +32,11 @@ namespace tmx::bond {
 		const auto [fpd, _] = date::first_payment_date(bond.frequency, d0, bond.maturity);
 		// payment dates
 		const auto pd = date::periodic(bond.frequency, fpd, bond.maturity);
+		// adjust payment dates with roll convention and holiday calendar
+		const auto adjust = [&bond](const date::ymd& d) { return date::business_day::adjust(d, bond.roll, bond.cal); };
+		const auto apd = apply(adjust, pd);
 		// convert dates to time in years from pvdate (cache is gcc workaround)
-		const auto u = cache(apply([pvdate](const date::ymd& d) { return d - pvdate; }, pd));
+		const auto u = cache(apply([pvdate](const date::ymd& d) { return d - pvdate; }, apd));
 
 		// day count fractions
 		const auto dcf = nabla(concatenate(once(pvdate), pd), bond.day_count);
