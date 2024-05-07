@@ -6,7 +6,7 @@ namespace tmx {
 
 	// Cash flow at time u of amount c.
 	template<class U = double, class C = double>
-	//requires std::totally_ordered<U> && std::equality_comparable<C>
+		//requires std::totally_ordered<U> && std::equality_comparable<C>
 	struct cash_flow {
 		using time_type = U;
 		using cash_type = C;
@@ -18,6 +18,9 @@ namespace tmx {
 		constexpr cash_flow(U u, C c)
 			: u(u), c(c)
 		{ }
+		constexpr cash_flow(const cash_flow&) = default;
+		constexpr cash_flow& operator=(const cash_flow&) = default;
+		constexpr ~cash_flow() = default;
 
 		// binary operator
 		cash_flow operator()(U u_, C c_) const
@@ -48,7 +51,7 @@ namespace tmx {
 
 // Add cash flows having the same time.
 template<class U, class C>
-inline tmx::cash_flow<U, C> operator+(const tmx::cash_flow<U, C>& uc1, const tmx::cash_flow<U, C>& uc2)
+constexpr tmx::cash_flow<U, C> operator+(const tmx::cash_flow<U, C>& uc1, const tmx::cash_flow<U, C>& uc2)
 {
 	return uc1.u == uc2.u ? tmx::cash_flow(uc1.u, uc1.c + uc2.c) : tmx::cash_flow{};
 }

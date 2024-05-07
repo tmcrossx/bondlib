@@ -561,7 +561,36 @@ namespace fms::iterable {
 		}
 	};
 
+	// {f(), f(), f(), ...}
+	template<class F, class T = std::invoke_result_t<F>>
+	class call : public interface<T> {
+		const F& f;
+	public:
+		call(const F& f)
+			: f(f)
+		{ }
+
+		bool operator==(const call& c) const
+		{
+			return f == c.f;
+		}
+
+		bool op_bool() const override
+		{
+			return true;
+		}
+		T op_star() const override
+		{
+			return f();
+		}
+		call& op_incr() override
+		{
+			return *this;
+		}
+	};
+
 	// Apply a function to elements of an iterable.
+	// f(*i), f(*++i), f(*++i), ...
 	template<class F, input I, class T = typename I::value_type,
 		class U = std::invoke_result_t<F, T>>
 	class apply : public interface <U>
@@ -609,6 +638,8 @@ namespace fms::iterable {
 			return *this;
 		}
 	};
+
+	// TODO: apply(f, *i0, *i1, ...), apply(f, {*++i0, *++i1, ...}), ...
 
 	// Apply a binary operation to elements of two iterable.
 	template<class BinOp, input I0, input I1, class T0 = typename I0::value_type, class T1 = typename I1::value_type,
@@ -991,34 +1022,6 @@ namespace fms::iterable {
 		return delta(i, [](T a, T b) { return std::min<T>(b - a, 0); });
 	}
 
-	// {f(), f(), f(), ...}
-	template<class F, class T = std::invoke_result_t<F>>
-	class call : public interface<T> {
-		const F& f;
-	public:
-		call(const F& f)
-			: f(f)
-		{ }
-
-		bool operator==(const call& c) const
-		{
-			return f == c.f;
-		}
-
-		bool op_bool() const override
-		{
-			return true;
-		}
-		T op_star() const override
-		{
-			return f();
-		}
-		call& op_incr() override
-		{
-			return *this;
-		}
-	};
-
 } // namespace fms::iterable
 
 #define FMS_ITERABLE_OPERATOR(X) \
@@ -1054,11 +1057,11 @@ inline auto operator,(const I& i, const J& j)
 template<fms::iterable::input I, class T = typename I::value_type> \
 inline auto operator a(const I& i, T t) { return fms::iterable::filter([t](T u) { return u a t; }, i); }
 #undef FMS_ITERABLE_RELATION_INLINE
-*/
 template<fms::iterable::input I, class T = typename I::value_type>
 inline auto operator==(const I& i, T t) { return fms::iterable::filter([t](T u) { return u == t; }, i); }
 template<fms::iterable::input I, class T = typename I::value_type>
 inline auto operator!=(const I& i, T t) { return fms::iterable::filter([t](T u) { return u != t; }, i); }
+*/
 template<fms::iterable::input I, class T = typename I::value_type>
 inline auto operator<(const I& i, T t) { return fms::iterable::filter([t](T u) { return u < t; }, i); }
 template<fms::iterable::input I, class T = typename I::value_type>

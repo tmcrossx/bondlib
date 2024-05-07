@@ -9,6 +9,14 @@
 #endif // _DEBUG
 #include "tmx_date.h"
 
+// TMX_DAY_COUNT_, date::day_count_t, description
+#define TMX_DAY_COUNT(X) \
+	X(30_360, isma30360, "Each year is assumed to have 12 months and 360 days, with each month consisting of exactly 30 days.") \
+	X(30E_360, isma30360eom, "Each year is assumed to have 12 months and 360 days, with each month consisting of exactly 30 days. The end-of-month rule is applied.") \
+	X(ACTUAL_ACTUAL, isdaactualactual, "Actual days per year.") \
+	X(ACTUAL_360, actual360, "Actual days divided by 360.") \
+	X(ACTUAL_365, actual365fixed, "Actual days divided by 365.") \
+
 namespace tmx::date {
 
 	using day_count_t = double(*)(const ymd&, const ymd&);

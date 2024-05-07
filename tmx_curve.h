@@ -16,44 +16,40 @@ namespace tmx::curve {
 	// Enforce preconditions for all derived classes.
 	template<class T = double, class F = double>
 	class interface {
-		bool valid(T u, T t) const
-		{
-			return 0 <= t && t <= u;
-		}
 	public:
 		virtual ~interface() {}
 
-		// Forward over [t, u].
-		F forward(T u, T t = 0) const
+		// Forward over [0, u].
+		F forward(T u) const
 		{
-			return valid(u, t) ? _forward(u, t) : math::NaN<F>;
+			return u >= 0 ? _forward(u) : math::NaN<F>;
 		}
 
-		// Integral from t to u of forward. int_t^u f(s) ds.
-		F integral(T u, T t = 0) const
+		// Integral from 0 to u of forward. int_0^u f(s) ds.
+		F integral(T u) const
 		{
-			return valid(u, t) ? _integral(u, t) : math::NaN<F>;
+			return u >= 0 ? _integral(u) : math::NaN<F>;
 		}
 
 		// Price at time t of one unit received at time u.
-		F discount(T u, T t = 0) const
+		F discount(T u) const
 		{
-			return valid(u, t) ? math::exp(-integral(u, t)) : math::NaN<F>;
+			return u >= 0 ? math::exp(-integral(u)) : math::NaN<F>;
 		}
 
-		// Spot/yield is the average of the forward over [t, u]
-		F spot(T u, T t = 0) const
+		// Spot/yield is the average of the forward over [0, u]
+		F spot(T u) const
 		{
-			return valid(u, t)
-				? (u > t + math::sqrt_epsilon<T>
-					? _integral(u, t) / (u - t)
-					: _forward(u, t))
+			return u >= 0
+				? (u > math::sqrt_epsilon<T>
+					? _integral(u) / u
+					: _forward(u))
 				: math::NaN<F>;
 		}
 
 	private:
-		virtual F _forward(T u, T t) const = 0;
-		virtual F _integral(T u, T t) const = 0;
+		virtual F _forward(T u) const = 0;
+		virtual F _integral(T u) const = 0;
 	};
 
 	// Constant curve.
@@ -65,13 +61,13 @@ namespace tmx::curve {
 			: f(f)
 		{ }
 
-		constexpr F _forward(T, T) const override
+		constexpr F _forward(T) const override
 		{
 			return f;
 		}
-		constexpr F _integral(T u, T t = 0) const override
+		constexpr F _integral(T u) const override
 		{
-			return f * (u - t);
+			return f * u;
 		}
 	};
 #ifdef _DEBUG
@@ -79,14 +75,12 @@ namespace tmx::curve {
 	{
 		{
 			constant c(1.);
-			assert(math::isnan(constant(1.).forward(-1., 0.)));
-			assert(c.forward(0., 0.) == 1);
-			assert(c.forward(2., 1.) == 1);
-			assert(c.integral(0., 0.) == 0);
-			assert(c.integral(2., 0.) == 2.);
-			assert(c.spot(0., 0.) == 1);
-			assert(c.spot(1., 0.) == 1);
-			assert(c.spot(2., 1.) == 1);
+			assert(math::isnan(constant(1.).forward(-1)));
+			assert(c.forward(0.) == 1);
+			assert(c.integral(0.) == 0);
+			assert(c.integral(2.) == 2.);
+			assert(c.spot(0.) == 1);
+			assert(c.spot(1.) == 1);
 		}
 
 		return 0;
@@ -103,15 +97,13 @@ namespace tmx::curve {
 			: r(r)
 		{ }
 
-		constexpr F _forward(T u, T t = 0) const override
+		constexpr F _forward(T u) const override
 		{
-			return math::exp(r * (u - t));
+			return math::exp(r * u);
 		}
-		constexpr F _integral(T u, T t = 0) const override
+		constexpr F _integral(T u) const override
 		{
-			T dt = u - t;
-
-			return math::fabs(r * dt) < math::sqrt_epsilon<F> ? dt * (1 + r * dt) / 2 : (math::exp(r * u) - math::exp(r * t)) / r;
+			return math::fabs(r * u) < math::sqrt_epsilon<F> ? u * (1 + r * u) / 2 : (math::exp(r * u) - 1) / r;
 		}
 	};
 #ifdef _DEBUG
@@ -119,11 +111,9 @@ namespace tmx::curve {
 	{
 		{
 			exp c(1.);
-			assert(math::isnan(exp(1.).forward(-1., 0.)));
-			assert(c.forward(0., 0.) == 1);
-			assert(c.forward(2., 1.) == math::exp(1.));
-			assert(c.integral(0., 0.) == 0);
-			assert(c.integral(2., 1.) == 2.);
+			assert(math::isnan(exp(1.).forward(-1.)));
+			assert(c.forward(0.) == 1);
+			assert(c.integral(0.) == 0);
 		}
 
 		return 0;
@@ -144,13 +134,13 @@ namespace tmx::curve {
 		constexpr bump& operator=(const bump& c) = default;
 		constexpr ~bump() = default;
 
-		constexpr F _forward(T u, T t = 0) const override
+		constexpr F _forward(T u) const override
 		{
-			return s * (t0 <= u - t) * (u - t <= t1);
+			return s * (t0 <= u) * (u <= t1);
 		}
-		constexpr F _integral(T u, T t = 0) const override
+		constexpr F _integral(T u) const override
 		{
-			return s * (std::min(u, t1) - std::max(t, t0)) * (u >= t0) * (t <= t1);
+			return s * (std::min(u, t1) - std::max(T(0), t0)) * (u >= t0) * (0 <= t1);
 		}
 	};
 #ifdef _DEBUG
@@ -171,6 +161,30 @@ namespace tmx::curve {
 	}
 #endif // _DEBUG
 
+	// Shift curve forward by t.
+	template<class T = double, class F = double>
+	class translate : public interface<T, F> {
+		const interface<T, F>& f;
+		T t;
+	public:
+		translate(const interface<T, F>& f, T t)
+			: f(f), t(t)
+		{
+		}
+		translate(const translate& c) = default;
+		translate& operator=(const translate& c) = default;
+		~translate() = default;
+
+		F _forward(T u) const override
+		{
+			return f.forward(u + t);
+		}
+		F _integral(T u) const override
+		{
+			return f.integral(u) - f.integral(t);
+		}
+	};
+		
 	// Add two curves. Assumes lifetime of f and g.
 	template<class T = double, class F = double>
 	class plus : public interface<T, F> {
@@ -184,13 +198,13 @@ namespace tmx::curve {
 		plus& operator=(const plus& p) = default;
 		~plus() = default;
 
-		F _forward(T u, T t = 0) const override
+		F _forward(T u) const override
 		{
-			return f.forward(u, t) + g.forward(u, t);
+			return f.forward(u) + g.forward(u);
 		}
-		F _integral(T u, T t = 0) const override
+		F _integral(T u) const override
 		{
-			return f.integral(u, t) + g.integral(u, t);
+			return f.integral(u) + g.integral(u);
 		}
 	};
 

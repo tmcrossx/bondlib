@@ -24,62 +24,56 @@ namespace tmx::valuation {
 
 	// Present value at t of a zero coupon bond with cash flow c at time u.
 	template<class U, class C, class T, class F>
-	constexpr auto present(const cash_flow<U, C>& uc, const curve::interface<T, F>& f, T t = 0)
+	constexpr auto present(const cash_flow<U, C>& uc, const curve::interface<T, F>& f) 
 	{
-		return uc.c * f.discount(uc.u, t);
+		return uc.c * f.discount(uc.u);
 	}
 #ifdef _DEBUG
 	//static_assert(present<int,int,int,int>(instrument::cash_flow(1, 1), curve::constant(0)) == 1);
 #endif // _DEBUG
 
-	// TODO: How to use instrument::interface instead of instrument::value?
+	// TODO: How to use instrument::interface instead of instrument::view
+	// TODO: Don't compute forward value? Translate curve and divide by D(t)?
 	// Present value at t of future discounted cash flows.
 	template<class U, class C, class T, class F>
-	auto present(instrument::view<U, C> i, const curve::interface<T, F>& f, T t = 0)
+	auto present(instrument::view<U, C> i, const curve::interface<T, F>& f)
 	{
-		while ((*i).u <= t) 
-			++i;
-
-		return sum(apply([&f, t](const auto& uc) { return present(uc, f, t); }, i));
+		return sum(apply([&f](const auto& uc) { return present(uc, f); }, i));
 	}
 #ifdef _DEBUG
 	//static_assert(present<int,int,int,int>(instrument::zero_coupon_bond(1, 2), curve::constant(0)) == 2);
 #endif // _DEBUG
 
+	// TODO: risky_present(i, f, T, R) ...
+
 	// Derivative of present value with respect to a parallel shift.
 	template<class U, class C, class T, class F>
-	constexpr auto duration(instrument::view<U, C> i, const curve::interface<T, F>& f, T t = 0)
+	constexpr auto duration(instrument::view<U, C> i, const curve::interface<T, F>& f)
 	{
-		while ((*i).u <= t)
-			++i;
-
-		return sum(apply([&f, t](const auto& uc) { return -(uc.u - t) * present(uc, f, t); }, i));
+		return sum(apply([&f](const auto& uc) { return -(uc.u) * present(uc, f); }, i));
 	}
 
 	// Duration divided by present value.
 	template<class U, class C, class T, class F>
-	constexpr auto macaulay_duration(instrument::view<U, C> i, const curve::interface<T, F>& f, T t = 0)
+	constexpr auto macaulay_duration(instrument::view<U, C> i, const curve::interface<T, F>& f)
 	{
-		return duration(i, f, t)/ present(i, f, t);
+		return duration(i, f)/ present(i, f);
 	}
 
 	// Second derivative of present value with respect to a parallel shift.
 	template<class U, class C, class T, class F>
-	constexpr auto convexity(instrument::view<U, C> i, const curve::interface<T, F>& f, T t = 0)
+	constexpr auto convexity(instrument::view<U, C> i, const curve::interface<T, F>& f)
 	{
-		while ((*i).u <= t)
-			++i;
-
-		return sum(apply([&f, t](const auto& uc) { return (uc.u - t) * (uc.u - t) * present(uc, f, t); }, i));
+		return sum(apply([&f](const auto& uc) { return uc.u * uc.u * present(uc, f); }, i));
 	}
 
-	// Constant yield matching price p at t.
+	// Constant yield matching price p.
 	template<input I, class U = typename I::value_type::time_type, class C = typename I::value_type::cash_type>
-	inline C yield(const I& i, const C p = 0, U t = 0,
+	inline C yield(const I& i, const C p = 0,
 		C y = 0.01, C tol = math::sqrt_epsilon<C>, int iter = 100)
 	{
-		const auto pv = [p,t,&i](C y_) { return present(i, curve::constant<U, C>(y_), t) - p; };
-		const auto dur = [t,&i](C y_) { return duration(i, curve::constant<U, C>(y_), t); };
+		const auto pv = [p,&i](C y_) { return present(i, curve::constant<U, C>(y_)) - p; };
+		const auto dur = [&i](C y_) { return duration(i, curve::constant<U, C>(y_)); };
 
 		return root1d::newton(y, tol, iter).solve(pv, dur);
 	}
@@ -87,10 +81,10 @@ namespace tmx::valuation {
 	// Constant spread for which the present value of the instrument equals price.
 	template<input I, class T, class F>
 	inline F oas(I i, const curve::interface<T, F>& f, F p,
-		F s = 0, T t = 0, F tol = math::sqrt_epsilon<F>, int iter = 100)
+		F s = 0, F tol = math::sqrt_epsilon<F>, int iter = 100)
 	{
-		const auto pv = [p,t,&i,&f](F s_) { return present(i, f + curve::constant<T,F>(s_), t) - p; };
-		const auto dur = [t,&i,&f](F s_) { return duration(i, f + curve::constant<T, F>(s_), t); };
+		const auto pv = [p,&i,&f](F s_) { return present(i, f + curve::constant<T,F>(s_)) - p; };
+		const auto dur = [&i,&f](F s_) { return duration(i, f + curve::constant<T, F>(s_)); };
 
 		return root1d::newton(s, tol, iter).solve(pv, dur);
 	}
@@ -125,7 +119,7 @@ namespace tmx::valuation {
 			assert(fabs(cvx - cvx_) < eps);
 		}
 		{
-			X pv = present(i, curve::constant<X, X>(y0), X(0.5));
+			X pv = present(i, curve::translate(curve::constant<X, X>(y0), X(0.5)));
 			assert(std::fabs(pv - std::exp(y0*0.5)) <= eps);
 		}
 		{

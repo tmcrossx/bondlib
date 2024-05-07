@@ -32,20 +32,20 @@ namespace tmx::curve {
 
 		auto operator<=>(const pwflat&) const = default;
 
-		F _forward(T u, T t = 0) const noexcept override
+		F _forward(T u) const noexcept override
 		{
-			return tmx::pwflat::forward(u - t, t_.size(), t_.data(), f_.data(), _f);
+			return tmx::pwflat::forward(u, t_.size(), t_.data(), f_.data(), _f);
 		}
-		F _integral(T u, T t = 0) const noexcept override
+		F _integral(T u) const noexcept override
 		{
-			return tmx::pwflat::integral(u, t_.size(), t_.data(), f_.data(), _f)
-				 - tmx::pwflat::integral(t, t_.size(), t_.data(), f_.data(), _f);
+			return tmx::pwflat::integral(u, t_.size(), t_.data(), f_.data(), _f);
 		}
 
 		std::size_t size() const
 		{
 			return t_.size();
 		}
+		// TODO: iterable???
 		auto time() const
 		{
 			return std::span(t_.begin(), t_.end());
@@ -85,7 +85,7 @@ namespace tmx::curve {
 			// test one case for _value, _integral, _extrapolate, and _back.
 			pwflat<> p1(3);
 			assert(3.0 == p1.forward(0));
-			assert(15 == p1.integral(5, 0));
+			assert(15 == p1.integral(5));
 			//p1.extrapolate(7);
 			//assert(7.0 == p1.value(0));
 			//assert(21 == p1.integral(3, 0));

@@ -7,12 +7,20 @@
 #include <chrono>
 #include "fms_iterable.h"
 
+// TMX_FREQUENCY_, date::frequency, description
+#define TMX_DATE_FREQUENCY(X) \
+	X(MISSING, missing, 0, "Missing frequency.") \
+	X(ANNUALLY, annually, 1, "Yearly payments.") \
+	X(SEMIANNUALLY, semiannually, 2, "biannual payments.") \
+	X(QUARTERLY, quarterly, 4, "quarterly payments per year.") \
+	X(MONTHLY, monthly, 12, "monthly payments per year.") \
+
 using std::literals::chrono_literals::operator""y;
 
 namespace tmx::date {
 
 	// Use calendar year/month/day from <chrono> for dates.
-	using ymd = std::chrono::year_month_day;
+	using ymd = std::chrono::year_month_day; // E.g., ymd d = 2024y / 5 / 6
 
 	// Short names for constants from <chrono>	
 	constexpr time_t seconds_per_year = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::years{ 1 }).count();
@@ -20,7 +28,7 @@ namespace tmx::date {
 	constexpr double days_per_year = static_cast<double>(seconds_per_year) / seconds_per_day;
 	constexpr auto unix_epoch = std::chrono::system_clock::time_point(std::chrono::seconds(0));
 
-	// Broken down date to ymd.
+	// Broken down date to ymd. TODO: remove?
 	constexpr ymd to_ymd(int y, unsigned int m, unsigned int d)
 	{
 		return ymd(std::chrono::year(y), std::chrono::month(m), std::chrono::day(d));
@@ -28,7 +36,7 @@ namespace tmx::date {
 	static_assert(to_ymd(2023, 4, 5) == 2023y / 4 / 5);
 
 	// Break down ymd to tuple.
-	constexpr auto from_ymd(const ymd& d)
+	constexpr auto from_ymd(const ymd& d) // spread?
 	{
 		return std::tuple<int, unsigned, unsigned>(d.year(), d.month(), d.day());
 	}
@@ -114,14 +122,7 @@ namespace tmx::date {
 	}
 #endif // _DEBUG
 
-#define TMX_DATE_FREQUENCY(X) \
-	X(null ,        0) \
-	X(annually,     1) \
-	X(semiannually, 2) \
-	X(quarterly,    4) \
-	X(monthly,     12) \
-
-#define TMX_DATE_FREQUENCY_ENUM(E, N) E = N,
+#define TMX_DATE_FREQUENCY_ENUM(a, b, c, d) b = c,
 	enum class frequency {
 		TMX_DATE_FREQUENCY(TMX_DATE_FREQUENCY_ENUM)
 	};

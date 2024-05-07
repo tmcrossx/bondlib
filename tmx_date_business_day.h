@@ -2,48 +2,52 @@
 #pragma once
 #include "tmx_date_holiday_calendar.h"
 
+// Business day rolling conventions.
+#define TMX_DATE_BUSSINESS_DAY_CONVENTION(X) \
+	X(MISSING, missing, "Missing. ") \
+	X(NONE, none, "No roll.") \
+	X(FOLLOWING, following, "Following business day.") \
+	X(PREVIOUS, previous, "Previous business day.") \
+	X(MODIFIED_FOLLOWING, modified_following, "Following business day unless different month.") \
+	X(MODIFIED_PREVIOUS, modified_previous, "Previous business day unless different month.") \
+
 namespace tmx::date::business_day {
 
-	// Roll to business day conventions.
-#define TMX_DATE_BUSINESS_DAY_CONVENTION(X) \
-	X(none,               "no roll") \
-	X(following,          "following business day") \
-	X(previous,           "previous business day") \
-	X(modified_following, "following business day unless different month") \
-	X(modified_previous,  "previous business day unless different month") \
+#define TMX_DATE_BUSINESS_DAY_CONVENTION_ENUM(a, b, c) b,
 
-#define TMX_DATE_BUSINESS_DAY_CONVENTION_ENUM(E, S) E,
 	enum class roll {
-		TMX_DATE_BUSINESS_DAY_CONVENTION(TMX_DATE_BUSINESS_DAY_CONVENTION_ENUM)
+		TMX_DATE_BUSSINESS_DAY_CONVENTION(TMX_DATE_BUSINESS_DAY_CONVENTION_ENUM)
 	};
+
 #undef TMX_DATE_BUSINESS_DAY_CONVENTION_ENUM
 
 	// Move date to business day using roll convention and calendar.
 	constexpr date::ymd adjust(std::chrono::sys_days d, business_day::roll roll, holiday::calendar::calendar_t cal = holiday::weekend)
 	{
-
-		if (roll == roll::previous) {
-			while (cal(--d))
-				;
-		}
-		else if (roll == roll::following) {
-			while (cal(++d))
-				;
-		}
-		else if (roll == roll::modified_following) {
-			const auto d_ = adjust(d, roll::following, cal);
-			d = date::ymd(d_).month() == date::ymd(d).month()
-				? d_ : adjust(d, roll::previous, cal);
-		}
-		else if (roll == roll::modified_previous) {
-			const auto d_ = adjust(d, roll::previous, cal);
-			d = date::ymd(d_).month() == date::ymd(d).month()
-				? d_ : adjust(d, roll::following, cal);
-		}
-		else {
-			// next non-holiday
-			while (cal(d)) {
-				++d;
+		if (cal(d)) {
+			if (roll == roll::previous) {
+				while (cal(--d))
+					;
+			}
+			else if (roll == roll::following) {
+				while (cal(++d))
+					;
+			}
+			else if (roll == roll::modified_following) {
+				const auto d_ = adjust(d, roll::following, cal);
+				d = date::ymd(d_).month() == date::ymd(d).month()
+					? d_ : adjust(d, roll::previous, cal);
+			}
+			else if (roll == roll::modified_previous) {
+				const auto d_ = adjust(d, roll::previous, cal);
+				d = date::ymd(d_).month() == date::ymd(d).month()
+					? d_ : adjust(d, roll::following, cal);
+			}
+			else {
+				// next non-holiday
+				while (cal(d)) {
+					++d;
+				}
 			}
 		}
 

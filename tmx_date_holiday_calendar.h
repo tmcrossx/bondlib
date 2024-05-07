@@ -2,6 +2,13 @@
 #pragma once
 #include "tmx_date_holiday.h"
 
+#define TMX_DATE_HOLIDAY_CALENDAR(X) \
+	X(MISSING, none, "Missing calendar.") \
+	X(NONE, none, "No weekends or holidays") \
+	X(WEEKEND, weekend, "Saturday and Sunday") \
+	X(SIFMA, SIFMA, "US bond market") \
+	X(NYSE, NYSE, "New York Stock Exchange") \
+
 namespace tmx::date::holiday::calendar {
 
 	// Return true on non-trading days.
@@ -18,6 +25,7 @@ namespace tmx::date::holiday::calendar {
 	}
 
 	// TODO: Add more calendars
+
 	// US Bond market holidays
 	// https://www.sifma.org/resources/general/holiday-schedule/#us
 	constexpr bool SIFMA(const ymd& d)
@@ -37,7 +45,7 @@ namespace tmx::date::holiday::calendar {
 			|| holiday::christmas_day(d);
 	}
 
-	// TODO: Add more calendars
+	// New York Stock Exchange holidays
 	// https://www.sifma.org/resources/general/holiday-schedule/#us
 	constexpr bool NYSE(const ymd& d)
 	{	

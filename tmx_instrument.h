@@ -25,6 +25,8 @@ namespace tmx::instrument {
 			: u(u), c(c)
 		{ }
 
+		bool operator==(const iterable&) const = default;
+
 		bool op_bool() const override
 		{
 			return u && c;
@@ -65,4 +67,5 @@ namespace tmx::instrument {
 	}
 #endif // _DEBUG
 
+	// TODO: forward_rate_agreement
 }

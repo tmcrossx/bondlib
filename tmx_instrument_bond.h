@@ -15,8 +15,8 @@ namespace tmx::bond {
 		C coupon; // not in percent
 		date::frequency frequency = date::frequency::semiannually;
 		date::day_count_t day_count = date::day_count_isma30360;
-		date::business_day::roll roll = date::business_day::roll::modified_following;
-		date::holiday::calendar::calendar_t cal = date::holiday::calendar::weekend;
+		date::business_day::roll roll = date::business_day::roll::none;
+		date::holiday::calendar::calendar_t cal = date::holiday::calendar::none;
 		C face = 100;
 	};
 
