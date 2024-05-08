@@ -23,6 +23,15 @@ namespace fms::iterable {
 //		{ ++i } -> IsReferenceToBase;
 	};
 
+	template<class I>
+	concept has_back = requires (I i) {
+		{ i.back() } -> std::same_as<I>;
+	};
+	template<class I>
+	concept has_end = requires (I i) {
+		{ i.end() } -> std::same_as<I>;
+	};
+
 	// non-virtual interface for input iterable.
 	template<class T>
 	struct interface {
@@ -64,7 +73,7 @@ namespace fms::iterable {
 			++j;
 		}
 
-		return !i && !j;
+		return !i && !j; // both done
 	}
 
 	// length(i, length(j)) = length(i) + length(j)
@@ -83,7 +92,7 @@ namespace fms::iterable {
 	template<input I>
 	inline I drop(I i, std::size_t n) noexcept
 	{
-		while (i && n > 0) {
+		while (i && n) {
 			++i;
 			--n;
 		}
@@ -95,6 +104,10 @@ namespace fms::iterable {
 	template<input I>
 	inline I back(I i)
 	{
+		if constexpr (has_back<I>) {
+			return i.back();
+		}
+
 		I _i(i);
 
 		while (++_i) {
@@ -105,9 +118,18 @@ namespace fms::iterable {
 	}
 
 	// For use with STL
+	template<class I>
+	inline I begin(I i)
+	{
+		return i;
+	}
 	template<input I>
 	inline I end(I i)
 	{
+		if constexpr (has_end<I>) {
+			return i.end();
+		}
+
 		while (i) {
 			++i;
 		}
@@ -125,10 +147,13 @@ namespace fms::iterable {
 			: c(_c), i(c.begin())
 		{ }
 
+		// string equality
 		bool operator==(const container& _c) const
 		{
 			return &c == &_c.c && i == _c.i;
 		}
+
+		// TODO: size() ???
 
 		bool op_bool() const override
 		{
@@ -148,16 +173,50 @@ namespace fms::iterable {
 		}
 	};
 
+	// Value class.
 	template<class T>
 	class list : public interface<T> {
 		std::list<T> l;
 	public:
+		template<input I>
+		list(I i)
+		{
+			while (i) {
+				l.push_back(*i);
+				++i;
+			}
+		}
 		// E.g., list({1,2,3})
-		list(std::initializer_list<T> t)
-			: l(t)
+		list(const std::initializer_list<T>& l)
+			: l(l)
 		{ }
+		list(const list&) = default;
+		list& operator=(const list&) = default;
+		list(list&&) = default;
+		list& operator=(list&&) = default;
+		~list() = default;
 
-		// same vector
+		list& push_back(const T& t)
+		{
+			l.push_back(t);
+
+			return *this;
+		}
+		list& push_back(T&& t)
+		{
+			l.push_back(t);
+
+			return *this;
+		}
+		template<class... Args>
+		list& emplace_back(Args&&... args)
+		{
+			l.emplace_back(args...);
+
+			return *this;
+		}
+
+		// same list
 		bool operator==(const list& _l) const
 		{
 			return l == _l.l;
@@ -165,7 +224,7 @@ namespace fms::iterable {
 
 		bool op_bool() const override
 		{
-			return l.size();
+			return !l.empty();
 		}
 		T op_star() const override
 		{
@@ -175,6 +234,82 @@ namespace fms::iterable {
 		{
 			if (op_bool()) {
 				l.pop_front();
+			}
+
+			return *this;
+		}
+	};
+
+	// Value class.
+	template<input I, class T = typename I::value_type>
+	class vector : public interface<T> {
+		std::vector<T> v;
+		std::size_t n;
+	public:
+		vector(I i)
+			: n(0)
+		{
+			while (i) {
+				v.push_back(*i);
+				++i;
+			}
+		}
+		// E.g., vector({1,2,3})
+		vector(const std::initializer_list<T>& v)
+			: v(v)
+		{ }
+		vector(const vector&) = default;
+		vector& operator=(const vector&) = default;
+		vector(vector&&) = default;
+		vector& operator=(vector&&) = default;
+		~vector() = default;
+
+		// Multi-pass
+		vector& reset()
+		{
+			n = 0;
+
+			return *this;
+		}
+
+		vector& push_back(const T& t)
+		{
+			v.push_back(t);
+
+			return *this;
+		}
+		vector& push_back(T&& t)
+		{
+			v.push_back(t);
+
+			return *this;
+		}
+		template<class... Args>
+		vector& emplace_back(Args&&... args)
+		{
+			v.emplace_back(args...);
+
+			return *this;
+		}
+
+		// Strong equality.
+		bool operator==(const vector& _v) const
+		{
+			return n == _v.n && &v == &_v.v;
+		}
+
+		bool op_bool() const override
+		{
+			return n < v.size();
+		}
+		T op_star() const override
+		{
+			return v[n];
+		}
+		vector& op_incr() override
+		{
+			if (op_bool()) {
+				++n;
 			}
 
 			return *this;
@@ -320,7 +455,7 @@ namespace fms::iterable {
 		}
 		choose& op_incr() override
 		{
-			if (k < n) {
+			if (k <= n) {
 				nk *= n - k;
 				++k;
 				nk /= k;
@@ -859,41 +994,8 @@ namespace fms::iterable {
 	}
 	//inline auto horner(I i, T x, T t = 1)
 
-	// Precompute values.
-	template<input I, class T = typename I::value_type>
-	class cache : public interface<T> {
-		std::vector<T> a;
-		std::size_t n;
-	public:
-		// Consume i.
-		cache(I i)
-			: n(0)
-		{
-			while (i) {
-				a.push_back(*i);
-				++i;
-			}
-		}
 
-		bool op_bool() const override
-		{
-			return n < a.size();
-		}
-		T op_star() const override
-		{
-			return a[n];
-		}
-		cache& op_incr() override
-		{
-			if (op_bool()) {
-				++n;
-			}
-
-			return *this;
-		}
-	};
-
-	// d(*++i, *i), d(*++++i, *++i), ...
+	// d(i[1], i[0]), d(i[2], i[1]), ...
 	template<input I, class T = typename I::value_type, class D = std::minus<T>, typename U = std::invoke_result_t<D,T,T>>
 	class delta : public interface<U> {
 		const D& d;
@@ -951,7 +1053,7 @@ namespace fms::iterable {
 		}
 	};
 
-	// reversed delta d(*++i, *i), d(*++++i, *++i), ...
+	// reversed delta d(i[0]], i[1]), d(i[1], i[2]), ...
 	template<input I, class T = typename I::value_type, class D = std::minus<T>, typename U = std::invoke_result_t<D, T, T>>
 	class nabla : public interface<U> {
 		const D& d;

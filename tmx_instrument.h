@@ -21,17 +21,28 @@ namespace tmx::instrument {
 		U u;
 		C c;
 	public:
+		using value_type = cash_flow<typename U::value_type, typename C::value_type>;
+
 		iterable(const U& u, const C& c)
 			: u(u), c(c)
 		{ }
 
 		bool operator==(const iterable&) const = default;
 
+		U time() const
+		{
+			return u;
+		}
+		C cash() const
+		{
+			return c;
+		}
+
 		bool op_bool() const override
 		{
 			return u && c;
 		}
-		cash_flow<typename U::value_type, typename C::value_type> op_star() const override
+		value_type op_star() const override
 		{
 			return cash_flow(*u, *c);
 		}
@@ -42,8 +53,11 @@ namespace tmx::instrument {
 
 			return *this;
 		}	
-
 	};
+
+	// Value type for instrument.
+	template<class U, class C>
+	using vector = instrument::iterable<fms::iterable::vector<U>, fms::iterable::vector<C>>;
 
 	// A zero coupon bond has a single cash flow.
 	// Equivalent to once(cash_flow(u,c)).

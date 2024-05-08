@@ -12,7 +12,7 @@ namespace tmx::bond {
 	{
 		date::ymd dated; // when interest starts accruing
 		date::ymd maturity;
-		C coupon; // not in percent
+		C coupon; // not in percent, e.g., 0.05 instead of 5%
 		date::frequency frequency = date::frequency::semiannually;
 		date::day_count_t day_count = date::day_count_isma30360;
 		date::business_day::roll roll = date::business_day::roll::none;
@@ -36,7 +36,7 @@ namespace tmx::bond {
 		const auto adjust = [&bond](const date::ymd& d) { return date::business_day::adjust(d, bond.roll, bond.cal); };
 		const auto apd = apply(adjust, pd);
 		// convert dates to time in years from pvdate (cache is gcc workaround)
-		const auto u = cache(apply([pvdate](const date::ymd& d) { return d - pvdate; }, apd));
+		const auto u = vector(apply([pvdate](const date::ymd& d) { return d - pvdate; }, apd));
 
 		// day count fractions
 		const auto dcf = nabla(concatenate(once(pvdate), apd), bond.day_count);
@@ -46,7 +46,7 @@ namespace tmx::bond {
 		// face value at maturity
 		const auto f = instrument::zero_coupon_bond(bond.maturity - pvdate, bond.face);
 
-		return cache(merge(instrument::iterable(u, c), f));
+		return vector(merge(instrument::iterable(u, c), f));
 	}
 #ifdef _DEBUG
 

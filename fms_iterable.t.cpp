@@ -68,8 +68,17 @@ int test_constant = []() {
 	assert(c);
 	assert(*c == 1);
 
-	auto cc  = constant(1.)* constant(2.);
+	auto cc  = constant(1.) * constant(2.);
 
+	return 0;
+}();
+
+int test_choose = []() {
+	{
+		list l({ 1,3,3,1 });
+		choose c(3);
+		assert(equal(l, c));
+	}
 	return 0;
 }();
 
@@ -451,11 +460,11 @@ int test_merge = []() {
 	return 0;
 }();
 
-int test_cache = []() {
+int test_vector = []() {
 	{
 		int i[] = { 1, 2, 3 };
 		auto p = array(i);
-		auto c = cache(p);
+		auto c = vector(p);
 		assert(c);
 		assert(*c == 1);
 		++c;
@@ -466,10 +475,10 @@ int test_cache = []() {
 		++c;
 		assert(!c);
 
-		auto cc = cache(c);
+		auto cc = vector(c);
 		assert(equal(cc, c));
 
-		cache ccc(cc);
+		vector ccc(cc);
 		assert(equal(ccc, c));
 	}
 
