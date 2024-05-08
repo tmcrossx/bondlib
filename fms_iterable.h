@@ -2,6 +2,7 @@
 #pragma once
 #include <functional>
 #include <initializer_list>
+#include <list>
 
 #include <type_traits>
 #include <vector>
@@ -97,7 +98,7 @@ namespace fms::iterable {
 		I _i(i);
 
 		while (++_i) {
-			i = _i; // move, swap???
+			i = _i;
 		}
 
 		return i;
@@ -149,37 +150,37 @@ namespace fms::iterable {
 
 	template<class T>
 	class list : public interface<T> {
-		std::vector<T> l;
-		std::size_t i;
+		std::list<T> l;
 	public:
 		// E.g., list({1,2,3})
 		list(std::initializer_list<T> t)
-			: l(t), i(0)
+			: l(t)
 		{ }
 
 		// same vector
 		bool operator==(const list& _l) const
 		{
-			return l == _l.l && i == _l.i;
+			return l == _l.l;
 		}
 
 		bool op_bool() const override
 		{
-			return i < l.size();
+			return l.size();
 		}
 		T op_star() const override
 		{
-			return l[i];
+			return l.front();
 		}
 		list& op_incr() override
 		{
 			if (op_bool()) {
-				++i;
+				l.pop_front();
 			}
 
 			return *this;
 		}
 	};
+
 	// Constant iterable: {c, c, c, ...}
 	template<class T>
 	class constant : public interface<T> {
