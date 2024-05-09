@@ -57,10 +57,10 @@ The class `tmx::instrument::zero_coupon_bond` implements an instrument with exac
 
 ## Valuation
 
-The functions in the `[tmx::valuation](tmx_valuation.h)` namespace calculate 
+The functions in the [`tmx::valuation`](tmx_valuation.h) namespace calculate 
 fixed income analytics using the instrument and curve interfaces.
 
-The functions `[compound_yield](tmx_valuation.h#:~:text=compound_yield)` and `continuous_yield` convert between
+The functions [`compound_yield`](tmx_valuation.h#:~:text=compound_yield) and `continuous_yield` convert between
 the continuously compounded yield used in the internal implementation
 and the compounded yields quoted in the market.
 
