@@ -100,7 +100,7 @@ namespace fms::iterable {
 		return i;
 	}
 
-	// Last iterable element if finite length.
+	// Last element of iterable.
 	template<input I>
 	inline I back(I i)
 	{
@@ -123,6 +123,7 @@ namespace fms::iterable {
 	{
 		return i;
 	}
+	// ++back(i)
 	template<input I>
 	inline I end(I i)
 	{

@@ -33,13 +33,16 @@ namespace tmx::bond {
 		// payment dates
 		const auto pd = date::periodic(bond.frequency, fpd, bond.maturity);
 		// adjust payment dates with roll convention and holiday calendar
-		const auto adjust = [&bond](const date::ymd& d) { return date::business_day::adjust(d, bond.roll, bond.cal); };
+		const auto adjust = [&bond](const date::ymd& d) {
+			return date::business_day::adjust(d, bond.roll, bond.cal); 
+		};
 		const auto apd = apply(adjust, pd);
 		// convert dates to time in years from pvdate (cache is gcc workaround)
 		const auto u = vector(apply([pvdate](const date::ymd& d) { return d - pvdate; }, apd));
 
 		// day count fractions
 		const auto dcf = nabla(concatenate(once(pvdate), apd), bond.day_count);
+		//TODO: fix // const auto dcf = constant(-1) * delta(concatenate(once(pvdate), apd), bond.day_count);
 		// cash flows
 		const auto c = constant(bond.face * bond.coupon) * dcf;
 

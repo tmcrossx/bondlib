@@ -12,12 +12,12 @@ namespace tmx::valuation {
 
 	// Convert between continuous and compounded rate using (1 + y/n)^n = e^r
 	template<class X>
-	inline X continuous_yield(X y, unsigned n)
+	inline X continuous_rate(X y, unsigned n)
 	{
 		return X(std::log(std::pow(1 + y / n, n)));
 	}
 	template<class X>
-	inline X compound_yield(X r, unsigned n)
+	inline X compound_rate(X r, unsigned n)
 	{
 		return X(n*(std::exp(r/n) - 1));
 	}
@@ -128,8 +128,8 @@ namespace tmx::valuation {
 		}
 		{
 			X r = X(0.05);
-			X y2 = compound_yield(r, 2);
-			X r2 = continuous_yield(y2, 2);
+			X y2 = compound_rate(r, 2);
+			X r2 = continuous_rate(y2, 2);
 			assert(std::fabs(r - r2) <= math::epsilon<X>);
 		}
 

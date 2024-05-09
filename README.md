@@ -1,20 +1,29 @@
 # BondLib
 
-A fixed income security is a portfolio of zero coupon bonds.
-The _price_ of a zero coupon bond is the _discount_.
-The _present value_ of a fixed income security
-is the sum of discounted future cash flows.
+Fixed income instruments pay fixed cash flows at fixed times.
+The simplest fixed income instrument is a zero coupon bond that pays 1 unit at _maturity_ $u$.
+The _price_ of a zero coupon bond is the _discount_, $D(u)$.
 
-Discounts are quoted using rates.
-If $D(t)$ is the price of 1 unit of currency
-paid at time $t$ then the _spot rate_/_yield_ $r$ is defined
+Discounts are _quoted_ using rates.
+The _spot rate_ $r(t)$ is defined
 by $D(t) = \exp(-t r(t))$. The _forward_ rate $f(t)$ is
 defined by $D(t) = \exp(-\int_0^t f(s)\,ds)$.
 This implies the spot $r(t) = (1/t)\int_0^t f(s)\,ds$
 is the average forward rate over the interval $[0, t]$.
-This also shows $f(t) = r(t) + t r'(t)$.
+This also shows the forward $f(t) = r(t) + t r'(t)$.
 We use a forward curve to implement spot and discount
 since integration is numerically more stable than differentiation.
+
+Market rates are quoted using _compounding_. If rate $r_n$ is compounded
+$n$ times per year then $(1 + r_n/n)^n = \exp(r)$
+so $r = n \log(1 + r_n/n)$.
+
+A fixed income instrument pays cash flows $c_j$ at times $u_j$.
+It is just a _portfolio_ of zero coupon bonds.
+The _present value_ of a fixed income security
+is the sum of discounted future cash flows, $p = \sum_j c_j D(u_j)$.
+The _yield_ of a fixed income security given a price $p$ is the constant $y$
+with $p = \sum_j c_j \exp(-y u_j)$.
 
 ## Curve
 
