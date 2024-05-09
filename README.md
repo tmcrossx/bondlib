@@ -16,18 +16,20 @@ since integration is numerically more stable than differentiation.
 
 Market rates are quoted using _compounding_. If rate $r_n$ is compounded
 $n$ times per year then $(1 + r_n/n)^n = \exp(r)$
-so $r = n \log(1 + r_n/n)$.
+so $r_n = n(\exp(r/n) - 1)$
 
-A fixed income instrument pays cash flows $c_j$ at times $u_j$.
-It is just a _portfolio_ of zero coupon bonds.
-The _present value_ of a fixed income security
-is the sum of discounted future cash flows, $p = \sum_j c_j D(u_j)$.
+A fixed income instrument is a portfolio of zero coupons bonds paying cash flows $c_j$ at times $u_j$.
 The _yield_ of a fixed income security given a price $p$ is the constant $y$
 with $p = \sum_j c_j \exp(-y u_j)$.
 
+The _present value_ of a fixed income security
+is the sum of discounted future cash flows, $p = \sum_j c_j D(u_j)$.
+The _duration_ of a fixed income security is the derivative of the present value with respect to a
+parallel shift in the forward curve. The _convexity_ is the second derivative.
+
 ## Curve
 
-The [`tmx::curve::interface`](tmx_curve.h) class provides an interface to
+The [`tmx::curve::interface`](tmx_curve.h#:~:text=class%20interface) class provides an interface to
 discount, forward, and spot. C++ does not have
 a notion of interface but the 
 [NVI idiom](https://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Non-Virtual_Interface)
@@ -35,7 +37,7 @@ can be used to specify invariants for subclasses and help the compiler eliminate
 
 Subclasses must override the pure virtual `_forward` and `_integral` functions.
 Spot and discount are implemented in terms of these.
-The `tmx::curve::constant` and `tmx::curve::bump` classes
+The `tmx::curve::constant`, `tmx::curve::exponential`, and `tmx::curve::bump` classes
 are examples of how to do this.
 
 The `tmx::curve::plus` class adds two curves. It uses const references to avoid copying
@@ -58,7 +60,7 @@ The class `tmx::instrument::zero_coupon_bond` implements an instrument with exac
 The functions in the `[tmx::valuation](tmx_valuation.h)` namespace calculate 
 fixed income analytics using the instrument and curve interfaces.
 
-The functions `compound_yield` and `continuous_yield` convert between
+The functions `[compound_yield](tmx_valuation.h#:~:text=compound_yield)` and `continuous_yield` convert between
 the continuously compounded yield used in the internal implementation
 and the compounded yields quoted in the market.
 
