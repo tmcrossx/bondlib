@@ -14,12 +14,12 @@ namespace tmx::valuation {
 	template<class X>
 	inline X continuous_rate(X y, unsigned n)
 	{
-		return std::fabs(y) <= math::epsilon<X> ? y : X(std::log(std::pow(1 + y / n, n)));
+		return X(std::log(std::pow(1 + y / n, n)));
 	}
 	template<class X>
 	inline X compound_rate(X r, unsigned n)
 	{
-		return std::fabs(r) <= math::epsilon<X> ? r : X(n * std::expm1(r / n));
+		return X(n * std::expm1(r / n));
 	}
 
 	// Present value at t of a zero coupon bond with cash flow c at time u.
