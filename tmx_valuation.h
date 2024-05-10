@@ -19,7 +19,7 @@ namespace tmx::valuation {
 	template<class X>
 	inline X compound_rate(X r, unsigned n)
 	{
-		return X(n*(std::exp(r/n) - 1));
+		return X(n * std::expm1(r / n));
 	}
 
 	// Present value at t of a zero coupon bond with cash flow c at time u.

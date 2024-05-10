@@ -1,4 +1,4 @@
-// tmx_curve_pwflat.h - Piecewise flat forward curve
+// tmx_curve_pwflat.h - Piecewise flat forward curve value type.
 #pragma once
 #include <compare>
 #include <span>
