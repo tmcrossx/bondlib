@@ -24,7 +24,8 @@ int test_sd = math::sd_test();
 
 int test_hypergeometric = math::hypergeometric_test();
 
-//int test_curve_constant = curve::constant<>::test();
+int test_curve_constant = curve::constant_test();
+int test_exponential = curve::exponential_test();
 int test_date = date::test();
 //int test_variate_normal = variate::normal<>::test();
 //<<<<<<< main
@@ -43,6 +44,7 @@ int test_date_periodic = date::periodic::test();
 int test_tmx_curve_constant = curve::constant_test();
 int test_tmx_curve_bump = curve::bump_test();
 int test_instrument_zcb = instrument::zero_coupon_bond_test();
+int test_instrument_iterable = instrument::iterable_test();
 //int test_instrument_view = view<>::test();
 //int test_instrument_value = value<>::test();
 int test_valuation_yield_d = valuation::yield_test<double>();

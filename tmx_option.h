@@ -1,5 +1,5 @@
 ﻿// tmx_option.h - Fischer Black model
-// F = f exp(sX - κ(s)) where X has mean 0, variance 1, and κ(s) = log E[exp(s X)].
+// F = f exponential(sX - κ(s)) where X has mean 0, variance 1, and κ(s) = log E[exponential(s X)].
 // Note E[F] = f and Var(log F) = s^2.
 #pragma once
 #include <cmath>
@@ -19,7 +19,7 @@ namespace tmx::option {
 
 		return (std::log(k / f) + v.cgf(s)) / s;
 	}
-	// exp(rt)X = F, sigma = s sqrt(t)
+	// exponential(rt)X = F, sigma = s sqrt(t)
 	template<class R, class X, class S, class K, class T>
 	inline auto moneyness(R r, X x, S sigma, K k, T t, const variate::interface<X, S>& v = variate::normal<X, S>{})
 	{

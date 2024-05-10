@@ -19,12 +19,12 @@ namespace tmx::variate {
 		{
 			return _cdf(x, s);
 		}
-		// Cumulant generating function log E[exp(sX)].
+		// Cumulant generating function log E[exponential(sX)].
 		S cgf(S s) const
 		{
 			return _cgf(s);
 		}
-		// Moment generating function E[exp(sX)].
+		// Moment generating function E[exponential(sX)].
 		S mgf(S s) const
 		{
 			return _mgf(s);

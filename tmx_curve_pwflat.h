@@ -22,13 +22,11 @@ namespace tmx::curve {
 		pwflat(size_t n, const T* t_, const F* f_, F _f = math::NaN<F>)
 			: t_(t_, t_ + n), f_(f_, f_ + n), _f(_f)
 		{ }
-		/*
 		pwflat(const pwflat&) = default;
 		pwflat& operator=(const pwflat&) = default;
 		pwflat(pwflat&&) = default;
 		pwflat& operator=(pwflat&&) = default;
 		~pwflat() = default;
-		*/
 
 		auto operator<=>(const pwflat&) const = default;
 

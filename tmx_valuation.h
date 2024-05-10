@@ -102,7 +102,7 @@ namespace tmx::valuation {
 		X c0 = (1 - d1 * d1) / (d1 + d1 * d1);
 		X u[] = { 1,2 };
 		X c[] = { c0, 1 + c0 };
-		// 1 = c0 exp(-y0) + (1 + c0) exp(-2 y0)
+		// 1 = c0 exponential(-y0) + (1 + c0) exponential(-2 y0)
 		const auto i = instrument::value(concatenate(zero_coupon_bond(u[0], c[0]), zero_coupon_bond(u[1], c[1])));
 		{
 			X pv = present(i, curve::constant<X, X>(y0));

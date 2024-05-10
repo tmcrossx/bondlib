@@ -128,7 +128,7 @@ namespace tmx {
 #undef IS_NAN
 #endif // _DEBUG
 
-		// discount D(u) = exp(-int_0^u f(t) dt)
+		// discount D(u) = exponential(-int_0^u f(t) dt)
 		template<class T, class F>
 		constexpr F discount(T u, size_t n, const T* t, const F* f, F _f = math::NaN<F>)
 		{

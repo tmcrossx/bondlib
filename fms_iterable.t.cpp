@@ -27,6 +27,20 @@ int test_container = []() {
 		++c;
 		assert(!c);
 	}
+	{
+		std::vector v{ 1,2,3 };
+		container c(v);
+		int i = 1;
+		for (auto ci : c) {
+			assert(i == ci);
+			++i;
+		}
+	}
+	{
+		std::vector v{ 1,2,3 };
+		container c(v);
+		assert(equal(c, take(iota(1), 3)));
+	}
 
 	return 0;
 }();
@@ -506,7 +520,7 @@ int test_exp = []() {
 	{
 		double x = 1;
 		const auto eps = [](double x) { return x + 1 == 1; };
-		// exp(x) = sum x^n/n!
+		// exponential(x) = sum x^n/n!
 		auto expx = sum(until(eps, power(x)/factorial()));
 		double exp1 = std::exp(1.);
 		assert(std::fabs(expx - exp1) <= 2*tmx::math::epsilon<double>);

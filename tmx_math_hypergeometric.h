@@ -62,7 +62,7 @@ namespace tmx::math {
 		return _1F1(1., 1., x, eps);
 	}
 #ifdef _DEBUG
-	// constexpr double ee = math::exp(1.);
+	// constexpr double ee = math::exponential(1.);
 	static_assert(exp(1.) == 2.7182818282861687); 
 	                      // 2.71828182845904523536028747135266249775724709369995
 #endif // _DEBUG

@@ -53,6 +53,44 @@ namespace tmx::instrument {
 			return *this;
 		}	
 	};
+#ifdef _DEBUG
+	inline int iterable_test()
+	{
+		{
+			auto u = std::vector({ 1,2,3 });
+			auto c = std::vector({ 2,3,4 });
+			auto i = iterable(fms::iterable::container(u), fms::iterable::container(c));
+			assert(i);
+			assert(*i == cash_flow(1, 2));
+			++i;
+			assert(i);
+			assert(*i == cash_flow(2, 3));
+			++i;
+			assert(i);
+			assert(*i == cash_flow(3, 4));
+			++i;
+			assert(!i);
+		}
+		{
+			auto u = std::vector({ 1,2,3 });
+			auto c = std::vector({ 2,3,4 });
+			auto ii = iterable(fms::iterable::container(u), fms::iterable::container(c));
+			auto i = iterable(ii.time(), ii.cash());
+			assert(i);
+			assert(*i == cash_flow(1, 2));
+			++i;
+			assert(i);
+			assert(*i == cash_flow(2, 3));
+			++i;
+			assert(i);
+			assert(*i == cash_flow(3, 4));
+			++i;
+			assert(!i);
+		}
+
+		return 0;
+	}
+#endif // _DEBUG
 
 	// Value type for instrument.
 	template<class U, class C>

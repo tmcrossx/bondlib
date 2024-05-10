@@ -1,12 +1,12 @@
 ﻿// tmx_ho_lee.h - Ho-Lee model with constant volatility.
-// D_t = exp(-int_0^t φ(s) ds - int_0^t σ(t - s) dB_s)
-//     ~ exp(-int_0^t φ(s) ds - B_t σ t/sqrt(3))
-//     = D(t) exp(-σ^2 t^3/6 - B_t σ t/sqrt(3))
+// D_t = exponential(-int_0^t φ(s) ds - int_0^t σ(t - s) dB_s)
+//     ~ exponential(-int_0^t φ(s) ds - B_t σ t/sqrt(3))
+//     = D(t) exponential(-σ^2 t^3/6 - B_t σ t/sqrt(3))
 // Var(int_0^t σ(t - s) dB_s) = σ^2 int_0^t (t - s)^2 ds = σ^2 t^3/3
-// D(t) = E[D_t] = exp(-int_0^t φ(s) ds + σ^2 t^3/6)
-// D_t(u) = exp(-int_t^u φ(s) ds + σ^2 (u - t)^3/6 - σ (u - t) B_t)
-//        = D(u)/D(t) exp(σ^2 [-u^3 + t^3 + (u - t)^3]/6 - σ (u - t) B_t)
-//        = D(u)/D(t) exp(σ^2 [-3u^2 t + 3 u t^2]/6 - σ (u - t) B_t)
+// D(t) = E[D_t] = exponential(-int_0^t φ(s) ds + σ^2 t^3/6)
+// D_t(u) = exponential(-int_t^u φ(s) ds + σ^2 (u - t)^3/6 - σ (u - t) B_t)
+//        = D(u)/D(t) exponential(σ^2 [-u^3 + t^3 + (u - t)^3]/6 - σ (u - t) B_t)
+//        = D(u)/D(t) exponential(σ^2 [-3u^2 t + 3 u t^2]/6 - σ (u - t) B_t)
 // E[log D_t(u)] = log(D(u)/D(t)) - σ^2 ut (u - t)/2
 // Var(log D_t(u)) = σ^2 (u - t)^2 t
 #pragma once
@@ -64,7 +64,7 @@ namespace tmx::ho_lee {
 	{
 		return σ * σ * (u - t) * (v - t) * t;
 	}
-	// E[e^N e^M] = E[e^N] E[e^M] exp(Cov(N,M))
+	// E[e^N e^M] = E[e^N] E[e^M] exponential(Cov(N,M))
 	// Cov(D_t(u), D_t(v))
 	template<class X = double>
 	inline auto CovD(X Dt, X Du, X Dv, X t, X u, X v, X σ)
@@ -122,7 +122,7 @@ namespace tmx::ho_lee {
 	// E[f(B_t) e^N] = E[f(B_t + Cov(B_t, N))] E[e^N]
 	// E[(P_t - p)^+ D_t] 
 	// = E[(sum_{u_j > t} c_j D_t(u_j) - p)^+ D_t]
-	// = E[(sum_{u_j > t} c_j D_t(u_j) exp(σ^2(u_j - t) - p)^+] D(t)
+	// = E[(sum_{u_j > t} c_j D_t(u_j) exponential(σ^2(u_j - t) - p)^+] D(t)
 	template<class U, class C, class T, class F>
 	inline F option(const instrument::interface<U, C>& i, const curve::interface<T, F>& f, T t, F σ, F p)
 	{

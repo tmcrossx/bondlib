@@ -1,8 +1,4 @@
 // tmx_curve.h - Forward curve interface.
-// D(u, t) is the discount over [t, u].
-// Forward f and spot/yield r are related to discount by
-// D(u, t) = exp(-int_t^u f(s) ds) = exp(-r(u, t)(u - t)).
-// Note r(u, t) = int_t^u f(s) ds/(u - t) is the average forward rate over [t, u].
 #pragma once
 #ifdef _DEBUG
 #include<cassert>
@@ -19,25 +15,26 @@ namespace tmx::curve {
 	public:
 		virtual ~interface() {}
 
-		// Forward over [0, u].
+		// Forward at u: f(u).
 		F forward(T u) const
 		{
 			return u >= 0 ? _forward(u) : math::NaN<F>;
 		}
 
-		// Integral from 0 to u of forward. int_0^u f(s) ds.
+		// Integral from 0 to u of forward: int_0^u f(s) ds.
 		F integral(T u) const
 		{
 			return u >= 0 ? _integral(u) : math::NaN<F>;
 		}
 
-		// Price at time t of one unit received at time u.
+		// Price of one unit received at time u.
 		F discount(T u) const
 		{
 			return u >= 0 ? math::exp(-integral(u)) : math::NaN<F>;
 		}
 
-		// Spot/yield is the average of the forward over [0, u]
+		// Spot/yield is the average of the forward over [0, u].
+		// If u is small, use the forward.
 		F spot(T u) const
 		{
 			return u >= 0
@@ -90,10 +87,10 @@ namespace tmx::curve {
 
 	// Exponential curve e^{rt}
 	template<class T = double, class F = double>
-	class exp : public interface<T, F> {
+	class exponential : public interface<T, F> {
 		F r;
 	public:
-		constexpr exp(F r = 0) 
+		constexpr exponential(F r = 0) 
 			: r(r)
 		{ }
 
@@ -107,13 +104,14 @@ namespace tmx::curve {
 		}
 	};
 #ifdef _DEBUG
-	inline int exp_test()
+	inline int exponential_test()
 	{
 		{
-			exp c(1.);
-			assert(math::isnan(exp(1.).forward(-1.)));
+			exponential c(1.);
+			assert(math::isnan(exponential(1.).forward(-1.)));
 			assert(c.forward(0.) == 1);
 			assert(c.integral(0.) == 0);
+			assert(c.integral(1.) == math::exp(1.) - 1);
 		}
 
 		return 0;

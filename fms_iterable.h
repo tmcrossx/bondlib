@@ -148,6 +148,15 @@ namespace fms::iterable {
 			: c(_c), i(c.begin())
 		{ }
 
+		auto begin() const
+		{
+			return c.begin();
+		}
+		auto end() const
+		{
+			return c.end();
+		}
+
 		// string equality
 		bool operator==(const container& _c) const
 		{
