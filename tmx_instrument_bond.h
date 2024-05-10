@@ -37,7 +37,7 @@ namespace tmx::bond {
 			return date::business_day::adjust(d, bond.roll, bond.cal); 
 		};
 		const auto apd = apply(adjust, pd);
-		// convert dates to time in years from pvdate (cache is gcc workaround)
+		// convert dates to time in years from pvdate (vector is gcc workaround)
 		const auto u = vector(apply([pvdate](const date::ymd& d) { return d - pvdate; }, apd));
 
 		// day count fractions
