@@ -155,8 +155,6 @@
     <ClInclude Include="tmx_date_day_count.h" />
     <ClInclude Include="tmx_ho_lee.h" />
     <ClInclude Include="tmx_instrument.h" />
-    <ClInclude Include="tmx_instrument_value.h" />
-    <ClInclude Include="tmx_instrument_view.h" />
     <ClInclude Include="tmx_math.h" />
     <ClInclude Include="tmx_math_hypergeometric.h" />
     <ClInclude Include="tmx_math_limits.h" />

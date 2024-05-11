@@ -9,17 +9,14 @@
 
 namespace tmx::instrument {
 
-	// A fixed income instrument is a sequence of cash flows.
-	template<class U = double, class C = double>
-	using interface = fms::iterable::interface<cash_flow<U, C>>;
-
-	// Make instrument from time and cash flow iterables.
+	// Fixed income instrument from time and cash flow iterables.
 	template<fms::iterable::input U, fms::iterable::input C>
-	class iterable : public interface<typename U::value_type, typename C::value_type>
+	class iterable : public fms::iterable::interface<cash_flow<typename U::value_type, typename C::value_type>>
 	{
 		U u;
 		C c;
 	public:
+		//???
 		using value_type = cash_flow<typename U::value_type, typename C::value_type>;
 
 		iterable(const U& u, const C& c)
@@ -92,24 +89,20 @@ namespace tmx::instrument {
 	}
 #endif // _DEBUG
 
-	// Value type for instrument.
-	template<class U, class C>
-	using vector = instrument::iterable<fms::iterable::vector<U>, fms::iterable::vector<C>>;
-
 	// A zero coupon bond has a single cash flow.
 	// Equivalent to once(cash_flow(u,c)).
 	template<class U = double, class C = double>
 	inline auto zero_coupon_bond(const U& u, const C& c)
 	{
-		return fms::iterable::once(cash_flow(u,c));
+		return iterable(fms::iterable::once(u), fms::iterable::once(c));
 	}
 #ifdef _DEBUG
 	inline int zero_coupon_bond_test()
 	{
 		{
-			auto z = zero_coupon_bond(1, 2);
+			auto z = zero_coupon_bond(2024y / 1 / 1, 2);
 			assert(z);
-			assert(*z == cash_flow(1, 2));
+			assert(*z == cash_flow(2024y / 1 / 1, 2));
 			++z;
 			assert(!z);
 		}

@@ -2,7 +2,7 @@
 #pragma once
 #include <cmath>
 #include <functional>
-#include "tmx_instrument_value.h"
+#include "tmx_instrument.h"
 #include "tmx_curve.h"
 #include "tmx_root1d.h"
 
@@ -32,11 +32,11 @@ namespace tmx::valuation {
 	//static_assert(present<int,int,int,int>(instrument::cash_flow(1, 1), curve::constant(0)) == 1);
 #endif // _DEBUG
 
-	// TODO: How to use instrument::interface instead of instrument::view
+	// TODO: How to use instrument::interface instead of instrument::interface
 	// TODO: Don't compute forward value? Translate curve and divide by D(t)?
 	// Present value at t of future discounted cash flows.
 	template<class U, class C, class T, class F>
-	auto present(instrument::view<U, C> i, const curve::interface<T, F>& f)
+	auto present(instrument::iterable<U, C> i, const curve::interface<T, F>& f)
 	{
 		return sum(apply([&f](const auto& uc) { return present(uc, f); }, i));
 	}
@@ -48,21 +48,21 @@ namespace tmx::valuation {
 
 	// Derivative of present value with respect to a parallel shift.
 	template<class U, class C, class T, class F>
-	constexpr auto duration(instrument::view<U, C> i, const curve::interface<T, F>& f)
+	constexpr auto duration(instrument::iterable<U, C> i, const curve::interface<T, F>& f)
 	{
 		return sum(apply([&f](const auto& uc) { return -(uc.u) * present(uc, f); }, i));
 	}
 
 	// Duration divided by present value.
 	template<class U, class C, class T, class F>
-	constexpr auto macaulay_duration(instrument::view<U, C> i, const curve::interface<T, F>& f)
+	constexpr auto macaulay_duration(instrument::iterable<U, C> i, const curve::interface<T, F>& f)
 	{
 		return duration(i, f)/ present(i, f);
 	}
 
 	// Second derivative of present value with respect to a parallel shift.
 	template<class U, class C, class T, class F>
-	constexpr auto convexity(instrument::view<U, C> i, const curve::interface<T, F>& f)
+	constexpr auto convexity(instrument::iterable<U, C> i, const curve::interface<T, F>& f)
 	{
 		return sum(apply([&f](const auto& uc) { return uc.u * uc.u * present(uc, f); }, i));
 	}
@@ -93,7 +93,7 @@ namespace tmx::valuation {
 	template<class X = double>
 	inline int yield_test()
 	{
-		using fms::iterable::concatenate;
+		using fms::iterable::array;
 		using instrument::zero_coupon_bond;
 
 		X eps = X(1e-4); // math::sqrt_epsilon<X>;
@@ -103,7 +103,7 @@ namespace tmx::valuation {
 		X u[] = { 1,2 };
 		X c[] = { c0, 1 + c0 };
 		// 1 = c0 exponential(-y0) + (1 + c0) exponential(-2 y0)
-		const auto i = instrument::value(concatenate(zero_coupon_bond(u[0], c[0]), zero_coupon_bond(u[1], c[1])));
+		const auto i = instrument::iterable(array(u), array(c));
 		{
 			X pv = present(i, curve::constant<X, X>(y0));
 			assert(std::fabs(pv - 1) <= eps);

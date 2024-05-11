@@ -42,12 +42,6 @@
     <ClInclude Include="tmx_option.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tmx_instrument_value.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tmx_instrument_view.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="tmx_curve.h">
       <Filter>Header Files</Filter>
     </ClInclude>
