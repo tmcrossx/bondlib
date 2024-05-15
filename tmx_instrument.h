@@ -3,25 +3,30 @@
 #ifdef _DEBUG
 #include <cassert>
 #endif // _DEBUG
-#include "tmx_math_limits.h"
 #include "fms_iterable.h"
 #include "tmx_cash_flow.h"
+#include "tmx_math_limits.h"
 
 namespace tmx::instrument {
 
+	template <class U, class C>
+	using interface = fms::iterable::interface<cash_flow<U, C>>;
+
 	// Fixed income instrument from time and cash flow iterables.
-	template<fms::iterable::input U, fms::iterable::input C>
-	class iterable : public fms::iterable::interface<cash_flow<typename U::value_type, typename C::value_type>>
-	{
+	template <fms::iterable::input U, fms::iterable::input C>
+	class iterable : public interface<typename U::value_type, typename C::value_type> {
 		U u;
 		C c;
+
 	public:
 		//???
 		using value_type = cash_flow<typename U::value_type, typename C::value_type>;
 
 		iterable(const U& u, const C& c)
-			: u(u), c(c)
-		{ }
+			: u(u)
+			, c(c)
+		{
+		}
 
 		bool operator==(const iterable&) const = default;
 
@@ -48,14 +53,14 @@ namespace tmx::instrument {
 			++c;
 
 			return *this;
-		}	
+		}
 	};
 #ifdef _DEBUG
 	inline int iterable_test()
 	{
 		{
-			auto u = std::vector({ 1,2,3 });
-			auto c = std::vector({ 2,3,4 });
+			auto u = std::vector({ 1, 2, 3 });
+			auto c = std::vector({ 2, 3, 4 });
 			auto i = iterable(fms::iterable::container(u), fms::iterable::container(c));
 			assert(i);
 			assert(*i == cash_flow(1, 2));
@@ -69,9 +74,11 @@ namespace tmx::instrument {
 			assert(!i);
 		}
 		{
-			auto u = std::vector({ 1,2,3 });
-			auto c = std::vector({ 2,3,4 });
+			auto u = std::vector({ 1, 2, 3 });
+			auto c = std::vector({ 2, 3, 4 });
 			auto ii = iterable(fms::iterable::container(u), fms::iterable::container(c));
+
+			// new iterable from existing
 			auto i = iterable(ii.time(), ii.cash());
 			assert(i);
 			assert(*i == cash_flow(1, 2));
@@ -83,15 +90,27 @@ namespace tmx::instrument {
 			assert(*i == cash_flow(3, 4));
 			++i;
 			assert(!i);
+
+			// old iterable is still valid
+			assert(ii);
+			assert(*ii == cash_flow(1, 2));
+			++ii;
+			assert(ii);
+			assert(*ii == cash_flow(2, 3));
+			++ii;
+			assert(ii);
+			assert(*ii == cash_flow(3, 4));
+			++ii;
+			assert(!ii);
 		}
 
 		return 0;
 	}
 #endif // _DEBUG
 
-	// A zero coupon bond has a single cash flow.
-	// Equivalent to once(cash_flow(u,c)).
-	template<class U = double, class C = double>
+// A zero coupon bond has a single cash flow.
+// Equivalent to once(cash_flow(u,c)).
+	template <class U = double, class C = double>
 	inline auto zero_coupon_bond(const U& u, const C& c)
 	{
 		return iterable(fms::iterable::once(u), fms::iterable::once(c));
@@ -111,5 +130,5 @@ namespace tmx::instrument {
 	}
 #endif // _DEBUG
 
-	// TODO: forward_rate_agreement
+// TODO: forward_rate_agreement
 }
