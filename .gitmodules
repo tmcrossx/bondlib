@@ -1,3 +1,6 @@
 [submodule "xll"]
 	path = xll
 	url = https://github.com/xlladdins/xll.git
+[submodule "fms_iterable"]
+	path = fms_iterable
+	url = https://github.com/keithalewis/fms_iterable
