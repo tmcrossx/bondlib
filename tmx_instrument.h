@@ -3,33 +3,36 @@
 #ifdef _DEBUG
 #include <cassert>
 #endif // _DEBUG
-#include "tmx_math_limits.h"
-#include "fms_iterable.h"
+#include "fms_iterable/fms_iterable.h"
 #include "tmx_cash_flow.h"
 
 namespace tmx::instrument {
 
+	template<class U = double, class C = double>
+	using interface = fms::iterable::interface<cash_flow<U, C>>;
+
 	// Fixed income instrument from time and cash flow iterables.
-	template<fms::iterable::input U, fms::iterable::input C>
-	class iterable : public fms::iterable::interface<cash_flow<typename U::value_type, typename C::value_type>>
+	template<fms::iterable::input IU, fms::iterable::input IC,
+		class U = typename IU::value_type, class C = typename C::value_type>
+ 	class iterable : public interface<U, C>
 	{
-		U u;
-		C c;
+		IU u;
+		IC c;
 	public:
 		//???
-		using value_type = cash_flow<typename U::value_type, typename C::value_type>;
+		using value_type = cash_flow<U, C>;
 
-		iterable(const U& u, const C& c)
+		iterable(const IU& u, const IC& c)
 			: u(u), c(c)
 		{ }
 
 		bool operator==(const iterable&) const = default;
 
-		U time() const
+		IU time() const
 		{
 			return u;
 		}
-		C cash() const
+		IC cash() const
 		{
 			return c;
 		}
@@ -94,7 +97,7 @@ namespace tmx::instrument {
 	template<class U = double, class C = double>
 	inline auto zero_coupon_bond(const U& u, const C& c)
 	{
-		return iterable(fms::iterable::once(u), fms::iterable::once(c));
+		return iterable(cash_flow<U,C>(u, c));
 	}
 #ifdef _DEBUG
 	inline int zero_coupon_bond_test()

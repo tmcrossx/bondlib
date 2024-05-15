@@ -5,7 +5,7 @@
 #endif // _DEBUG
 #include <tuple>
 #include <chrono>
-#include "fms_iterable.h"
+#include "fms_iterable/fms_iterable.h"
 
 // TMX_FREQUENCY_, date::frequency, description
 #define TMX_DATE_FREQUENCY(X) \
@@ -49,6 +49,7 @@ namespace tmx::date {
 	}
 	// Not guaranteed to be true.
 	static_assert(to_time_t(to_ymd(1970, 1, 1)) == 0);
+    static_assert(to_time_t(to_ymd(1970, 1, 2)) == seconds_per_day);
 
 	// UTC time_t to year/month/day
 	inline ymd from_time_t(time_t t)
