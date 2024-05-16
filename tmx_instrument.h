@@ -93,9 +93,9 @@ namespace tmx::instrument {
 			assert(!i);
 		}
 		{
-			auto z = make_iterable({ 2024y / 1 / 1 }, { 2 });
+			auto z = make_iterable({ 1 }, { 2 });
 			assert(z);
-			assert(*z == cash_flow(2024y / 1 / 1, 2));
+			assert(*z == cash_flow(1, 2));
 			++z;
 			assert(!z);
 		}
