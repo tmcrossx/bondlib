@@ -14,7 +14,7 @@ namespace tmx::instrument {
 
 	// Fixed income instrument from time and cash flow iterables.
 	template<fms::iterable::input U, fms::iterable::input C>
- 	class iterable : public interface<typename U::value_type, typename C::value_type>
+	class iterable : public interface<typename U::value_type, typename C::value_type>
 	{
 		U u;
 		C c;
@@ -51,7 +51,7 @@ namespace tmx::instrument {
 			++c;
 
 			return *this;
-		}	
+		}
 	};
 	template<class U, class C>
 	inline auto make_iterable(const std::initializer_list<U>& u, const std::initializer_list<C>& c)
