@@ -93,7 +93,6 @@ namespace tmx::valuation {
 	inline int yield_test()
 	{
 		using fms::iterable::array;
-		using instrument::zero_coupon_bond;
 
 		X eps = X(1e-4); // math::sqrt_epsilon<X>;
 		X y0 = X(0.03);
@@ -126,6 +125,8 @@ namespace tmx::valuation {
 			assert(std::fabs(y - y0) <= eps);
 		}
 		{
+			std::vector<int> v;
+
 			X r = X(0.05);
 			X y2 = compound_yield(r, 2);
 			X r2 = continuous_rate(y2, 2);

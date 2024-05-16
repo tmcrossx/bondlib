@@ -47,7 +47,7 @@ namespace tmx::bond {
 		const auto c = constant(bond.face * bond.coupon) * dcf;
 
 		// face value at maturity
-		const auto f = instrument::zero_coupon_bond(bond.maturity - pvdate, bond.face);
+		const auto f = instrument::iterable(bond.maturity - pvdate, bond.face);
 		const auto iii = instrument::iterable(u, c);
 
 		return vector(merge(iii /*instrument::iterable(u, c)*/, f));

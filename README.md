@@ -53,8 +53,6 @@ to detect when there are no further cash flows,
 `operator*()` to get the time and amount of the current cash flow, 
 and `operator++()` to advance to the next cash flow.
 
-The class `tmx::instrument::zero_coupon_bond` implements an instrument with exactly one cash flow.
-
 ## Valuation
 
 The functions in the [`tmx::valuation`](tmx_valuation.h) namespace calculate 
