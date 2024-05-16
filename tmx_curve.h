@@ -11,6 +11,7 @@ namespace tmx::curve {
 	// NVI idiom compiles to non-virtual function calls.
 	template<class T = double, class F = double>
 	class interface {
+		static inline const T sqrt_epsilon = std::sqrt(std::numeric_limits<T>::epsilon());
 	public:
 		using time_type = T;
         using rate_type = F;
@@ -32,7 +33,7 @@ namespace tmx::curve {
 		// Price of one unit received at time u.
 		F discount(T u) const
 		{
-			return u >= 0 ? math::exp(-integral(u)) : std::numeric_limits<F>::quiet_NaN();
+			return u >= 0 ? std::exp(-integral(u)) : std::numeric_limits<F>::quiet_NaN();
 		}
 
 		// Spot/yield is the average of the forward over [0, u].
@@ -40,7 +41,7 @@ namespace tmx::curve {
 		F spot(T u) const
 		{
 			return u >= 0
-				? (u > math::sqrt_epsilon<T>
+				? (u > sqrt_epsilon
 					? _integral(u) / u
 					: _forward(u))
 				: std::numeric_limits<F>::quiet_NaN();
@@ -92,18 +93,19 @@ namespace tmx::curve {
 	template<class T = double, class F = double>
 	class exponential : public interface<T, F> {
 		F r;
+		static inline const F sqrt_epsilon = std::sqrt(std::numeric_limits<F>::epsilon());
 	public:
-		constexpr exponential(F r = 0) 
+		exponential(F r = 0) 
 			: r(r)
 		{ }
 
-		constexpr F _forward(T u) const override
+		F _forward(T u) const override
 		{
-			return math::exp(r * u);
+			return std::exp(r * u);
 		}
-		constexpr F _integral(T u) const override
+		F _integral(T u) const override
 		{
-			return math::fabs(r * u) < math::sqrt_epsilon<F> ? u * (1 + r * u) / 2 : (math::exp(r * u) - 1) / r;
+			return std::fabs(r * u) < sqrt_epsilon ? u * (1 + r * u) / 2 : (std::exp(r * u) - 1) / r;
 		}
 	};
 #ifdef _DEBUG
@@ -111,10 +113,10 @@ namespace tmx::curve {
 	{
 		{
 			exponential c(1.);
-			assert(math::isnan(exponential(1.).forward(-1.)));
+			assert(std::isnan(exponential(1.).forward(-1.)));
 			assert(c.forward(0.) == 1);
 			assert(c.integral(0.) == 0);
-			assert(c.integral(1.) == math::exp(1.) - 1);
+			assert(c.integral(1.) == std::exp(1.) - 1);
 		}
 
 		return 0;
