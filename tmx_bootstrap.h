@@ -15,7 +15,7 @@ namespace tmx::bootstrap {
 
 	// Bootstrap a single instrument.
 	// Return point on the curve repricing the instrument.
-	template<fms::iterable::input I, class T = double, class F = double>
+	template<instrument::iterable I, class T = double, class F = double>
 	inline std::pair<T, F> instrument(I i, curve::pwflat<T,F>& f, 
 		F p = 0, F _f = math::NaN<F>)
 	{

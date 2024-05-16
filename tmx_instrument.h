@@ -3,7 +3,7 @@
 #ifdef _DEBUG
 #include <cassert>
 #endif // _DEBUG
-#include "fms_iterable.h"
+#include "fms_iterable/fms_iterable.h"
 #include "tmx_cash_flow.h"
 #include "tmx_math_limits.h"
 
@@ -20,7 +20,7 @@ namespace tmx::instrument {
 
 	public:
 		//???
-		using value_type = cash_flow<typename U::value_type, typename C::value_type>;
+		using value_type = cash_flow<U, C>;
 
 		iterable(const U& u, const C& c)
 			: u(u)
@@ -30,11 +30,11 @@ namespace tmx::instrument {
 
 		bool operator==(const iterable&) const = default;
 
-		U time() const
+		IU time() const
 		{
 			return u;
 		}
-		C cash() const
+		IC cash() const
 		{
 			return c;
 		}
@@ -113,7 +113,7 @@ namespace tmx::instrument {
 	template <class U = double, class C = double>
 	inline auto zero_coupon_bond(const U& u, const C& c)
 	{
-		return iterable(fms::iterable::once(u), fms::iterable::once(c));
+		return iterable(cash_flow<U,C>(u, c));
 	}
 #ifdef _DEBUG
 	inline int zero_coupon_bond_test()

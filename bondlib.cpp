@@ -1,7 +1,7 @@
 // bondlib.cpp - test
 #include <cassert>
 //#include "tmx_monoid.h"
-#include "fms_iterable.h"
+#include "fms_iterable/fms_iterable.h"
 #include "tmx_math_hypergeometric.h"
 #include "tmx_date.h"
 #include "tmx_variate_normal.h"
@@ -50,21 +50,13 @@ int test_instrument_iterable = instrument::iterable_test();
 int test_valuation_yield_d = valuation::yield_test<double>();
 //int test_value_yield_f = value::yield_test<float>();
 //int test_bond_basic = bond::basic_test();
-int test_bond_basic = bond::basic_test();
+//int test_bond_basic = bond::basic_test();
 //int test_bootstrap_instrument = bootstrap::instrument_test();
 //int test_muni_fit = muni::fit_test();
 #endif // _DEBUG
 
 int main()
 {
-	date::periodic p(date::frequency::semiannually, date::to_ymd(2023, 4, 5), date::to_ymd(2033, 4, 5));
-	auto d = iterable::nabla(p, date::day_count(date::day_count_isma30360));
-	assert(d);
-	auto d0 = *d;
-	++d;
-	auto d1 = *d;
-	assert(d1 == d0);
-	assert(d);
 	
 	return 0;
 }

@@ -3,34 +3,36 @@
 #ifdef _DEBUG
 #include<cassert>
 #endif // _DEBUG
-// TODO: Use <cmath> once it is constexpr.
-#include "tmx_math_hypergeometric.h"
+#include <cmath>
+#include <limits>
 
 namespace tmx::curve {
 
 	// NVI idiom compiles to non-virtual function calls.
-	// Enforce preconditions for all derived classes.
 	template<class T = double, class F = double>
 	class interface {
 	public:
+		using time_type = T;
+        using rate_type = F;
+
 		virtual ~interface() {}
 
 		// Forward at u: f(u).
 		F forward(T u) const
 		{
-			return u >= 0 ? _forward(u) : math::NaN<F>;
+			return u >= 0 ? _forward(u) : std::numeric_limits<F>::quiet_NaN();
 		}
 
 		// Integral from 0 to u of forward: int_0^u f(s) ds.
 		F integral(T u) const
 		{
-			return u >= 0 ? _integral(u) : math::NaN<F>;
+			return u >= 0 ? _integral(u) : std::numeric_limits<F>::quiet_NaN();
 		}
 
 		// Price of one unit received at time u.
 		F discount(T u) const
 		{
-			return u >= 0 ? math::exp(-integral(u)) : math::NaN<F>;
+			return u >= 0 ? math::exp(-integral(u)) : std::numeric_limits<F>::quiet_NaN();
 		}
 
 		// Spot/yield is the average of the forward over [0, u].
@@ -41,7 +43,7 @@ namespace tmx::curve {
 				? (u > math::sqrt_epsilon<T>
 					? _integral(u) / u
 					: _forward(u))
-				: math::NaN<F>;
+				: std::numeric_limits<F>::quiet_NaN();
 		}
 
 	private:
@@ -49,12 +51,13 @@ namespace tmx::curve {
 		virtual F _integral(T u) const = 0;
 	};
 
+	// move???
 	// Constant curve.
 	template<class T = double, class F = double>
 	class constant : public interface<T, F> {
 		F f;
 	public:
-		constexpr constant(F f = math::NaN<F>) 
+		constexpr constant(F f = std::numeric_limits<F>::quiet_NaN()) 
 			: f(f)
 		{ }
 

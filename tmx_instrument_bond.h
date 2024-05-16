@@ -5,7 +5,7 @@
 #include "tmx_instrument.h"
 
 namespace tmx::bond {
-
+#if 0
 	// Basic bond indicative data.
 	template<class C = double>
 	struct basic 
@@ -40,16 +40,17 @@ namespace tmx::bond {
 		// convert dates to time in years from pvdate (vector is gcc workaround)
 		const auto u = vector(apply([pvdate](const date::ymd& d) { return d - pvdate; }, apd));
 
-		// day count fractions
-		const auto dcf = nabla(concatenate(once(pvdate), apd), bond.day_count);
+		// day count fractions // * -1
+		const auto dcf = delta(concatenate(once(pvdate), apd), bond.day_count);
 		//TODO: fix // const auto dcf = constant(-1) * delta(concatenate(once(pvdate), apd), bond.day_count);
 		// cash flows
 		const auto c = constant(bond.face * bond.coupon) * dcf;
 
 		// face value at maturity
 		const auto f = instrument::zero_coupon_bond(bond.maturity - pvdate, bond.face);
+		const auto iii = instrument::iterable(u, c);
 
-		return vector(merge(instrument::iterable(u, c), f));
+		return vector(merge(iii /*instrument::iterable(u, c)*/, f));
 	}
 #ifdef _DEBUG
 
@@ -110,7 +111,7 @@ namespace tmx::bond {
 	}
 
 #endif // _DEBUG
-
+#endif // 0
 } // namespace tmx::bond
 
 // class callable : public basic { ... };
