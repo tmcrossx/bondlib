@@ -31,9 +31,7 @@ namespace tmx::valuation {
 	//static_assert(present<int,int,int,int>(instrument::cash_flow(1, 1), curve::constant(0)) == 1);
 #endif // _DEBUG
 
-	// TODO: How to use instrument::interface instead of instrument::interface
-	// TODO: Don't compute forward value? Translate curve and divide by D(t)?
-	// Present value at t of future discounted cash flows.
+	// Present value at of discounted cash flows.
 	template<class U, class C, class T, class F>
 	auto present(instrument::iterable<U, C> i, const curve::interface<T, F>& f)
 	{
@@ -67,8 +65,8 @@ namespace tmx::valuation {
 	}
 
 	// Constant yield matching price p.
-	template<input I, class U = typename I::value_type::time_type, class C = typename I::value_type::cash_type>
-	inline C yield(const I& i, const C p = 0,
+	template<class U, class C>
+	inline C yield(instrument::iterable<U, C> i, const C p = 0,
 		C y = 0.01, C tol = math::sqrt_epsilon<C>, int iter = 100)
 	{
 		const auto pv = [p,&i](C y_) { return present(i, curve::constant<U, C>(y_)) - p; };
@@ -78,8 +76,8 @@ namespace tmx::valuation {
 	}
 
 	// Constant spread for which the present value of the instrument equals price.
-	template<input I, class T, class F>
-	inline F oas(I i, const curve::interface<T, F>& f, F p,
+	template<input U, class C, class T, class F>
+	inline F oas(instrument::iterable<U, C> i, const curve::interface<T, F>& f, F p,
 		F s = 0, F tol = math::sqrt_epsilon<F>, int iter = 100)
 	{
 		const auto pv = [p,&i,&f](F s_) { return present(i, f + curve::constant<T,F>(s_)) - p; };
