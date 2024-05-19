@@ -94,7 +94,7 @@ namespace tmx::date {
 		adjust(business_day::roll roll, holiday::calendar::calendar_t cal)
 			: roll(roll), cal(cal)
 		{ }
-		constexpr date::ymd operator()(ymd d)
+		constexpr date::ymd operator()(ymd d) const
 		{
 			return business_day::adjust(d, roll, cal) ;
 		}

@@ -45,7 +45,8 @@ namespace tmx::bond {
 		// face value at maturity
 		const auto f = instrument::make_iterable({ bond.maturity - pvdate }, { bond.face });
 
-		return vector(merge(instrument::iterable(u, c), f));
+		return vector(instrument::iterable(u, c));
+		//return vector(merge(instrument::iterable(u, c), f));
 	}
 #ifdef _DEBUG
 
