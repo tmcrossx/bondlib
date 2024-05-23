@@ -25,22 +25,23 @@ namespace tmx::bond {
 	{
 		using namespace fms::iterable;
 
-		// If pvdate is before dated use dated.
+		// If pvdate is before dated use dated in first payment date.
 		const auto d0 = std::max(bond.dated, pvdate);
 		// first cash flow date after d0
 		const auto [fpd, _] = date::first_payment_date(bond.frequency, d0, bond.maturity);
 		// payment dates
 		const auto pd = date::periodic(bond.frequency, fpd, bond.maturity);
 		// adjust payment dates with roll convention and holiday calendar
-		const auto adjust = [&bond](const date::ymd& d) {
-			return date::business_day::adjust(d, bond.roll, bond.cal); 
+		const auto adjust = [roll = bond.roll, cal = bond.cal](const date::ymd& d) {
+			return date::business_day::adjust(d, roll, cal); 
 		};
 		const auto apd = apply(adjust, pd);
 		// convert dates to time in years from pvdate (vector is gcc workaround)
 		const auto u = apply([pvdate](const date::ymd& d) { return d - pvdate; }, apd);
 
 		// day count fractions // * -1
-		const auto dcf = delta(concatenate(once(pvdate), apd), bond.day_count);
+		const auto dcf = constant(-1) * delta(concatenate(once(d0), apd), bond.day_count);
+		const auto vcdf = make_vector(dcf);
 		//TODO: fix // const auto dcf = constant(-1) * delta(concatenate(once(pvdate), apd), bond.day_count);
 		// cash flows
 		const auto c = constant(bond.face * bond.coupon) * dcf;
@@ -48,7 +49,7 @@ namespace tmx::bond {
 		// face value at maturity
 		const auto f = instrument::make_iterable({ bond.maturity - pvdate }, { bond.face });
 
-		return instrument::iterable(u, c);
+		return make_vector(instrument::iterable(u, c));
 		//return merge(instrument::iterable(u, c), f);
 	}
 #ifdef _DEBUG
@@ -64,10 +65,9 @@ namespace tmx::bond {
 		bond::basic<> bond{ d, d + years(10), 0.05 };
 
 		{
-			auto ii = instrument(bond, d);
-			auto i = fms::iterable::vector(ii);
+			auto i = instrument(bond, d);
 			i = drop(i, 20);
-			////assert(20 == length(i));
+			assert(20 == length(i));
 			//auto c0 = *i;
 			//assert(c0.c == 2.5);
 			//assert(c0.u == d + date::period(bond.frequency) - d);
