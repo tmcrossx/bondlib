@@ -39,18 +39,15 @@ namespace tmx::bond {
 		// convert dates to time in years from pvdate (vector is gcc workaround)
 		const auto u = apply([pvdate](const date::ymd& d) { return d - pvdate; }, apd);
 
-		// day count fractions // * -1
-		const auto dcf = constant(-1) * delta(concatenate(once(d0), apd), bond.day_count);
-		const auto vcdf = make_vector(dcf);
-		//TODO: fix // const auto dcf = constant(-1) * delta(concatenate(once(pvdate), apd), bond.day_count);
+		// day count fractions
+		const auto dcf = delta(concatenate(once(d0), apd), [dc = bond.day_count](auto d2, auto d1) { return dc(d1, d2); });
 		// cash flows
 		const auto c = constant(bond.face * bond.coupon) * dcf;
 
 		// face value at maturity
 		const auto f = instrument::make_iterable({ bond.maturity - pvdate }, { bond.face });
 
-		return make_vector(instrument::iterable(u, c));
-		//return merge(instrument::iterable(u, c), f);
+		return make_vector(merge(instrument::iterable(u, c), f));
 	}
 #ifdef _DEBUG
 
@@ -66,21 +63,20 @@ namespace tmx::bond {
 
 		{
 			auto i = instrument(bond, d);
-			i = drop(i, 20);
-			assert(20 == length(i));
-			//auto c0 = *i;
-			//assert(c0.c == 2.5);
-			//assert(c0.u == d + date::period(bond.frequency) - d);
+			assert(21 == length(i));
+			auto c0 = *i;
+			assert(c0.c == 2.5);
+			assert(c0.u == d + date::period(bond.frequency) - d);
 
-			//i = drop(i, 19);
-			//auto cn = *i;
-			//assert(cn.u == (bond.maturity - bond.dated));
-			//assert(cn.c == 102.5);
+			i = drop(i, 20);
+			auto cn = *i;
+			assert(cn.u == (bond.maturity - d));
+			assert(cn.c == 100);
 		}
 		{
 			auto pvdate = d + months(1);
 			auto i = instrument(bond, pvdate);
-			assert(20 == length(i));
+			assert(21 == length(i));
 			auto c0 = *i;
 			assert(c0.c < 2.5);
 			assert(c0.u == bond.dated + date::period(bond.frequency) - pvdate);
@@ -88,26 +84,26 @@ namespace tmx::bond {
 			++i;
 			auto c1 = *i;
 			assert(c1.c == 2.5);
-			i = drop(i, 18);
+			i = drop(i, 19);
 			auto cn = *i;
 			assert(cn.u == (bond.maturity - pvdate));
-			assert(cn.c == 102.5);
+			assert(cn.c == 100);
 		}
 		{
 			auto pvdate = d - months(1);
 			auto i = instrument(bond, pvdate);
-			assert(20 == length(i));
+			assert(21 == length(i));
 			auto c0 = *i;
-			assert(c0.c > 2.5);
+			assert(c0.c == 2.5); // accrue from dated date
 			assert(c0.u == bond.dated + date::period(bond.frequency) - pvdate);
 
 			++i;
 			auto c1 = *i;
 			assert(c1.c == 2.5);
-			i = drop(i, 18);
+			i = drop(i, 19);
 			auto cn = *i;
 			assert(cn.u == (bond.maturity - pvdate));
-			assert(cn.c == 102.5);
+			assert(cn.c == 100);
 		}
 
 		return 0;
