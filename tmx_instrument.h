@@ -9,43 +9,42 @@
 
 namespace tmx::instrument {
 
-	template<class U = double, class C = double>
-	using interface = fms::iterable::interface<cash_flow<U, C>>;
+	//template<fms::iterable::input IU, fms::iterable::input IC>
+	//concept input = fms::iterable::input<cash_flow<typename IU::value_type, typename IC::value_type>>;
 
 	// Fixed income instrument from time and cash flow iterables.
-	template<fms::iterable::input U, fms::iterable::input C>
-	class iterable : public interface<typename U::value_type, typename C::value_type>
-	{
-		U u;
-		C c;
+	template<fms::iterable::input IU, fms::iterable::input IC>
+	class iterable	{
+		IU u;
+		IC c;
 	public:
-		//???
-		using value_type = cash_flow<typename U::value_type, typename C::value_type>;
+		using iterator_category = std::input_iterator_tag;
+		using value_type = cash_flow<typename IU::value_type, typename IC::value_type>;
 
-		iterable(const U& u, const C& c)
+		iterable(const IU& u, const IC& c)
 			: u(u), c(c)
 		{ }
 
 		bool operator==(const iterable&) const = default;
 
-		U time() const
+		IU time() const
 		{
 			return u;
 		}
-		C cash() const
+		IC cash() const
 		{
 			return c;
 		}
 
-		bool op_bool() const override
+		explicit operator bool() const
 		{
 			return u && c;
 		}
-		value_type op_star() const override
+		value_type operator*() const
 		{
 			return cash_flow(*u, *c);
 		}
-		iterable& op_incr() override
+		iterable& operator++()
 		{
 			++u;
 			++c;
@@ -53,10 +52,11 @@ namespace tmx::instrument {
 			return *this;
 		}
 	};
+	// E.g., make_iterable({1,2,3}, {.2,.3,.4})
 	template<class U, class C>
 	inline auto make_iterable(const std::initializer_list<U>& u, const std::initializer_list<C>& c)
 	{
-		return iterable<fms::iterable::vector<U>, fms::iterable::vector<C>>(u, c);
+		return iterable(fms::iterable::list(u), fms::iterable::list(c));
 	}
 #ifdef _DEBUG
 	inline int iterable_test()

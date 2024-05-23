@@ -28,7 +28,10 @@ namespace tmx::curve {
 		pwflat& operator=(pwflat&&) = default;
 		~pwflat() = default;
 
-		auto operator<=>(const pwflat&) const = default;
+		auto operator==(const pwflat& c) const
+		{
+			return _f == c._f && t_ == c.t_ && f_ == c.f_;
+		}
 
 		F _forward(T u) const noexcept override
 		{

@@ -136,23 +136,26 @@ namespace tmx::date {
 	}
 
 	// iterable periodic dates from beginning to end at frequency.
-	class periodic : public fms::iterable::interface<ymd> {
+	class periodic  {
 		std::chrono::months m;
 		ymd b, e;
 	public:
+		using iterator_category = std::input_iterator_tag;
+		using value_type = ymd;
+
 		periodic(const frequency& f, const ymd& b, const ymd& e = ymd{})
 			: m(period(f)), b(b), e(e)
 		{ }
 
-		bool op_bool() const override
+		explicit operator bool() const
 		{
 			return e.ok() ? b <= e : true;
 		}
-		ymd op_star() const override
+		ymd operator*() const
 		{
 			return b;
 		}
-		periodic& op_incr() override
+		periodic& operator++()
 		{
 			b += m;
 

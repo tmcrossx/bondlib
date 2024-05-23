@@ -44,6 +44,7 @@ namespace tmx::date::business_day {
 					? d_ : adjust(d, roll::following, cal);
 			}
 			else {
+				++d;
 				// next non-holiday
 				while (cal(d)) {
 					++d;

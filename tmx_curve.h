@@ -11,7 +11,6 @@ namespace tmx::curve {
 	// NVI idiom compiles to non-virtual function calls.
 	template<class T = double, class F = double>
 	class interface {
-		static inline const T sqrt_epsilon = std::sqrt(std::numeric_limits<T>::epsilon());
 	public:
 		using time_type = T;
         using rate_type = F;
@@ -40,11 +39,14 @@ namespace tmx::curve {
 		// If u is small, use the forward.
 		F spot(T u) const
 		{
-			return u >= 0
-				? (u > sqrt_epsilon
-					? _integral(u) / u
-					: _forward(u))
-				: std::numeric_limits<F>::quiet_NaN();
+			if (u < 0) {
+				return std::numeric_limits<F>::quiet_NaN();
+			}
+			if (u + 1 == 1) {
+				return _forward(u);
+			}
+
+			return _integral(u) / u;
 		}
 
 	private:
@@ -93,7 +95,6 @@ namespace tmx::curve {
 	template<class T = double, class F = double>
 	class exponential : public interface<T, F> {
 		F r;
-		static inline const F sqrt_epsilon = std::sqrt(std::numeric_limits<F>::epsilon());
 	public:
 		exponential(F r = 0) 
 			: r(r)
@@ -105,7 +106,7 @@ namespace tmx::curve {
 		}
 		F _integral(T u) const override
 		{
-			return std::fabs(r * u) < sqrt_epsilon ? u * (1 + r * u) / 2 : (std::exp(r * u) - 1) / r;
+			return (r*u + 1 == 1) ? u / 2 : (std::exp(r * u) - 1) / r;
 		}
 	};
 #ifdef _DEBUG
