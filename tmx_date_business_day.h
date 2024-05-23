@@ -22,7 +22,7 @@ namespace tmx::date::business_day {
 #undef TMX_DATE_BUSINESS_DAY_CONVENTION_ENUM
 
 	// Move date to business day using roll convention and calendar.
-	constexpr date::ymd adjust(std::chrono::sys_days d, business_day::roll roll, holiday::calendar::calendar_t cal = holiday::weekend)
+	constexpr std::chrono::sys_days adjust(std::chrono::sys_days d, business_day::roll roll, holiday::calendar::calendar_t cal = holiday::weekend)
 	{
 		if (cal(d)) {
 			if (roll == roll::previous) {
@@ -44,11 +44,9 @@ namespace tmx::date::business_day {
 					? d_ : adjust(d, roll::following, cal);
 			}
 			else {
-				++d;
 				// next non-holiday
-				while (cal(d)) {
-					++d;
-				}
+				while (cal(++d))
+					;
 			}
 		}
 
@@ -68,20 +66,7 @@ namespace tmx::date::business_day {
 	static_assert(adjust(2023y / 1 / 1, roll::following) == 2023y / 1 / 2);
 	static_assert(adjust(2022y / 12 / 31, roll::following) == 2023y / 1 / 2);
 	static_assert(adjust(2022y / 12 / 31, roll::modified_following) == 2022y / 12 / 30);
-	//		X(2023, 12, 31, roll::following, 2024, 1, 1)
 
-
-	/*
-	#define TMX_DATE_BUSINESS_DAY_ADJUST(X) \
-		X(2024, 1, 1, roll::none, 2024, 1, 1) \
-
-		// TODO: Add more tests
-
-	#define BUSINESS_DAY_TEST(Y, M, D, R, Y_, M_, D_) static_assert(adjust(to_ymd(Y, M, D), R) == to_ymd(Y_, M_, D_));
-		TMX_DATE_BUSINESS_DAY_ADJUST(BUSINESS_DAY_TEST)
-	#undef BUSINESS_DAY_TEST///
-	#undef TMX_DATE_BUSINESS_DAY_ADJUST
-	*/
 #endif // _DEBUG
 } // namespace tmx::date::business_day
 
