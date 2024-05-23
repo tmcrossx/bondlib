@@ -124,6 +124,12 @@ namespace tmx::valuation {
 			assert(std::fabs(y - y0) <= eps);
 		}
 		{
+			X s = X(0.01);
+			X pv = present(i, curve::constant<X, X>(y0 + s));
+			X y = oas(i, curve::constant<X, X>(y0), pv, s);
+			assert(std::fabs(pv - present(i, curve::constant<X, X>(y0 + y))) <= eps);
+		}
+		{
 			X r = X(0.05);
 			X y2 = compound_yield(r, 2);
 			X r2 = continuous_rate(y2, 2);

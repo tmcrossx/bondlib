@@ -10,7 +10,7 @@ namespace tmx::bond {
 	struct basic 
 	{
 		date::ymd dated; // when interest starts accruing
-		date::ymd maturity;
+		date::ymd maturity; // when last coupon and principal is repaid
 		C coupon; // not in percent, e.g., 0.05 instead of 5%
 		date::frequency frequency = date::frequency::semiannually;
 		date::day_count_t day_count = date::day_count_isma30360;

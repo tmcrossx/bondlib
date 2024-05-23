@@ -84,3 +84,21 @@ namespace tmx::date::business_day {
 	*/
 #endif // _DEBUG
 } // namespace tmx::date::business_day
+
+namespace tmx::date {
+
+	// Move date to business day using roll convention and calendar.
+	class adjust {
+		business_day::roll roll;
+		holiday::calendar::calendar_t cal;
+	public:
+		adjust(business_day::roll roll, holiday::calendar::calendar_t cal)
+			: roll(roll), cal(cal)
+		{ }
+		constexpr date::ymd operator()(ymd d) const
+		{
+			return business_day::adjust(d, roll, cal) ;
+		}
+	};
+
+} // namespace tmx::date
