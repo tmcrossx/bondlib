@@ -17,6 +17,11 @@ namespace tmx::bond {
 		date::business_day::roll roll = date::business_day::roll::none;
 		date::holiday::calendar::calendar_t cal = date::holiday::calendar::none;
 		C face = 100;
+
+		bool check() const
+		{
+			return dated + period(frequency) <= maturity;
+		}
 	};
 
 	// Return instrument cash flows for basic bond from present value date.
@@ -45,9 +50,9 @@ namespace tmx::bond {
 		const auto c = constant(bond.face * bond.coupon) * dcf;
 
 		// face value at maturity
-		const auto f = instrument::make_iterable({ bond.maturity - pvdate }, { bond.face });
+		const auto f = instrument::value({ bond.maturity - pvdate }, { bond.face });
 
-		return make_vector(merge(instrument::iterable(u, c), f));
+		return instrument::value(merge(instrument::iterable(u, c), f));
 	}
 #ifdef _DEBUG
 
@@ -61,6 +66,16 @@ namespace tmx::bond {
 		auto d = 2023y / 1 / 1;
 		bond::basic<> bond{ d, d + years(10), 0.05 };
 
+		{
+			bond::basic b(d, d + months(6), 0.05);
+			auto i = instrument(b, d);
+			cash_flow<> uc;
+			uc = *i;
+			++i;
+			uc = *i;
+			++i;
+			assert(!i);
+		}
 		{
 			auto i = instrument(bond, d);
 			assert(21 == length(i));

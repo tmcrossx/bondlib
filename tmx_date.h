@@ -147,6 +147,8 @@ namespace tmx::date {
 			: m(period(f)), b(b), e(e)
 		{ }
 
+		bool operator==(const periodic& p) const = default;
+
 		explicit operator bool() const
 		{
 			return e.ok() ? b <= e : true;
