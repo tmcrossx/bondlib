@@ -53,3 +53,4 @@
 /out/build/x64-Debug
 /x64/Release
 *.swp
+/bondlib.t
