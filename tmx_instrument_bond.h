@@ -50,9 +50,11 @@ namespace tmx::bond {
 		const auto c = constant(bond.face * bond.coupon) * dcf;
 
 		// face value at maturity
-		const auto f = instrument::value({ bond.maturity - pvdate }, { bond.face });
+		const auto u_ = concatenate(u, once(bond.maturity - pvdate));
+		const auto c_ = concatenate(c, once(bond.face));
+		//const auto f = instrument::value({ bond.maturity - pvdate }, { bond.face });
 
-		return instrument::value(merge(instrument::iterable(u, c), f));
+		return instrument::value(instrument::iterable(u_, c_));
 	}
 #ifdef _DEBUG
 

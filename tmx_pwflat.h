@@ -105,7 +105,7 @@ namespace tmx {
 			return I;
 		}
 #ifdef _DEBUG
-#define IS_NAN(x) x != x
+#define IS_NAN(x) (x) != (x)
 		inline int integral_test()
 		{
 			{

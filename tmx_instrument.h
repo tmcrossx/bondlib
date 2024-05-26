@@ -21,9 +21,13 @@ namespace tmx::instrument {
 		using iterator_category = std::input_iterator_tag;
 		using value_type = cash_flow<typename IU::value_type, typename IC::value_type>;
 
+		iterable() = default;
 		iterable(const IU& u, const IC& c)
 			: u(u), c(c)
 		{ }
+		iterable(const iterable&) = default;
+		iterable& operator=(const iterable&) = default;
+		~iterable() = default;
 
 		bool operator==(const iterable&) const = default;
 
@@ -131,6 +135,11 @@ namespace tmx::instrument {
 	inline auto make_iterable(const std::initializer_list<U>& u, const std::initializer_list<C>& c)
 	{
 		return iterable(fms::iterable::vector(u), fms::iterable::vector(c));
+	}
+	template<class U, class C>
+	inline auto make_iterable(const value<U,C>& v)
+	{
+		return iterable(v.time(), v.cash());
 	}
 #ifdef _DEBUG
 	inline int iterable_test()

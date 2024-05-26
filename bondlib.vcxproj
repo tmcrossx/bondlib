@@ -74,6 +74,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IntDir>$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
+    <ClangTidyChecks>clang-analyzer-*</ClangTidyChecks>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -166,7 +168,7 @@
     <ClInclude Include="tmx_variate_normal.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="bondlib.cpp" />
+    <ClCompile Include="bondlib.t.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />

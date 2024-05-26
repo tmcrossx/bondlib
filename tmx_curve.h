@@ -1,4 +1,4 @@
-// tmx_curve.h - Forward curve interface.
+// tmx_curve.h - Curve interface implmented by forward and integral.
 #pragma once
 #ifdef _DEBUG
 #include<cassert>
@@ -54,7 +54,6 @@ namespace tmx::curve {
 		virtual F _integral(T u) const = 0;
 	};
 
-	// move???
 	// Constant curve.
 	template<class T = double, class F = double>
 	class constant : public interface<T, F> {
@@ -106,7 +105,7 @@ namespace tmx::curve {
 		}
 		F _integral(T u) const override
 		{
-			return (r*u + 1 == 1) ? u / 2 : (std::exp(r * u) - 1) / r;
+			return (r == 0) ? u : std::expm1(r * u) / r;
 		}
 	};
 #ifdef _DEBUG

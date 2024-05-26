@@ -1,0 +1,7 @@
+[
+    {
+		"directory": "/mnt/c/users/kal/source/repos/tmcrossx/bondlib",
+        "command": "/usr/bin/g++ -std=c++2b bondlib.t.cpp",
+        "file": "bondlib.t.cpp"
+    }
+]

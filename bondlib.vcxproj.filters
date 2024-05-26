@@ -89,7 +89,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="bondlib.cpp">
+    <ClCompile Include="bondlib.t.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

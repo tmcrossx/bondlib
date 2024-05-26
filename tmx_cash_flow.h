@@ -14,6 +14,10 @@ namespace tmx {
 		U u; // time
 		C c; // cash
 
+		constexpr cash_flow(U u = U{}, C c = C{})
+			: u(u), c(c)
+		{ }
+
 		constexpr bool operator==(const cash_flow& cf) const = default;
 
 		// ordered by time
