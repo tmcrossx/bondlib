@@ -13,80 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="tmx_date.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tmx_valuation.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tmx_instrument_bond.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tmx_muni.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tmx_bootstrap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tmx_root1d.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tmx_instrument.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tmx_ho_lee.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tmx_option.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tmx_curve.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tmx_date_day_count.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tmx_date_holiday.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tmx_date_holiday_calendar.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tmx_date_business_day.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tmx_variate.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tmx_math.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tmx_variate_normal.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tmx_math_limits.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tmx_pwflat.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tmx_math_hypergeometric.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tmx_curve_pwflat.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="fms_time.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="fms_binomial.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tmx_cash_flow.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <Filter Include="Header Files\date">
+      <UniqueIdentifier>{d96f52a0-6d96-4916-b1f5-813e775270f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\math">
+      <UniqueIdentifier>{e58e15ab-c10c-49cd-af19-b8548c377563}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="bondlib.t.cpp">
@@ -95,5 +27,37 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="date\tmx_date.h">
+      <Filter>Header Files\date</Filter>
+    </ClInclude>
+    <ClInclude Include="date\tmx_date_business_day.h">
+      <Filter>Header Files\date</Filter>
+    </ClInclude>
+    <ClInclude Include="date\tmx_date_day_count.h">
+      <Filter>Header Files\date</Filter>
+    </ClInclude>
+    <ClInclude Include="date\tmx_date_holiday.h">
+      <Filter>Header Files\date</Filter>
+    </ClInclude>
+    <ClInclude Include="date\tmx_date_holiday_calendar.h">
+      <Filter>Header Files\date</Filter>
+    </ClInclude>
+    <ClInclude Include="math\tmx_math.h">
+      <Filter>Header Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="math\tmx_math_hypergeometric.h">
+      <Filter>Header Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="math\tmx_math_limits.h">
+      <Filter>Header Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="math\tmx_root1d.h">
+      <Filter>Header Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="math\tmx_dual.h">
+      <Filter>Header Files\math</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

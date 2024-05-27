@@ -1,7 +1,7 @@
 // tmx_bond.h - Bonds
 #pragma once
-#include "tmx_date_business_day.h"
-#include "tmx_date_day_count.h"
+#include "date/tmx_date_business_day.h"
+#include "date/tmx_date_day_count.h"
 #include "tmx_instrument.h"
 
 namespace tmx::bond {

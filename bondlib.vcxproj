@@ -140,38 +140,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="fms_binomial.h" />
-    <ClInclude Include="fms_time.h" />
-    <ClInclude Include="tmx_cash_flow.h" />
-    <ClInclude Include="tmx_curve_pwflat.h" />
-    <ClInclude Include="tmx_date_business_day.h" />
-    <ClInclude Include="tmx_date_holiday.h" />
-    <ClInclude Include="tmx_option.h" />
-    <ClInclude Include="tmx_instrument_bond.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="tmx_bootstrap.h" />
-    <ClInclude Include="tmx_date_holiday_calendar.h" />
-    <ClInclude Include="tmx_curve.h" />
-    <ClInclude Include="tmx_date_day_count.h" />
-    <ClInclude Include="tmx_ho_lee.h" />
-    <ClInclude Include="tmx_instrument.h" />
-    <ClInclude Include="tmx_math.h" />
-    <ClInclude Include="tmx_math_hypergeometric.h" />
-    <ClInclude Include="tmx_math_limits.h" />
-    <ClInclude Include="tmx_muni.h" />
-    <ClInclude Include="tmx_date.h" />
-    <ClInclude Include="tmx_pwflat.h" />
-    <ClInclude Include="tmx_root1d.h" />
-    <ClInclude Include="tmx_valuation.h" />
-    <ClInclude Include="tmx_variate.h" />
-    <ClInclude Include="tmx_variate_normal.h" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="bondlib.t.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="date\tmx_date.h" />
+    <ClInclude Include="date\tmx_date_business_day.h" />
+    <ClInclude Include="date\tmx_date_day_count.h" />
+    <ClInclude Include="date\tmx_date_holiday.h" />
+    <ClInclude Include="date\tmx_date_holiday_calendar.h" />
+    <ClInclude Include="math\tmx_dual.h" />
+    <ClInclude Include="math\tmx_math.h" />
+    <ClInclude Include="math\tmx_math_hypergeometric.h" />
+    <ClInclude Include="math\tmx_math_limits.h" />
+    <ClInclude Include="math\tmx_root1d.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
