@@ -88,7 +88,12 @@ constexpr tmx::math::dual<X> operator/(const tmx::math::dual<X>& x, const tmx::m
 	return tmx::math::dual<X>(x) /= y;
 }
 
-template<class F, class dF, class X = 
+// F(x0 + x1 ε) = F(x0) + F'(x0) x1 ε
+template<class F, class dF, class X>
+constexpr auto make_dual(F&& f, dF&& df)
+{
+	return [f, df](const tmx::math::dual<X>& x) { return tmx::math::dual{ f(x._[0], df(x._[0]) * x._[1] }; };
+}
 
 static_assert(tmx::math::dual{ 1, 2 } + tmx::math::dual{ 3, 4 } == tmx::math::dual{ 4, 6 });
 static_assert(tmx::math::dual{ 1, 2 } - tmx::math::dual{ 3, 4 } == tmx::math::dual{ -2, -2 });

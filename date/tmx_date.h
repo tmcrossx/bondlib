@@ -143,27 +143,29 @@ namespace tmx::date {
 		using iterator_category = std::input_iterator_tag;
 		using value_type = ymd;
 
-		periodic(const frequency& f, const ymd& b, const ymd& e = ymd{})
+		constexpr periodic(const frequency& f, const ymd& b, const ymd& e = ymd{})
 			: m(period(f)), b(b), e(e)
 		{ }
+		static_assert(!ymd{}.ok());
+		static_assert(ymd{} == ymd{});
 
 		bool operator==(const periodic& p) const = default;
 
-		explicit operator bool() const
+		constexpr explicit operator bool() const
 		{
 			return e.ok() ? b <= e : true;
 		}
-		ymd operator*() const
+		constexpr ymd operator*() const
 		{
 			return b;
 		}
-		periodic& operator++()
+		constexpr periodic& operator++()
 		{
 			b += m;
 
 			return *this;
 		}
-		periodic& operator--()
+		constexpr periodic& operator--()
 		{
 			b -= m;
 
@@ -203,10 +205,10 @@ namespace tmx::date {
 #endif // _DEBUG
 	};
 
-	// Work backward from termination to first date past effective.
-	inline std::pair<ymd, size_t> first_payment_date(frequency f, ymd effective, ymd termination)
+	// Return first payment date after effective date and number of payments working backward from termination date.
+	constexpr std::pair<ymd,int> first_payment_date(frequency f, ymd effective, ymd termination)
 	{
-		size_t n = 0;
+		int n = 0;
 		periodic p(f, termination);
 
 		while (*p > effective) {
@@ -214,10 +216,24 @@ namespace tmx::date {
 			++n;
 		}
 		++p;
-		--n;
 
 		return { *p, n };
 	}
+	static_assert(first_payment_date(frequency::annually, 2024y / 5 / 6, 2025y / 5 / 6) == std::tuple(2025y / 5 / 6, 1));
+	static_assert(first_payment_date(frequency::semiannually, 2024y / 5 / 6, 2025y / 5 / 6) == std::tuple(2024y / 11 / 6, 2));
+	static_assert(first_payment_date(frequency::quarterly, 2024y / 5 / 6, 2025y / 5 / 6) == std::tuple(2024y / 8 / 6, 4));
+	static_assert(first_payment_date(frequency::monthly, 2024y / 5 / 6, 2025y / 5 / 6) == std::tuple(2024y / 6 / 6, 12));
+
+	static_assert(first_payment_date(frequency::annually, 2024y / 4 / 6, 2025y / 5 / 6) == std::tuple(2024y / 5 / 6, 2));
+	static_assert(first_payment_date(frequency::semiannually, 2024y / 4 / 6, 2025y / 5 / 6) == std::tuple(2024y / 5 / 6, 3));
+	static_assert(first_payment_date(frequency::quarterly, 2024y / 4 / 6, 2025y / 5 / 6) == std::tuple(2024y / 5 / 6, 5));
+	static_assert(first_payment_date(frequency::monthly, 2024y / 4 / 6, 2025y / 5 / 6) == std::tuple(2024y / 5 / 6, 13));
+
+	static_assert(first_payment_date(frequency::annually, 2024y / 6 / 6, 2025y / 5 / 6) == std::tuple(2025y / 5 / 6, 1));
+	static_assert(first_payment_date(frequency::semiannually, 2024y / 6 / 6, 2025y / 5 / 6) == std::tuple(2024y / 11 / 6, 2));
+	static_assert(first_payment_date(frequency::quarterly, 2024y / 6 / 6, 2025y / 5 / 6) == std::tuple(2024y / 8 / 6, 4));
+	static_assert(first_payment_date(frequency::monthly, 2024y / 6 / 6, 2025y / 5 / 6) == std::tuple(2024y / 7 / 6, 11));
+
 
 } // namespace tmx::date
 
@@ -234,4 +250,5 @@ inline tmx::date::ymd operator+(const tmx::date::ymd& d, double y)
 static_assert((std::chrono::year(2023) / 4 / 5 - std::chrono::year(2023) / 4 / 5) == 0);
 static_assert(std::chrono::year(2024) / 4 / 5 - std::chrono::year(2023) / 4 / 5 >= 1);
 static_assert(std::chrono::year(2024) / 4 / 5 - std::chrono::year(2023) / 4 / 5 <= 1.01);
+static_assert(std::chrono::year(2023) / 4 / 5 + (std::chrono::year(2024) / 4 / 5 - std::chrono::year(2023) / 4 / 5) == std::chrono::year(2023) / 4 / 5);
 #endif // _DEBUG
