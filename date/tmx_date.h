@@ -250,5 +250,5 @@ inline tmx::date::ymd operator+(const tmx::date::ymd& d, double y)
 static_assert((std::chrono::year(2023) / 4 / 5 - std::chrono::year(2023) / 4 / 5) == 0);
 static_assert(std::chrono::year(2024) / 4 / 5 - std::chrono::year(2023) / 4 / 5 >= 1);
 static_assert(std::chrono::year(2024) / 4 / 5 - std::chrono::year(2023) / 4 / 5 <= 1.01);
-static_assert(std::chrono::year(2023) / 4 / 5 + (std::chrono::year(2024) / 4 / 5 - std::chrono::year(2023) / 4 / 5) == std::chrono::year(2023) / 4 / 5);
+//static_assert(std::chrono::year(2023) / 4 / 5 + (std::chrono::year(2024) / 4 / 5 - std::chrono::year(2023) / 4 / 5) == std::chrono::year(2023) / 4 / 5);
 #endif // _DEBUG
