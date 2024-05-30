@@ -76,6 +76,10 @@
     <IntDir>$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
     <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
     <ClangTidyChecks>clang-analyzer-*</ClangTidyChecks>
+    <IncludePath>.\$(ProjectName);$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>.\$(ProjectName);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -146,16 +150,27 @@
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="curve\tmx_bootstrap.h" />
+    <ClInclude Include="curve\tmx_curve.h" />
+    <ClInclude Include="curve\tmx_curve_pwflat.h" />
+    <ClInclude Include="curve\tmx_pwflat.h" />
     <ClInclude Include="date\tmx_date.h" />
     <ClInclude Include="date\tmx_date_business_day.h" />
     <ClInclude Include="date\tmx_date_day_count.h" />
     <ClInclude Include="date\tmx_date_holiday.h" />
     <ClInclude Include="date\tmx_date_holiday_calendar.h" />
+    <ClInclude Include="instrument\tmx_cash_flow.h" />
+    <ClInclude Include="instrument\tmx_instrument.h" />
+    <ClInclude Include="instrument\tmx_instrument_bond.h" />
     <ClInclude Include="math\tmx_dual.h" />
     <ClInclude Include="math\tmx_math.h" />
     <ClInclude Include="math\tmx_math_hypergeometric.h" />
     <ClInclude Include="math\tmx_math_limits.h" />
     <ClInclude Include="math\tmx_root1d.h" />
+    <ClInclude Include="valuation\tmx_option.h" />
+    <ClInclude Include="valuation\tmx_valuation.h" />
+    <ClInclude Include="variate\tmx_variate.h" />
+    <ClInclude Include="variate\tmx_variate_normal.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
