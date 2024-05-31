@@ -159,6 +159,7 @@
     <ClInclude Include="date\tmx_date_day_count.h" />
     <ClInclude Include="date\tmx_date_holiday.h" />
     <ClInclude Include="date\tmx_date_holiday_calendar.h" />
+    <ClInclude Include="date\tmx_date_period.h" />
     <ClInclude Include="instrument\tmx_cash_flow.h" />
     <ClInclude Include="instrument\tmx_instrument.h" />
     <ClInclude Include="instrument\tmx_instrument_bond.h" />

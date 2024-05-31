@@ -104,5 +104,8 @@
     <ClInclude Include="curve\tmx_pwflat.h">
       <Filter>Header Files\curve</Filter>
     </ClInclude>
+    <ClInclude Include="date\tmx_date_period.h">
+      <Filter>Header Files\date</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

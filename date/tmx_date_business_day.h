@@ -35,13 +35,15 @@ namespace tmx::date::business_day {
 			}
 			else if (roll == roll::modified_following) {
 				const auto d_ = adjust(d, roll::following, cal);
-				d = date::ymd(d_).month() == date::ymd(d).month()
-					? d_ : adjust(d, roll::previous, cal);
+				if (date::ymd(d_).month() != date::ymd(d).month()) {
+					d = adjust(d, roll::previous, cal);
+				}
 			}
 			else if (roll == roll::modified_previous) {
 				const auto d_ = adjust(d, roll::previous, cal);
-				d = date::ymd(d_).month() == date::ymd(d).month()
-					? d_ : adjust(d, roll::following, cal);
+				if (date::ymd(d_).month() != date::ymd(d).month()) {
+					d = adjust(d, roll::following, cal);
+				}
 			}
 			else {
 				// next non-holiday

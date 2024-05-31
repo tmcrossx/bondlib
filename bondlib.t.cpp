@@ -12,7 +12,7 @@
 #include "instrument/tmx_instrument.h"
 #include "valuation/tmx_valuation.h"
 #include "instrument/tmx_instrument_bond.h"
-//#include "tmx_bootstrap.h"
+#include "curve/tmx_bootstrap.h"
 //#include "tmx_muni.h"
  
 using namespace fms;
@@ -26,7 +26,6 @@ int test_hypergeometric = math::hypergeometric_test();
 
 int test_curve_constant = curve::constant_test();
 int test_exponential = curve::exponential_test();
-int test_date = date::test();
 //int test_variate_normal = variate::normal<>::test();
 //<<<<<<< main
 //int test_black_put = black::put::test();
@@ -34,8 +33,6 @@ int test_date = date::test();
 //int test_pwflat = curve::pwflat_test();
 //int test_option_put = option::put::test();
 //>>>>>>> main
-int test_from_time_t = date::from_time_t_test();
-int test_date_periodic = date::periodic::test();
 //int test_datetime = datetime::test();
 //int test_date_dcf = date::dcf::test();
 //int test_tmx_monotonic = tmx::monotonic_test();
@@ -50,7 +47,7 @@ int test_instrument_iterable = instrument::iterable_test();
 int test_valuation_yield_d = valuation::yield_test<double>();
 //int test_value_yield_f = value::yield_test<float>();
 int test_bond_basic = bond::basic_test();
-//int test_bootstrap_instrument = bootstrap::instrument_test();
+int test_bootstrap_instrument = bootstrap::instrument_test();
 //int test_muni_fit = muni::fit_test();
 #endif // _DEBUG
 

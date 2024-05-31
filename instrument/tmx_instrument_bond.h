@@ -2,6 +2,8 @@
 #pragma once
 #include "date/tmx_date_business_day.h"
 #include "date/tmx_date_day_count.h"
+#include "date/tmx_date_holiday_calendar.h"
+#include "date/tmx_date_period.h"
 #include "tmx_instrument.h"
 
 namespace tmx::bond {
