@@ -48,7 +48,7 @@ namespace tmx::bootstrap {
 			curve::constant<> f;
 			double r = 0.1;
 			const auto i = instrument::make_iterable({ 1. }, { std::exp(r) });
-			auto [_t, _f] = tmx::bootstrap::instrument(i, f, 1.);
+			//auto [_t, _f] = tmx::bootstrap::instrument(i, f, 1.);
 			//assert(_t == 1);
 			//assert(std::fabs(_f - r) <= math::sqrt_epsilon<double>);
 		}

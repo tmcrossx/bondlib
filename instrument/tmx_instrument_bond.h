@@ -7,6 +7,7 @@
 #include "tmx_instrument.h"
 
 namespace tmx::bond {
+
 	// Basic bond indicative data.
 	template<class C = double>
 	struct basic 

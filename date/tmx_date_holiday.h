@@ -155,28 +155,26 @@ namespace tmx::date::holiday {
 	}
 
 #ifdef _DEBUG
-	static_assert(month_day(date::to_ymd(2021, 1, 1), std::chrono::January, std::chrono::day(1)));
 	static_assert(month_day(2021y / 1 / 1, std::chrono::January, std::chrono::day(1)));
 	static_assert(nth_weekday(2024y / 1 / 11, std::chrono::January, std::chrono::Thursday, 2));
 	static_assert(last_weekday(2024y / 1 / 31, std::chrono::weekday_last(std::chrono::Wednesday)));
-	static_assert(new_year_day(to_ymd(2021, 1, 1)));
-	static_assert(martin_luther_king_day(to_ymd(2024, 1, 15)));
+	static_assert(new_year_day(2021y / 1 / 1));
+	static_assert(martin_luther_king_day(2024y / 1 / 15));
 	static_assert(easter(2021y / 4 / 4));
 	static_assert(good_friday(2021y / 4 / 2));
-	static_assert(memorial_day(2021y / 5/ 31));
-	static_assert(juneteenth(to_ymd(2021, 6, 19)));
-	static_assert(independence_day(to_ymd(2023, 7, 4)));
-	static_assert(independence_day(to_ymd(2020, 7, 3)));
-	static_assert(independence_day(to_ymd(2021, 7, 5)));
-	static_assert(labor_day(to_ymd(2021, 9, 6)));
-	static_assert(columbus_day(to_ymd(2021, 10, 11)));
-	static_assert(veterans_day(to_ymd(2021, 11, 11)));
-	static_assert(veterans_day(to_ymd(2023, 11, 10)));
-	static_assert(thanksgiving(to_ymd(2021, 11, 25)));
-	static_assert(christmas_day(to_ymd(2021, 12, 24)));
-	static_assert(christmas_day(to_ymd(2022, 12, 26)));
-	static_assert(christmas_day(to_ymd(2023, 12, 25)));
-
+	static_assert(memorial_day(2021y / 5 / 31));
+	static_assert(juneteenth(2021y / 6 / 19));
+	static_assert(independence_day(2023y / 7 / 4));
+	static_assert(independence_day(2020y / 7 / 3));
+	static_assert(independence_day(2021y / 7 / 5));
+	static_assert(labor_day(2021y / 9 / 6));
+	static_assert(columbus_day(2021y / 10 / 11));
+	static_assert(veterans_day(2021y / 11 / 11));
+	static_assert(veterans_day(2023y / 11 / 10));
+	static_assert(thanksgiving(2021y / 11 / 25));
+	static_assert(christmas_day(2021y / 12 / 24));
+	static_assert(christmas_day(2022y / 12 / 26));
+	static_assert(christmas_day(2023y / 12 / 25));
 #endif // _DEBUG
 
 } // namespace tmx::date::holiday

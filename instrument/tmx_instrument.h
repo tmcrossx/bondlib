@@ -4,22 +4,48 @@
 #include <cassert>
 #endif // _DEBUG
 #include <initializer_list>
-#include "fms_iterable/fms_iterable.h"
+#include "../fms_iterable/fms_iterable.h"
 #include "tmx_cash_flow.h"
 
 namespace tmx::instrument {
 
 	//template<fms::iterable::input IU, fms::iterable::input IC>
 	//concept input = fms::iterable::input<cash_flow<typename IU::value_type, typename IC::value_type>>;
+	template<class U = double, class C = double>
+	struct interface {
+		using iterator_category = std::input_iterator_tag;
+		using value_type = std::pair<U, C>;
+
+		virtual ~interface()
+		{ }
+
+		explicit operator bool() const
+		{
+			return op_bool();
+		}
+		std::pair<U, C> operator*() const
+		{
+			return op_star();
+		}
+		interface& operator++()
+		{
+			return op_incr();
+		}
+	private:
+		virtual bool op_bool() const = 0;
+		virtual std::pair<U,C> op_star() const = 0;
+		virtual interface& op_incr() = 0;
+	};
 
 	// Fixed income instrument from time and cash flow iterables.
-	template<fms::iterable::input IU, fms::iterable::input IC>
-	class iterable	{
+	template<fms::iterable::input IU, fms::iterable::input IC,
+		class U = typename IU::value_type, class C = typename IC::value_type>
+	class iterable : public interface<U,C>	{
 		IU u;
 		IC c;
 	public:
 		using iterator_category = std::input_iterator_tag;
-		using value_type = cash_flow<typename IU::value_type, typename IC::value_type>;
+		using value_type = std::pair<U,C>;
 
 		iterable() = default;
 		iterable(const IU& u, const IC& c)
@@ -40,11 +66,11 @@ namespace tmx::instrument {
 			return c;
 		}
 
-		explicit operator bool() const
+		bool op_bool() const override
 		{
 			return u && c;
 		}
-		value_type operator*() const
+		value_type op_star() const
 		{
 			return cash_flow(*u, *c);
 		}
@@ -59,13 +85,13 @@ namespace tmx::instrument {
 
 	// Instrument value type
 	template<class U = double, class C = double>
-	class value {
+	class value : public interface<U,C> {
 		std::vector<U> u;
 		std::vector<C> c;
 		size_t i;
 	public:
 		using iterator_category = std::input_iterator_tag;
-		using value_type = cash_flow<U, C>;
+		using value_type = std::pair<U, C>;
 
 		value(const std::vector<U>& u, const std::vector<C>& c)
 			: u(u), c(c), i(0)
@@ -79,7 +105,7 @@ namespace tmx::instrument {
 			// assert(u.size() == c.size());
 		}
 		template<fms::iterable::input I>
-			requires std::same_as<typename I::value_type, cash_flow<U,C>>
+			requires std::same_as<typename I::value_type, std::pair<U,C>>
 		value(I i)
 			: i(0)
 		{
@@ -95,7 +121,7 @@ namespace tmx::instrument {
 		~value() = default;
 
 		// Strong equality
-		bool operator==(const value& v) const = default;
+		bool operator==(const value& v) const = default; // i == i && u.begin() == && c.begin() == 
 
 		value& reset(size_t i_ = 0)
 		{
@@ -113,17 +139,17 @@ namespace tmx::instrument {
 			return fms::iterable::make_interval(c);
 		}
 
-		explicit operator bool() const
+		bool op_bool () const override
 		{
 			return i < u.size();
 		}
-		value_type operator*() const
+		value_type op_star() const override
 		{
-			return cash_flow(u[i], c[i]);
+			return { u[i], c[i] };
 		}
-		value& operator++()
+		value& op_incr()
 		{
-			if (operator bool()) {
+			if (op_bool()) {
 				++i;
 			}
 

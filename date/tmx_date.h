@@ -5,7 +5,6 @@
 #endif // _DEBUG
 #include <tuple>
 #include <chrono>
-#include "fms_iterable/fms_iterable.h"
 
 using std::literals::chrono_literals::operator""y;
 
@@ -24,23 +23,29 @@ namespace tmx::date {
 	{
 		return ymd(std::chrono::year(y), std::chrono::month(m), std::chrono::day(d));
 	}
+#ifdef _DEBUG
 	static_assert(to_ymd(2023, 4, 5) == 2023y / 4 / 5);
+#endif // _DEBUG
 
 	// Break down ymd to tuple.
 	constexpr auto from_ymd(const ymd& d) // spread?
 	{
 		return std::tuple<int, unsigned, unsigned>(d.year(), d.month(), d.day());
 	}
+#ifdef _DEBUG
 	static_assert(from_ymd(to_ymd(2023, 4, 5)) == std::tuple(2023, 4u, 5u));
+#endif // _DEBUG
 
 	// year/month/day to UTC time_t
 	constexpr time_t to_time_t(const ymd& ymd)
 	{
 		return std::chrono::sys_days(ymd).time_since_epoch().count() * seconds_per_day;
 	}
+#ifdef _DEBUG
 	// Not guaranteed to be true.
 	static_assert(to_time_t(to_ymd(1970, 1, 1)) == 0);
     static_assert(to_time_t(to_ymd(1970, 1, 2)) == seconds_per_day);
+#endif // _DEBUG
 
 	// UTC time_t to year/month/day
 	constexpr ymd from_time_t(time_t t)
@@ -88,12 +93,12 @@ namespace tmx::date {
 
 } // namespace tmx::date
 
-// Date difference in years.
+// Date difference in years. (d1 - d0) + d0 = d1
 constexpr double operator-(const tmx::date::ymd& d1, const tmx::date::ymd& d0)
 {
 	return tmx::date::diffyears(d1, d0);
 }
-// Add years to date.
+// Add years to date. d0 + (d1 - d0) = d1
 constexpr tmx::date::ymd operator+(const tmx::date::ymd& d, double y)
 {
 	return tmx::date::addyears(d, y);
@@ -101,7 +106,7 @@ constexpr tmx::date::ymd operator+(const tmx::date::ymd& d, double y)
 
 #ifdef _DEBUG
 static_assert(2023y / 4 / 5 - 2023y / 4 / 5 == 0);
-static_assert(2024y / 4 / 5 - 2023y / 4 / 5 >= 1);
-static_assert(2024y / 4 / 5 - 2023y / 4 / 5 <= 1.01);
+static_assert(2024y / 4 / 5 - 2023y / 4 / 5 >= 1.002);
+static_assert(2024y / 4 / 5 - 2023y / 4 / 5 <= 1.003);
 static_assert(2023y / 4 / 5 + (2024y / 4 / 5 - 2023y / 4 / 5) == 2024y / 4 / 5);
 #endif // _DEBUG
