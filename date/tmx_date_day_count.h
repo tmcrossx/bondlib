@@ -5,9 +5,9 @@
 #pragma once
 #include <functional>
 #ifdef _DEBUG
-#include "math/tmx_math.h"
+#include "../math/tmx_math.h"
 #endif // _DEBUG
-#include "tmx_date.h"
+#include "../date/tmx_date.h"
 
 #define TMX_DAY_COUNT_DEFAULT isma30360
 
@@ -24,21 +24,8 @@ namespace tmx::date {
 
 	using day_count_t = double(*)(const ymd&, const ymd&);
 
-    // binary operator
-	class day_count {
-        day_count_t f;
-    public:
-        day_count(day_count_t f)
-			: f(f)
-		{ }
-		double operator()(const ymd& ymd1, const ymd& ymd2) const
-		{
-			return f(ymd1, ymd2);
-		}
-	};
-
 	// https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicisma30360.cpp
-	constexpr double day_count_isma30360(const ymd& ymd1, const ymd& ymd2)
+	constexpr double day_count_isma30360(const ymd& ymd2, const ymd& ymd1)
 	{
 		auto [y1, m1, d1] = from_ymd(ymd1);
 		auto [y2, m2, d2] = from_ymd(ymd2);
@@ -97,7 +84,7 @@ namespace tmx::date {
                 X(2000,     1,    31,   2004,     3,    30,   4.1667 ) \
                 X(2000,     1,    31,   2004,     3,    31,   4.1667 ) \
 
-#define DAY_COUNT_TEST(Y1, M1, D1, Y2, M2, D2, DC) \
+#define DAY_COUNT_TEST(Y2, M2, D2, Y1, M1, D1, DC) \
 static_assert(math::equal_precision(day_count_isma30360(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2)), DC, -4));
 	//TMX_DATE_DAY_COUNT(DAY_COUNT_TEST) 
 #undef DAY_COUNT_TEST
@@ -106,7 +93,7 @@ static_assert(math::equal_precision(day_count_isma30360(to_ymd(Y1, M1, D1), to_y
 #endif // _DEBUG
 
 	// https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicpsa30360eom.cpp
-	constexpr double day_count_isma30360eom(const ymd& ymd1, const ymd& ymd2)
+	constexpr double day_count_isma30360eom(const ymd& ymd2, const ymd& ymd1)
 	{
 		auto [y1, m1, d1] = from_ymd(ymd1);
 		auto [y2, m2, d2] = from_ymd(ymd2);
@@ -196,7 +183,7 @@ static_assert(math::equal_precision(day_count_isma30360(to_ymd(Y1, M1, D1), to_y
 
 
 
-#define DAY_COUNT_TEST(Y1, M1, D1, Y2, M2, D2, DC) \
+#define DAY_COUNT_TEST(Y2, M2, D2, Y1, M1, D1, DC) \
 static_assert(math::equal_precision(day_count_isma30360eom(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2)), DC, -4));
 	TMX_DATE_DAY_COUNT(DAY_COUNT_TEST)
 #undef DAY_COUNT_TEST
@@ -205,7 +192,7 @@ static_assert(math::equal_precision(day_count_isma30360eom(to_ymd(Y1, M1, D1), t
 
 
 	// https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicisdaactualactual.cpp
-	constexpr double day_count_isdaactualactual(const ymd& ymd1, const ymd& ymd2)
+	constexpr double day_count_isdaactualactual(const ymd& ymd2, const ymd& ymd1)
 	{
 		auto [y1, m1, d1] = from_ymd(ymd1);
 		auto [y2, m2, d2] = from_ymd(ymd2);
@@ -247,7 +234,7 @@ static_assert(math::equal_precision(day_count_isma30360eom(to_ymd(Y1, M1, D1), t
                 X(1999,    11,    30,   2000,     4,    30,   0.4155) \
                 X(2003,    11,     1,   2004,     5,     1,   0.4977) \
 
-#define DAY_COUNT_TEST(Y1, M1, D1, Y2, M2, D2, DC) \
+#define DAY_COUNT_TEST(Y2, M2, D2, Y1, M1, D1, DC) \
 static_assert(math::equal_precision(day_count_isdaactualactual(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2)), DC, -4));
 	TMX_DATE_DAY_COUNT(DAY_COUNT_TEST)
 #undef DAY_COUNT_TEST
@@ -255,7 +242,7 @@ static_assert(math::equal_precision(day_count_isdaactualactual(to_ymd(Y1, M1, D1
 #endif // _DEBUG
 
 	// https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicactual360.cpp
-	constexpr double day_count_actual360(const ymd& ymd1, const ymd& ymd2)
+	constexpr double day_count_actual360(const ymd& ymd2, const ymd& ymd1)
 	{
 		return diffdays(ymd2, ymd1) / 360.0;
 	}
@@ -303,7 +290,7 @@ static_assert(math::equal_precision(day_count_isdaactualactual(to_ymd(Y1, M1, D1
                 X(1999,     1,    31,   1999,     3,    31,   0.1639) \
 
 
-#define DAY_COUNT_TEST(Y1, M1, D1, Y2, M2, D2, DC) \
+#define DAY_COUNT_TEST(Y2, M2, D2, Y1, M1, D1, DC) \
 static_assert(math::equal_precision(day_count_actual360(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2)), DC, -4));
 	TMX_DATE_DAY_COUNT(DAY_COUNT_TEST)
 #undef DAY_COUNT_TEST
@@ -311,7 +298,7 @@ static_assert(math::equal_precision(day_count_actual360(to_ymd(Y1, M1, D1), to_y
 #endif // _DEBUG     
 
 	// https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicactual365fixed.cpp
-	constexpr double day_count_actual365fixed(const ymd& ymd1, const ymd& ymd2)
+	constexpr double day_count_actual365fixed(const ymd& ymd2, const ymd& ymd1)
 	{
 		return diffdays(ymd2, ymd1) / 365.0;
 	}
@@ -343,7 +330,7 @@ static_assert(math::equal_precision(day_count_actual360(to_ymd(Y1, M1, D1), to_y
                 X(1998,     2,    27,   1998,     3,    27,   0.0767) \
                 X(1998,     2,    28,   1998,     3,    27,   0.0740) \
 
-#define DAY_COUNT_TEST(Y1, M1, D1, Y2, M2, D2, DC) \
+#define DAY_COUNT_TEST(Y2, M2, D2, Y1, M1, D1, DC) \
 static_assert(math::equal_precision(day_count_actual365fixed(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2)), DC, -4));
 	TMX_DATE_DAY_COUNT(DAY_COUNT_TEST)
 #undef DAY_COUNT_TEST

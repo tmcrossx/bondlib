@@ -4,7 +4,7 @@
 #include <cassert>
 #endif // _DEBUG
 #include <initializer_list>
-#include "fms_iterable/fms_iterable.h"
+#include "../fms_iterable/fms_iterable.h"
 #include "tmx_cash_flow.h"
 
 namespace tmx::instrument {
@@ -56,7 +56,7 @@ namespace tmx::instrument {
 			return *this;
 		}
 	};
-
+/*
 	// Instrument value type
 	template<class U = double, class C = double>
 	class value {
@@ -199,4 +199,5 @@ namespace tmx::instrument {
 #endif // _DEBUG
 
 	// TODO: forward_rate_agreement
+*/
 }

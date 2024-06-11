@@ -1,6 +1,6 @@
 // tmx_date_period.h - periodic dates
 #pragma once
-#include "date/tmx_date.h"
+#include "../date/tmx_date.h"
 
 // TMX_FREQUENCY_, date::frequency, description
 #define TMX_DATE_FREQUENCY(X) \
@@ -106,20 +106,20 @@ namespace tmx::date {
 
 		return { *p, n };
 	}
-	static_assert(first_payment_date(frequency::annually, 2024y / 5 / 6, 2025y / 5 / 6) == std::tuple(2025y / 5 / 6, 1));
-	static_assert(first_payment_date(frequency::semiannually, 2024y / 5 / 6, 2025y / 5 / 6) == std::tuple(2024y / 11 / 6, 2));
-	static_assert(first_payment_date(frequency::quarterly, 2024y / 5 / 6, 2025y / 5 / 6) == std::tuple(2024y / 8 / 6, 4));
-	static_assert(first_payment_date(frequency::monthly, 2024y / 5 / 6, 2025y / 5 / 6) == std::tuple(2024y / 6 / 6, 12));
+	static_assert(first_payment_date(frequency::annually, 2024y / 5 / 6, 2025y / 5 / 6) == std::pair(2025y / 5 / 6, 1));
+	static_assert(first_payment_date(frequency::semiannually, 2024y / 5 / 6, 2025y / 5 / 6) == std::pair(2024y / 11 / 6, 2));
+	static_assert(first_payment_date(frequency::quarterly, 2024y / 5 / 6, 2025y / 5 / 6) == std::pair(2024y / 8 / 6, 4));
+	static_assert(first_payment_date(frequency::monthly, 2024y / 5 / 6, 2025y / 5 / 6) == std::pair(2024y / 6 / 6, 12));
 
-	static_assert(first_payment_date(frequency::annually, 2024y / 4 / 6, 2025y / 5 / 6) == std::tuple(2024y / 5 / 6, 2));
-	static_assert(first_payment_date(frequency::semiannually, 2024y / 4 / 6, 2025y / 5 / 6) == std::tuple(2024y / 5 / 6, 3));
-	static_assert(first_payment_date(frequency::quarterly, 2024y / 4 / 6, 2025y / 5 / 6) == std::tuple(2024y / 5 / 6, 5));
-	static_assert(first_payment_date(frequency::monthly, 2024y / 4 / 6, 2025y / 5 / 6) == std::tuple(2024y / 5 / 6, 13));
+	static_assert(first_payment_date(frequency::annually, 2024y / 4 / 6, 2025y / 5 / 6) == std::pair(2024y / 5 / 6, 2));
+	static_assert(first_payment_date(frequency::semiannually, 2024y / 4 / 6, 2025y / 5 / 6) == std::pair(2024y / 5 / 6, 3));
+	static_assert(first_payment_date(frequency::quarterly, 2024y / 4 / 6, 2025y / 5 / 6) == std::pair(2024y / 5 / 6, 5));
+	static_assert(first_payment_date(frequency::monthly, 2024y / 4 / 6, 2025y / 5 / 6) == std::pair(2024y / 5 / 6, 13));
 
-	static_assert(first_payment_date(frequency::annually, 2024y / 6 / 6, 2025y / 5 / 6) == std::tuple(2025y / 5 / 6, 1));
-	static_assert(first_payment_date(frequency::semiannually, 2024y / 6 / 6, 2025y / 5 / 6) == std::tuple(2024y / 11 / 6, 2));
-	static_assert(first_payment_date(frequency::quarterly, 2024y / 6 / 6, 2025y / 5 / 6) == std::tuple(2024y / 8 / 6, 4));
-	static_assert(first_payment_date(frequency::monthly, 2024y / 6 / 6, 2025y / 5 / 6) == std::tuple(2024y / 7 / 6, 11));
+	static_assert(first_payment_date(frequency::annually, 2024y / 6 / 6, 2025y / 5 / 6) == std::pair(2025y / 5 / 6, 1));
+	static_assert(first_payment_date(frequency::semiannually, 2024y / 6 / 6, 2025y / 5 / 6) == std::pair(2024y / 11 / 6, 2));
+	static_assert(first_payment_date(frequency::quarterly, 2024y / 6 / 6, 2025y / 5 / 6) == std::pair(2024y / 8 / 6, 4));
+	static_assert(first_payment_date(frequency::monthly, 2024y / 6 / 6, 2025y / 5 / 6) == std::pair(2024y / 7 / 6, 11));
 
 
 } // namespace tmx::date

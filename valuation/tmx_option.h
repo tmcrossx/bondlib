@@ -4,8 +4,8 @@
 #pragma once
 #include <cmath>
 #include <numbers>
-#include "variate/tmx_variate_normal.h"
-#include "math/tmx_root1d.h"
+#include "../variate/tmx_variate_normal.h"
+#include "../math/tmx_root1d.h"
 
 namespace tmx::option {
 
