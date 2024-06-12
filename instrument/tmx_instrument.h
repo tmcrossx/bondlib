@@ -14,7 +14,7 @@ namespace tmx::instrument {
 	template<class U = double, class C = double>
 	struct interface {
 		using iterator_category = std::input_iterator_tag;
-		using value_type = std::pair<U, C>;
+		using value_type = cash_flow<U, C>;
 
 		virtual ~interface()
 		{ }
@@ -23,7 +23,7 @@ namespace tmx::instrument {
 		{
 			return op_bool();
 		}
-		std::pair<U, C> operator*() const
+		cash_flow<U, C> operator*() const
 		{
 			return op_star();
 		}
@@ -33,7 +33,7 @@ namespace tmx::instrument {
 		}
 	private:
 		virtual bool op_bool() const = 0;
-		virtual std::pair<U,C> op_star() const = 0;
+		virtual cash_flow<U,C> op_star() const = 0;
 		virtual interface& op_incr() = 0;
 	};
 
@@ -45,7 +45,7 @@ namespace tmx::instrument {
 		IC c;
 	public:
 		using iterator_category = std::input_iterator_tag;
-		using value_type = std::pair<U,C>;
+		using value_type = cash_flow<U,C>;
 
 		iterable() = default;
 		iterable(const IU& u, const IC& c)
@@ -70,11 +70,11 @@ namespace tmx::instrument {
 		{
 			return u && c;
 		}
-		value_type op_star() const
+		value_type op_star() const override
 		{
 			return cash_flow(*u, *c);
 		}
-		iterable& operator++() noexcept
+		iterable& op_incr() noexcept override
 		{
 			++u;
 			++c;
@@ -91,7 +91,7 @@ namespace tmx::instrument {
 		size_t i;
 	public:
 		using iterator_category = std::input_iterator_tag;
-		using value_type = std::pair<U, C>;
+		using value_type = cash_flow<U, C>;
 
 		value(const std::vector<U>& u, const std::vector<C>& c)
 			: u(u), c(c), i(0)
@@ -105,7 +105,7 @@ namespace tmx::instrument {
 			// assert(u.size() == c.size());
 		}
 		template<fms::iterable::input I>
-			requires std::same_as<typename I::value_type, std::pair<U,C>>
+			requires std::same_as<typename I::value_type, cash_flow<U,C>>
 		value(I i)
 			: i(0)
 		{
