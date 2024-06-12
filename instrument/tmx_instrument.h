@@ -9,9 +9,6 @@
 
 namespace tmx::instrument {
 
-	//template<fms::iterable::input IU, fms::iterable::input IC>
-	//concept input = fms::iterable::input<cash_flow<typename IU::value_type, typename IC::value_type>>;
-
 	// Fixed income instrument from time and cash flow iterables.
 	template<fms::iterable::input IU, fms::iterable::input IC>
 	class iterable	{
@@ -40,15 +37,15 @@ namespace tmx::instrument {
 			return c;
 		}
 
-		explicit operator bool() const
+		explicit operator bool() const noexcept
 		{
 			return u && c;
 		}
-		value_type operator*() const
+		value_type operator*() const noexcept
 		{
 			return cash_flow(*u, *c);
 		}
-		iterable& operator++()
+		iterable& operator++() noexcept
 		{
 			++u;
 			++c;
