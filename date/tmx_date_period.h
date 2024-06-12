@@ -1,6 +1,6 @@
 // tmx_date_period.h - periodic dates
 #pragma once
-#include "date/tmx_date.h"
+#include "../date/tmx_date.h"
 
 // TMX_FREQUENCY_, date::frequency, description
 #define TMX_DATE_FREQUENCY(X) \

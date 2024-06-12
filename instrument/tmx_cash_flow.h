@@ -1,6 +1,6 @@
 // tmx_cash_flow.h - Time and cash amount.
 #pragma once
-#include <utility>
+#include <compare>
 
 namespace tmx {
 
@@ -18,13 +18,7 @@ namespace tmx {
 			: u(u), c(c)
 		{ }
 
-		constexpr bool operator==(const cash_flow& cf) const = default;
-
-		// ordered by time
-		constexpr bool operator<(const cash_flow& cf) const
-		{
-			return u < cf.u;
-		}
+		constexpr auto operator<=>(const cash_flow& cf) const = default;
 	};
 #ifdef _DEBUG
 	static_assert(cash_flow(1, 2) == cash_flow(1, 2));

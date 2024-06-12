@@ -1,9 +1,9 @@
 // tmx_bond.h - Bonds
 #pragma once
-#include "date/tmx_date_business_day.h"
-#include "date/tmx_date_day_count.h"
-#include "date/tmx_date_holiday_calendar.h"
-#include "date/tmx_date_period.h"
+#include "../date/tmx_date_business_day.h"
+#include "../date/tmx_date_day_count.h"
+#include "../date/tmx_date_holiday_calendar.h"
+#include "../date/tmx_date_period.h"
 #include "tmx_instrument.h"
 
 namespace tmx::bond {
@@ -44,20 +44,19 @@ namespace tmx::bond {
 			return date::business_day::adjust(d, roll, cal); 
 		};
 		const auto apd = apply(adjust, pd);
-		// convert dates to time in years from pvdate (vector is gcc workaround)
+		// convert dates to time in years from pvdate
 		const auto u = apply([pvdate](const date::ymd& d) { return d - pvdate; }, apd);
 
 		// day count fractions
-		const auto dcf = delta(concatenate(once(d0), apd), [dc = bond.day_count](auto d2, auto d1) { return dc(d1, d2); });
+		const auto dcf = delta(concatenate(once(d0), apd), bond.day_count);
 		// cash flows
 		const auto c = constant(bond.face * bond.coupon) * dcf;
 
 		// face value at maturity
 		const auto u_ = concatenate(u, once(bond.maturity - pvdate));
 		const auto c_ = concatenate(c, once(bond.face));
-		//const auto f = instrument::value({ bond.maturity - pvdate }, { bond.face });
 
-		return instrument::value(instrument::iterable(u_, c_));
+		return instrument::iterable(u_, c_);
 	}
 #ifdef _DEBUG
 

@@ -74,7 +74,7 @@ namespace tmx::instrument {
 		{
 			return cash_flow(*u, *c);
 		}
-		iterable& operator++()
+		iterable& operator++() noexcept
 		{
 			++u;
 			++c;
@@ -82,7 +82,7 @@ namespace tmx::instrument {
 			return *this;
 		}
 	};
-
+/*
 	// Instrument value type
 	template<class U = double, class C = double>
 	class value : public interface<U,C> {
@@ -225,4 +225,5 @@ namespace tmx::instrument {
 #endif // _DEBUG
 
 	// TODO: forward_rate_agreement
+*/
 }
