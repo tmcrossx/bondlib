@@ -9,8 +9,7 @@
 namespace tmx::bond {
 	// Basic bond indicative data.
 	template<class C = double>
-	struct basic 
-	{
+	struct basic {
 		date::ymd dated; // when interest starts accruing
 		date::ymd maturity; // when last coupon and principal is repaid
 		C coupon; // not in percent, e.g., 0.05 instead of 5%
