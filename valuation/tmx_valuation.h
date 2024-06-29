@@ -32,7 +32,7 @@ namespace tmx::valuation {
 #endif // _DEBUG
 
 	// Present value at of discounted cash flows.
-	template<fms::iterable::input IU, fms::iterable::input IC, class T, class F>
+	template<class IU, class IC, class T, class F>
 	auto present(instrument::iterable<IU,IC> i, const curve::interface<T, F>& f)
 	{
 		return sum(apply([&f](const auto& uc) { return present(uc, f); }, i));
@@ -44,28 +44,28 @@ namespace tmx::valuation {
 	// TODO: risky_present(i, f, T, R) ...
 
 	// Derivative of present value with respect to a parallel shift.
-	template<fms::iterable::input IU, fms::iterable::input IC, class T, class F>
+	template<class IU, class IC, class T, class F>
 	constexpr auto duration(instrument::iterable<IU, IC> i, const curve::interface<T, F>& f)
 	{
 		return sum(apply([&f](const auto& uc) { return -(uc.u) * present(uc, f); }, i));
 	}
 
 	// Duration divided by present value.
-	template<fms::iterable::input IU, fms::iterable::input IC, class T, class F>
+	template<class IU, class IC, class T, class F>
 	constexpr auto macaulay_duration(instrument::iterable<IU, IC> i, const curve::interface<T, F>& f)
 	{
 		return duration(i, f)/ present(i, f);
 	}
 
 	// Second derivative of present value with respect to a parallel shift.
-	template<fms::iterable::input IU, fms::iterable::input IC, class T, class F>
+	template<class IU, class IC, class T, class F>
 	constexpr auto convexity(instrument::iterable<IU, IC> i, const curve::interface<T, F>& f)
 	{
 		return sum(apply([&f](const auto& uc) { return uc.u * uc.u * present(uc, f); }, i));
 	}
 
 	// Constant yield matching price p.
-	template<fms::iterable::input IU, fms::iterable::input IC, 
+	template<class IU, class IC, 
 		class C = typename IC::value_type, class U = typename IU::value_type>
 	inline C yield(instrument::iterable<IU, IC> i, C p = 0,
 		C y = 0.01, C tol = math::sqrt_epsilon<C>, int iter = 100)
@@ -77,7 +77,7 @@ namespace tmx::valuation {
 	}
 
 	// Constant spread for which the present value of the instrument equals price.
-	template<fms::iterable::input IU, fms::iterable::input IC, class T, class F>
+	template<class IU, class IC, class T, class F>
 	inline F oas(instrument::iterable<IU, IC> i, const curve::interface<T, F>& f, F p,
 		F s = 0, F tol = math::sqrt_epsilon<F>, int iter = 100)
 	{

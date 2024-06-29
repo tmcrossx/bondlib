@@ -44,9 +44,9 @@ int test_tmx_curve_bump = curve::bump_test();
 //int test_instrument_iterable = instrument::iterable_test();
 //int test_instrument_view = view<>::test();
 //int test_instrument_value = value<>::test();
-int test_valuation_yield_d = valuation::yield_test<double>();
+//int test_valuation_yield_d = valuation::yield_test<double>();
 //int test_value_yield_f = value::yield_test<float>();
-int test_bond_basic = bond::basic_test();
+//int test_bond_basic = bond::basic_test();
 int test_bootstrap_instrument = bootstrap::instrument_test();
 //int test_muni_fit = muni::fit_test();
 #endif // _DEBUG

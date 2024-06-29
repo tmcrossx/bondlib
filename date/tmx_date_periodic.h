@@ -30,7 +30,6 @@ namespace tmx::date {
 	public:
 		using iterator_category = std::input_iterator_tag;
 		using value_type = ymd;
-		using reference = ymd&;
 		using difference_type = std::ptrdiff_t;
 
 		constexpr periodic(const frequency& f, const ymd& b, const ymd& e = ymd{})
@@ -45,7 +44,7 @@ namespace tmx::date {
 		{
 			return e.ok() ? b <= e : true;
 		}
-		constexpr ymd operator*() const
+		constexpr value_type operator*() const
 		{
 			return b;
 		}
@@ -110,53 +109,53 @@ namespace tmx::date {
 	}
 	static_assert(first_payment_date(frequency::annually, 
 		2024y / 5 / 6, 
-		2025y / 5 / 6) == std::pair(
+		2025y / 5 / 6) == std::tuple(
 		2025y / 5 / 6, 1));
 	static_assert(first_payment_date(frequency::semiannually, 
 		2024y / 5 / 6, 
-		2025y / 5 / 6) == std::pair(
+		2025y / 5 / 6) == std::tuple(
 		2024y / 11 / 6, 2));
 	static_assert(first_payment_date(frequency::quarterly, 
 		2024y / 5 / 6, 
-		2025y / 5 / 6) == std::pair(
+		2025y / 5 / 6) == std::tuple(
 		2024y / 8 / 6, 4));
 	static_assert(first_payment_date(frequency::monthly, 
 		2024y / 5 / 6, 
-		2025y / 5 / 6) == std::pair(
+		2025y / 5 / 6) == std::tuple(
 		2024y / 6 / 6, 12));
 
 	static_assert(first_payment_date(frequency::annually, 
 		2024y / 4 / 6, 
-		2025y / 5 / 6) == std::pair(
+		2025y / 5 / 6) == std::tuple(
 		2024y / 5 / 6, 2));
 	static_assert(first_payment_date(frequency::semiannually, 
 		2024y / 4 / 6, 
-		2025y / 5 / 6) == std::pair(
+		2025y / 5 / 6) == std::tuple(
 		2024y / 5 / 6, 3));
 	static_assert(first_payment_date(frequency::quarterly, 
 		2024y / 4 / 6, 
-		2025y / 5 / 6) == std::pair(
+		2025y / 5 / 6) == std::tuple(
 		2024y / 5 / 6, 5));
 	static_assert(first_payment_date(frequency::monthly, 
 		2024y / 4 / 6, 
-		2025y / 5 / 6) == std::pair(
+		2025y / 5 / 6) == std::tuple(
 		2024y / 5 / 6, 13));
 
 	static_assert(first_payment_date(frequency::annually, 
 		2024y / 6 / 6, 
-		2025y / 5 / 6) == std::pair(
+		2025y / 5 / 6) == std::tuple(
 		2025y / 5 / 6, 1));
 	static_assert(first_payment_date(frequency::semiannually, 
 		2024y / 6 / 6, 
-		2025y / 5 / 6) == std::pair(
+		2025y / 5 / 6) == std::tuple(
 		2024y / 11 / 6, 2));
 	static_assert(first_payment_date(frequency::quarterly, 
 		2024y / 6 / 6, 
-		2025y / 5 / 6) == std::pair(
+		2025y / 5 / 6) == std::tuple(
 		2024y / 8 / 6, 4));
 	static_assert(first_payment_date(frequency::monthly, 
 		2024y / 6 / 6, 
-		2025y / 5 / 6) == std::pair(
+		2025y / 5 / 6) == std::tuple(
 		2024y / 7 / 6, 11));
 
 

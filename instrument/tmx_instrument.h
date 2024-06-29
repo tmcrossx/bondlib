@@ -9,8 +9,9 @@
 
 namespace tmx::instrument {
 
-	//template<fms::iterable::input IU, fms::iterable::input IC>
-	//concept input = fms::iterable::input<cash_flow<typename IU::value_type, typename IC::value_type>>;
+#if 0
+	//template<class IU, class IC>
+	//concept input = class<cash_flow<typename IU::value_type, typename IC::value_type>>;
 	template<class U = double, class C = double>
 	struct interface {
 		using iterator_category = std::input_iterator_tag;
@@ -38,7 +39,7 @@ namespace tmx::instrument {
 	};
 
 	// Fixed income instrument from time and cash flow iterables.
-	template<fms::iterable::input IU, fms::iterable::input IC,
+	template<class IU, class IC,
 		class U = typename IU::value_type, class C = typename IC::value_type>
 	class iterable : public interface<U,C>	{
 		IU u;
@@ -51,8 +52,18 @@ namespace tmx::instrument {
 		iterable(const IU& u, const IC& c)
 			: u(u), c(c)
 		{ }
-		iterable(const iterable&) = default;
-		iterable& operator=(const iterable&) = default;
+		iterable(const iterable& i)
+			: u(i.u, i.c)
+		{ }
+		iterable& operator=(const iterable& i)
+		{
+			if (this != &i) {
+				u = i.u;
+				c = i.c;
+			}
+
+			return *this;
+		}
 		~iterable() = default;
 
 		bool operator==(const iterable&) const = default;
@@ -104,7 +115,7 @@ namespace tmx::instrument {
 		{
 			// assert(u.size() == c.size());
 		}
-		template<fms::iterable::input I>
+		template<class I>
 			requires std::same_as<typename I::value_type, cash_flow<U,C>>
 		value(I i)
 			: i(0)
@@ -226,4 +237,24 @@ namespace tmx::instrument {
 
 	// TODO: forward_rate_agreement
 */
-}
+#endif // 0
+template<class IU, class IC,
+	class U = typename IU::value_type, class C = typename IC::value_type>
+class iterable {
+public:
+	using iterator_category = std::input_iterator_tag;
+	using value_type = cash_flow<U, C>;
+
+	iterable() = default;
+	iterable(const IU& u, const IC& c)
+	{ }
+	iterable(const iterable& i)
+	{ }
+	iterable& operator=(const iterable& i)
+	{
+		return *this;
+	}
+	~iterable() = default;
+};
+
+} // namespace tmx::instrument	

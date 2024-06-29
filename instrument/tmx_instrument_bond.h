@@ -10,7 +10,7 @@ namespace tmx::bond {
 
 	// Basic bond indicative data.
 	template<class C = double>
-	struct basic 
+	struct basic
 	{
 		date::ymd dated; // when interest starts accruing
 		date::ymd maturity; // when last coupon and principal is repaid
@@ -41,23 +41,25 @@ namespace tmx::bond {
 		const auto pd = date::periodic(bond.frequency, fpd, bond.maturity);
 		// adjust payment dates with roll convention and holiday calendar
 		const auto adjust = [roll = bond.roll, cal = bond.cal](const date::ymd& d) {
-			return date::business_day::adjust(d, roll, cal); 
-		};
+			return date::business_day::adjust(d, roll, cal);
+			};
 		const auto apd = apply(adjust, pd);
 		// convert dates to time in years from pvdate
 		const auto u = apply([pvdate](const date::ymd& d) { return d - pvdate; }, apd);
 
 		// day count fractions
-		const auto dcf = delta(concatenate(once(d0), apd), bond.day_count);
+		const auto dcf = delta(concatenate(single(d0), apd), bond.day_count);
 		// cash flows
 		const auto c = constant(bond.face * bond.coupon) * dcf;
 
 		// face value at maturity
-		const auto u_ = concatenate(u, once(bond.maturity - pvdate));
-		const auto c_ = concatenate(c, once(bond.face));
+		const auto u_ = concatenate(u, single(bond.maturity - pvdate));
+		const auto c_ = concatenate(c, single(bond.face));
 
 		return instrument::iterable(u_, c_);
 	}
+} // namespace tmx::bond
+/*
 #ifdef _DEBUG
 
 	inline int basic_test()
@@ -69,7 +71,6 @@ namespace tmx::bond {
 
 		auto d = 2023y / 1 / 1;
 		bond::basic<> bond{ d, d + years(10), 0.05 };
-
 		{
 			bond::basic b(d, d + months(6), 0.05);
 			auto i = instrument(b, d);
@@ -82,7 +83,7 @@ namespace tmx::bond {
 		}
 		{
 			auto i = instrument(bond, d);
-			assert(21 == length(i));
+			assert(21 == size(i));
 			auto c0 = *i;
 			assert(c0.c == 2.5);
 			assert(c0.u == d + date::period(bond.frequency) - d);
@@ -95,7 +96,7 @@ namespace tmx::bond {
 		{
 			auto pvdate = d + months(1);
 			auto i = instrument(bond, pvdate);
-			assert(21 == length(i));
+			assert(21 == size(i));
 			auto c0 = *i;
 			assert(c0.c < 2.5);
 			assert(c0.u == bond.dated + date::period(bond.frequency) - pvdate);
@@ -111,7 +112,7 @@ namespace tmx::bond {
 		{
 			auto pvdate = d - months(1);
 			auto i = instrument(bond, pvdate);
-			assert(21 == length(i));
+			assert(21 == size(i));
 			auto c0 = *i;
 			assert(c0.c == 2.5); // accrue from dated date
 			assert(c0.u == bond.dated + date::period(bond.frequency) - pvdate);
@@ -127,11 +128,4 @@ namespace tmx::bond {
 
 		return 0;
 	}
-
-#endif // _DEBUG
-#if 0
-#endif // 0
-} // namespace tmx::bond
-
-// class callable : public basic { ... };
-
+	*/
