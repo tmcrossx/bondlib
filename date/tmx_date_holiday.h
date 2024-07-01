@@ -175,6 +175,68 @@ namespace tmx::date::holiday {
 	static_assert(christmas_day(2021y / 12 / 24));
 	static_assert(christmas_day(2022y / 12 / 26));
 	static_assert(christmas_day(2023y / 12 / 25));
+#pragma region Easter
+	static_assert(easter(1990y / 4 / 15));
+	static_assert(easter(1991y / 3 / 31));
+	static_assert(easter(1992y / 4 / 19));
+	static_assert(easter(1993y / 4 / 11));
+	static_assert(easter(1994y / 4 / 3));
+	static_assert(easter(1995y / 4 / 16));
+	static_assert(easter(1996y / 4 / 7));
+	static_assert(easter(1997y / 3 / 30));
+	static_assert(easter(1998y / 4 / 12));
+	static_assert(easter(1999y / 4 / 4));
+	static_assert(easter(2000y / 4 / 23));
+	static_assert(easter(2001y / 4 / 15));
+	static_assert(easter(2002y / 3 / 31));
+	static_assert(easter(2003y / 4 / 20));
+	static_assert(easter(2004y / 4 / 11));
+	static_assert(easter(2005y / 3 / 27));
+	static_assert(easter(2006y / 4 / 16));
+	static_assert(easter(2007y / 4 / 8));
+	static_assert(easter(2008y / 3 / 23));
+	static_assert(easter(2009y / 4 / 12));
+	static_assert(easter(2010y / 4 / 4));
+	static_assert(easter(2011y / 4 / 24));
+	static_assert(easter(2012y / 4 / 8));
+	static_assert(easter(2013y / 3 / 31));
+	static_assert(easter(2014y / 4 / 20));
+	static_assert(easter(2015y / 4 / 5));
+	static_assert(easter(2016y / 3 / 27));
+	static_assert(easter(2017y / 4 / 16));
+	static_assert(easter(2018y / 4 / 1));
+	static_assert(easter(2019y / 4 / 21));
+	static_assert(easter(2020y / 4 / 12));
+	static_assert(easter(2021y / 4 / 4));
+	static_assert(easter(2022y / 4 / 17));
+	static_assert(easter(2023y / 4 / 9));
+	static_assert(easter(2024y / 3 / 31));
+	static_assert(easter(2025y / 4 / 20));
+	static_assert(easter(2026y / 4 / 5));
+	static_assert(easter(2027y / 3 / 28));
+	static_assert(easter(2028y / 4 / 16));
+	static_assert(easter(2029y / 4 / 1));
+	static_assert(easter(2030y / 4 / 21));
+	static_assert(easter(2031y / 4 / 13));
+	static_assert(easter(2032y / 3 / 28));
+	static_assert(easter(2033y / 4 / 17));
+	static_assert(easter(2034y / 4 / 9));
+	static_assert(easter(2035y / 3 / 25));
+	static_assert(easter(2036y / 4 / 13));
+	static_assert(easter(2037y / 4 / 5));
+	static_assert(easter(2038y / 4 / 25));
+	static_assert(easter(2039y / 4 / 10));
+	static_assert(easter(2040y / 4 / 1));
+	static_assert(easter(2041y / 4 / 21));
+	static_assert(easter(2042y / 4 / 6));
+	static_assert(easter(2043y / 3 / 29));
+	static_assert(easter(2044y / 4 / 17));
+	static_assert(easter(2045y / 4 / 9));
+	static_assert(easter(2046y / 3 / 25));
+	static_assert(easter(2047y / 4 / 14));
+	static_assert(easter(2048y / 4 / 5));
+	static_assert(easter(2049y / 4 / 18));
+#pragma endregion
 #endif // _DEBUG
 
 } // namespace tmx::date::holiday

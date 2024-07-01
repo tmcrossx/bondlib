@@ -20,11 +20,6 @@ namespace tmx::bond {
 		date::business_day::roll roll = date::business_day::roll::none;
 		date::holiday::calendar::calendar_t cal = date::holiday::calendar::none;
 		C face = 100;
-
-		bool check() const
-		{
-			return dated + period(frequency) <= maturity;
-		}
 	};
 
 	// Return instrument cash flows for basic bond from present value date.
@@ -40,7 +35,7 @@ namespace tmx::bond {
 		// payment dates
 		const auto pd = date::periodic(bond.frequency, fpd, bond.maturity);
 		// adjust payment dates with roll convention and holiday calendar
-		const auto adjust = [roll = bond.roll, cal = bond.cal](const date::ymd& d) {
+		const auto adjust = [roll = bond.roll, cal = bond.cal](const date::ymd& d) -> date::ymd {
 			return date::business_day::adjust(d, roll, cal);
 			};
 		const auto apd = apply(adjust, pd);
@@ -58,15 +53,14 @@ namespace tmx::bond {
 
 		return instrument::iterable(u_, c_);
 	}
-} // namespace tmx::bond
-/*
+
 #ifdef _DEBUG
 
 	inline int basic_test()
 	{
 		using namespace std::literals::chrono_literals;
 		using namespace std::chrono;
-		using namespace date;
+		using namespace tmx::date;
 		using namespace fms::iterable;
 
 		auto d = 2023y / 1 / 1;
@@ -128,4 +122,5 @@ namespace tmx::bond {
 
 		return 0;
 	}
-	*/
+#endif // _DEBUG
+} // namespace tmx::bond
