@@ -61,6 +61,14 @@ namespace tmx::date {
 	static_assert(from_time_t(-seconds_per_day) == to_ymd(1969, 12, 31));
 #endif // _DEBUG
 
+	// Time in days from d0 to d1.
+	constexpr auto diffdays(ymd d1, ymd d0)
+	{
+		using namespace std::chrono;
+
+		return (sys_days(d1) - sys_days(d0)).count();
+	}
+
 	// Time in seconds from d0 to d1.
 	constexpr time_t diffseconds(ymd d1, ymd d0)
 	{
@@ -71,25 +79,32 @@ namespace tmx::date {
 	static_assert(diffseconds(to_ymd(2023, 4, 5), to_ymd(2023, 4, 6)) == -seconds_per_day);
 #endif // _DEBUG
 
-	// Time in days from d0 to d1.
-	constexpr double diffdays(ymd d1, ymd d0)
-	{
-		return static_cast<double>(diffseconds(d1, d0)) / seconds_per_day;
-	}
 	// Time in years from d0 to d1.
 	constexpr double diffyears(ymd d1, ymd d0)
 	{
 		return static_cast<double>(diffseconds(d1, d0)) / seconds_per_year;
 	}
-
-	constexpr ymd adddays(ymd d, double ds)
-	{
-		return from_time_t(to_time_t(d) + static_cast<time_t>(ds * seconds_per_day));
-	}
 	constexpr ymd addyears(ymd d, double ys)
 	{
 		return from_time_t(to_time_t(d) + static_cast<time_t>(ys * seconds_per_year));
 	}
+
+	constexpr int diffmonths(ymd d1, ymd d0)
+	{
+		int y1{ d1.year() };
+		int y0{ d0.year() };
+		unsigned m1{ d1.month() };
+		unsigned m0{ d0.month() };
+
+		return 12 * (y1 - y0) + m1 - m0;
+	}
+#ifdef _DEBUG
+	static_assert(diffmonths(2023y / 5 / 5, 2023y / 4 / 5) == 1);
+	static_assert(diffmonths(2023y / 5 / 5, 2023y / 6 / 5) == -1);
+	static_assert(diffmonths(2024y / 5 / 5, 2023y / 6 / 5) == 11);
+	static_assert(diffmonths(2024y / 5 / 5, 2023y / 5 / 5) == 12);
+	static_assert(diffmonths(2024y / 5 / 5, 2023y / 7 / 5) == 10);
+#endif // _DEBUG
 
 } // namespace tmx::date
 

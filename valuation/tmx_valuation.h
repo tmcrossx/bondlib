@@ -1,9 +1,9 @@
 // tmx_valuation.h - present value, duration, convexity, yield, oas
 #pragma once
 #include <cmath>
-#include "../curve/tmx_curve.h"
-#include "../instrument/tmx_instrument.h"
-#include "../math/tmx_root1d.h"
+#include "curve/tmx_curve.h"
+#include "instrument/tmx_instrument.h"
+#include "math/tmx_root1d.h"
 
 using namespace fms::iterable;
 

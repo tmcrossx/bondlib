@@ -5,9 +5,9 @@
 #pragma once
 #include <functional>
 #ifdef _DEBUG
-#include "../math/tmx_math.h"
+#include "math/tmx_math.h"
 #endif // _DEBUG
-#include "../date/tmx_date.h"
+#include "date/tmx_date.h"
 
 #define TMX_DAY_COUNT_DEFAULT isma30360
 
@@ -200,8 +200,8 @@ static_assert(math::equal_precision(day_count_isma30360eom(to_ymd(Y1, M1, D1), t
 		const int db = 365 + ymd1.year().is_leap();
 		const int de = 365 + ymd2.year().is_leap();
 		const int dy = y2 - y1 - 1;
-		double dbd = diffdays(to_ymd(y1 + 1, 1, 1), ymd1);
-		double dde = diffdays(ymd2, to_ymd(y2, 1, 1));
+		auto dbd = diffdays(to_ymd(y1 + 1, 1, 1), ymd1);
+		auto dde = diffdays(ymd2, to_ymd(y2, 1, 1));
 
 		double num = dy * db * de + dbd * de + dde * db;
 		int den = db * de;

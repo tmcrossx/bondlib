@@ -3,7 +3,7 @@
 #include <compare>
 #include <span>
 #include <vector>
-#include "../math/tmx_math_limits.h"
+#include "math/tmx_math_limits.h"
 #include "tmx_pwflat.h"
 #include "tmx_curve.h"
 

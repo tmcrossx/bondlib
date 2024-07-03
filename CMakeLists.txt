@@ -16,15 +16,4 @@ target_compile_options(bondlib.t PUBLIC
 )
 target_link_options(bondlib.t PUBLIC -fsanitize=address)
 
-if(FALSE)
-target_include_directories(bondlib.t PRIVATE 
-${PROJECT_SOURCE_DIR}/curve
-${PROJECT_SOURCE_DIR}/date
-${PROJECT_SOURCE_DIR}/fms_iterable
-${PROJECT_SOURCE_DIR}/instrument
-${PROJECT_SOURCE_DIR}/math
-${PROJECT_SOURCE_DIR}/valuation
-${PROJECT_SOURCE_DIR}/variate)
-endif()
-
-
+target_include_directories(bondlib.t PRIVATE ${PROJECT_SOURCE_DIR})

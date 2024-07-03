@@ -22,7 +22,10 @@ namespace tmx::date::business_day {
 #undef TMX_DATE_BUSINESS_DAY_ROLL_ENUM
 
 	// Move date to business day using roll convention and calendar.
-	constexpr std::chrono::sys_days adjust(std::chrono::sys_days d, business_day::roll roll, holiday::calendar::calendar_t cal = holiday::weekend)
+	constexpr std::chrono::sys_days adjust(
+		std::chrono::sys_days d,
+		business_day::roll roll,
+		holiday::calendar::calendar_t cal = holiday::weekend)
 	{
 		if (cal(d)) {
 			if (roll == roll::previous) {

@@ -1,9 +1,8 @@
 // bondlib.t.cpp - test bondlib
 #include <cassert>
 //#include "tmx_monoid.h"
-#include "fms_iterable/fms_iterable.h"
 #include "math/tmx_math_hypergeometric.h"
-#include "date/tmx_date.h"
+#include "date/tmx_date_periodic.h"
 #include "variate/tmx_variate_normal.h"
 #include "valuation/tmx_option.h"
 #include "date/tmx_date_business_day.h"
@@ -20,21 +19,16 @@ using namespace tmx;
 
 #ifdef _DEBUG
 
-int test_sd = math::sd_test();
-
 int test_hypergeometric = math::hypergeometric_test();
+int test_date_periodic = date::periodic_test();
 
 int test_curve_constant = curve::constant_test();
 int test_exponential = curve::exponential_test();
-//int test_variate_normal = variate::normal<>::test();
-//<<<<<<< main
+int test_variate_normal = variate::normal<>::test();
 //int test_black_put = black::put::test();
 //int test_curve_operator = curve::constant<>::test();
 //int test_pwflat = curve::pwflat_test();
 //int test_option_put = option::put::test();
-//>>>>>>> main
-//int test_datetime = datetime::test();
-//int test_date_dcf = date::dcf::test();
 //int test_tmx_monotonic = tmx::monotonic_test();
 //int test_pwflat_curve_view = pwflat::view<>::test();
 //int test_pwflat_curve_value = pwflat::interface<>::test();

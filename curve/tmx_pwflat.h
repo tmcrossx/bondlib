@@ -19,7 +19,7 @@
 #include <numeric>
 #include <iterator>
 #include <vector>
-#include "../math/tmx_math.h"
+#include "math/tmx_math.h"
 
 namespace tmx {
 	namespace pwflat {

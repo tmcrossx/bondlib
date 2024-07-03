@@ -122,7 +122,7 @@ namespace tmx::math {
 		while (fabs(anx) > eps) {
 			anx *= (a - n + 1) * x / n;
 			s += anx;
-			n = n + 1;
+			++n;
 		}
 
 		return s;		
@@ -130,8 +130,7 @@ namespace tmx::math {
 #ifdef _DEBUG
 	static_assert(pow1(0., 1.) == 1);
 	static_assert(pow1(-0.5, 2.) == 0.25);
-	constexpr double xxx = pow1(-0.5, -2.);
-	//static_assert(pow1(-0.5, -2.) == 4);
+	static_assert(equal_precision(pow1(-0.5, -2.), 4., -7));
 #endif // _DEBUG
 
 	// Estimate f'(x) using forward difference.
@@ -164,20 +163,7 @@ namespace tmx::math {
 		return (f(x + h) - 2*f(x) + f(x - h)) / (h * h);
 	}
 #ifdef _DEBUG
-	//static_assert(second_difference([](double x) { return x * x; }, 1., .05) == 2);
-	inline int sd_test()
-	{
-		// TODO: why these approximations get worse as h gets smaller?
-		/*
-		double xyz = second_difference([](double x) { return x * x; }, 2., .1);
-		xyz = second_difference([](double x) { return x * x; }, 2., .01);
-		xyz = second_difference([](double x) { return x * x; }, 2., .001);
-		xyz = second_difference([](double x) { return x * x; }, 2., .0001);
-		*/
-
-		return 0;
-	}
-	//static_assert(fabs(second_difference([](double x) { return x * x; }, 2.) - 2) <= 1);
+	static_assert(equal_precision(second_difference([](double x) { return x * x; }, 1., .05), 2., -14));
 #endif // _DEBUG
 
 } // namespace tmx::math

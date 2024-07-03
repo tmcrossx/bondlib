@@ -4,10 +4,10 @@
 #include <cassert>
 #endif
 #include <utility>
-#include "../instrument/tmx_instrument.h"
-#include "../curve/tmx_curve_pwflat.h"
-#include "../valuation/tmx_valuation.h"
-#include "../math/tmx_math_limits.h"
+#include "instrument/tmx_instrument.h"
+#include "curve/tmx_curve_pwflat.h"
+#include "valuation/tmx_valuation.h"
+#include "math/tmx_math_limits.h"
 
 namespace tmx::bootstrap {
 
