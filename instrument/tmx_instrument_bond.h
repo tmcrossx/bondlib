@@ -27,18 +27,17 @@ namespace tmx::bond {
 	inline auto instrument(const basic<C>& bond, const date::ymd& pvdate)
 	{
 		using namespace fms::iterable;
-
-		// If pvdate is before dated use dated in first payment date.
+		using namespace tmx::date;
+	
+		// If pvdate is before dated use dated.
 		const auto d0 = std::max(bond.dated, pvdate);
 		// payment dates
 		const auto pd = date::periodic(bond.frequency, d0, bond.maturity);
 		// adjust payment dates with roll convention and holiday calendar
-		const auto adjust = [roll = bond.roll, cal = bond.cal](const date::ymd& d) -> date::ymd {
-			return date::business_day::adjust(d, roll, cal);
-			};
-		const auto apd = apply(adjust, pd);
+		const auto apd = apply(date::adjust(bond.roll, bond.cal), pd);
 		// convert dates to time in years from pvdate
-		const auto u = apply([pvdate](const date::ymd& d) { return d - pvdate; }, apd);
+		const auto u = apply([pvdate](const date::ymd& d) {
+			return tmx::date::diffyears(d, pvdate); }, apd);
 
 		// day count fractions
 		const auto dcf = delta(concatenate(single(d0), apd), bond.day_count);

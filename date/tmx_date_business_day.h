@@ -57,10 +57,17 @@ namespace tmx::date::business_day {
 
 		return d;
 	}
-	constexpr date::ymd adjust(const date::ymd& date, roll convention, holiday::calendar::calendar_t cal = holiday::weekend)
+	constexpr date::ymd adjust(const date::ymd& date, business_day::roll roll, holiday::calendar::calendar_t cal = holiday::weekend)
 	{
-		return date::ymd{ adjust(std::chrono::sys_days{ date }, convention, cal) };
+		return date::ymd{ adjust(std::chrono::sys_days{ date }, roll, cal) };
 	}
+	/*
+	template<class I>
+	constexpr auto adjust(I i, business_day::roll roll, holiday::calendar::calendar_t cal = holiday::weekend)
+	{
+		return apply([convention, cal](const date::ymd& d) { return adjust(d, convention, cal); }, i);
+	}
+	*/
 #ifdef _DEBUG
 
 	static_assert(adjust(2023y / 1 / 1, roll::none) == 2023y / 1 / 2); // Sunday -> Monday

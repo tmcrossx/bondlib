@@ -27,8 +27,8 @@ namespace tmx::date {
 	// https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicisma30360.cpp
 	constexpr double day_count_isma30360(const ymd& ymd2, const ymd& ymd1)
 	{
-		auto [y1, m1, d1] = from_ymd(ymd1);
-		auto [y2, m2, d2] = from_ymd(ymd2);
+		auto [y1, m1, d1] = split(ymd1);
+		auto [y2, m2, d2] = split(ymd2);
 
 		if (d1 == 31) {
 			d1 = 30;
@@ -85,7 +85,7 @@ namespace tmx::date {
                 X(2000,     1,    31,   2004,     3,    31,   4.1667 ) \
 
 #define DAY_COUNT_TEST(Y2, M2, D2, Y1, M1, D1, DC) \
-static_assert(math::equal_precision(day_count_isma30360(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2)), DC, -4));
+static_assert(math::equal_precision(day_count_isma30360(std::chrono::year(Y1) / M1 / D1, std::chrono::year(Y2) / M2 / D2), DC, -4));
 	//TMX_DATE_DAY_COUNT(DAY_COUNT_TEST) 
 #undef DAY_COUNT_TEST
 #undef TMX_DATE_DAY_COUNT
@@ -95,8 +95,8 @@ static_assert(math::equal_precision(day_count_isma30360(to_ymd(Y1, M1, D1), to_y
 	// https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicpsa30360eom.cpp
 	constexpr double day_count_isma30360eom(const ymd& ymd2, const ymd& ymd1)
 	{
-		auto [y1, m1, d1] = from_ymd(ymd1);
-		auto [y2, m2, d2] = from_ymd(ymd2);
+		auto [y1, m1, d1] = split(ymd1);
+		auto [y2, m2, d2] = split(ymd2);
 
 		if (m1 == 2 && (d1 == 29 || (d1 == 28 && !ymd1.year().is_leap()))) {
 			d1 = 30;
@@ -184,7 +184,7 @@ static_assert(math::equal_precision(day_count_isma30360(to_ymd(Y1, M1, D1), to_y
 
 
 #define DAY_COUNT_TEST(Y2, M2, D2, Y1, M1, D1, DC) \
-static_assert(math::equal_precision(day_count_isma30360eom(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2)), DC, -4));
+static_assert(math::equal_precision(day_count_isma30360eom(std::chrono::year(Y1) / M1 / D1, std::chrono::year(Y2) / M2 / D2), DC, -4));
 	TMX_DATE_DAY_COUNT(DAY_COUNT_TEST)
 #undef DAY_COUNT_TEST
 #undef TMX_DATE_DAY_COUNT
@@ -194,14 +194,14 @@ static_assert(math::equal_precision(day_count_isma30360eom(to_ymd(Y1, M1, D1), t
 	// https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicisdaactualactual.cpp
 	constexpr double day_count_isdaactualactual(const ymd& ymd2, const ymd& ymd1)
 	{
-		auto [y1, m1, d1] = from_ymd(ymd1);
-		auto [y2, m2, d2] = from_ymd(ymd2);
+		auto [y1, m1, d1] = split(ymd1);
+		auto [y2, m2, d2] = split(ymd2);
 
 		const int db = 365 + ymd1.year().is_leap();
 		const int de = 365 + ymd2.year().is_leap();
 		const int dy = y2 - y1 - 1;
-		auto dbd = diffdays(to_ymd(y1 + 1, 1, 1), ymd1);
-		auto dde = diffdays(ymd2, to_ymd(y2, 1, 1));
+		auto dbd = diffdays(std::chrono::year(y1 + 1)/ 1/ 1, ymd1);
+		auto dde = diffdays(ymd2, std::chrono::year(y2) / 1 / 1);
 
 		double num = dy * db * de + dbd * de + dde * db;
 		int den = db * de;
@@ -235,7 +235,7 @@ static_assert(math::equal_precision(day_count_isma30360eom(to_ymd(Y1, M1, D1), t
                 X(2003,    11,     1,   2004,     5,     1,   0.4977) \
 
 #define DAY_COUNT_TEST(Y2, M2, D2, Y1, M1, D1, DC) \
-static_assert(math::equal_precision(day_count_isdaactualactual(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2)), DC, -4));
+static_assert(math::equal_precision(day_count_isdaactualactual(std::chrono::year(Y1) / M1 / D1, std::chrono::year(Y2) / M2 / D2), DC, -4));
 	TMX_DATE_DAY_COUNT(DAY_COUNT_TEST)
 #undef DAY_COUNT_TEST
 #undef TMX_DATE_DAY_COUNT
@@ -291,7 +291,7 @@ static_assert(math::equal_precision(day_count_isdaactualactual(to_ymd(Y1, M1, D1
 
 
 #define DAY_COUNT_TEST(Y2, M2, D2, Y1, M1, D1, DC) \
-static_assert(math::equal_precision(day_count_actual360(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2)), DC, -4));
+static_assert(math::equal_precision(day_count_actual360(std::chrono::year(Y1) / M1 / D1, std::chrono::year(Y2) / M2 / D2), DC, -4));
 	TMX_DATE_DAY_COUNT(DAY_COUNT_TEST)
 #undef DAY_COUNT_TEST
 #undef TMX_DATE_DAY_COUNT
@@ -331,7 +331,7 @@ static_assert(math::equal_precision(day_count_actual360(to_ymd(Y1, M1, D1), to_y
                 X(1998,     2,    28,   1998,     3,    27,   0.0740) \
 
 #define DAY_COUNT_TEST(Y2, M2, D2, Y1, M1, D1, DC) \
-static_assert(math::equal_precision(day_count_actual365fixed(to_ymd(Y1, M1, D1), to_ymd(Y2, M2, D2)), DC, -4));
+static_assert(math::equal_precision(day_count_actual365fixed(std::chrono::year(Y1) / M1 / D1, std::chrono::year(Y2) / M2 / D2), DC, -4));
 	TMX_DATE_DAY_COUNT(DAY_COUNT_TEST)
 #undef DAY_COUNT_TEST
 #undef TMX_DATE_DAY_COUNT
@@ -343,13 +343,13 @@ static_assert(math::equal_precision(day_count_actual365fixed(to_ymd(Y1, M1, D1),
 		using namespace std::chrono_literals;
 
 		{
-            ymd d0 = to_ymd(2004, 9, 30);
+            ymd d0 = 2004y / 9 / 30;
 			ymd d1 = 2004y / 12 / 31;
 			const double yearsDiff = day_count_isma30360(d0, d1);
 			assert(0.25 == yearsDiff);
 		}
 		{
-			ymd d0 = to_ymd(2000, 3, 31);
+			ymd d0 = 2000y / 3 / 31;
 			ymd d1 = 2004y / 1 / 31;
 			const double yearsDiff = day_count_isma30360(d0, d1);
 			assert(3.8333 <= yearsDiff);

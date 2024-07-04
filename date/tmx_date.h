@@ -6,18 +6,62 @@
 #include <tuple>
 #include <chrono>
 
-using std::literals::chrono_literals::operator""y;
-
 namespace tmx::date {
 
-	// Use calendar year/month/day from <chrono> for dates.
+	using std::literals::chrono_literals::operator""y;
 	using ymd = std::chrono::year_month_day; // E.g., ymd d = 2024y / 5 / 6
-
-	// Short names for constants from <chrono>	
+	
 	constexpr time_t seconds_per_year = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::years{ 1 }).count();
-	constexpr time_t seconds_per_day = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::days{ 1 }).count();
-	constexpr double days_per_year = static_cast<double>(seconds_per_year) / seconds_per_day;
 
+	// Time in seconds between d0 and d1
+	constexpr time_t operator-(const ymd& d1, const ymd& d0)
+	{
+		using namespace std::chrono;
+
+		return duration_cast<seconds>(sys_days(d1) - sys_days(d0)).count();
+	}
+	static_assert(2023y / 4 / 5 - 2023y / 4 / 5 == 0);
+	static_assert(2023y / 4 / 6 - 2023y / 4 / 5 == 86400);
+	
+	constexpr double diffyears(const ymd& d1, const ymd& d0)
+	{
+		return static_cast<double>(d1 - d0) / seconds_per_year;
+	}
+
+	// d0 + (d1 - d0) = d1
+	constexpr ymd operator+(const ymd& d, time_t s)
+	{
+		using namespace std::chrono;
+
+		return ymd{ floor<days>(sys_days(d) + seconds(s)) };
+	}
+	static_assert(2023y / 4 / 5 + (2023y / 4 / 6 - 2023y / 4 / 5) == 2023y / 4 / 6);
+	static_assert(2023y / 4 / 5 + (2023y / 5 / 6 - 2023y / 4 / 5) == 2023y / 5 / 6);
+	static_assert(2023y / 4 / 5 + (2024y / 5 / 6 - 2023y / 4 / 5) == 2024y / 5 / 6);
+
+	// Break down ymd to tuple.
+	constexpr auto split(const ymd& d) // spread?
+	{
+		return std::tuple<int, unsigned, unsigned>(d.year(), d.month(), d.day());
+	}
+
+	// Difference in days from d0 to d1.
+	constexpr auto diffdays(const ymd& d1, const ymd& d0)
+	{
+		using namespace std::chrono;
+
+		return (sys_days(d1) - sys_days(d0)).count();
+	}
+	/*
+	// Difference in months from d0 to d1.
+	constexpr auto diffmonths(const ymd& d1, const ymd& d0)
+	{
+		using namespace std::chrono;
+
+		return d1.month() - d0.month();
+	}
+	*/
+#if 0
 	// Broken down date to ymd. TODO: remove?
 	constexpr ymd to_ymd(int y, unsigned int m, unsigned int d)
 	{
@@ -39,7 +83,7 @@ namespace tmx::date {
 	// year/month/day to UTC time_t
 	constexpr time_t to_time_t(const ymd& ymd)
 	{
-		return std::chrono::sys_days(ymd).time_since_epoch().count() * seconds_per_day;
+		return sys_days(ymd).time_since_epoch().count() * seconds_per_day;
 	}
 #ifdef _DEBUG
 	// Not guaranteed to be true.
@@ -61,21 +105,13 @@ namespace tmx::date {
 	static_assert(from_time_t(-seconds_per_day) == to_ymd(1969, 12, 31));
 #endif // _DEBUG
 
-	// Time in days from d0 to d1.
-	constexpr auto diffdays(ymd d1, ymd d0)
-	{
-		using namespace std::chrono;
-
-		return (sys_days(d1) - sys_days(d0)).count();
-	}
-
 	// Time in seconds from d0 to d1.
 	constexpr time_t diffseconds(ymd d1, ymd d0)
 	{
 		return to_time_t(d1) - to_time_t(d0);
 	}
 #ifdef _DEBUG
-	static_assert(diffseconds(to_ymd(2023, 4, 5), to_ymd(2023, 4, 4)) == seconds_per_day);
+	static_assert(diffseconds(2023y / 4 / 5), 2023y/ 4/ 4) == seconds_per_day);
 	static_assert(diffseconds(to_ymd(2023, 4, 5), to_ymd(2023, 4, 6)) == -seconds_per_day);
 #endif // _DEBUG
 
@@ -105,23 +141,5 @@ namespace tmx::date {
 	static_assert(diffmonths(2024y / 5 / 5, 2023y / 5 / 5) == 12);
 	static_assert(diffmonths(2024y / 5 / 5, 2023y / 7 / 5) == 10);
 #endif // _DEBUG
-
+#endif // 0
 } // namespace tmx::date
-
-// Date difference in years. (d1 - d0) + d0 = d1
-constexpr double operator-(const tmx::date::ymd& d1, const tmx::date::ymd& d0)
-{
-	return tmx::date::diffyears(d1, d0);
-}
-// Add years to date. d0 + (d1 - d0) = d1
-constexpr tmx::date::ymd operator+(const tmx::date::ymd& d, double y)
-{
-	return tmx::date::addyears(d, y);
-}
-
-#ifdef _DEBUG
-static_assert(2023y / 4 / 5 - 2023y / 4 / 5 == 0);
-static_assert(2024y / 4 / 5 - 2023y / 4 / 5 >= 1.002);
-static_assert(2024y / 4 / 5 - 2023y / 4 / 5 <= 1.003);
-static_assert(2023y / 4 / 5 + (2024y / 4 / 5 - 2023y / 4 / 5) == 2024y / 4 / 5);
-#endif // _DEBUG

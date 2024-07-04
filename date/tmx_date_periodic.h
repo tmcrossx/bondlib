@@ -3,55 +3,40 @@
 #include "fms_iterable/fms_iterable.h"
 #include "tmx_date.h"
 
+// name, months, description
 #define TMX_DATE_FREQUENCY(X) \
-	X(missing, std::chrono::years(0), "Missing frequency.") \
-	X(annually, std::chrono::years(1), "Yearly payments.") \
-	X(semiannually, std::chrono::months(6), "biannual payments.") \
-	X(quarterly, std::chrono::months(3), "quarterly payments.") \
-	X(monthly, std::chrono::months(1), "monthly payments.") \
-	X(weekly, std::chrono::days(7), "weekly payments.") \
-	X(daily, std::chrono::days(1), "daily payments.") \
+	X(missing, 0, "Missing frequency.") \
+	X(annually, 12, "Yearly payments.") \
+	X(semiannually, 6, "biannual payments.") \
+	X(quarterly, 3, "quarterly payments.") \
+	X(monthly, 1, "monthly payments.") \
 
 namespace tmx::date {
 
 	using sys_days = std::chrono::sys_days;
-	using common_duration = std::common_type<std::chrono::years, std::chrono::months, std::chrono::days>::type;
-	constexpr auto xxx = std::chrono::duration_cast<common_duration>(std::chrono::months(1)).count();
 
-#define TMX_DATE_FREQUENCY_ENUM(a, b, c) a = std::chrono::duration_cast<common_duration>(b).count(),
-	enum class frequency {
+#define TMX_DATE_FREQUENCY_ENUM(a, b, c) a = b,
+	enum frequency {
 		TMX_DATE_FREQUENCY(TMX_DATE_FREQUENCY_ENUM)
 	};
 #undef TMX_DATE_FREQUENCY_ENUM
 
-	static_assert(common_duration((int)frequency::weekly) == std::chrono::days(7));
-
-	// common duration periods to first payment date 
-	constexpr int payment_modulus(frequency f, sys_days b, sys_days e)
-	{
-		using namespace std::chrono;
-
-		return duration_cast<common_duration>(e - b).count() % static_cast<int>(f);
-	}
-	constexpr auto x1 = payment_modulus(frequency::daily, sys_days(2024y / 5 / 6), sys_days(2025y / 5 / 6));
-	static_assert(payment_modulus(frequency::annually, sys_days(2024y / 5 / 6), sys_days(2025y / 5 / 6)) == 584000);
-	static_assert(payment_modulus(frequency::semiannually, sys_days(2024y / 5 / 6), sys_days(2025y / 5 / 6)) == 291806);
-	static_assert(payment_modulus(frequency::quarterly, sys_days(2024y / 5 / 6), sys_days(2025y / 5 / 6)) == 145709);
-	static_assert(payment_modulus(frequency::monthly, sys_days(2024y / 5 / 6), sys_days(2025y / 5 / 6)) == 48311);
-	static_assert(payment_modulus(frequency::weekly, sys_days(2024y / 5 / 6), sys_days(2025y / 5 / 6)) == 1600);
-	static_assert(payment_modulus(frequency::daily, sys_days(2024y / 5 / 6), sys_days(2025y / 5 / 6)) == 0);
-
-	// Sequence of times from b in steps of dt until past e.
-	constexpr auto periodic(frequency f, sys_days b, sys_days e)
+	// Sequence of dates after b at frequency f up to and including e.
+	constexpr auto periodic(frequency f, ymd b, ymd e)
 	{
 		using namespace std::chrono;
 		using namespace fms::iterable;
 
-		b += duration_cast<days>(common_duration(payment_modulus(f, b, e)));
+		int n = 0;
+		while (b < e) {
+			e -= months(f);
+			++n;
+		}
+		e += months(f);
 
-		return until([e](auto t) { return t > e; }, sequence(b, duration_cast<days>(common_duration((int)f))));
+		return take(sequence(e, months(f)), n);
 	}
-	constexpr auto x2 = ymd{ *periodic(frequency::quarterly, sys_days(2024y / 5 / 6), sys_days(2025y / 5 / 6)) };
+	constexpr auto x2 = *periodic(frequency::monthly, (2024y / 4 / 1), (2025y / 12 / 1));
 	/*
 	template<class Rep, class Period>
 	constexpr auto periodic(frequency f, ymd b, ymd e)
@@ -62,32 +47,73 @@ namespace tmx::date {
 #ifdef _DEBUG
 	static int periodic_test()
 	{
+		using namespace fms::iterable;
 		{
 			ymd d0 = 2024y / 5 / 6;
 			ymd d1 = 2025y / 5 / 6;
 
-			auto p = periodic(frequency::quarterly, sys_days(2024y / 5 / 6), sys_days(2025y / 5 / 6));
-			//periodic p(frequency::quarterly, sys_days(2024y / 5 / 6), sys_days(2025y / 5 / 6));
-			//periodic p(frequency::annually, d0, d1);
-			/*assert(p);
-			assert(*p == 2024y / 5 / 6);
-			++p;
-			assert(*p == 2025y / 5 / 6);
-			assert(p);*/
+			auto p = periodic(frequency::quarterly, d0, d1);
+			assert(equal(p, {2024y / 8 / 6, 2024y / 11 / 6, 2025y / 2 / 6, 2025y / 5 / 6 }));
 		}
 		{
-			ymd d = 2024y / 11 / 6;
-			auto p = periodic(frequency::monthly, d, d + std::chrono::years(1));
-			assert(p);
-			assert(*p == 2024y / 11 / 6);
-			++p;
-			assert(*p == 2024y / 12 / 6);
-			++p;
-			assert(*p == 2025y / 1 / 6);
-			++p;
-			assert(*p == 2025y / 2 / 6);
-			assert(p);
+			ymd d0 = 2024y / 5 / 7;
+			ymd d1 = 2025y / 5 / 6;
+
+			auto p = periodic(frequency::quarterly, d0, d1);
+			assert(equal(p, { 2024y / 8 / 6, 2024y / 11 / 6, 2025y / 2 / 6, 2025y / 5 / 6 }));
 		}
+		{
+			ymd d0 = 2024y / 5 / 5;
+			ymd d1 = 2025y / 5 / 6;
+
+			auto p = periodic(frequency::quarterly, d0, d1);
+			assert(equal(p, { 2024y / 5/ 6, 2024y / 8 / 6, 2024y / 11 / 6, 2025y / 2 / 6, 2025y / 5 / 6 }));
+		}
+
+		{
+			ymd d0 = 2024y / 5 / 6;
+			ymd d1 = 2025y / 5 / 6;
+
+			auto p = periodic(frequency::semiannually, d0, d1);
+			assert(equal(p, { 2024y / 11 / 6, 2025y / 5 / 6 }));
+		}
+		{
+			ymd d0 = 2024y / 5 / 7;
+			ymd d1 = 2025y / 5 / 6;
+
+			auto p = periodic(frequency::semiannually, d0, d1);
+			assert(equal(p, { 2024y / 11 / 6, 2025y / 5 / 6 }));
+		}
+		{
+			ymd d0 = 2024y / 5 / 5;
+			ymd d1 = 2025y / 5 / 6;
+
+			auto p = periodic(frequency::semiannually, d0, d1);
+			assert(equal(p, { 2024y / 5 / 6, 2024y / 11 / 6, 2025y / 5 / 6 }));
+		}
+
+		{
+			ymd d0 = 2024y / 5 / 6;
+			ymd d1 = 2025y / 5 / 6;
+
+			auto p = periodic(frequency::annually, d0, d1);
+			assert(equal(p, { 2025y / 5 / 6 }));
+		}
+		{
+			ymd d0 = 2024y / 5 / 7;
+			ymd d1 = 2025y / 5 / 6;
+
+			auto p = periodic(frequency::annually, d0, d1);
+			assert(equal(p, { 2025y / 5 / 6 }));
+		}
+		{
+			ymd d0 = 2024y / 5 / 5;
+			ymd d1 = 2025y / 5 / 6;
+
+			auto p = periodic(frequency::annually, d0, d1);
+			assert(equal(p, { 2024y / 5 / 6, 2025y / 5 / 6 }));
+		}
+
 
 		return 0;
 	}
