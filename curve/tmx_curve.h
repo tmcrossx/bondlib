@@ -202,6 +202,30 @@ namespace tmx::curve {
 	}
 #endif // _DEBUG
 
+	// Left continuous extrapolate _f after _t.
+	template<class T = double, class F = double>
+	class extrapolate : public interface<T, F> {
+		const interface<T, F>& f;
+		T _t;
+		F _f;
+	public:
+		extrapolate(const interface<T, F>& f, T _t, F _f)
+			: f(f), _t(_t), _f(_f)
+		{ }
+		extrapolate(const extrapolate& p) = default;
+		extrapolate& operator=(const extrapolate& p) = default;
+		~extrapolate() = default;
+
+		F _forward(T u) const override
+		{
+			return u <= _t ? f.forward(u) : _f;
+		}
+		F _integral(T u) const override
+		{
+			return f.integral(u) + u > _t ? _f * (_t - u) : 0;
+		}
+	};
+
 	// Add two curves. Assumes lifetime of f and g.
 	template<class T = double, class F = double>
 	class plus : public interface<T, F> {

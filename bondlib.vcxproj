@@ -150,7 +150,7 @@
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="curve\tmx_bootstrap.h" />
+    <ClInclude Include="curve\tmx_curve_bootstrap.h" />
     <ClInclude Include="curve\tmx_curve.h" />
     <ClInclude Include="curve\tmx_curve_pwflat.h" />
     <ClInclude Include="curve\tmx_pwflat.h" />

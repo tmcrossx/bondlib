@@ -10,7 +10,7 @@
 namespace tmx::option {
 
 	// F <= k if and only if X <= (log(k/f) + κ(s))/s
-	template<class F, class S, class K>
+	template<class F = double, class S = double, class K = double>
 	inline auto moneyness(F f, S s, K k, const variate::interface<F, S>& v = variate::normal<F, S>{})
 	{
 		if (f <= 0 or k <= 0 or s <= 0) {
@@ -19,8 +19,8 @@ namespace tmx::option {
 
 		return (std::log(k / f) + v.cgf(s)) / s;
 	}
-	// exponential(rt)X = F, sigma = s sqrt(t)
-	template<class R, class X, class S, class K, class T>
+	// x = f, sigma = s sqrt(t)
+	template<class R = double, class X = double, class S = double, class K = double, class T = double>
 	inline auto moneyness(R r, X x, S sigma, K k, T t, const variate::interface<X, S>& v = variate::normal<X, S>{})
 	{
 		return moneyness(exp(r*t) * x, sigma * sqrt(t), k, v);
@@ -28,7 +28,7 @@ namespace tmx::option {
 
 	namespace put {
 
-		template<class F, class S, class K>
+		template<class F = double, class S = double, class K = double>
 		inline auto value(F f, S s, K k, const variate::interface<F, S>& v = variate::normal<F, S>{})
 		{
 			if (f == 0 or k == 0) {
@@ -43,7 +43,7 @@ namespace tmx::option {
 			return k * v.cdf(x) - f * v.cdf(x, s);
 		}
 
-		template<class F, class S, class K>
+		template<class F = double, class S = double, class K = double>
 		inline auto delta(F f, S s, K k, const variate::interface<F, S>& v = variate::normal<F, S>{})
 		{
 			if (f == 0 or k == 0) {
@@ -58,7 +58,7 @@ namespace tmx::option {
 			return -v.cdf(x, s);
 		}
 
-		template<class F, class S, class K>
+		template<class F = double, class S = double, class K = double>
 		inline auto gamma(F f, S s, K k, const variate::interface<F, S>& v = variate::normal<F, S>{})
 		{
 			if (f == 0 or k == 0) {
@@ -72,7 +72,7 @@ namespace tmx::option {
 
 			return v.pdf(x, s) / (f * s);
 		}
-		template<class F, class S, class K>
+		template<class F = double, class S = double, class K = double>
 		inline auto vega(F f, S s, K k, const variate::interface<F, S>& v = variate::normal<F, S>{})
 		{
 			if (f == 0 or k == 0) {
@@ -87,7 +87,7 @@ namespace tmx::option {
 		}
 
 		// Return Black implied vol s with p = value(f, s, k)
-		template<class F, class P, class K>
+		template<class F = double, class P = double, class K = double>
 		inline auto implied(F f, P p, K k, P s0 = 0.1,
 			double tol = math::sqrt_epsilon<P>, int iter = 100)
 		{
@@ -131,25 +131,25 @@ namespace tmx::option {
 
 	namespace call {
 
-		template<class F, class S, class K>
+		template<class F = double, class S = double, class K = double>
 		inline auto value(F f, S s, K k, const variate::interface<F, S>& v = variate::normal{})
 		{
 			return f - k + put::value(f, s, k, v);
 		}
 
-		template<class F, class S, class K>
+		template<class F = double, class S = double, class K = double>
 		inline auto delta(F f, S s, K k, const variate::interface<F, S>& v = variate::normal{})
 		{
 			return -put::delta(f, s, k, v);
 		}
 
-		template<class F, class S, class K>
+		template<class F = double, class S = double, class K = double>
 		inline auto gamma(F f, S s, K k, const variate::interface<F, S>& v = variate::normal{})
 		{
 			return put::gamma(f, s, k, v);
 		}
 
-		template<class F, class S, class K>
+		template<class F = double, class S = double, class K = double>
 		inline auto vega(F f, S s, K k, const variate::interface<F, S>& v = variate::normal{})
 		{
 			return put::vega(f, s, k, v);

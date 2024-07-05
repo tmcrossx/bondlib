@@ -1,48 +1,47 @@
-// tmx_bootstrap.h - Bootstrap a piecewise-flat curve forward curve.
+// tmx_curve_bootstrap.h - Bootstrap a piecewise-flat curve forward curve.
 #pragma once
 #ifdef _DEBUG
 #include <cassert>
 #endif
 #include <utility>
 #include "instrument/tmx_instrument.h"
-#include "curve/tmx_curve_pwflat.h"
+#include "curve/tmx_curve.h"
 #include "valuation/tmx_valuation.h"
 #include "math/tmx_math_limits.h"
 
-namespace tmx::bootstrap {
+namespace tmx::curve {
 
 	// instrument1 - cash deposit
 	// instrument2 - forward rate agreement
 
-	// Bootstrap a single instrument.
+	// Bootstrap a single instrument given last time on curve and optional initial forward rate guess.
 	// Return point on the curve repricing the instrument.
-	template<class I, class T = double, class F = double>
-	inline std::pair<T, F> instrument(I i, curve::pwflat<T,F>& f, 
-		F p = 0, F _f = math::NaN<F>)
+	template<class IU, class IC, class T = double, class F = double>
+	inline std::pair<T, F> bootstrap(instrument::iterable<IU, IC> i, const curve::interface<T, F>& f, 
+		T _t, F _f = math::NaN<F>, F p = 0)
 	{
 		const auto _u = back(i).u;
-		const auto [t_, f_] = f.back();
-		if (_u <= t_) { // maturity before last point on curve
+		if (_u <= _t) { // maturity before last point on curve
 			return { math::NaN<T>, math::NaN<F> };
 		}
 
 		// fix up initial guess
 		if (std::isnan(_f)) {
-			_f = f_; // last forward rate
+			_f = f(_t); // last forward rate
 		}
 		if (std::isnan(_f)) {
 			_f = 0.01;
 		}
 
-		const auto vp = [&](F f0) { return valuation::present(i, f.extrapolate(f0)) - p; };
-		const auto vd = [=](F f0) { return valuation::duration(i, f.extrapolate(f0)); };
+		const auto vp = [f, _t](F f_) { return valuation::present(i, extrapolate(_t, f_)) - p; };
+		const auto vd = [f, _t](F f_) { return valuation::duration(i, extrapolate(_t, f_)); };
 		
 		_f = root1d::newton(_f).solve(vp, vd);
 
-		return { _u, _f };
+		return { _t, _f };
 	}
 #ifdef _DEBUG
-	inline int instrument_test()
+	inline int bootstrap_test()
 	{
 		{
 			//curve::constant<> f;

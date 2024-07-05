@@ -92,7 +92,7 @@
     <ClInclude Include="variate\tmx_variate_normal.h">
       <Filter>Header Files\variate</Filter>
     </ClInclude>
-    <ClInclude Include="curve\tmx_bootstrap.h">
+    <ClInclude Include="curve\tmx_curve_bootstrap.h">
       <Filter>Header Files\curve</Filter>
     </ClInclude>
     <ClInclude Include="curve\tmx_curve.h">

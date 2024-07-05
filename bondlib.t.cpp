@@ -11,7 +11,7 @@
 #include "instrument/tmx_instrument.h"
 #include "valuation/tmx_valuation.h"
 #include "instrument/tmx_instrument_bond.h"
-#include "curve/tmx_bootstrap.h"
+#include "curve/tmx_curve_bootstrap.h"
 //#include "tmx_muni.h"
  
 using namespace fms;
@@ -25,18 +25,16 @@ int test_hypergeometric = math::hypergeometric_test();
 int test_variate_normal = variate::normal<>::test();
 int test_option_put = option::put::test();
 
-// date
 int test_date_periodic = date::periodic_test();
 
 int test_curve_constant = curve::constant_test();
 int test_curve_exponential = curve::exponential_test();
-int test_tmx_curve_constant = curve::constant_test();
-int test_tmx_curve_bump = curve::bump_test();
+int test_curve_bump = curve::bump_test();
 int test_exponential = curve::exponential_test();
 int test_bump = curve::bump_test();
 int test_translate = curve::translate_test();
-//int test_pwflat = curve::pwflat_test();
-//int test_option_put = option::put::test();
+
+int test_pwflat = curve::pwflat_test();
 //int test_tmx_monotonic = tmx::monotonic_test();
 //int test_pwflat_curve_view = pwflat::view<>::test();
 //int test_pwflat_curve_value = pwflat::interface<>::test();
@@ -47,7 +45,7 @@ int test_translate = curve::translate_test();
 //int test_valuation_yield_d = valuation::yield_test<double>();
 //int test_value_yield_f = value::yield_test<float>();
 int test_bond_basic = bond::basic_test();
-int test_bootstrap_instrument = bootstrap::instrument_test();
+int test_bootstrap = curve::bootstrap_test();
 //int test_muni_fit = muni::fit_test();
 #endif // _DEBUG
 
