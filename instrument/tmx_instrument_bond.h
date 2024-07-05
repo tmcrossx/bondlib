@@ -27,6 +27,7 @@ namespace tmx::bond {
 	inline auto instrument(const basic<C>& bond, const date::ymd& pvdate)
 	{
 		using namespace fms::iterable;
+		using namespace tmx::date;
 
 		// If pvdate is before dated use dated in first payment date.
 		const auto d0 = std::max(bond.dated, pvdate);
