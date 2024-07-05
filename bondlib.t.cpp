@@ -20,20 +20,26 @@ using namespace tmx;
 #ifdef _DEBUG
 
 int test_hypergeometric = math::hypergeometric_test();
+
+// variate/valuation
+int test_variate_normal = variate::normal<>::test();
+int test_option_put = option::put::test();
+
+// date
 int test_date_periodic = date::periodic_test();
 
 int test_curve_constant = curve::constant_test();
+int test_curve_exponential = curve::exponential_test();
+int test_tmx_curve_constant = curve::constant_test();
+int test_tmx_curve_bump = curve::bump_test();
 int test_exponential = curve::exponential_test();
-int test_variate_normal = variate::normal<>::test();
-//int test_black_put = black::put::test();
-//int test_curve_operator = curve::constant<>::test();
+int test_bump = curve::bump_test();
+int test_translate = curve::translate_test();
 //int test_pwflat = curve::pwflat_test();
 //int test_option_put = option::put::test();
 //int test_tmx_monotonic = tmx::monotonic_test();
 //int test_pwflat_curve_view = pwflat::view<>::test();
 //int test_pwflat_curve_value = pwflat::interface<>::test();
-int test_tmx_curve_constant = curve::constant_test();
-int test_tmx_curve_bump = curve::bump_test();
 //int test_instrument_zcb = instrument::iterable_test();
 //int test_instrument_iterable = instrument::iterable_test();
 //int test_instrument_view = view<>::test();

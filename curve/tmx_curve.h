@@ -77,7 +77,7 @@ namespace tmx::curve {
 	{
 		{
 			constant c(1.);
-			assert(math::isnan(constant(1.).forward(-1)));
+			assert(std::isnan(constant(1.).forward(-1)));
 			assert(c.forward(0.) == 1);
 			assert(c.integral(0.) == 0);
 			assert(c.integral(2.) == 2.);
@@ -184,10 +184,24 @@ namespace tmx::curve {
 		}
 		F _integral(T u) const override
 		{
-			return f.integral(u) - f.integral(t);
+			return f.integral(u + t) - f.integral(t);
 		}
 	};
-		
+#ifdef _DEBUG
+	inline int translate_test()
+	{
+		double r = 0.1;
+		{
+			exponential e(r);
+			translate t(e, 1.);
+			assert(t.forward(0.9) == std::exp(r*(0.9 + 1)));
+			assert(t.integral(0.9) == e.integral(0.9 + 1) - e.integral(1.));
+		}
+
+		return 0;
+	}
+#endif // _DEBUG
+
 	// Add two curves. Assumes lifetime of f and g.
 	template<class T = double, class F = double>
 	class plus : public interface<T, F> {
