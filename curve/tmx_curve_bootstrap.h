@@ -11,8 +11,8 @@
 
 namespace tmx::curve {
 
-	// instrument1 - cash deposit
-	// instrument2 - forward rate agreement
+	// bootstrap1 - cash deposit
+	// bootstrap2 - forward rate agreement
 
 	// Bootstrap a single instrument given last time on curve and optional initial forward rate guess.
 	// Return point on the curve repricing the instrument.
@@ -20,11 +20,8 @@ namespace tmx::curve {
 	inline std::pair<T, F> bootstrap(instrument::iterable<IU, IC> i, const curve::interface<T, F>& f, 
 		T _t, F _f = math::NaN<F>, F p = 0)
 	{
-		const auto _u = back(i).u;
-		if (_u <= _t) { // maturity before last point on curve
-			return { math::NaN<T>, math::NaN<F> };
-		}
-
+		auto [_u, _c] = *last(i); // last cash flow time
+		// if (_u <= _t) ...
 		// fix up initial guess
 		if (std::isnan(_f)) {
 			_f = f(_t); // last forward rate
@@ -33,23 +30,26 @@ namespace tmx::curve {
 			_f = 0.01;
 		}
 
-		const auto vp = [f, _t](F f_) { return valuation::present(i, extrapolate(_t, f_)) - p; };
-		const auto vd = [f, _t](F f_) { return valuation::duration(i, extrapolate(_t, f_)); };
+		const auto vp = [i, &f, _t, p](F f_) { return valuation::present(i, extrapolate(f, _t, f_)) - p; };
+		const auto vd = [i, &f, _t](F f_) { return valuation::duration(i, extrapolate(f, _t, f_)); };
 		
 		_f = root1d::newton(_f).solve(vp, vd);
 
-		return { _t, _f };
+		return { _u, _f };
 	}
 #ifdef _DEBUG
 	inline int bootstrap_test()
 	{
+		using namespace fms::iterable;
 		{
-			//curve::constant<> f;
-			//double r = 0.1;
-			//const auto i = instrument::iterable({ 1. }, { std::exp(r) });
-			//auto [_t, _f] = tmx::bootstrap::instrument(i, f, 1.);
-			//assert(_t == 1);
-			//assert(std::fabs(_f - r) <= math::sqrt_epsilon<double>);
+			curve::constant<> f;
+			double r = 0.1;
+			auto u0 = single(1.);
+			auto c0 = single(std::exp(r));
+
+			auto [_t, _f] = curve::bootstrap(instrument::iterable(u0, c0), f, 0., 0.2, 1.);
+			assert(_t == 1);
+			assert(std::fabs(_f - r) <= math::sqrt_epsilon<double>);
 		}
 
 		return 0;

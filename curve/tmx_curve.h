@@ -22,6 +22,10 @@ namespace tmx::curve {
 		{
 			return u >= 0 ? _forward(u) : std::numeric_limits<F>::quiet_NaN();
 		}
+		F operator()(T u) const
+		{
+			return forward(u);
+		}
 
 		// Integral from 0 to u of forward: int_0^u f(s) ds.
 		F integral(T u) const
