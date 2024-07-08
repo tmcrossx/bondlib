@@ -27,6 +27,46 @@ is the sum of discounted future cash flows, $p = \sum_j c_j D(u_j)$.
 The _duration_ of a fixed income security is the derivative of the present value with respect to a
 parallel shift in the forward curve. The _convexity_ is the second derivative.
 
+## Date
+
+A fundamental problem when implementing date and time is how to convert two
+calendar dates to a time duration and a date plus a time duration back to a calendar date.
+We must preserve $d_0 + (d_1 - d_0) = d_1$ for any dates $d_0$ and $d_1$. 
+This does not have a canonical solution.
+
+The [`tmx::date`](tmx_date.h) namespace uses `tmx::date::ymd` as an alias
+for `std::chrono::year_month_day` to represent a calendar dates
+and `time_t` to represent time durations.
+The namespace implements `ymd operator+(ymd, time_t)` and `time_t _operator-(ymd, ymd)`
+using `<chrono>`.
+
+### Day Count
+
+The file [`tmx_daycount.h`](tmx_daycount.h) implements the most common day count fraction
+conventions. The unit tests are from the [Bloomberd BDE library](https://github.com/bloomberg/bde).
+
+### Holiday
+
+The file [`tmx_holiday.h`](tmx_holiday.h) implements tests for common holidays.
+Instead of a database of holidays it uses a function that returns `true` if a date is a holiday.
+This is the approach taken by the [QuantLib](https://www.quantlib.org/) library.
+
+### Holiday Calendar
+
+The file [`tmx_holiday_calendar.h`](tmx_holiday_calendar.h) implements holiday calendars.
+It currently has only the SIFMA and NYSE calendars.
+
+### Business Day
+
+The file [`tmx_business_day.h`](tmx_business_day.h) implements the most common business day 
+rolling conventions. Dates falling on a holiday must be adjusted to a nearby business day.
+
+## Instrument
+
+A [`tmx::instrument::iterable`](tmx_instrument.h) is constructed
+from a pair of time and amount iterables.
+Its `value_type` is a [`tmx::cashflow`](tmx_cash_flow.h) with time and amount members.
+
 ## Curve
 
 The [`tmx::curve::interface`](tmx_curve.h#:~:text=class%20interface) class provides an interface to
@@ -37,42 +77,31 @@ can be used to specify invariants for subclasses and help the compiler eliminate
 
 Subclasses must override the pure virtual `_forward` and `_integral` functions.
 Spot and discount are implemented in terms of these.
-The `tmx::curve::constant`, `tmx::curve::exponential`, and `tmx::curve::bump` classes
+The `tmx::curve::constant`, `tmx::curve::exponential`, `tmx::curve::bump`
+and `tmx::curve::extrapolate` classes
 are examples of how to do this.
 
 The `tmx::curve::plus` class adds two curves. It uses const references to avoid copying
 any data used in the implementation of the `curve::interface` class. 
 The referenced data are required to outlive the `curve::plus` object.
 
-## Instrument
+### Piecewise Flat
 
-The [`tmx::instrument::interface`](tmx_instrument.h) class provides an interface to an iterable stream
-of [`tmx::cash_flows`](tmx_cash_flow.h). All instruments publicly inherit from
-[`fms::iterable::base`](fms_iterable.h) that uses `operator bool()` 
-to detect when there are no further cash flows,
-`operator*()` to get the time and amount of the current cash flow, 
-and `operator++()` to advance to the next cash flow.
+[`tmx::curve::pwflat`](tmx_curve_pwflat.h) implements `tmx::curve::interface`. 
+It uses standalone functions from [tmx::pwflat](tmx_pwflat.h)
 
 ## Valuation
 
 The functions in the [`tmx::valuation`](tmx_valuation.h) namespace calculate 
-fixed income analytics using the instrument and curve interfaces.
+fixed income analytics given an instrument and curve interface.
 
 The functions [`compound_yield`](tmx_valuation.h#:~:text=compound_yield) 
-and [`continuous_yield`](tmx_valuation.h) convert between
+and [`continuous_yield`](tmx_valuation.h#:~:text=continuous_yield) convert between
 the continuously compounded yield used in the internal implementation
 and the compounded yields quoted in the market.
 
 There are also functions for computing the present value, duration, convexity, yield
 and option adjusted spread of a fixed income security.
-
-### Piecewise Flat
-
-[`tmx::curve::pwflat`](tmx_curve_pwflat.h) implements `tmx::curve::interface` as a 
-[value type](https://learn.microsoft.com/en-us/cpp/cpp/value-types-modern-cpp?view=msvc-170). 
-It uses the standalone functions from [tmx::pwflat](tmx_pwflat.h).
-
-It has methods to extrapolate the curve and add points so it can be used in the bootstrap algorithm.
 
 ## Bootstrap
 

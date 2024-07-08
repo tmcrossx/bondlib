@@ -21,13 +21,13 @@ namespace tmx::instrument {
 		using difference_type = std::ptrdiff_t;
 
 		constexpr iterable() = default;
-		constexpr iterable(const IU& u, const IC& c)
+		constexpr iterable(const IU& u, const IC& c) // TODO: default
 			: u(u), c(c)
 		{ }
-		constexpr iterable(const iterable& i)
+		constexpr iterable(const iterable& i) // TODO: default
 			: u(i.u), c(i.c)
 		{ }
-		constexpr iterable& operator=(const iterable& i )
+		constexpr iterable& operator=(const iterable& i ) // TODO: default
 		{
 			if (this != &i) {
 				u = i.u;

@@ -18,30 +18,30 @@ namespace tmx::curve {
 		virtual ~interface() {}
 
 		// Forward at u: f(u).
-		F forward(T u) const
+		constexpr F forward(T u) const
 		{
 			return u >= 0 ? _forward(u) : std::numeric_limits<F>::quiet_NaN();
 		}
-		F operator()(T u) const
+		constexpr F operator()(T u) const
 		{
 			return forward(u);
 		}
 
 		// Integral from 0 to u of forward: int_0^u f(s) ds.
-		F integral(T u) const
+		constexpr F integral(T u) const
 		{
 			return u >= 0 ? _integral(u) : std::numeric_limits<F>::quiet_NaN();
 		}
 
 		// Price of one unit received at time u.
-		F discount(T u) const
+		constexpr F discount(T u) const
 		{
 			return u >= 0 ? std::exp(-integral(u)) : std::numeric_limits<F>::quiet_NaN();
 		}
 
 		// Spot/yield is the average of the forward over [0, u].
 		// If u is small, use the forward.
-		F spot(T u) const
+		constexpr F spot(T u) const
 		{
 			if (u < 0) {
 				return std::numeric_limits<F>::quiet_NaN();
@@ -54,8 +54,8 @@ namespace tmx::curve {
 		}
 
 	private:
-		virtual F _forward(T u) const = 0;
-		virtual F _integral(T u) const = 0;
+		constexpr virtual F _forward(T u) const = 0;
+		constexpr virtual F _integral(T u) const = 0;
 	};
 
 	// Constant curve.
@@ -99,15 +99,15 @@ namespace tmx::curve {
 	class exponential : public interface<T, F> {
 		F r;
 	public:
-		exponential(F r = 0) 
+		constexpr exponential(F r = 0)
 			: r(r)
 		{ }
 
-		F _forward(T u) const override
+		constexpr F _forward(T u) const override
 		{
 			return std::exp(r * u);
 		}
-		F _integral(T u) const override
+		constexpr F _integral(T u) const override
 		{
 			return (r == 0) ? u : std::expm1(r * u) / r;
 		}
@@ -174,19 +174,19 @@ namespace tmx::curve {
 		const interface<T, F>& f;
 		T t;
 	public:
-		translate(const interface<T, F>& f, T t)
+		constexpr translate(const interface<T, F>& f, T t)
 			: f(f), t(t)
 		{
 		}
-		translate(const translate& c) = default;
-		translate& operator=(const translate& c) = default;
-		~translate() = default;
+		constexpr translate(const translate& c) = default;
+		constexpr translate& operator=(const translate& c) = default;
+		constexpr ~translate() = default;
 
-		F _forward(T u) const override
+		constexpr F _forward(T u) const override
 		{
 			return f.forward(u + t);
 		}
-		F _integral(T u) const override
+		constexpr F _integral(T u) const override
 		{
 			return f.integral(u + t) - f.integral(t);
 		}
@@ -213,18 +213,18 @@ namespace tmx::curve {
 		T _t;
 		F _f;
 	public:
-		extrapolate(const interface<T, F>& f, T _t, F _f)
+		constexpr extrapolate(const interface<T, F>& f, T _t, F _f)
 			: f(f), _t(_t), _f(_f)
 		{ }
-		extrapolate(const extrapolate& p) = default;
-		extrapolate& operator=(const extrapolate& p) = default;
-		~extrapolate() = default;
+		constexpr extrapolate(const extrapolate& p) = default;
+		constexpr extrapolate& operator=(const extrapolate& p) = default;
+		constexpr ~extrapolate() = default;
 
-		F _forward(T u) const override
+		constexpr F _forward(T u) const override
 		{
 			return u <= _t ? f.forward(u) : _f;
 		}
-		F _integral(T u) const override
+		constexpr F _integral(T u) const override
 		{
 			return f.integral(u) + u > _t ? _f * (_t - u) : 0;
 		}
@@ -236,18 +236,18 @@ namespace tmx::curve {
 		const interface<T, F>& f;
 		const interface<T, F>& g;
 	public:
-		plus(const interface<T, F>& f, const interface<T, F>& g)
+		constexpr plus(const interface<T, F>& f, const interface<T, F>& g)
 			: f(f), g(g)
 		{ }
-		plus(const plus& p) = default;
-		plus& operator=(const plus& p) = default;
-		~plus() = default;
+		constexpr plus(const plus& p) = default;
+		constexpr plus& operator=(const plus& p) = default;
+		constexpr ~plus() = default;
 
-		F _forward(T u) const override
+		constexpr F _forward(T u) const override
 		{
 			return f.forward(u) + g.forward(u);
 		}
-		F _integral(T u) const override
+		constexpr F _integral(T u) const override
 		{
 			return f.integral(u) + g.integral(u);
 		}
@@ -257,7 +257,7 @@ namespace tmx::curve {
 
 // Add two curves.
 template<class T, class F>
-inline tmx::curve::plus<T, F> operator+(const tmx::curve::interface<T, F>& f, const tmx::curve::interface<T, F>& g)
+constexpr  tmx::curve::plus<T, F> operator+(const tmx::curve::interface<T, F>& f, const tmx::curve::interface<T, F>& g)
 {
 	return tmx::curve::plus<T, F>(f, g);
 }
