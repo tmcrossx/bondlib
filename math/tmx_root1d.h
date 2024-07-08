@@ -78,7 +78,7 @@ namespace tmx::root1d {
 		constexpr X solve(const F& f, const dF& df, X a = -math::infinity<X>, X b = math::infinity<X>)
 		{
 			auto y0 = f(x0);
-			while (iterations-- and math::fabs(y0) > tolerance) {
+			while (iterations and math::fabs(y0) > tolerance) {
 				auto x = next(x0, y0, df(x0));
 
 				if (x < a) {
@@ -92,6 +92,7 @@ namespace tmx::root1d {
 				}
 
 				y0 = f(x0);
+				--iterations;
 			}
 
 			return iterations ? x0 : math::NaN<X>;

@@ -28,9 +28,10 @@ namespace tmx::curve {
 		pwflat& operator=(pwflat&&) = default;
 		~pwflat() = default;
 
+		// Equal values.
 		auto operator==(const pwflat& c) const
 		{
-			return _f == c._f && t_ == c.t_ && f_ == c.f_;
+			return ((std::isnan(_f) && std::isnan(c._f)) || _f == c._f) && t_ == c.t_ && f_ == c.f_;
 		}
 
 		F _forward(T u) const noexcept override
@@ -46,7 +47,7 @@ namespace tmx::curve {
 		{
 			return t_.size();
 		}
-		// TODO: iterable???
+		// Use iterable::make_interval(f.time()).
 		auto time() const
 		{
 			return std::span(t_.begin(), t_.end());
@@ -60,6 +61,14 @@ namespace tmx::curve {
 		std::pair<T, F> back() const noexcept
 		{
 			return t_.size() ? std::make_pair(t_.back(), f_.back()) : std::make_pair(math::infinity<T>, _f);
+		}
+
+		pwflat& push_back(T t, F f)
+		{
+			t_.push_back(t);
+			f_.push_back(f);
+
+			return *this;
 		}
 
 		// Get extrapolation level.
@@ -78,24 +87,27 @@ namespace tmx::curve {
 	inline int pwflat_test()
 	{
 		{
-			pwflat<> c; // default constructor
-			auto c2(c); // copy constructor
-			c2 = c;     // copy assignment
+			pwflat<> c;
+			auto c2(c);
+			assert(c == c2);
+			c2 = c;
+			assert(!(c2 != c));
 		}
 		{
 			// test one case for _value, _integral, _extrapolate, and _back.
 			pwflat<> p1(3);
 			assert(3.0 == p1.forward(0));
 			assert(15 == p1.integral(5));
-			//p1.extrapolate(7);
-			//assert(7.0 == p1.value(0));
-			//assert(21 == p1.integral(3, 0));
+			p1.extrapolate(7);
+			assert(7.0 == p1.forward(0));
+			assert(21 == p1.integral(3));
 
-			//auto back = p1.back();
-			//assert(back.first);
-			//assert(3.0 == back.second);
-			//std::cout << back.second << std::endl;
-			//std::cout << p.integral(5, 0) << std::endl;
+			assert(p1.size() == 0);
+			p1.push_back(1, 2);
+			assert(p1.size() == 1);
+			assert(p1(0.5) == 2);
+			assert(p1(1) == 2);
+			assert(p1(1.5) == 7);
 		}
 
 		return 0;

@@ -63,7 +63,7 @@ namespace tmx::curve {
 	class constant : public interface<T, F> {
 		F f;
 	public:
-		constexpr constant(F f = std::numeric_limits<F>::quiet_NaN()) 
+		constexpr constant(F f = 0) 
 			: f(f)
 		{ }
 
@@ -220,13 +220,14 @@ namespace tmx::curve {
 		constexpr extrapolate& operator=(const extrapolate& p) = default;
 		constexpr ~extrapolate() = default;
 
+		// left continuous forward
 		constexpr F _forward(T u) const override
 		{
 			return u <= _t ? f.forward(u) : _f;
 		}
 		constexpr F _integral(T u) const override
 		{
-			return f.integral(u) + u > _t ? _f * (_t - u) : 0;
+			return f.integral(u) + u > _t ? _f * (u - _t) : 0;
 		}
 	};
 

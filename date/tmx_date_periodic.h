@@ -5,17 +5,17 @@
 
 // name, months, description
 #define TMX_DATE_FREQUENCY(X) \
-	X(missing, 0, "Missing frequency.") \
-	X(annually, 12, "Yearly payments.") \
-	X(semiannually, 6, "biannual payments.") \
-	X(quarterly, 3, "quarterly payments.") \
-	X(monthly, 1, "monthly payments.") \
+	X(MISSING, missing, 0, "Missing frequency.") \
+	X(ANNUALLY, annually, 12, "Yearly payments.") \
+	X(SEMIANNUALLY, semiannually, 6, "biannual payments.") \
+	X(QUARTERLY, quarterly, 3, "quarterly payments.") \
+	X(MONTHLY, monthly, 1, "monthly payments.") \
 
 namespace tmx::date {
 
 	using sys_days = std::chrono::sys_days;
 
-#define TMX_DATE_FREQUENCY_ENUM(a, b, c) a = b,
+#define TMX_DATE_FREQUENCY_ENUM(a, b, c, d) b = c,
 	enum frequency {
 		TMX_DATE_FREQUENCY(TMX_DATE_FREQUENCY_ENUM)
 	};
@@ -45,7 +45,7 @@ namespace tmx::date {
 	}
 	*/
 #ifdef _DEBUG
-	static int periodic_test()
+	constexpr int periodic_test()
 	{
 		using namespace fms::iterable;
 		{

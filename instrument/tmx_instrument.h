@@ -67,4 +67,11 @@ namespace tmx::instrument {
 		}
 	};
 
+	// Single cash flow c at u.
+	template<class U = double, class C = double>
+	constexpr auto zero_coupon_bond(U u, C c)
+	{
+		return iterable(fms::iterable::single(u), fms::iterable::single(c));
+	}
+
 } // namespace tmx::instrument	

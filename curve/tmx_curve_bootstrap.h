@@ -21,7 +21,9 @@ namespace tmx::curve {
 		T _t, F _f = math::NaN<F>, F p = 0)
 	{
 		auto [_u, _c] = *last(i); // last cash flow time
-		// if (_u <= _t) ...
+		if (_u <= _t) {
+			return { math::NaN<T>, math::NaN<F> };
+		}
 		// fix up initial guess
 		if (std::isnan(_f)) {
 			_f = f(_t); // last forward rate
@@ -44,10 +46,14 @@ namespace tmx::curve {
 		{
 			curve::constant<> f;
 			double r = 0.1;
-			auto u0 = single(1.);
-			auto c0 = single(std::exp(r));
-
-			auto [_t, _f] = curve::bootstrap(instrument::iterable(u0, c0), f, 0., 0.2, 1.);
+			auto zcb = instrument::zero_coupon_bond(1, std::exp(r));
+			auto D = extrapolate(f, 0., r).discount(1);
+			assert(D < 1);
+			auto p = valuation::present(zcb, extrapolate(f, 0., r)); 
+			assert(p == 1);
+			auto d = valuation::duration(zcb, extrapolate(f, 0., r));
+			assert(d == -1);
+			auto [_t, _f] = curve::bootstrap(zcb, f, 0., 0.2, 1.);
 			assert(_t == 1);
 			assert(std::fabs(_f - r) <= math::sqrt_epsilon<double>);
 		}
