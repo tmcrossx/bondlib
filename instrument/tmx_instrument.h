@@ -65,6 +65,15 @@ namespace tmx::instrument {
 
 			return i;
 		}
+
+		IU time() const
+		{
+			return u;
+		}
+		IC cash() const
+		{
+			return c;
+		}
 	};
 
 	// Single cash flow c at u.

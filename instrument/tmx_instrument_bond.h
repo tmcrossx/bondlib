@@ -45,7 +45,7 @@ namespace tmx::bond {
 		const auto c = constant(bond.face * bond.coupon) * dcf;
 
 		// face value at maturity
-		const auto u_ = concatenate(u, single(bond.maturity - pvdate));
+		const auto u_ = concatenate(u, single(tmx::date::diffyears(bond.maturity, pvdate)));
 		const auto c_ = concatenate(c, single(bond.face));
 
 		return instrument::iterable(u_, c_);
@@ -81,7 +81,7 @@ namespace tmx::bond {
 
 			i = drop(i, 20);
 			auto cn = *i;
-			assert(cn.u == (bond.maturity - d));
+			assert(cn.u == tmx::date::diffyears(bond.maturity, d));
 			assert(cn.c == 100);
 		}
 		{
@@ -97,7 +97,7 @@ namespace tmx::bond {
 			assert(c1.c == 2.5);
 			i = drop(i, 19);
 			auto cn = *i;
-			assert(cn.u == (bond.maturity - pvdate));
+			assert(cn.u == tmx::date::diffyears(bond.maturity, pvdate));
 			assert(cn.c == 100);
 		}
 		{
@@ -113,7 +113,7 @@ namespace tmx::bond {
 			assert(c1.c == 2.5);
 			i = drop(i, 19);
 			auto cn = *i;
-			assert(cn.u == (bond.maturity - pvdate));
+			assert(cn.u == tmx::date::diffyears(bond.maturity, pvdate));
 			assert(cn.c == 100);
 		}
 
