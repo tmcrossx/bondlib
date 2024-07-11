@@ -4,6 +4,7 @@
 // See XXX.t.cpp for tests.
 #pragma once
 #include <functional>
+#include <utility>
 #ifdef _DEBUG
 #include "math/tmx_math.h"
 #endif // _DEBUG
@@ -27,6 +28,10 @@ namespace tmx::date {
 	// https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicisma30360.cpp
 	constexpr double day_count_isma30360(const ymd& ymd2, const ymd& ymd1)
 	{
+        if (ymd2 < ymd1) {
+			return -day_count_isma30360(ymd1, ymd2);
+		}
+
 		auto [y1, m1, d1] = split(ymd1);
 		auto [y2, m2, d2] = split(ymd2);
 
@@ -95,7 +100,11 @@ static_assert(math::equal_precision(day_count_isma30360(std::chrono::year(Y1) / 
 	// https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicpsa30360eom.cpp
 	constexpr double day_count_isma30360eom(const ymd& ymd2, const ymd& ymd1)
 	{
-		auto [y1, m1, d1] = split(ymd1);
+        if (ymd2 < ymd1) {
+            return -day_count_isma30360eom(ymd1, ymd2);
+        }
+
+        auto [y1, m1, d1] = split(ymd1);
 		auto [y2, m2, d2] = split(ymd2);
 
 		if (m1 == 2 && (d1 == 29 || (d1 == 28 && !ymd1.year().is_leap()))) {
@@ -110,6 +119,7 @@ static_assert(math::equal_precision(day_count_isma30360(std::chrono::year(Y1) / 
 		if (d2 == 31 && d1 == 30) {
 			d2 = 30;
 		}
+
 		return ((y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1)) / 360.0;
 	}
 
@@ -194,6 +204,10 @@ static_assert(math::equal_precision(day_count_isma30360eom(std::chrono::year(Y1)
 	// https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicisdaactualactual.cpp
 	constexpr double day_count_isdaactualactual(const ymd& ymd2, const ymd& ymd1)
 	{
+        if (ymd2 < ymd1) {
+			return -day_count_isdaactualactual(ymd1, ymd2);
+		}
+
 		auto [y1, m1, d1] = split(ymd1);
 		auto [y2, m2, d2] = split(ymd2);
 
@@ -244,6 +258,10 @@ static_assert(math::equal_precision(day_count_isdaactualactual(std::chrono::year
 	// https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicactual360.cpp
 	constexpr double day_count_actual360(const ymd& ymd2, const ymd& ymd1)
 	{
+        if (ymd2 < ymd1) {
+            return -day_count_actual360(ymd1, ymd2);
+        }
+
 		return diffdays(ymd2, ymd1) / 360.0;
 	}
 
@@ -300,6 +318,10 @@ static_assert(math::equal_precision(day_count_actual360(std::chrono::year(Y1) / 
 	// https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicactual365fixed.cpp
 	constexpr double day_count_actual365fixed(const ymd& ymd2, const ymd& ymd1)
 	{
+        if (ymd2 < ymd1) {
+            return -day_count_actual365fixed(ymd1, ymd2);
+        }
+
 		return diffdays(ymd2, ymd1) / 365.0;
 	}
 

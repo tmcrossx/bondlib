@@ -10,7 +10,13 @@ namespace tmx::date {
 
 	using std::literals::chrono_literals::operator""y;
 	using ymd = std::chrono::year_month_day; // E.g., ymd d = 2024y / 5 / 6
-	
+
+	constexpr void swap(ymd& lhs, ymd& rhs) {
+		ymd temp = lhs;
+		lhs = rhs;
+		rhs = temp;
+	}
+
 	// Use std::chrono constants.
 	constexpr time_t seconds_per_year = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::years{ 1 }).count();
 

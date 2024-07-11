@@ -60,7 +60,7 @@ namespace tmx::curve {
 		// Last point on curve.
 		std::pair<T, F> back() const noexcept
 		{
-			return t_.size() ? std::make_pair(t_.back(), f_.back()) : std::make_pair(math::infinity<T>, _f);
+			return t_.size() ? std::make_pair(t_.back(), f_.back()) : std::make_pair(0., _f);
 		}
 
 		pwflat& push_back(T t, F f)
@@ -69,6 +69,10 @@ namespace tmx::curve {
 			f_.push_back(f);
 
 			return *this;
+		}
+		pwflat& push_back(std::pair<T, F> p)
+		{
+			return push_back(p.first, p.second);
 		}
 
 		// Get extrapolation level.
