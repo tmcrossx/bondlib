@@ -71,8 +71,7 @@ namespace tmx::date::holiday {
 	// Friday before Easter.
 	constexpr bool good_friday(const date::ymd& d)
 	{
-		return easter(std::chrono::sys_days{ d } + std::chrono::days(2));
-	
+		return easter(std::chrono::sys_days{ d } + std::chrono::days(2));	
 	}
 
 	// Last Monday in May.
@@ -83,6 +82,7 @@ namespace tmx::date::holiday {
 	static_assert(memorial_day(2021y / 5 / 31));
 
 	// Juneteenth National Independence Day
+	// TODO: roll to monday?
 	constexpr bool juneteenth(const date::ymd& d)
 	{
 		return month_day(d, std::chrono::June, std::chrono::day(19));

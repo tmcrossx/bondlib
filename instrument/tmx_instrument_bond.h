@@ -1,4 +1,4 @@
-// tmx_bond.h - Bonds
+// tmx_instruement_bond.h - Bonds
 #pragma once
 #include "date/tmx_date_business_day.h"
 #include "date/tmx_date_day_count.h"
@@ -6,7 +6,7 @@
 #include "date/tmx_date_periodic.h"
 #include "tmx_instrument.h"
 
-namespace tmx::bond {
+namespace tmx::instrument::bond {
 
 	// Basic bond indicative data.
 	template<class C = double, class F = double>
@@ -120,4 +120,4 @@ namespace tmx::bond {
 		return 0;
 	}
 #endif // _DEBUG
-} // namespace tmx::bond
+} // namespace tmx::instrument::bond

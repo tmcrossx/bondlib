@@ -47,6 +47,14 @@ namespace tmx::date::holiday::calendar {
 			|| holiday::christmas_day(d);
 	}
 
+	// Federal Reserve
+	// https://www.stlouisfed.org/about-us/resources/legal-holiday-schedule
+	constexpr bool FED(const ymd& d)
+	{
+		return SIFMA(d)
+			|| holiday::presidents_day(d);
+	}
+
 	// New York Stock Exchange holidays
 	// https://www.sifma.org/resources/general/holiday-schedule/#us
 	constexpr bool NYSE(const ymd& d)

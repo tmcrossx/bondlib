@@ -107,5 +107,8 @@
     <ClInclude Include="date\tmx_date_periodic.h">
       <Filter>Header Files\date</Filter>
     </ClInclude>
+    <ClInclude Include="instrument\tmx_instrument_treasury.h">
+      <Filter>Header Files\instrument</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -44,7 +44,7 @@ int test_pwflat = curve::pwflat_test();
 //int test_instrument_value = value<>::test();
 //int test_valuation_yield_d = valuation::yield_test<double>();
 //int test_value_yield_f = value::yield_test<float>();
-int test_bond_basic = bond::basic_test();
+int test_instrument_bond_basic = instrument::bond::basic_test();
 int test_bootstrap = curve::bootstrap_test();
 //int test_muni_fit = muni::fit_test();
 #endif // _DEBUG
