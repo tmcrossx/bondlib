@@ -68,23 +68,27 @@ namespace tmx::valuation {
 	template<class IU, class IC, 
 		class C = typename IC::value_type, class U = typename IU::value_type>
 	inline C yield(instrument::iterable<IU, IC> i, C p = 0,
-		C y = 0.01, C tol = math::sqrt_epsilon<C>, int iter = 100)
+		C y0 = 0.01, C tol = math::sqrt_epsilon<C>, int iter = 100)
 	{
 		const auto pv = [p,&i](C y_) { return present(i, curve::constant<U, C>(y_)) - p; };
 		const auto dur = [&i](C y_) { return duration(i, curve::constant<U, C>(y_)); };
 
-		return root1d::newton(y, tol, iter).solve(pv, dur);
+		auto [y, t, n] = root1d::newton(y0, tol, iter).solve(pv, dur);
+
+		return y;
 	}
 
 	// Constant spread for which the present value of the instrument equals price.
 	template<class IU, class IC, class T, class F>
 	inline F oas(instrument::iterable<IU, IC> i, const curve::interface<T, F>& f, F p,
-		F s = 0, F tol = math::sqrt_epsilon<F>, int iter = 100)
+		F s0 = 0, F tol = math::sqrt_epsilon<F>, int iter = 100)
 	{
 		const auto pv = [p,&i,&f](F s_) { return present(i, f + curve::constant<T,F>(s_)) - p; };
 		const auto dur = [&i,&f](F s_) { return duration(i, f + curve::constant<T, F>(s_)); };
 
-		return root1d::newton(s, tol, iter).solve(pv, dur);
+		auto [s, t, n] = root1d::newton(s0, tol, iter).solve(pv, dur);
+
+		return s;
 	}
 
 #ifdef _DEBUG

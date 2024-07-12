@@ -94,7 +94,9 @@ namespace tmx::option {
 			const auto v = [=](P s) { return value(f, s, k) - p; };
 			const auto dv = [=](P s) { return vega(f, s, k); };
 
-			return root1d::newton(s0, tol, iter).solve(v, dv);
+			auto [s, t, n] = root1d::newton(s0, tol, iter).solve(v, dv);
+
+			return s;
 		}
 
 #ifdef _DEBUG
@@ -120,6 +122,9 @@ namespace tmx::option {
 				assert(math::equal_precision(v, 39.844, -3));
 				double v_ = math::symmetric_difference([](double s) { return value(100., s, 100.); }, .1, 1e-6);
 				assert(math::equal_precision(v, v_, -3));
+
+				double s = implied(100., p, 100., 0.02);
+				assert(math::equal_precision(s, 0.1, -10));
 
 			}
 
