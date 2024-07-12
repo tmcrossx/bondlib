@@ -29,7 +29,7 @@ namespace tmx::bond {
 		using namespace fms::iterable;
 		using namespace tmx::date;
 
-		// If pvdate is before dated use dated in first payment date.
+		// If pvdate is before dated use dated to compute first payment date.
 		const auto d0 = std::max(bond.dated, pvdate);
 		// payment dates
 		const auto pd = date::periodic(bond.frequency, d0, bond.maturity);

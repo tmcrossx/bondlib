@@ -1,8 +1,30 @@
 // fmx_root1d.h - 1-d root using secant method
 #pragma once
+#include <tuple>
 #include "tmx_math.h"
 
 namespace tmx::root1d {
+
+	// Move x to bracketed root in [a, b] given last bracketed guess x0.
+	template<class X>
+	constexpr X bracket(X x, X x0, X a, X b)
+	{
+		if (a >= x0) {
+			throw __FUNCTION__ "x0 is less than a";
+		}
+		if (x0 >= b) {
+			throw __FUNCTION__ "x0 is greater than b";
+		}
+
+		if (x < a) {
+			return (x0 + a)/2;
+		}
+		else if (x > b) {
+			return (x0 + b)/2;
+		}
+
+		return x;
+	}
 
 	template<class X, class Y>
 	struct secant {
@@ -20,17 +42,19 @@ namespace tmx::root1d {
 		}
 
 		// Find root given two initial guesses.
+		// Return root approximation, tolerance, and number of iterations.
 		template<class F>
-		constexpr X solve(const F& f)
+		constexpr std::tuple<X,X,size_t> solve(const F& f)
 		{
 			Y y0 = f(x0);
 			Y y1 = f(x1);
 			bool bounded = !math::samesign(y0, y1);
+			size_t n = 0;
 
-			while (iterations-- and math::fabs(y1) > tolerance) {
+			while (++n < iterations && math::fabs(y1) > tolerance) {
 				auto x = next(x0, y0, x1, y1);
 				Y y = f(x);
-				if (bounded and math::samesign(y, y1)) {
+				if (bounded && math::samesign(y, y1)) {
 					x1 = x;
 					y1 = y;
 				}
@@ -42,14 +66,17 @@ namespace tmx::root1d {
 					bounded = !math::samesign(y0, y1);
 				}
 			}
+			if (n == iterations) {
+				x1 = std::numeric_limits<X>::quiet_NaN();
+			}
 
-			return iterations ? x1 : math::NaN<X>;
+			return { x1, y1, n };
 		}
 #ifdef _DEBUG
 		constexpr int solve_test()
 		{
 			{
-				constexpr double x = solve([](double x) { return x * x - 4; }, 0., 1.);
+				constexpr double x = std::get<0>(solve([](double x) { return x * x - 4; }, 0., 1.));
 				static_assert(math::fabs(x - 2) <= math::sqrt_epsilon<double>);
 			}
 
@@ -58,6 +85,8 @@ namespace tmx::root1d {
 #endif // _DEBUG
 	};
 
+	// Find root given initial guess and derivative using Newton's method.
+	// Return root approximation, tolerance, and number of iterations.
 	template<class X = double, class Y = double>
 	struct newton {
 		X x0;
@@ -75,33 +104,26 @@ namespace tmx::root1d {
 
 		// Find positive root in [a, b] given initial guess and derivative.
 		template<class F, class dF>
-		constexpr X solve(const F& f, const dF& df, X a = -math::infinity<X>, X b = math::infinity<X>)
+		constexpr std::tuple<X,X,size_t> solve(const F& f, const dF& df, X a = -math::infinity<X>, X b = math::infinity<X>)
 		{
 			auto y0 = f(x0);
-			while (iterations and math::fabs(y0) > tolerance) {
+			size_t n = 0;
+			while (++n < iterations && math::fabs(y0) > tolerance) {
 				auto x = next(x0, y0, df(x0));
-
-				if (x < a) {
-					x0 = (x0 + a) / 2;
-				}
-				else if (x > b) {
-					x0 = (x0 + b) / 2;
-				}
-				else {
-					x0 = x;
-				}
-
+				x0 = bracket(x, x0, a, b);
 				y0 = f(x0);
-				--iterations;
+			}
+			if (n == iterations) {
+				x0 = std::numeric_limits<X>::quiet_NaN();
 			}
 
-			return iterations ? x0 : math::NaN<X>;
+			return { x0, y0, n };
 		}
 #ifdef _DEBUG
 		constexpr int solve_test()
 		{
 			{
-				constexpr double x = solve([](double x) { return x * x - 4; }, [](double x) { return 2 * x; }, 1.);
+				constexpr double x = std::get<0>(solve([](double x) { return x * x - 4; }, [](double x) { return 2 * x; }, 1.));
 				static_assert(math::fabs(x - 2) < math::sqrt_epsilon<double>);
 			}
 

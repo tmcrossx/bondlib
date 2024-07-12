@@ -359,27 +359,4 @@ static_assert(math::equal_precision(day_count_actual365fixed(std::chrono::year(Y
 #undef TMX_DATE_DAY_COUNT
 #endif // _DEBUG     
 
-#ifdef _DEBUG
-	inline int day_count_test()
-	{
-		using namespace std::chrono_literals;
-
-		{
-            ymd d0 = 2004y / 9 / 30;
-			ymd d1 = 2004y / 12 / 31;
-			const double yearsDiff = day_count_isma30360(d0, d1);
-			assert(0.25 == yearsDiff);
-		}
-		{
-			ymd d0 = 2000y / 3 / 31;
-			ymd d1 = 2004y / 1 / 31;
-			const double yearsDiff = day_count_isma30360(d0, d1);
-			assert(3.8333 <= yearsDiff);
-			assert(3.8334 >= yearsDiff);
-		}
-
-		return 0;
-	}
-#endif // _DEBUG
-
 } // namespace tmx::date

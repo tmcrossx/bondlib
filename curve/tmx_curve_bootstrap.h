@@ -35,7 +35,8 @@ namespace tmx::curve {
 		const auto vp = [i, &f, _t, p](F f_) { return valuation::present(i, extrapolate(f, _t, f_)) - p; };
 		const auto vd = [i, &f, _t](F f_) { return valuation::duration(i, extrapolate(f, _t, f_)); };
 		
-		_f = root1d::newton(_f).solve(vp, vd);
+		auto [f_, tol, n] = root1d::newton(_f).solve(vp, vd);
+		_f = f_;
 
 		return { _u, _f };
 	}
