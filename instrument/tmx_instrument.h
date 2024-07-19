@@ -21,7 +21,7 @@ namespace tmx::instrument {
 		using difference_type = std::ptrdiff_t;
 
 		constexpr iterable() = default;
-		constexpr iterable(const IU& u, const IC& c) // TODO: default
+		constexpr iterable(IU u, IC c) // TODO: default
 			: u(u), c(c)
 		{ }
 		constexpr iterable(const iterable& i) // TODO: default
@@ -42,6 +42,16 @@ namespace tmx::instrument {
 
 		constexpr bool operator==(const iterable& i) const = default;
 
+		iterable begin() const
+		{
+			return *this;
+		}
+		///*
+		iterable end() const
+		{
+			return iterable(u.end(), c.end());
+		}
+		//*/
 		constexpr explicit operator bool() const
 		{
 			return u && c;

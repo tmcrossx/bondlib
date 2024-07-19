@@ -10,10 +10,10 @@ namespace tmx::root1d {
 	constexpr X bracket(X x, X x0, X a, X b)
 	{
 		if (a >= x0) {
-			throw __FUNCTION__ "x0 is less than a";
+			return tmx::math::NaN<X>;
 		}
 		if (x0 >= b) {
-			throw __FUNCTION__ "x0 is greater than b";
+			return tmx::math::NaN<X>;
 		}
 
 		if (x < a) {
