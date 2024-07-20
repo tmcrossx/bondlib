@@ -20,7 +20,7 @@ namespace tmx::curve {
 	inline std::pair<T, F> bootstrap(instrument::iterable<IU, IC> i, const curve::interface<T, F>& f, 
 		T _t, F _f = math::NaN<F>, F p = 0)
 	{
-		auto [_u, _c] = *last(i); // last cash flow time
+		auto [_u, _c] = *--i.end(); // last cash flow time
 		if (_u <= _t) {
 			return { math::NaN<T>, math::NaN<F> };
 		}

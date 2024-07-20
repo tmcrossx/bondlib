@@ -22,7 +22,7 @@ namespace tmx::instrument {
 
 		constexpr iterable() = default;
 		constexpr iterable(IU u, IC c) // TODO: default
-			: u(u), c(c)
+			: u(std::move(u)), c(std::move(c))
 		{ }
 		constexpr iterable(const iterable& i) // TODO: default
 			: u(i.u), c(i.c)
@@ -41,6 +41,15 @@ namespace tmx::instrument {
 		constexpr ~iterable() = default;
 
 		constexpr bool operator==(const iterable& i) const = default;
+
+		IU time() const
+		{
+			return u;
+		}
+		IC cash() const
+		{
+			return c;
+		}
 
 		iterable begin() const
 		{
@@ -75,14 +84,20 @@ namespace tmx::instrument {
 
 			return i;
 		}
+		constexpr iterable& operator--()
+		{
+			--u;
+			--c;
 
-		IU time() const
-		{
-			return u;
+			return *this;
 		}
-		IC cash() const
+		constexpr iterable operator--(int)
 		{
-			return c;
+			auto i = *this;
+
+			--this;
+
+			return i;
 		}
 	};
 
