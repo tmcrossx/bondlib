@@ -21,23 +21,11 @@ namespace tmx::instrument {
 		using difference_type = std::ptrdiff_t;
 
 		constexpr iterable() = default;
-		constexpr iterable(IU u, IC c) // TODO: default
+		constexpr iterable(IU u, IC c)
 			: u(std::move(u)), c(std::move(c))
 		{ }
-		constexpr iterable(const iterable& i) = default;// TODO: default
-//			: u(i.u), c(i.c)
-//		{ }
-		constexpr iterable& operator=(const iterable& i) = default;// TODO: default
-		/*
-		{
-			if (this != &i) {
-				u = i.u;
-				c = i.c;
-			}
-
-			return *this;
-		};
-		*/
+		constexpr iterable(const iterable& i) = default;
+		constexpr iterable& operator=(const iterable& i) = default;
 		constexpr iterable(iterable&&) = default;
 		constexpr iterable& operator=(iterable&&) = default;
 		constexpr ~iterable() = default;
@@ -57,12 +45,11 @@ namespace tmx::instrument {
 		{
 			return *this;
 		}
-		///*
 		iterable end() const
+			requires fms::iterable::has_end<IU> && fms::iterable::has_end<IC>
 		{
 			return iterable(u.end(), c.end());
 		}
-		//*/
 		constexpr explicit operator bool() const
 		{
 			return u && c;
