@@ -24,10 +24,11 @@ namespace tmx::instrument {
 		constexpr iterable(IU u, IC c) // TODO: default
 			: u(std::move(u)), c(std::move(c))
 		{ }
-		constexpr iterable(const iterable& i) // TODO: default
-			: u(i.u), c(i.c)
-		{ }
-		constexpr iterable& operator=(const iterable& i ) // TODO: default
+		constexpr iterable(const iterable& i) = default;// TODO: default
+//			: u(i.u), c(i.c)
+//		{ }
+		constexpr iterable& operator=(const iterable& i) = default;// TODO: default
+		/*
 		{
 			if (this != &i) {
 				u = i.u;
@@ -36,6 +37,7 @@ namespace tmx::instrument {
 
 			return *this;
 		};
+		*/
 		constexpr iterable(iterable&&) = default;
 		constexpr iterable& operator=(iterable&&) = default;
 		constexpr ~iterable() = default;

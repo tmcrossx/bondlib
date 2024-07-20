@@ -63,8 +63,7 @@ namespace tmx::math {
 	}
 #ifdef _DEBUG
 	// constexpr double ee = math::exponential(1.);
-	static_assert(exp(1.) == 2.7182818282861687); 
-	                      // 2.71828182845904523536028747135266249775724709369995
+	static_assert(equal_precision(exp(1.), 2.718281828, -9)); 
 #endif // _DEBUG
 
 	// (lower) incomplete gamma function

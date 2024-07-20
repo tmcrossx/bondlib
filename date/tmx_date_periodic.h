@@ -3,7 +3,7 @@
 #include "fms_iterable/fms_iterable.h"
 #include "tmx_date.h"
 
-// name, months, description
+// NAME, name, months, description
 #define TMX_DATE_FREQUENCY(X) \
 	X(MISSING, missing, 0, "Missing frequency.") \
 	X(ANNUALLY, annually, 12, "Yearly payments.") \
@@ -24,7 +24,7 @@ namespace tmx::date {
 	// Sequence of dates after b at frequency f working backwards from e.
 	constexpr auto periodic(frequency f, ymd b, ymd e)
 	{
-		using namespace std::chrono;
+		using months = std::chrono::months;
 		using namespace fms::iterable;
 
 		int n = 0;
