@@ -20,6 +20,8 @@ namespace tmx {
 
 		constexpr auto operator<=>(const cash_flow& cf) const = default;
 	};
+
+#if 0
 	template<class U, class C, class T>
 	struct cash_flow_traits {
 		static constexpr char type = '*';
@@ -44,5 +46,5 @@ namespace tmx {
 #ifdef _DEBUG
 	static_assert(cash_flow_traits<double, double, interest<double, double>>::type == 'I');
 #endif // _DEBUG
-
+#endif // 0
 }

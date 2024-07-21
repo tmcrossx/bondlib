@@ -12,13 +12,14 @@ namespace tmx::date {
 	using ymd = std::chrono::year_month_day; // E.g., ymd d = 2024y / 5 / 6
 
 	constexpr void swap(ymd& lhs, ymd& rhs) {
-		ymd temp = lhs;
+		ymd tmp = lhs;
 		lhs = rhs;
-		rhs = temp;
+		rhs = tmp;
 	}
 
 	// Use std::chrono constants.
 	constexpr time_t seconds_per_year = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::years{ 1 }).count();
+	constexpr int seconds_per_day = 24 * 60 * 60;
 
 	// Time in seconds between d0 and d1
 	constexpr time_t operator-(const ymd& d1, const ymd& d0)
@@ -27,9 +28,11 @@ namespace tmx::date {
 
 		return duration_cast<seconds>(sys_days(d1) - sys_days(d0)).count();
 	}
+#ifdef _DEBUG
 	static_assert(2023y / 4 / 5 - 2023y / 4 / 5 == 0);
-	static_assert(2023y / 4 / 6 - 2023y / 4 / 5 == 86400);
-	
+	static_assert(2023y / 4 / 6 - 2023y / 4 / 5 == seconds_per_day);
+#endif // _DEBUG
+
 	constexpr double diffyears(const ymd& d1, const ymd& d0)
 	{
 		return static_cast<double>(d1 - d0) / seconds_per_year;

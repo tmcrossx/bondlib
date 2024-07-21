@@ -30,23 +30,23 @@ namespace tmx::instrument::bond {
 		using namespace tmx::date;
 
 		// If pvdate is before dated use dated to compute first payment date.
-		const auto d0 = std::max(bond.dated, pvdate);
+		const auto d0 = business_day::adjust(std::max(bond.dated, pvdate), bond.roll, bond.cal);
 		// payment dates
 		const auto pd = date::periodic(bond.frequency, d0, bond.maturity);
 		// adjust payment dates with roll convention and holiday calendar
-		const auto apd = apply(date::adjust(bond.roll, bond.cal), pd);
+		const auto apd = apply(adjust(bond.roll, bond.cal), pd);
 		// convert dates to time in years from pvdate
 		const auto u = apply([pvdate](const date::ymd& d) {
-			return tmx::date::diffyears(d, pvdate); }, apd);
+			return diffyears(d, pvdate); }, apd);
 
-		// day count fractions
-		const auto dcf = delta(concatenate(single(d0), apd), bond.day_count);
+		// day count fractions for dirty price
+		const auto dcf = delta(prepend(d0, apd), bond.day_count);
 		// cash flows
 		const auto c = constant(bond.face * bond.coupon) * dcf;
 
 		// face value at maturity
-		const auto u_ = concatenate(u, single(tmx::date::diffyears(bond.maturity, pvdate)));
-		const auto c_ = concatenate(c, single(bond.face));
+		const auto u_ = append(u, diffyears(bond.maturity, pvdate));
+		const auto c_ = append(c, bond.face);
 
 		return instrument::iterable(u_, c_);
 	}
@@ -65,6 +65,11 @@ namespace tmx::instrument::bond {
 		{
 			bond::basic b(d, d + months(6), 0.05);
 			auto i = instrument(b, d);
+			auto i2 = i;
+			assert(i == i2);
+			i = i2;
+			assert(!(i2 != i));
+
 			cash_flow<> uc;
 			uc = *i;
 			++i;

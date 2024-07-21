@@ -13,8 +13,6 @@
 
 namespace tmx::date {
 
-	using sys_days = std::chrono::sys_days;
-
 #define TMX_DATE_FREQUENCY_ENUM(a, b, c, d) b = c,
 	enum frequency {
 		TMX_DATE_FREQUENCY(TMX_DATE_FREQUENCY_ENUM)
@@ -29,12 +27,12 @@ namespace tmx::date {
 
 		int n = 0;
 		while (b < e) {
-			e -= months(f);
+			e -= months(f); // work backwards from e
 			++n;
 		}
-		e += months(f);
+		const auto fpd = e + months(f); // first payment date after b
 
-		return take(sequence(e, months(f)), n);
+		return take(sequence(fpd, months(f)), n);
 	}
 #ifdef _DEBUG
 	constexpr int periodic_test()
