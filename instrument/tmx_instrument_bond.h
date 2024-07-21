@@ -1,4 +1,4 @@
-// tmx_instruement_bond.h - Bonds
+// tmx_instrument_bond.h - Bonds
 #pragma once
 #include "date/tmx_date_business_day.h"
 #include "date/tmx_date_day_count.h"
@@ -30,7 +30,8 @@ namespace tmx::instrument::bond {
 		using namespace tmx::date;
 
 		// If pvdate is before dated use dated to compute first payment date.
-		const auto d0 = business_day::adjust(std::max(bond.dated, pvdate), bond.roll, bond.cal);
+		auto d = std::max(bond.dated, pvdate);
+		const auto d0 = business_day::adjust(d, bond.roll, bond.cal);
 		// payment dates
 		const auto pd = date::periodic(bond.frequency, d0, bond.maturity);
 		// adjust payment dates with roll convention and holiday calendar
