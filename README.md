@@ -20,7 +20,8 @@ so $r_n = n(\exp(r/n) - 1)$
 
 A fixed income instrument is a portfolio of zero coupons bonds paying cash flows $c_j$ at times $u_j$.
 The _yield_ of a fixed income security given a price $p$ is the constant $y$
-with $p = \sum_j c_j \exp(-y u_j)$.
+with $p = \sum_j c_j \exp(-y u_j)$. If $y$ is compounded $n$ times per year
+then $p = \sum_j c_j (1 + y_n/n)^{nu_j}$.
 
 The _present value_ of a fixed income security
 is the sum of discounted future cash flows, $p = \sum_j c_j D(u_j)$.
