@@ -30,8 +30,8 @@ namespace tmx::instrument::bond {
 		using namespace tmx::date;
 
 		// If pvdate is before dated use dated to compute first payment date.
-		auto d = std::max(bond.dated, pvdate);
-		const auto d0 = business_day::adjust(d, bond.roll, bond.cal);
+		const auto d0 = business_day::adjust(
+			std::max(bond.dated, pvdate), bond.roll, bond.cal);
 		// payment dates
 		const auto pd = date::periodic(bond.frequency, d0, bond.maturity);
 		// adjust payment dates with roll convention and holiday calendar
