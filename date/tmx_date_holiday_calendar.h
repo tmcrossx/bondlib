@@ -5,7 +5,6 @@
 #define TMX_DATE_HOLIDAY_CALENDAR_DEFAULT SIFMA
 
 #define TMX_DATE_HOLIDAY_CALENDAR(X) \
-	X(DEFAULT, TMX_DATE_HOLIDAY_CALENDAR_DEFAULT, "Default calendar.") \
 	X(NONE, none, "No weekends or holidays") \
 	X(WEEKEND, weekend, "Saturday and Sunday") \
 	X(SIFMA, SIFMA, "US bond market") \

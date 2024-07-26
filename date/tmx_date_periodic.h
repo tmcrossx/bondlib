@@ -5,7 +5,6 @@
 
 // NAME, name, months, description
 #define TMX_DATE_FREQUENCY(X) \
-	X(MISSING, missing, 0, "Missing frequency.") \
 	X(ANNUALLY, annually, 12, "Yearly payments.") \
 	X(SEMIANNUALLY, semiannually, 6, "biannual payments.") \
 	X(QUARTERLY, quarterly, 3, "quarterly payments.") \
@@ -18,6 +17,17 @@ namespace tmx::date {
 		TMX_DATE_FREQUENCY(TMX_DATE_FREQUENCY_ENUM)
 	};
 #undef TMX_DATE_FREQUENCY_ENUM
+#define TMX_DATE_FREQUENCY_ENUM(a, b, c, d) if (freq == c) return true;
+	constexpr bool is_frequency(int freq)
+	{
+		TMX_DATE_FREQUENCY(TMX_DATE_FREQUENCY_ENUM)
+		return false;
+	}
+#undef TMX_DATE_FREQUENCY_ENUM
+#ifdef _DEBUG
+	static_assert(is_frequency(12));
+	static_assert(!is_frequency(2));
+#endif // _DEBUG
 
 	// Sequence of dates after b at frequency f working backwards from e.
 	constexpr auto periodic(frequency f, ymd b, ymd e)

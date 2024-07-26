@@ -3,8 +3,7 @@
 #include "tmx_date_holiday_calendar.h"
 
 // Business day rolling conventions.
-#define TMX_DATE_BUSINESS_DAY_ROLL(X) \
-	X(MISSING, missing, "Missing. ") \
+#define TMX_DATE_BUSINESS_DAY(X) \
 	X(NONE, none, "No roll.") \
 	X(FOLLOWING, following, "Following business day.") \
 	X(PREVIOUS, previous, "Previous business day.") \
@@ -13,13 +12,21 @@
 
 namespace tmx::date::business_day {
 
-#define TMX_DATE_BUSINESS_DAY_ROLL_ENUM(a, b, c) b,
-
+#define TMX_DATE_BUSINESS_DAY_ENUM(a, b, c) b,
 	enum class roll {
-		TMX_DATE_BUSINESS_DAY_ROLL(TMX_DATE_BUSINESS_DAY_ROLL_ENUM)
+		TMX_DATE_BUSINESS_DAY(TMX_DATE_BUSINESS_DAY_ENUM)
 	};
-
-#undef TMX_DATE_BUSINESS_DAY_ROLL_ENUM
+#undef TMX_DATE_BUSINESS_DAY_ENUM
+#define TMX_DATE_BUSINESS_DAY_ENUM(a, b, c) if (roll == static_cast<int>(roll::##b)) return true;
+	constexpr bool is_business_day_roll(int roll) {
+		TMX_DATE_BUSINESS_DAY(TMX_DATE_BUSINESS_DAY_ENUM)
+		return false;
+	};
+#undef TMX_DATE_BUSINESS_DAY_ENUM
+#ifdef _DEBUG
+	static_assert(is_business_day_roll(static_cast<int>(roll::none)));
+	static_assert(!is_business_day_roll(-1));
+#endif // _DEBUG
 
 	// Move date to business day using roll convention and calendar.
 	constexpr std::chrono::sys_days adjust(
