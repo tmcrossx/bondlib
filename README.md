@@ -1,4 +1,4 @@
-# BondLib
+# bondlib
 
 Fixed income instruments pay fixed cash flows at fixed times.
 The simplest fixed income instrument is a zero coupon bond that pays 1 unit at _maturity_ $u$.
