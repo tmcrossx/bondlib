@@ -18,7 +18,7 @@ namespace tmx::instrument::bond {
 		date::frequency frequency = date::frequency::semiannually;
 		date::day_count_t day_count = date::day_count_isma30360;
 		date::business_day::roll roll = date::business_day::roll::none;
-		date::holiday::calendar::calendar_t cal = date::holiday::calendar::none;
+		date::holiday::calendar_t cal = date::holiday::calendar::none;
 		F face = 100;
 	};
 

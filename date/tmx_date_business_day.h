@@ -32,7 +32,7 @@ namespace tmx::date::business_day {
 	constexpr std::chrono::sys_days adjust(
 		std::chrono::sys_days d,
 		business_day::roll roll,
-		holiday::calendar::calendar_t cal = holiday::weekend)
+		holiday::calendar_t cal = holiday::weekend)
 	{
 		if (cal(d)) {
 			if (roll == roll::previous) {
@@ -64,13 +64,13 @@ namespace tmx::date::business_day {
 
 		return d;
 	}
-	constexpr date::ymd adjust(const date::ymd& date, business_day::roll roll, holiday::calendar::calendar_t cal = holiday::weekend)
+	constexpr date::ymd adjust(const date::ymd& date, business_day::roll roll, holiday::calendar_t cal = holiday::weekend)
 	{
 		return date::ymd{ adjust(std::chrono::sys_days{ date }, roll, cal) };
 	}
 	/*
 	template<class I>
-	constexpr auto adjust(I i, business_day::roll roll, holiday::calendar::calendar_t cal = holiday::weekend)
+	constexpr auto adjust(I i, business_day::roll roll, holiday::calendar_t cal = holiday::weekend)
 	{
 		return apply([convention, cal](const date::ymd& d) { return adjust(d, convention, cal); }, i);
 	}
@@ -94,9 +94,9 @@ namespace tmx::date {
 	// Move date to business day using roll convention and calendar.
 	class adjust {
 		business_day::roll roll;
-		holiday::calendar::calendar_t cal;
+		holiday::calendar_t cal;
 	public:
-		adjust(business_day::roll roll, holiday::calendar::calendar_t cal)
+		adjust(business_day::roll roll, holiday::calendar_t cal)
 			: roll(roll), cal(cal)
 		{ }
 		constexpr date::ymd operator()(ymd d) const
