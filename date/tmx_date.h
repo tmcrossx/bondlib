@@ -33,6 +33,7 @@ namespace tmx::date {
 	static_assert(2023y / 4 / 6 - 2023y / 4 / 5 == seconds_per_day);
 #endif // _DEBUG
 
+	// TODO: use sys_days instead of ymd?
 	constexpr double diffyears(const ymd& d1, const ymd& d0)
 	{
 		return static_cast<double>(d1 - d0) / seconds_per_year;
