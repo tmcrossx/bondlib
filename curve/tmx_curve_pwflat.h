@@ -1,6 +1,7 @@
 // tmx_curve_pwflat.h - Piecewise flat forward curve value type.
 #pragma once
 #include <compare>
+#include <stdexcept>
 #include <span>
 #include <vector>
 #include "math/tmx_math_limits.h"
@@ -22,6 +23,13 @@ namespace tmx::curve {
 		pwflat(size_t n, const T* t_, const F* f_, F _f = math::NaN<F>)
 			: t_(t_, t_ + n), f_(f_, f_ + n), _f(_f)
 		{ }
+		pwflat(std::span<T> t, std::span<F> f, F _f = math::NaN<F>)
+			: t_(t.begin(), t.end()), f_(f.begin(), f.end()), _f(_f)
+		{
+			if (t_.size() != f_.size()) {
+				throw std::invalid_argument("pwflat: t and f must have the same size");
+			}
+		}
 		pwflat(const pwflat&) = default;
 		pwflat& operator=(const pwflat&) = default;
 		pwflat(pwflat&&) = default;
