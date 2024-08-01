@@ -1,6 +1,6 @@
 # bondlib
 
-Fixed income instruments pay fixed cash flows at fixed times.
+Fixed income instruments pay fixed cash flows $c_j$ at fixed times $u_j$.
 The simplest fixed income instrument is a zero coupon bond that pays 1 unit at _maturity_ $u$.
 The _price_ of a zero coupon bond is the _discount_, $D(u)$.
 
@@ -18,7 +18,6 @@ Market rates are quoted using _compounding_. If rate $r_n$ is compounded
 $n$ times per year then $(1 + r_n/n)^n = \exp(r)$
 so $r_n = n(\exp(r/n) - 1)$
 
-A fixed income instrument is a portfolio of zero coupons bonds paying cash flows $c_j$ at times $u_j$.
 The _yield_ of a fixed income security given a price $p$ is the constant $y$
 with $p = \sum_j c_j \exp(-y u_j)$. If $y$ is compounded $n$ times per year
 then $p = \sum_j c_j (1 + y_n/n)^{-nu_j}$.
@@ -33,13 +32,18 @@ parallel shift in the forward curve. The _convexity_ is the second derivative.
 A fundamental problem when implementing date and time is how to convert two
 calendar dates to a time duration and a date plus a time duration back to a calendar date.
 We must preserve $d_0 + (d_1 - d_0) = d_1$ for any dates $d_0$ and $d_1$. 
-This does not have a canonical solution.
+This does not have a canonical solution. We define the difference of two dates
+to be the time in seconds between the two dates divided by the number of seconds in a year.
+The number of seconds between two dates is well-defined but the number of seconds in a year is not.
+We use `constexpr time_t seconds_per_year = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::years{ 1 }).count();`
+from the C++ [`<chrono>`](https://en.cppreference.com/w/cpp/chrono) library.
 
 The [`tmx::date`](tmx_date.h) namespace uses `tmx::date::ymd` as an alias
 for `std::chrono::year_month_day` to represent a calendar dates
 and `time_t` to represent time durations.
-The namespace implements `ymd operator+(ymd, time_t)` and `time_t _operator-(ymd, ymd)`
-using `<chrono>`.
+The namespace implements `ymd operator+(ymd, time_t)` and `time_t operator-(ymd, ymd)`.
+The functions `ymd addyears(ymd, double)` and `double diffyears(ymd, ymd)` are
+implmented using these by converting a `time_t` to a `double` using `seconds_per_year`.
 
 ### Day Count
 
@@ -89,7 +93,12 @@ The referenced data are required to outlive the `curve::plus` object.
 ### Piecewise Flat
 
 [`tmx::curve::pwflat`](tmx_curve_pwflat.h) implements `tmx::curve::interface`. 
-It uses standalone functions from [tmx::pwflat](tmx_pwflat.h)
+It uses standalone functions from [tmx::pwflat](tmx_pwflat.h).
+A piecewise flat curve is determined by a set of times and rates, $(t_i, f_i)$,
+and an _extrapolation_ value $\bar{f]$. The value of the curve is
+undefined for $t < 0$, is $f_0$ for $0 \le t \le f_1$, $f_j$
+for $t_{j-1} < t \le t_j$ and $\bar{f}$ for $t > t_n$.
+Note $f(t_j) = f_j$.
 
 ## Valuation
 
