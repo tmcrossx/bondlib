@@ -20,7 +20,11 @@ namespace tmx::curve {
 	inline std::pair<T, F> bootstrap(instrument::iterable<IU, IC> i, const curve::interface<T, F>& f, 
 		T _t, F _f = math::NaN<F>, F p = 0)
 	{
-		auto [_u, _c] = *--i.end(); // last cash flow time
+		auto uc = i.end();
+		if (uc == i.begin()) {
+			return { math::NaN<T>, math::NaN<F> };
+		}
+		auto [_u, _c] = *--i.end(); // last cash flow
 		if (_u <= _t) {
 			return { math::NaN<T>, math::NaN<F> };
 		}
@@ -33,9 +37,9 @@ namespace tmx::curve {
 		}
 
 		const auto vp = [i, &f, _t, p](F f_) { return valuation::present(i, extrapolate(f, _t, f_)) - p; };
-		const auto vd = [i, &f, _t](F f_) { return valuation::duration(i, extrapolate(f, _t, f_)); };
+		//const auto vd = [i, &f, _t](F f_) { return valuation::duration(i, extrapolate(f, _t, f_)); };
 		
-		auto [f_, tol, n] = root1d::newton(_f).solve(vp, vd);
+		auto [f_, tol, n] = root1d::secant(_f, _f + .01).solve(vp);
 		_f = f_;
 
 		return { _u, _f };

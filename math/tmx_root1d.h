@@ -7,12 +7,9 @@ namespace tmx::root1d {
 
 	// Move x to bracketed root in [a, b] given last bracketed guess x0.
 	template<class X>
-	constexpr X bracket(X x, X x0, X a, X b)
+	constexpr X bracket(X x, X x0, X a = -tmx::math::infinity<X>, X b = tmx::math::infinity<X>)
 	{
-		if (a >= x0) {
-			return tmx::math::NaN<X>;
-		}
-		if (x0 >= b) {
+		if (a >= b || a >= x0 || x0 >= b) {
 			return tmx::math::NaN<X>;
 		}
 
@@ -25,8 +22,17 @@ namespace tmx::root1d {
 
 		return x;
 	}
+#ifdef _DEBUG
+	static_assert(bracket<double>(1, 1) == 1);
+	static_assert(bracket<double>(2, 1) == 2);
+	static_assert(bracket<double>(1, 3, 2, 4) == 2.5);
+	static_assert(bracket<double>(5, 3, 2, 4) == 3.5);
+	static_assert(tmx::math::isnan(bracket<double>(1, 3, 4, 2)));
+	static_assert(tmx::math::isnan(bracket<double>(1, 1, 2, 4)));
+	static_assert(tmx::math::isnan(bracket<double>(1, 5, 2, 4)));
+#endif // _DEBUG
 
-	template<class X, class Y>
+	template<class X, class Y = X>
 	struct secant {
 		X x0, x1;
 		X tolerance;
@@ -36,9 +42,9 @@ namespace tmx::root1d {
 			: x0(x0), x1(x1), tolerance(tol), iterations(iter)
 		{ }
 
-		constexpr auto next(X x0, Y y0, X x1, Y y1)
+		constexpr auto next(X x0_, Y y0, X x1_, Y y1)
 		{
-			return (x0 * y1 - x1 * y0) / (y1 - y0);
+			return (x0_ * y1 - x1_ * y0) / (y1 - y0);
 		}
 
 		// Find root given two initial guesses.

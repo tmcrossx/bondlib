@@ -57,8 +57,10 @@ namespace tmx::math {
 			return *this;
 		}
 	};
+#ifdef _DEBUG
 	static_assert(dual{ 1, 2 } == dual{ 1, 2 });
 	static_assert(dual{ 1, 2 } != dual{ 2, 3 });
+#endif // _DEBUG
 
 } // namespace tmx::math
 
