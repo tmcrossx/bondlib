@@ -38,6 +38,9 @@ namespace tmx::curve {
 
 		const auto vp = [i, &f, _t, p](F f_) { return valuation::present(i, extrapolate(f, _t, f_)) - p; };
 		//const auto vd = [i, &f, _t](F f_) { return valuation::duration(i, extrapolate(f, _t, f_)); };
+		double pv;
+		pv = vp(.01);
+		pv = vp(.02);
 		
 		auto [f_, tol, n] = root1d::secant(_f, _f + .01).solve(vp);
 		_f = f_;
