@@ -27,7 +27,7 @@ is the sum of discounted future cash flows, $p = \sum_j c_j D(u_j)$.
 The _duration_ of a fixed income security is the derivative of the present value with respect to a
 parallel shift in the forward curve. The _convexity_ is the second derivative.
 
-## ]Date](date/tmx_date.h)
+## [Date](date/tmx_date.h)
 
 A fundamental problem when implementing date and time is how to convert two
 calendar dates to a time duration and a date plus a time duration back to a calendar date.
@@ -45,32 +45,36 @@ The namespace implements `ymd operator+(ymd, time_t)` and `time_t operator-(ymd,
 The functions `ymd addyears(ymd, double)` and `double diffyears(ymd, ymd)` are
 implemented using these by converting a `time_t` to a `double` using `seconds_per_year`.
 
-### ]Day Count](date/tmx_daycount.h)
+### [Day Count](date/tmx_date__daycount.h)
 
 The file [`date/tmx_daycount.h`](tmx_daycount.h) implements the most common day count fraction
 conventions. The unit tests are from the [Bloomberd BDE library](https://github.com/bloomberg/bde).
 
-### [Holiday](date/tmx_holiday.h)
+### [Holiday](date/tmx_date__holiday.h)
 
-The file [`tmx_holiday.h`](date/tmx_holiday.h) implements tests for common holidays.
+The file [`tmx_date_holiday.h`](date/tmx_date_holiday.h) implements tests for common holidays.
 Instead of a database of holidays it uses a function that returns `true` if a date is a holiday.
 This is the approach taken by the [QuantLib](https://www.quantlib.org/) library.
 
-### [Holiday Calendar](date/tmx_holiday_calendar.h)
+### [Holiday Calendar](date/tmx_date_holiday_calendar.h)
 
-The file [`date/tmx_holiday_calendar.h`](date/tmx_holiday_calendar.h) implements holiday calendars.
+The file [`date/tmx_date_holiday_calendar.h`](date/tmx_holiday_calendar.h) implements holiday calendars.
 It currently has only the SIFMA, NYSE, and FED calendars.
 
-### [Business Day](date/tmx_business_day.h)
+### [Business Day](date/tmx_date_business_day.h)
 
-The file [`tmx_business_day.h`](date/tmx_business_day.h) implements the most common business day 
+The file [`tmx_date_business_day.h`](date/tmx_date_business_day.h) implements the most common business day 
 rolling conventions. Dates falling on a holiday must be adjusted to a nearby business day.
+
+## [Cash Flow](instrument/tmx_cash_flow.h)
+
+A [`tmx::cashflow`](instrument/tmx_cash_flow.h) is a pair of time and amount.
 
 ## [Instrument](instrument/tmx_instrument.h)
 
 A [`tmx::instrument::iterable`](instrument/tmx_instrument.h) is constructed
 from a pair of time and amount iterables.
-Its `value_type` is a [`tmx::cashflow`](tmx_cash_flow.h) with time and amount members.
+Its `value_type` is a [`tmx::cashflow`](intrument/tmx_cash_flow.h).
 
 ## [Curve](curve/tmx_curve.h)
 
@@ -78,7 +82,7 @@ The [`tmx::curve::interface`](curve/tmx_curve.h#:~:text=class%20interface) class
 discount, forward, and spot. C++ does not have
 a notion of interface but the 
 [NVI idiom](https://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Non-Virtual_Interface)
-can be used to specify invariants for subclasses and help the compiler eliminate virtual tables.
+can be used to specify invariants for subclasses and help the compiler eliminate virtual function tables.
 
 Subclasses must override the pure virtual `_forward` and `_integral` functions.
 Spot and discount are implemented in terms of these.
