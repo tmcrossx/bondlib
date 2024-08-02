@@ -1,26 +1,26 @@
 # bondlib
 
-Fixed income instruments pay fixed cash flows $c_j$ at fixed times $u_j$.
+Fixed income instruments pay fixed cash flows $(c_j)$ at fixed times $(u_j)$.
 The simplest fixed income instrument is a zero coupon bond that pays 1 unit at _maturity_ $u$.
 The _price_ of a zero coupon bond is the _discount_, $D(u)$.
 
 Discounts are _quoted_ using rates.
-The _spot rate_ $r(t)$ is defined
-by $D(t) = \exp(-t r(t))$. The _forward_ rate $f(t)$ is
+The _continuously compounded spot rate_ $r(t)$ is defined
+by $D(t) = \exp(-t r(t))$. The _continuously compounded forward_ rate $f(t)$ is
 defined by $D(t) = \exp(-\int_0^t f(s)\,ds)$.
 This implies the spot $r(t) = (1/t)\int_0^t f(s)\,ds$
 is the average forward rate over the interval $[0, t]$.
 This also shows the forward $f(t) = r(t) + t r'(t)$.
-We use a forward curve to implement spot and discount
-since integration is numerically more stable than differentiation.
+We use a forward curve to implement spot and discount.
+Integration is numerically more stable than differentiation.
 
-Market rates are quoted using _compounding_. If rate $r_n$ is compounded
+Market rates are quoted using _compounding frequencies_.
+If rate $r_n$ is compounded
 $n$ times per year then $(1 + r_n/n)^n = \exp(r)$
 so $r_n = n(\exp(r/n) - 1)$
 
-The _yield_ of a fixed income security given a price $p$ is the constant $y$
-with $p = \sum_j c_j \exp(-y u_j)$. If $y$ is compounded $n$ times per year
-then $p = \sum_j c_j (1 + y_n/n)^{-nu_j}$.
+The _continuously compounded yield_ of a fixed income security given a price $p$ is the constant $y$
+with $p = \sum_j c_j \exp(-y u_j)$. 
 
 The _present value_ of a fixed income security
 is the sum of discounted future cash flows, $p = \sum_j c_j D(u_j)$.
@@ -43,7 +43,7 @@ for `std::chrono::year_month_day` to represent a calendar dates
 and `time_t` to represent time durations.
 The namespace implements `ymd operator+(ymd, time_t)` and `time_t operator-(ymd, ymd)`.
 The functions `ymd addyears(ymd, double)` and `double diffyears(ymd, ymd)` are
-implmented using these by converting a `time_t` to a `double` using `seconds_per_year`.
+implemented using these by converting a `time_t` to a `double` using `seconds_per_year`.
 
 ### Day Count
 
