@@ -8,7 +8,7 @@
 
 namespace tmx::instrument::bond {
 
-	// Basic bond indicative data.
+	// Basic bond indicative data from offering.
 	template<class C = double, class F = double>
 	struct basic
 	{

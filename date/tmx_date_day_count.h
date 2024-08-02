@@ -22,6 +22,7 @@
 
 namespace tmx::date {
 
+    // Day count fraction given two dates.
 	using day_count_t = double(*)(const ymd&, const ymd&);
 
 	// https://github.com/bloomberg/bde/blob/main/groups/bbl/bbldc/bbldc_basicisma30360.cpp
