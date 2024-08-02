@@ -45,12 +45,12 @@ The namespace implements `ymd operator+(ymd, time_t)` and `time_t operator-(ymd,
 The functions `ymd addyears(ymd, double)` and `double diffyears(ymd, ymd)` are
 implemented using these by converting a `time_t` to a `double` using `seconds_per_year`.
 
-### [Day Count](date/tmx_date__daycount.h)
+### [Day Count](date/tmx_date_daycount.h)
 
 The file [`date/tmx_daycount.h`](tmx_daycount.h) implements the most common day count fraction
 conventions. The unit tests are from the [Bloomberd BDE library](https://github.com/bloomberg/bde).
 
-### [Holiday](date/tmx_date__holiday.h)
+### [Holiday](date/tmx_date_holiday.h)
 
 The file [`tmx_date_holiday.h`](date/tmx_date_holiday.h) implements tests for common holidays.
 Instead of a database of holidays it uses a function that returns `true` if a date is a holiday.
