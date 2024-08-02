@@ -45,9 +45,9 @@ The namespace implements `ymd operator+(ymd, time_t)` and `time_t operator-(ymd,
 The functions `ymd addyears(ymd, double)` and `double diffyears(ymd, ymd)` are
 implemented using these by converting a `time_t` to a `double` using `seconds_per_year`.
 
-### [Day Count](date/tmx_date_daycount.h)
+### [Day Count](date/tmx_date_day_count.h)
 
-The file [`date/tmx_daycount.h`](tmx_daycount.h) implements the most common day count fraction
+The file [`date/tmx_date_daycount.h`](date/tmx_date_daycount.h) implements the most common day count fraction
 conventions. The unit tests are from the [Bloomberd BDE library](https://github.com/bloomberg/bde).
 
 ### [Holiday](date/tmx_date_holiday.h)
@@ -58,13 +58,13 @@ This is the approach taken by the [QuantLib](https://www.quantlib.org/) library.
 
 ### [Holiday Calendar](date/tmx_date_holiday_calendar.h)
 
-The file [`date/tmx_date_holiday_calendar.h`](date/tmx_holiday_calendar.h) implements holiday calendars.
+The file [`date/tmx_date_holiday_calendar.h`](date/tmx_date_holiday_calendar.h) implements holiday calendars.
 It currently has only the SIFMA, NYSE, and FED calendars.
 
 ### [Business Day](date/tmx_date_business_day.h)
 
 The file [`tmx_date_business_day.h`](date/tmx_date_business_day.h) implements the most common business day 
-rolling conventions. Dates falling on a holiday must be adjusted to a nearby business day.
+rolling conventions. Dates falling on holidays must be adjusted to a nearby business day.
 
 ## [Cash Flow](instrument/tmx_cash_flow.h)
 
@@ -74,7 +74,7 @@ A [`tmx::cashflow`](instrument/tmx_cash_flow.h) is a pair of time and amount.
 
 A [`tmx::instrument::iterable`](instrument/tmx_instrument.h) is constructed
 from a pair of time and amount iterables.
-Its `value_type` is a [`tmx::cashflow`](intrument/tmx_cash_flow.h).
+Its `value_type` is a [`tmx::cashflow`](instrument/tmx_cash_flow.h).
 
 ## [Curve](curve/tmx_curve.h)
 
@@ -97,7 +97,7 @@ The referenced data are required to outlive the `curve::plus` object.
 ### [Piecewise Flat](curve/tmx_pwflat.h)
 
 [`tmx::curve::pwflat`](curve/tmx_curve_pwflat.h) implements `tmx::curve::interface`. 
-It uses standalone functions from [tmx::pwflat](curve/tmx_pwflat.h).
+It uses stand-alone functions from [tmx::pwflat](curve/tmx_pwflat.h).
 A piecewise flat curve is determined by a set of times and rates, $(t_i, f_i)$,
 and an _extrapolation_ value $\bar{f]$. The value of the curve is
 undefined for $t < 0$, is $f_0$ for $0 \le t \le f_1$, $f_j$
