@@ -68,15 +68,7 @@ namespace tmx::date::business_day {
 	{
 		return date::ymd{ adjust(std::chrono::sys_days{ date }, roll, cal) };
 	}
-	/*
-	template<class I>
-	constexpr auto adjust(I i, business_day::roll roll, holiday::calendar_t cal = holiday::weekend)
-	{
-		return apply([convention, cal](const date::ymd& d) { return adjust(d, convention, cal); }, i);
-	}
-	*/
 #ifdef _DEBUG
-
 	static_assert(adjust(2023y / 1 / 1, roll::none) == 2023y / 1 / 2); // Sunday -> Monday
 	static_assert(adjust(2024y / 1 / 1, roll::none) == 2024y / 1 / 1);
 	static_assert(adjust(2023y / 1 / 1, roll::previous) == 2022y / 12 / 30);
@@ -85,7 +77,6 @@ namespace tmx::date::business_day {
 	static_assert(adjust(2023y / 1 / 1, roll::following) == 2023y / 1 / 2);
 	static_assert(adjust(2022y / 12 / 31, roll::following) == 2023y / 1 / 2);
 	static_assert(adjust(2022y / 12 / 31, roll::modified_following) == 2022y / 12 / 30);
-
 #endif // _DEBUG
 } // namespace tmx::date::business_day
 

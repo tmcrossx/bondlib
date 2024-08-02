@@ -20,14 +20,14 @@ $n$ times per year then $(1 + r_n/n)^n = \exp(r)$
 so $r_n = n(\exp(r/n) - 1)$
 
 The _continuously compounded yield_ of a fixed income security given a price $p$ is the constant $y$
-with $p = \sum_j c_j \exp(-y u_j)$. 
+with $p = \sum_j c_j \exp(-y u_j)$. The yeild does not require a discount curve.
 
 The _present value_ of a fixed income security
 is the sum of discounted future cash flows, $p = \sum_j c_j D(u_j)$.
 The _duration_ of a fixed income security is the derivative of the present value with respect to a
 parallel shift in the forward curve. The _convexity_ is the second derivative.
 
-## Date
+## ]Date](date/tmx_date.h)
 
 A fundamental problem when implementing date and time is how to convert two
 calendar dates to a time duration and a date plus a time duration back to a calendar date.
@@ -38,47 +38,47 @@ The number of seconds between two dates is well-defined but the number of second
 We use `constexpr time_t seconds_per_year = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::years{ 1 }).count();`
 from the C++ [`<chrono>`](https://en.cppreference.com/w/cpp/chrono) library.
 
-The [`tmx::date`](tmx_date.h) namespace uses `tmx::date::ymd` as an alias
+The [`tmx::date`](date/tmx_date.h) namespace uses `tmx::date::ymd` as an alias
 for `std::chrono::year_month_day` to represent a calendar dates
 and `time_t` to represent time durations.
 The namespace implements `ymd operator+(ymd, time_t)` and `time_t operator-(ymd, ymd)`.
 The functions `ymd addyears(ymd, double)` and `double diffyears(ymd, ymd)` are
 implemented using these by converting a `time_t` to a `double` using `seconds_per_year`.
 
-### Day Count
+### ]Day Count](date/tmx_daycount.h)
 
-The file [`tmx_daycount.h`](tmx_daycount.h) implements the most common day count fraction
+The file [`date/tmx_daycount.h`](tmx_daycount.h) implements the most common day count fraction
 conventions. The unit tests are from the [Bloomberd BDE library](https://github.com/bloomberg/bde).
 
-### Holiday
+### [Holiday](date/tmx_holiday.h)
 
-The file [`tmx_holiday.h`](tmx_holiday.h) implements tests for common holidays.
+The file [`tmx_holiday.h`](date/tmx_holiday.h) implements tests for common holidays.
 Instead of a database of holidays it uses a function that returns `true` if a date is a holiday.
 This is the approach taken by the [QuantLib](https://www.quantlib.org/) library.
 
-### Holiday Calendar
+### [Holiday Calendar](date/tmx_holiday_calendar.h)
 
-The file [`tmx_holiday_calendar.h`](tmx_holiday_calendar.h) implements holiday calendars.
-It currently has only the SIFMA and NYSE calendars.
+The file [`date/tmx_holiday_calendar.h`](date/tmx_holiday_calendar.h) implements holiday calendars.
+It currently has only the SIFMA, NYSE, and FED calendars.
 
-### Business Day
+### [Business Day](date/tmx_business_day.h)
 
-The file [`tmx_business_day.h`](tmx_business_day.h) implements the most common business day 
+The file [`tmx_business_day.h`](date/tmx_business_day.h) implements the most common business day 
 rolling conventions. Dates falling on a holiday must be adjusted to a nearby business day.
 
-## Instrument
+## [Instrument](instrument/tmx_instrument.h)
 
-A [`tmx::instrument::iterable`](tmx_instrument.h) is constructed
+A [`tmx::instrument::iterable`](instrument/tmx_instrument.h) is constructed
 from a pair of time and amount iterables.
 Its `value_type` is a [`tmx::cashflow`](tmx_cash_flow.h) with time and amount members.
 
-## Curve
+## [Curve](curve/tmx_curve.h)
 
-The [`tmx::curve::interface`](tmx_curve.h#:~:text=class%20interface) class provides an interface to
+The [`tmx::curve::interface`](curve/tmx_curve.h#:~:text=class%20interface) class provides an interface to
 discount, forward, and spot. C++ does not have
 a notion of interface but the 
 [NVI idiom](https://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Non-Virtual_Interface)
-can be used to specify invariants for subclasses and help the compiler eliminate vtables.
+can be used to specify invariants for subclasses and help the compiler eliminate virtual tables.
 
 Subclasses must override the pure virtual `_forward` and `_integral` functions.
 Spot and discount are implemented in terms of these.
@@ -90,19 +90,19 @@ The `tmx::curve::plus` class adds two curves. It uses const references to avoid 
 any data used in the implementation of the `curve::interface` class. 
 The referenced data are required to outlive the `curve::plus` object.
 
-### Piecewise Flat
+### [Piecewise Flat](curve/tmx_pwflat.h)
 
-[`tmx::curve::pwflat`](tmx_curve_pwflat.h) implements `tmx::curve::interface`. 
-It uses standalone functions from [tmx::pwflat](tmx_pwflat.h).
+[`tmx::curve::pwflat`](curve/tmx_curve_pwflat.h) implements `tmx::curve::interface`. 
+It uses standalone functions from [tmx::pwflat](curve/tmx_pwflat.h).
 A piecewise flat curve is determined by a set of times and rates, $(t_i, f_i)$,
 and an _extrapolation_ value $\bar{f]$. The value of the curve is
 undefined for $t < 0$, is $f_0$ for $0 \le t \le f_1$, $f_j$
 for $t_{j-1} < t \le t_j$ and $\bar{f}$ for $t > t_n$.
 Note $f(t_j) = f_j$.
 
-## Valuation
+## [Valuation](valuation/tmx_valuation.h)
 
-The functions in the [`tmx::valuation`](tmx_valuation.h) namespace calculate 
+The functions in the [`tmx::valuation`](valuation/tmx_valuation.h) namespace calculate 
 fixed income analytics given an instrument and curve interface.
 
 The functions [`compound_yield`](tmx_valuation.h#:~:text=compound_yield) 
@@ -113,21 +113,28 @@ and the compounded yields quoted in the market.
 There are also functions for computing the present value, duration, convexity, yield
 and option adjusted spread of a fixed income security.
 
-## Bootstrap
+## [Bootstrap](bootstrap/tmx_bootstrap.h)
 
 Given a set of fixed income instruments and their prices how can we find a discount curve
-that reprices them? This is a highly underdetermined problem but the _bootstrap_ algorithm
+that reprices them? This is a underdetermined problem but the _bootstrap_ algorithm
 provides a unique solution.
 
 Order the instruments by maturity and find a yield that reprices the first instrument.
 This determines the segment of the piecewise flat forward curve to the shortest maturity.
-Keeping that fixed, find the extrapolated yield that reprices the second instrument.
+Keeping that fixed and find the extrapolated yield that reprices the second instrument.
 Repeat until all instruments are repriced.
 
 It is popular to use splines to get a smooth forward curve, but that introduces
 mathematical artifacts that have nothing to do with market prices.
-It is better to introduce interpolated instruments with prices that
+It is better to introduce interpolated _instruments_ with prices that
 make sense to traders.
+
+## [EMMA]
+
+Data from the [Electronic Municipal Market Access](https://emma.msrb.org/)
+is available using the `EMMMA(curve, date)` add-in function,
+where `curve` can be `"ICE"` or `"Treasury"` and `date` is the date of the curve.
+If `date` is omitted then the most recent curve is returned.
 
 <!---
 Let $T$ be a totally ordered set of trading times.
