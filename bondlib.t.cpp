@@ -63,15 +63,15 @@ int bootstrap_test()
 		auto pv = [i1, &f, t](double r) { return valuation::present(i1, curve::extrapolate(f, t, r)); };
 		p1 = pv(0.01);
 		p2 = pv(0.02);
-		auto uc1 = curve::bootstrap(i1, f, 0., .01, valuation::present(i1, c0));
+		auto uc1 = curve::bootstrap0(i1, f, 0., .01, valuation::present(i1, c0));
 		f.push_back(uc1);
 
 		auto i2 = instrument::iterable(take(array(u), 2), take(array(c), 2));
-		auto uc2 = curve::bootstrap(i2, f, 1., .01, valuation::present(i2, c0));
+		auto uc2 = curve::bootstrap0(i2, f, 1., .01, valuation::present(i2, c0));
 		f.push_back(uc2);
 
 		auto i3 = instrument::iterable(take(array(u), 3), take(array(c), 3));
-		auto uc3 = curve::bootstrap(i3, f, 2., .01, valuation::present(i3, c0));
+		auto uc3 = curve::bootstrap0(i3, f, 2., .01, valuation::present(i3, c0));
 		f.push_back(uc3);
 
 		assert(f.time() == std::vector<double>({ 1,2,3 }));

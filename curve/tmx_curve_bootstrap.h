@@ -5,7 +5,7 @@
 #endif
 #include <utility>
 #include "instrument/tmx_instrument.h"
-#include "curve/tmx_curve.h"
+#include "curve/tmx_curve_pwflat.h"
 #include "valuation/tmx_valuation.h"
 #include "math/tmx_math_limits.h"
 
@@ -17,7 +17,7 @@ namespace tmx::curve {
 	// Bootstrap a single instrument given last time on curve and optional initial forward rate guess.
 	// Return point on the curve repricing the instrument.
 	template<class IU, class IC, class T = double, class F = double>
-	inline std::pair<T, F> bootstrap(instrument::iterable<IU, IC> i, const curve::interface<T, F>& f,
+	inline std::pair<T, F> bootstrap0(instrument::iterable<IU, IC> i, const curve::interface<T, F>& f,
 		T _t, F _f = math::NaN<F>, F p = 0)
 	{
 		const auto _u = i.last().u;
@@ -56,7 +56,7 @@ namespace tmx::curve {
 			assert(p == 1);
 			auto d = valuation::duration(zcb, extrapolate(f, 0., r));
 			assert(d == -1);
-			auto [_t, _f] = curve::bootstrap(zcb, f, 0., 0.2, 1.);
+			auto [_t, _f] = curve::bootstrap0(zcb, f, 0., 0.2, 1.);
 			assert(_t == 0);
 			assert(std::fabs(_f - r) <= math::sqrt_epsilon<double>);
 		}
@@ -64,18 +64,20 @@ namespace tmx::curve {
 		return 0;
 	}
 #endif // _DEBUG
-	/*
-	template<class U = double, class C = double, class T = double, class F = double>
-	constexpr curve::curve<T, F> instruments(iterable<instrument<U,C>> is)
+	// Bootstrap a piecewise flat curve from instruments and prices.
+	template<class I, class P>
+	constexpr auto bootstrap(I is, P ps, double _f = 0.03)
 	{
-		curve::curve<T, F> f;
+		double _t = 0;
+		curve::pwflat<> f;
 		
 		while (is) {
-			f.push_back(instrument(*is, f));
+			std::tie(_t, _f) = bootstrap0(*is, f, _t, _f, *ps);
+			f.push_back(_t, _f);
 			++is;
+			++ps;
 		}
 
 		return f;
 	}
-	*/
 }
