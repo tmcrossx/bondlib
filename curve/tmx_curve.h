@@ -8,7 +8,13 @@
 
 namespace tmx::curve {
 
+	template<class X>
+	constexpr X NaN = std::numeric_limits<X>::quiet_NaN();
+	template<class X>
+	constexpr X infinity = std::numeric_limits<X>::infinity();
+
 	// NVI idiom compiles to non-virtual function calls.
+	// Extrapolates curve past t by f left-continuously.
 	template<class T = double, class F = double>
 	class interface {
 	public:
@@ -17,45 +23,58 @@ namespace tmx::curve {
 
 		virtual ~interface() {}
 
-		// Forward at u: f(u).
-		constexpr F forward(T u) const
+		// Forward at u.
+		constexpr F forward(T u, T t = infinity<T>, F f = NaN<F>) const
 		{
-			return u >= 0 ? _forward(u) : std::numeric_limits<F>::quiet_NaN();
+			return u < 0 ? NaN<F> : u <= t ? _forward(u, t, f) : f;
 		}
-		constexpr F operator()(T u) const
+		constexpr F operator()(T u, T t = infinity<T>, F f = NaN<F>) const
 		{
-			return forward(u);
+			return forward(u, t, f);
 		}
 
 		// Integral from 0 to u of forward: int_0^u f(s) ds.
-		constexpr F integral(T u) const
+		constexpr F integral(T u, T t = infinity<T>, F f = NaN<F>) const
 		{
-			return u >= 0 ? _integral(u) : std::numeric_limits<F>::quiet_NaN();
+			return u < 0 ? NaN<F> : u == 0 ? 0 : u <= t ? _integral(u, t, f) : _integral(t, t, f) + f*(u - t);
 		}
 
 		// Price of one unit received at time u.
-		constexpr F discount(T u) const
+		constexpr F discount(T u, T t = infinity<T>, F f = NaN<F>) const
 		{
-			return u >= 0 ? std::exp(-integral(u)) : std::numeric_limits<F>::quiet_NaN();
+			return u < 0 ? NaN<F> : std::exp(-integral(u, t, f));
 		}
 
 		// Spot/yield is the average of the forward over [0, u].
 		// If u is small, use the forward.
-		constexpr F spot(T u) const
+		constexpr F spot(T u, T t = infinity<T>, F f = NaN<F>) const
 		{
-			if (u < 0) {
-				return std::numeric_limits<F>::quiet_NaN();
-			}
-			if (u + 1 == 1) {
-				return _forward(u);
-			}
-
-			return _integral(u) / u;
+			return u < 0 ? NaN<F> : u + 1 == 1 ? forward(u, t, f) : integral(u, t, f) / u;
 		}
 
 	private:
-		constexpr virtual F _forward(T u) const = 0;
-		constexpr virtual F _integral(T u) const = 0;
+		constexpr virtual F _forward(T u, T t, F f) const = 0;
+		constexpr virtual F _integral(T u, T t, F f) const = 0;
+	};
+	
+	// Provide t and f
+	template<class T = double, class F = double>
+	class extrapolate : public interface<T, F> {
+		const interface<T, F>& f;
+		T _t;
+		F _f;
+	public:
+		extrapolate(const interface<T, F>& f, T _t = infinity<T>, F _f = NaN<F>)
+			: f(f), _t(_t), _f(_f)
+		{ }
+		constexpr F _forward(T u, T , F) const override
+		{
+			return f.forward(u, _t, _f);
+		}
+		constexpr F _integral(T u, T , F) const override
+		{
+			return f.integral(u, _t, _f);
+		}
 	};
 
 	// Constant curve.
@@ -67,13 +86,13 @@ namespace tmx::curve {
 			: f(f)
 		{ }
 
-		constexpr F _forward(T) const override
+		constexpr F _forward(T u, T _t = infinity<T>, F _f = NaN<F>) const override
 		{
-			return f;
+			return u <= _t ? f : _f;
 		}
-		constexpr F _integral(T u) const override
+		constexpr F _integral(T u, T _t = infinity<T>, F _f = NaN<F>) const override
 		{
-			return f * u;
+			return u <= _t ? f * u : f * _t + _f*(u - _t);
 		}
 	};
 #ifdef _DEBUG
@@ -94,40 +113,6 @@ namespace tmx::curve {
 
 #endif // _DEBUG
 
-	// Exponential curve e^{rt}
-	template<class T = double, class F = double>
-	class exponential : public interface<T, F> {
-		F r;
-	public:
-		constexpr exponential(F r = 0)
-			: r(r)
-		{ }
-
-		constexpr F _forward(T u) const override
-		{
-			return std::exp(r * u);
-		}
-		constexpr F _integral(T u) const override
-		{
-			return (r == 0) ? u : std::expm1(r * u) / r;
-		}
-	};
-#ifdef _DEBUG
-	inline int exponential_test()
-	{
-		{
-			exponential c(1.);
-			assert(std::isnan(exponential(1.).forward(-1.)));
-			assert(c.forward(0.) == 1);
-			assert(c.integral(0.) == 0);
-			assert(c.integral(1.) == std::exp(1.) - 1);
-		}
-
-		return 0;
-	}
-
-#endif // _DEBUG
-
 	// s on [t0, t1], 0 elsewhere.
 	template<class T = double, class F = double>
 	class bump : public interface<T, F> {
@@ -141,11 +126,11 @@ namespace tmx::curve {
 		constexpr bump& operator=(const bump& c) = default;
 		constexpr ~bump() = default;
 
-		constexpr F _forward(T u) const override
+		constexpr F _forward(T u, T, F) const override
 		{
 			return s * (t0 <= u) * (u <= t1);
 		}
-		constexpr F _integral(T u) const override
+		constexpr F _integral(T u, T, F) const override
 		{
 			return s * (std::min(u, t1) - std::max(T(0), t0)) * (u >= t0) * (0 <= t1);
 		}
@@ -182,54 +167,25 @@ namespace tmx::curve {
 		constexpr translate& operator=(const translate& c) = default;
 		constexpr ~translate() = default;
 
-		constexpr F _forward(T u) const override
+		constexpr F _forward(T u, T _t = infinity<T>, F _f = NaN<F>) const override
 		{
-			return f.forward(u + t);
+			return f.forward(u + t, _t + t, _f);
 		}
-		constexpr F _integral(T u) const override
+		constexpr F _integral(T u, T _t = infinity<T>, F _f = NaN<F>) const override
 		{
-			return f.integral(u + t) - f.integral(t);
+			return f.integral(u + t, _t + t, _f) - f.integral(t, _t + t, _f);
 		}
 	};
 #ifdef _DEBUG
 	inline int translate_test()
 	{
-		double r = 0.1;
 		{
-			exponential e(r);
-			translate t(e, 1.);
-			assert(t.forward(0.9) == std::exp(r*(0.9 + 1)));
-			assert(t.integral(0.9) == e.integral(0.9 + 1) - e.integral(1.));
 		}
 
 		return 0;
 	}
 #endif // _DEBUG
 
-	// Left continuous extrapolate _f after _t.
-	template<class T = double, class F = double>
-	class extrapolate : public interface<T, F> {
-		const interface<T, F>& f;
-		T _t;
-		F _f;
-	public:
-		constexpr extrapolate(const interface<T, F>& f, T _t, F _f)
-			: f(f), _t(_t), _f(_f)
-		{ }
-		constexpr extrapolate(const extrapolate& p) = default;
-		constexpr extrapolate& operator=(const extrapolate& p) = default;
-		constexpr ~extrapolate() = default;
-
-		// left continuous forward
-		constexpr F _forward(T u) const override
-		{
-			return u <= _t ? f.forward(u) : _f;
-		}
-		constexpr F _integral(T u) const override
-		{
-			return f.integral(u) + u > _t ? _f * (u - _t) : 0;
-		}
-	};
 
 	// Add two curves. Assumes lifetime of f and g.
 	template<class T = double, class F = double>
@@ -244,13 +200,13 @@ namespace tmx::curve {
 		constexpr plus& operator=(const plus& p) = default;
 		constexpr ~plus() = default;
 
-		constexpr F _forward(T u) const override
+		constexpr F _forward(T u, T t = infinity<T>, F f = NaN<F>) const override
 		{
-			return f.forward(u) + g.forward(u);
+			return f.forward(u, t, f) + g.forward(u, t, f);
 		}
-		constexpr F _integral(T u) const override
+		constexpr F _integral(T u, T t = infinity<T>, F f = NaN<F>) const override
 		{
-			return f.integral(u) + g.integral(u);
+			return f.integral(u, t, f) + g.integral(u, t, f);
 		}
 	};
 

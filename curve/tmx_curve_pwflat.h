@@ -14,17 +14,15 @@ namespace tmx::curve {
 	class pwflat : public interface<T, F> {
 		std::vector<T> t_;
 		std::vector<F> f_;
-		F _f; // extrapolation value
 	public:
 		// constant curve
-		constexpr pwflat(F _f = math::NaN<F>)
-			: _f(_f)
+		constexpr pwflat()
 		{ }
-		pwflat(size_t n, const T* t_, const F* f_, F _f = math::NaN<F>)
-			: t_(t_, t_ + n), f_(f_, f_ + n), _f(_f)
+		pwflat(size_t n, const T* t_, const F* f_)
+			: t_(t_, t_ + n), f_(f_, f_ + n)
 		{ }
-		pwflat(std::span<T> t, std::span<F> f, F _f = math::NaN<F>)
-			: t_(t.begin(), t.end()), f_(f.begin(), f.end()), _f(_f)
+		pwflat(std::span<T> t, std::span<F> f)
+			: t_(t.begin(), t.end()), f_(f.begin(), f.end())
 		{
 			if (t_.size() != f_.size()) {
 				throw std::invalid_argument("pwflat: t and f must have the same size");
@@ -37,18 +35,19 @@ namespace tmx::curve {
 		~pwflat() = default;
 
 		// Equal values.
-		auto operator==(const pwflat& c) const
+		bool operator==(const pwflat& c) const
 		{
-			return ((std::isnan(_f) && std::isnan(c._f)) || _f == c._f) && t_ == c.t_ && f_ == c.f_;
+			return t_ == c.t_ && f_ == c.f_;
 		}
 
-		F _forward(T u) const noexcept override
+		F _forward(T u, T _t = infinity<T>, F _f = NaN<F>) const noexcept override
 		{
-			return tmx::pwflat::forward(u, t_.size(), t_.data(), f_.data(), _f);
+			return u <= _t ? tmx::pwflat::forward(u, t_.size(), t_.data(), f_.data()) : _f;
 		}
-		F _integral(T u) const noexcept override
+		F _integral(T u, T _t = infinity<T>, F _f = NaN<F>) const noexcept override
 		{
-			return tmx::pwflat::integral(u, t_.size(), t_.data(), f_.data(), _f);
+			return u <= _t ? tmx::pwflat::integral(u, t_.size(), t_.data(), f_.data())
+				: tmx::pwflat::integral(_t, t_.size(), t_.data(), f_.data()) + _f * (u - _t);
 		}
 
 		std::size_t size() const
@@ -56,19 +55,13 @@ namespace tmx::curve {
 			return t_.size();
 		}
 		// Use iterable::make_interval(f.time()).
-		auto time() const
+		const std::vector<T>& time() const
 		{
-			return std::span(t_.begin(), t_.end());
+			return t_;
 		}
-		auto rate() const
+		const std::vector<F>& rate() const
 		{
-			return std::span(f_.begin(), f_.end());
-		}
-
-		// Last point on curve.
-		std::pair<T, F> back() const noexcept
-		{
-			return t_.size() ? std::make_pair(t_.back(), f_.back()) : std::make_pair(0., _f);
+			return f_;
 		}
 
 		pwflat& push_back(T t, F f)
@@ -82,16 +75,9 @@ namespace tmx::curve {
 		{
 			return push_back(p.first, p.second);
 		}
-
-		// Get extrapolation level.
-		F extrapolate() const noexcept
+		std::pair<T, F> back() const
 		{
-			return _f;
-		}
-		// Set extrapolation level.
-		F extrapolate(F f = math::NaN<F>) noexcept
-		{
-			return _f = f;
+			return { t_.back(), f_.back() };
 		}
 	};
 
@@ -104,22 +90,6 @@ namespace tmx::curve {
 			assert(c == c2);
 			c2 = c;
 			assert(!(c2 != c));
-		}
-		{
-			// test one case for _value, _integral, _extrapolate, and _back.
-			pwflat<> p1(3);
-			assert(3.0 == p1.forward(0));
-			assert(15 == p1.integral(5));
-			p1.extrapolate(7);
-			assert(7.0 == p1.forward(0));
-			assert(21 == p1.integral(3));
-
-			assert(p1.size() == 0);
-			p1.push_back(1, 2);
-			assert(p1.size() == 1);
-			assert(p1(0.5) == 2);
-			assert(p1(1) == 2);
-			assert(p1(1.5) == 7);
 		}
 
 		return 0;

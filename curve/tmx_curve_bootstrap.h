@@ -20,6 +20,11 @@ namespace tmx::curve {
 	inline std::pair<T, F> bootstrap(instrument::iterable<IU, IC> i, const curve::interface<T, F>& f,
 		T _t, F _f = math::NaN<F>, F p = 0)
 	{
+		const auto _u = i.last().u;
+		if (_u <= _t) {
+			return { math::NaN<T>, math::NaN<F> };
+		}	
+
 		// fix up initial guess
 		if (std::isnan(_f)) {
 			_f = f(_t); // last forward rate
@@ -29,15 +34,13 @@ namespace tmx::curve {
 		}
 
 		const auto vp = [i, &f, _t, p](F f_) { return valuation::present(i, extrapolate(f, _t, f_)) - p; };
-		//const auto vd = [i, &f, _t](F f_) { return valuation::duration(i, extrapolate(f, _t, f_)); };
-		double pv1, pv2;
-		pv1 = vp(.01);
-		pv2 = vp(.02);
+		const auto vd = [i, &f, _t](F f_) { return valuation::duration(i, extrapolate(f, _t, f_)); };
 		
-		auto [f_, tol, n] = root1d::secant(_f, _f + .01).solve(vp);
+
+		auto [f_, tol, n] = root1d::newton(_f).solve(vp, vd);
 		_f = f_;
 
-		return { _t, _f };
+		return { _u, _f};
 	}
 #ifdef _DEBUG
 	inline int bootstrap_test()
@@ -47,7 +50,7 @@ namespace tmx::curve {
 			curve::constant<> f;
 			double r = 0.1;
 			auto zcb = instrument::zero_coupon_bond(1, std::exp(r));
-			auto D = extrapolate(f, 0., r).discount(1);
+			auto D = f.discount(1, 0., r);
 			assert(D < 1);
 			auto p = valuation::present(zcb, extrapolate(f, 0., r)); 
 			assert(p == 1);
@@ -56,27 +59,6 @@ namespace tmx::curve {
 			auto [_t, _f] = curve::bootstrap(zcb, f, 0., 0.2, 1.);
 			assert(_t == 0);
 			assert(std::fabs(_f - r) <= math::sqrt_epsilon<double>);
-		}
-		{
-			double u[] = { 1, 2, 3 };
-			double c[] = { 0.01, 0.02, 0.03 };
-
-			curve::pwflat<> f;
-			auto i1 = instrument::iterable(take(array(u), 1), take(array(c), 1));
-			auto uc1 = bootstrap(i1, f, 0., .01, valuation::present(i1, constant(0.02)));
-			f.push_back(uc1);
-
-			auto i2 = instrument::iterable(take(array(u), 2), take(array(c), 2));
-			auto uc2 = bootstrap(i1, f, 1., .01, valuation::present(i1, constant(0.02)));
-			f.push_back(uc2);
-
-			auto i3 = instrument::iterable(take(array(u), 3), take(array(c), 3));
-			auto uc3 = bootstrap(i1, f, 2., .01, valuation::present(i1, constant(0.02)));
-			f.push_back(uc3);
-			double f0;
-			f0 = f(1);
-			f0 = f(2);
-			f0 = f(3);
 		}
 
 		return 0;
