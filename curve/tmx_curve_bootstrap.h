@@ -20,8 +20,8 @@ namespace tmx::curve {
 	inline std::pair<T, F> bootstrap0(instrument::iterable<IU, IC> i, const curve::interface<T, F>& f,
 		T _t, F _f = math::NaN<F>, F p = 0)
 	{
-		const auto _u = i.last().u;
-		if (_u <= _t) {
+		const auto uc = i.last(); // last instrument cash flow
+		if (uc.u <= _t) {
 			return { math::NaN<T>, math::NaN<F> };
 		}	
 
@@ -40,7 +40,7 @@ namespace tmx::curve {
 		auto [f_, tol, n] = root1d::newton(_f).solve(vp, vd);
 		_f = f_;
 
-		return { _u, _f};
+		return { uc.u, _f};
 	}
 #ifdef _DEBUG
 	inline int bootstrap_test()
