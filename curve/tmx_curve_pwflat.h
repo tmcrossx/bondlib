@@ -40,14 +40,13 @@ namespace tmx::curve {
 			return t_ == c.t_ && f_ == c.f_;
 		}
 
-		F _forward(T u, T _t = infinity<T>, F _f = NaN<F>) const noexcept override
+		F _forward(T u) const noexcept override
 		{
-			return u <= _t ? tmx::pwflat::forward(u, t_.size(), t_.data(), f_.data()) : _f;
+			return tmx::pwflat::forward(u, t_.size(), t_.data(), f_.data());
 		}
-		F _integral(T u, T _t = infinity<T>, F _f = NaN<F>) const noexcept override
+		F _integral(T u) const noexcept override
 		{
-			return u <= _t ? tmx::pwflat::integral(u, t_.size(), t_.data(), f_.data())
-				: tmx::pwflat::integral(_t, t_.size(), t_.data(), f_.data()) + _f * (u - _t);
+			return tmx::pwflat::integral(u, t_.size(), t_.data(), f_.data());
 		}
 
 		std::size_t size() const

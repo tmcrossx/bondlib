@@ -14,7 +14,7 @@ namespace tmx::curve {
 	constexpr X infinity = std::numeric_limits<X>::infinity();
 
 	// NVI idiom compiles to non-virtual function calls.
-	// Extrapolates curve past t by f left-continuously.
+	// Extrapolate by f after t.
 	template<class T = double, class F = double>
 	class interface {
 	public:
@@ -26,7 +26,7 @@ namespace tmx::curve {
 		// Forward at u.
 		constexpr F forward(T u, T t = infinity<T>, F f = NaN<F>) const
 		{
-			return u < 0 ? NaN<F> : u <= t ? _forward(u, t, f) : f;
+			return u < 0 ? NaN<F> : u <= t ? _forward(u) : f;
 		}
 		constexpr F operator()(T u, T t = infinity<T>, F f = NaN<F>) const
 		{
@@ -36,7 +36,7 @@ namespace tmx::curve {
 		// Integral from 0 to u of forward: int_0^u f(s) ds.
 		constexpr F integral(T u, T t = infinity<T>, F f = NaN<F>) const
 		{
-			return u < 0 ? NaN<F> : u == 0 ? 0 : u <= t ? _integral(u, t, f) : _integral(t, t, f) + f*(u - t);
+			return u < 0 ? NaN<F> : u == 0 ? 0 : u <= t ? _integral(u) : _integral(t) + f*(u - t);
 		}
 
 		// Price of one unit received at time u.
@@ -53,11 +53,11 @@ namespace tmx::curve {
 		}
 
 	private:
-		constexpr virtual F _forward(T u, T t, F f) const = 0;
-		constexpr virtual F _integral(T u, T t, F f) const = 0;
+		constexpr virtual F _forward(T u) const = 0;
+		constexpr virtual F _integral(T u) const = 0;
 	};
 	
-	// Provide t and f
+	// Provide t and f where forward(u) = f for u > t.
 	template<class T = double, class F = double>
 	class extrapolate : public interface<T, F> {
 		const interface<T, F>& f;
@@ -67,11 +67,11 @@ namespace tmx::curve {
 		extrapolate(const interface<T, F>& f, T _t = infinity<T>, F _f = NaN<F>)
 			: f(f), _t(_t), _f(_f)
 		{ }
-		constexpr F _forward(T u, T , F) const override
+		constexpr F _forward(T u) const override
 		{
 			return f.forward(u, _t, _f);
 		}
-		constexpr F _integral(T u, T , F) const override
+		constexpr F _integral(T u) const override
 		{
 			return f.integral(u, _t, _f);
 		}
@@ -86,13 +86,13 @@ namespace tmx::curve {
 			: f(f)
 		{ }
 
-		constexpr F _forward(T u, T _t = infinity<T>, F _f = NaN<F>) const override
+		constexpr F _forward(T) const override
 		{
-			return u <= _t ? f : _f;
+			return f;
 		}
-		constexpr F _integral(T u, T _t = infinity<T>, F _f = NaN<F>) const override
+		constexpr F _integral(T u) const override
 		{
-			return u <= _t ? f * u : f * _t + _f*(u - _t);
+			return f * u;
 		}
 	};
 #ifdef _DEBUG
@@ -126,11 +126,11 @@ namespace tmx::curve {
 		constexpr bump& operator=(const bump& c) = default;
 		constexpr ~bump() = default;
 
-		constexpr F _forward(T u, T, F) const override
+		constexpr F _forward(T u) const override
 		{
 			return s * (t0 <= u) * (u <= t1);
 		}
-		constexpr F _integral(T u, T, F) const override
+		constexpr F _integral(T u) const override
 		{
 			return s * (std::min(u, t1) - std::max(T(0), t0)) * (u >= t0) * (0 <= t1);
 		}
@@ -167,13 +167,13 @@ namespace tmx::curve {
 		constexpr translate& operator=(const translate& c) = default;
 		constexpr ~translate() = default;
 
-		constexpr F _forward(T u, T _t = infinity<T>, F _f = NaN<F>) const override
+		constexpr F _forward(T u) const override
 		{
-			return f.forward(u + t, _t + t, _f);
+			return f.forward(u + t);
 		}
-		constexpr F _integral(T u, T _t = infinity<T>, F _f = NaN<F>) const override
+		constexpr F _integral(T u) const override
 		{
-			return f.integral(u + t, _t + t, _f) - f.integral(t, _t + t, _f);
+			return f.integral(u + t) - f.integral(t);
 		}
 	};
 #ifdef _DEBUG
@@ -200,13 +200,13 @@ namespace tmx::curve {
 		constexpr plus& operator=(const plus& p) = default;
 		constexpr ~plus() = default;
 
-		constexpr F _forward(T u, T t = infinity<T>, F f = NaN<F>) const override
+		constexpr F _forward(T u) const override
 		{
-			return f.forward(u, t, f) + g.forward(u, t, f);
+			return f.forward(u) + g.forward(u);
 		}
-		constexpr F _integral(T u, T t = infinity<T>, F f = NaN<F>) const override
+		constexpr F _integral(T u) const override
 		{
-			return f.integral(u, t, f) + g.integral(u, t, f);
+			return f.integral(u) + g.integral(u);
 		}
 	};
 
