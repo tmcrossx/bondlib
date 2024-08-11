@@ -119,6 +119,8 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <SuppressStartupBanner>false</SuppressStartupBanner>
+      <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -168,6 +170,7 @@
     <ClInclude Include="math\tmx_math_hypergeometric.h" />
     <ClInclude Include="math\tmx_math_limits.h" />
     <ClInclude Include="math\tmx_root1d.h" />
+    <ClInclude Include="ensure.h" />
     <ClInclude Include="valuation\tmx_option.h" />
     <ClInclude Include="valuation\tmx_valuation.h" />
     <ClInclude Include="variate\tmx_variate.h" />

@@ -31,9 +31,6 @@
     <Filter Include="Header Files\curve">
       <UniqueIdentifier>{e1cb9bf2-47ae-4ac6-981b-c8736ef9f5e8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\security">
-      <UniqueIdentifier>{1ad6a935-1cae-4d30-b413-2bc37307613e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\instrument\security">
       <UniqueIdentifier>{cd5e7a17-deb6-49f1-b32f-83c5872a9b97}</UniqueIdentifier>
     </Filter>
@@ -112,6 +109,9 @@
     </ClInclude>
     <ClInclude Include="instrument\security\tmx_treasury.h">
       <Filter>Header Files\instrument\security</Filter>
+    </ClInclude>
+    <ClInclude Include="ensure.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

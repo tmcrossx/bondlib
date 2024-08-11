@@ -6,11 +6,11 @@
 #include "date/tmx_date_periodic.h"
 #include "instrument/tmx_instrument.h"
 
-namespace tmx::instrument::bond {
+namespace tmx::instrument::security {
 
 	// Basic bond indicative data from offering.
 	template<class C = double, class F = double>
-	struct basic
+	struct bond
 	{
 		date::ymd dated; // when interest starts accruing
 		date::ymd maturity; // when last coupon and principal is repaid
@@ -24,7 +24,7 @@ namespace tmx::instrument::bond {
 
 	// Return instrument cash flows for basic bond from present value date.
 	template<class C = double, class F = double>
-	inline auto instrument(const basic<C, F>& bond, const date::ymd& pvdate)
+	inline auto fix(const bond<C, F>& bond, const date::ymd& pvdate)
 	{
 		using namespace fms::iterable;
 		using namespace tmx::date;
@@ -53,7 +53,7 @@ namespace tmx::instrument::bond {
 
 #ifdef _DEBUG
 
-	inline int basic_test()
+	inline int bond_test()
 	{
 		using namespace std::literals::chrono_literals;
 		using namespace std::chrono;
@@ -61,10 +61,10 @@ namespace tmx::instrument::bond {
 		using namespace fms::iterable;
 
 		auto d = 2023y / 1 / 1;
-		bond::basic<> bond{ d, d + years(10), 0.05 };
+		bond<> b0{ d, d + years(10), 0.05 };
 		{
-			bond::basic b(d, d + months(6), 0.05);
-			auto i = instrument(b, d);
+			bond b(d, d + months(6), 0.05);
+			auto i = fix(b, d);
 			auto i2 = i;
 			assert(i == i2);
 			i = i2;
@@ -78,51 +78,51 @@ namespace tmx::instrument::bond {
 			assert(!i);
 		}
 		{
-			auto i = instrument(bond, d);
+			auto i = fix(b0, d);
 			assert(21 == size(i));
 			auto c0 = *i;
 			assert(c0.c == 2.5);
-			assert(c0.u == diffyears(d + months(bond.frequency), d));
+			assert(c0.u == diffyears(d + months(b0.frequency), d));
 
 			i = drop(i, 20);
 			auto cn = *i;
-			assert(cn.u == diffyears(bond.maturity, d));
+			assert(cn.u == diffyears(b0.maturity, d));
 			assert(cn.c == 100);
 		}
 		{
 			auto pvdate = d + months(1);
-			auto i = instrument(bond, pvdate);
+			auto i = fix(b0, pvdate);
 			assert(21 == size(i));
 			auto c0 = *i;
 			assert(c0.c < 2.5);
-			assert(c0.u == diffyears(bond.dated + months(bond.frequency), pvdate));
+			assert(c0.u == diffyears(b0.dated + months(b0.frequency), pvdate));
 
 			++i;
 			auto c1 = *i;
 			assert(c1.c == 2.5);
 			i = drop(i, 19);
 			auto cn = *i;
-			assert(cn.u == diffyears(bond.maturity, pvdate));
+			assert(cn.u == diffyears(b0.maturity, pvdate));
 			assert(cn.c == 100);
 		}
 		{
 			auto pvdate = d - months(1);
-			auto i = instrument(bond, pvdate);
+			auto i = fix(b0, pvdate);
 			assert(21 == size(i));
 			auto c0 = *i;
 			assert(c0.c == 2.5); // accrue from dated date
-			assert(c0.u == diffyears(bond.dated + months(bond.frequency), pvdate));
+			assert(c0.u == diffyears(b0.dated + months(b0.frequency), pvdate));
 
 			++i;
 			auto c1 = *i;
 			assert(c1.c == 2.5);
 			i = drop(i, 19);
 			auto cn = *i;
-			assert(cn.u == diffyears(bond.maturity, pvdate));
+			assert(cn.u == diffyears(b0.maturity, pvdate));
 			assert(cn.c == 100);
 		}
 
 		return 0;
 	}
 #endif // _DEBUG
-} // namespace tmx::instrument::bond
+} // namespace tmx::security::bond

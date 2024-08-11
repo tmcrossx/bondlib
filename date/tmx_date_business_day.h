@@ -17,7 +17,7 @@ namespace tmx::date::business_day {
 		TMX_DATE_BUSINESS_DAY(TMX_DATE_BUSINESS_DAY_ENUM)
 	};
 #undef TMX_DATE_BUSINESS_DAY_ENUM
-#define TMX_DATE_BUSINESS_DAY_ENUM(a, b, c) if (roll == static_cast<int>(roll::##b)) return true;
+#define TMX_DATE_BUSINESS_DAY_ENUM(a, b, c) if (roll == static_cast<int>(roll::b)) return true;
 	constexpr bool is_business_day_roll(int roll) {
 		TMX_DATE_BUSINESS_DAY(TMX_DATE_BUSINESS_DAY_ENUM)
 		return false;
