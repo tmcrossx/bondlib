@@ -51,7 +51,7 @@ namespace tmx {
 
 		// f(u) assuming t is monotonically increasing
 		template<class T = double, class F = double>
-		constexpr F forward(T u, size_t n, const T* t, const F* f, F _f = math::NaN<F>)
+		constexpr F value(T u, size_t n, const T* t, const F* f, F _f = math::NaN<F>)
 		{
 			if (u < 0)  return math::NaN<F>;
 			if (n == 0) return _f;
@@ -67,13 +67,13 @@ namespace tmx {
 			{
 				static constexpr double t[] = { 1,2,3 };
 				static constexpr double f[] = { 4,5,6 };
-				static_assert(IS_NAN(forward(-1., 3, t, f)));
-				static_assert(f[0] == forward(0., 3, t, f));
-				static_assert(f[0] == forward(t[0], 3, t, f));
-				static_assert(f[1] == forward(1.5, 3, t, f));
-				static_assert(f[1] == forward(t[1], 3, t, f));
-				static_assert(f[2] == forward(t[2], 3, t, f));
-				static_assert(IS_NAN(forward(t[2] + 1, 3, t, f)));
+				static_assert(IS_NAN(value(-1., 3, t, f)));
+				static_assert(f[0] == value(0., 3, t, f));
+				static_assert(f[0] == value(t[0], 3, t, f));
+				static_assert(f[1] == value(1.5, 3, t, f));
+				static_assert(f[1] == value(t[1], 3, t, f));
+				static_assert(f[2] == value(t[2], 3, t, f));
+				static_assert(IS_NAN(value(t[2] + 1, 3, t, f)));
 			}
 
 			return 0;
@@ -142,7 +142,7 @@ namespace tmx {
 		{
 			if (n == 0) return _f;
 			
-			return u <= t[0] ? forward(u, n, t, f, _f) : integral(u, n, t, f, _f) / u;
+			return u <= t[0] ? value(u, n, t, f, _f) : integral(u, n, t, f, _f) / u;
 		}
 
 	} // namespace pwflat

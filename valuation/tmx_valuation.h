@@ -68,7 +68,7 @@ namespace tmx::valuation {
 	template<class IU, class IC, 
 		class C = typename IC::value_type, class U = typename IU::value_type>
 	inline C yield(instrument::iterable<IU, IC> i, C p = 0,
-		C y0 = 0.01, C tol = math::sqrt_epsilon<C>, int iter = 100)
+		C y0 = 0.01, C tol = 1e4*math::epsilon<C>, int iter = 100)
 	{
 		const auto pv = [p,&i](C y_) { return present(i, curve::constant<U, C>(y_)) - p; };
 		const auto dur = [&i](C y_) { return duration(i, curve::constant<U, C>(y_)); };

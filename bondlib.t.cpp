@@ -11,7 +11,7 @@
 #include "curve/tmx_curve.h"
 #include "instrument/tmx_instrument.h"
 #include "valuation/tmx_valuation.h"
-#include "instrument/security/tmx_bond.h"
+#include "security/tmx_bond.h"
 #include "curve/tmx_curve_bootstrap.h"
 //#include "tmx_muni.h"
  
@@ -43,7 +43,7 @@ int test_pwflat = curve::pwflat_test();
 //int test_instrument_value = value<>::test();
 //int test_valuation_yield_d = valuation::yield_test<double>();
 //int test_value_yield_f = value::yield_test<float>();
-int test_instrument_security_bond = instrument::security::bond_test();
+int test_security_bond = security::bond_test();
 //int test_muni_fit = muni::fit_test();
 #endif // _DEBUG
 
@@ -74,7 +74,7 @@ int bootstrap_test()
 		auto uc3 = curve::bootstrap0(i3, f, 2., .01, valuation::present(i3, c0));
 		f.push_back(uc3);
 
-		assert(f.time() == std::vector<double>({ 1,2,3 }));
+		assert(equal(f.time(), { 1,2,3 }));
 		for (int i = 0; i < 3; ++i) {
 			assert(fabs(f.rate()[i] - 0.02) <= 44*math::sqrt_epsilon<double>);
 		}

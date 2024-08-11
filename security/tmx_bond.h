@@ -6,7 +6,7 @@
 #include "date/tmx_date_periodic.h"
 #include "instrument/tmx_instrument.h"
 
-namespace tmx::instrument::security {
+namespace tmx::security {
 
 	// Basic bond indicative data from offering.
 	template<class C = double, class F = double>
@@ -24,7 +24,7 @@ namespace tmx::instrument::security {
 
 	// Return instrument cash flows for basic bond from present value date.
 	template<class C = double, class F = double>
-	inline auto fix(const bond<C, F>& bond, const date::ymd& pvdate)
+	inline auto instrument(const bond<C, F>& bond, const date::ymd& pvdate)
 	{
 		using namespace fms::iterable;
 		using namespace tmx::date;
@@ -64,13 +64,13 @@ namespace tmx::instrument::security {
 		bond<> b0{ d, d + years(10), 0.05 };
 		{
 			bond b(d, d + months(6), 0.05);
-			auto i = fix(b, d);
+			auto i = instrument(b, d);
 			auto i2 = i;
 			assert(i == i2);
 			i = i2;
 			assert(!(i2 != i));
 
-			cash_flow<> uc;
+			instrument::cash_flow<> uc;
 			uc = *i;
 			++i;
 			uc = *i;
@@ -78,7 +78,7 @@ namespace tmx::instrument::security {
 			assert(!i);
 		}
 		{
-			auto i = fix(b0, d);
+			auto i = instrument(b0, d);
 			assert(21 == size(i));
 			auto c0 = *i;
 			assert(c0.c == 2.5);
@@ -91,7 +91,7 @@ namespace tmx::instrument::security {
 		}
 		{
 			auto pvdate = d + months(1);
-			auto i = fix(b0, pvdate);
+			auto i = instrument(b0, pvdate);
 			assert(21 == size(i));
 			auto c0 = *i;
 			assert(c0.c < 2.5);
@@ -107,7 +107,7 @@ namespace tmx::instrument::security {
 		}
 		{
 			auto pvdate = d - months(1);
-			auto i = fix(b0, pvdate);
+			auto i = instrument(b0, pvdate);
 			assert(21 == size(i));
 			auto c0 = *i;
 			assert(c0.c == 2.5); // accrue from dated date

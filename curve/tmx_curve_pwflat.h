@@ -6,6 +6,7 @@
 #include <vector>
 #include "ensure.h"
 #include "math/tmx_math_limits.h"
+#include "fms_iterable/fms_iterable.h"
 #include "tmx_pwflat.h"
 #include "tmx_curve.h"
 
@@ -41,9 +42,9 @@ namespace tmx::curve {
 			return t_ == c.t_ && f_ == c.f_;
 		}
 
-		F _forward(T u) const noexcept override
+		F _value(T u) const noexcept override
 		{
-			return tmx::pwflat::forward(u, t_.size(), t_.data(), f_.data());
+			return tmx::pwflat::value(u, t_.size(), t_.data(), f_.data());
 		}
 		F _integral(T u) const noexcept override
 		{
@@ -55,20 +56,19 @@ namespace tmx::curve {
 			return t_.size();
 		}
 		// Use iterable::make_interval(f.time()).
-		const std::vector<T>& time() const
+		const auto time() const
 		{
-			return t_;
+			return fms::iterable::make_interval(t_);
 		}
-		const std::vector<F>& rate() const
+		const auto rate() const
 		{
-			return f_;
+			return fms::iterable::make_interval(f_);
 		}
 
 		pwflat& push_back(T t, F f)
 		{
-			if (size() and t <= t_.back()) {
-				ENSURE("time must be increasing");
-			}
+			ENSURE(size() and t <= t_.back() and !"time must be increasing");
+
 			t_.push_back(t);
 			f_.push_back(f);
 

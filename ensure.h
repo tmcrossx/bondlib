@@ -10,7 +10,7 @@
 
 namespace {
 
-	// no constexpr int to string
+	// no constexpr int to string in standard library
 	constexpr std::string to_string(int i)
 	{
 		std::string str;
