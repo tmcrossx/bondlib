@@ -160,10 +160,10 @@
     <ClInclude Include="date\tmx_date_holiday.h" />
     <ClInclude Include="date\tmx_date_holiday_calendar.h" />
     <ClInclude Include="date\tmx_date_periodic.h" />
+    <ClInclude Include="instrument\security\tmx_bond.h" />
+    <ClInclude Include="instrument\security\tmx_treasury.h" />
     <ClInclude Include="instrument\tmx_cash_flow.h" />
     <ClInclude Include="instrument\tmx_instrument.h" />
-    <ClInclude Include="instrument\tmx_instrument_bond.h" />
-    <ClInclude Include="instrument\tmx_instrument_treasury.h" />
     <ClInclude Include="math\tmx_dual.h" />
     <ClInclude Include="math\tmx_math.h" />
     <ClInclude Include="math\tmx_math_hypergeometric.h" />

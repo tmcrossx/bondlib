@@ -11,7 +11,7 @@
 #include "curve/tmx_curve.h"
 #include "instrument/tmx_instrument.h"
 #include "valuation/tmx_valuation.h"
-#include "instrument/tmx_instrument_bond.h"
+#include "instrument/security/tmx_bond.h"
 #include "curve/tmx_curve_bootstrap.h"
 //#include "tmx_muni.h"
  

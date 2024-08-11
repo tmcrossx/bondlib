@@ -65,6 +65,9 @@ namespace tmx::curve {
 
 		pwflat& push_back(T t, F f)
 		{
+			if (size() and t <= t_.back()) {
+				throw std::invalid_argument(__FUNCTION__ ": time must be increasing");
+			}
 			t_.push_back(t);
 			f_.push_back(f);
 

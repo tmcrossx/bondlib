@@ -14,12 +14,13 @@ namespace tmx::curve {
 	constexpr X infinity = std::numeric_limits<X>::infinity();
 
 	// NVI idiom compiles to non-virtual function calls.
-	// Extrapolate by f after t.
+	// Subclasses implement _forward and _integral.
+	// Handle extrapolation by f after t at the interface level.
 	template<class T = double, class F = double>
 	class interface {
 	public:
 		using time_type = T;
-        using rate_type = F;
+		using rate_type = F;
 
 		virtual ~interface() {}
 
@@ -36,7 +37,7 @@ namespace tmx::curve {
 		// Integral from 0 to u of forward: int_0^u f(s) ds.
 		constexpr F integral(T u, T t = infinity<T>, F f = NaN<F>) const
 		{
-			return u < 0 ? NaN<F> : u == 0 ? 0 : u <= t ? _integral(u) : _integral(t) + f*(u - t);
+			return u < 0 ? NaN<F> : u == 0 ? 0 : u <= t ? _integral(u) : _integral(t) + f * (u - t);
 		}
 
 		// Price of one unit received at time u.
@@ -49,15 +50,16 @@ namespace tmx::curve {
 		// If u is small, use the forward.
 		constexpr F spot(T u, T t = infinity<T>, F f = NaN<F>) const
 		{
-			return u < 0 ? NaN<F> : u + 1 == 1 ? forward(u, t, f) : integral(u, t, f) / u;
+			return u < 0 ? NaN<F> : u < math::sqrt_epsilon<T> ? forward(u, t, f) : integral(u, t, f) / u;
 		}
 
 	private:
 		constexpr virtual F _forward(T u) const = 0;
 		constexpr virtual F _integral(T u) const = 0;
 	};
-	
+
 	// Provide t and f where forward(u) = f for u > t.
+	// Assumes lifetime of f.
 	template<class T = double, class F = double>
 	class extrapolate : public interface<T, F> {
 		const interface<T, F>& f;
@@ -82,7 +84,7 @@ namespace tmx::curve {
 	class constant : public interface<T, F> {
 		F f;
 	public:
-		constexpr constant(F f = 0) 
+		constexpr constant(F f = 0)
 			: f(f)
 		{ }
 
@@ -119,7 +121,7 @@ namespace tmx::curve {
 		F s;
 		T t0, t1;
 	public:
-		constexpr bump(F s, T t0, T t1) 
+		constexpr bump(F s, T t0 = 0, T t1 = math::infinity<T>)
 			: s(s), t0(t0), t1(t1)
 		{ }
 		constexpr bump(const bump& c) = default;
@@ -132,7 +134,7 @@ namespace tmx::curve {
 		}
 		constexpr F _integral(T u) const override
 		{
-			return s * (std::min(u, t1) - std::max(T(0), t0)) * (u >= t0) * (0 <= t1);
+			return s * (std::min(u, t1) - t0) * (u >= t0);
 		}
 	};
 #ifdef _DEBUG

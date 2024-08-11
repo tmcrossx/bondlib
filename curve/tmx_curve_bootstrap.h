@@ -66,12 +66,11 @@ namespace tmx::curve {
 #endif // _DEBUG
 	// Bootstrap a piecewise flat curve from instruments and prices.
 	template<class I, class P>
-	constexpr auto bootstrap(I is, P ps, double _f = 0.03)
+	constexpr auto bootstrap(I is, P ps, double _t = 0, double _f = 0.03)
 	{
-		double _t = 0;
 		curve::pwflat<> f;
 		
-		while (is) {
+		while (is and ps) {
 			std::tie(_t, _f) = bootstrap0(*is, f, _t, _f, *ps);
 			f.push_back(_t, _f);
 			++is;

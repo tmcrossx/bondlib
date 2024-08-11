@@ -1,6 +1,6 @@
-// tmx_instrument_bond_treasury.h - Treasury instruments
+// tmx_treasury.h - Treasury instruments
 #pragma once
-#include "tmx_instrument_bond.h"
+#include "instrument/security/tmx_bond.h"
 
 namespace tmx::instrument::bond {
 
