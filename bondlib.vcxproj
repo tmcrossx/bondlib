@@ -162,7 +162,6 @@
     <ClInclude Include="date\tmx_date_periodic.h" />
     <ClInclude Include="instrument\security\tmx_bond.h" />
     <ClInclude Include="instrument\security\tmx_treasury.h" />
-    <ClInclude Include="instrument\tmx_cash_flow.h" />
     <ClInclude Include="instrument\tmx_instrument.h" />
     <ClInclude Include="math\tmx_dual.h" />
     <ClInclude Include="math\tmx_math.h" />

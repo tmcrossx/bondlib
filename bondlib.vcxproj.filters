@@ -77,9 +77,6 @@
     <ClInclude Include="math\tmx_dual.h">
       <Filter>Header Files\math</Filter>
     </ClInclude>
-    <ClInclude Include="instrument\tmx_cash_flow.h">
-      <Filter>Header Files\instrument</Filter>
-    </ClInclude>
     <ClInclude Include="instrument\tmx_instrument.h">
       <Filter>Header Files\instrument</Filter>
     </ClInclude>

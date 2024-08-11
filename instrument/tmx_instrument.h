@@ -1,13 +1,30 @@
-// tmx_instrument.h - times and cash flows
+// tmx_instrument.h - cash flows iterable
 #pragma once
 #ifdef _DEBUG
 #include <cassert>
 #endif // _DEBUG
 #include <initializer_list>
 #include "fms_iterable/fms_iterable.h"
-#include "tmx_cash_flow.h"
 
 namespace tmx::instrument {
+
+	// Cash flow at time u of amount c.
+	template<class U = double, class C = double>
+	//requires std::totally_ordered<U> && std::equality_comparable<C>
+	struct cash_flow {
+		using time_type = U;
+		using cash_type = C;
+
+		U u; // time
+		C c; // cash
+
+		constexpr cash_flow(U u = U{}, C c = C{})
+			: u(u), c(c)
+		{ }
+
+		constexpr auto operator<=>(const cash_flow& cf) const = default;
+	};
+
 
 	template<class IU, class IC,
 		class U = typename IU::value_type, class C = typename IC::value_type>
