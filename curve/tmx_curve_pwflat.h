@@ -67,7 +67,7 @@ namespace tmx::curve {
 
 		pwflat& push_back(T t, F f)
 		{
-			ENSURE(size() and t <= t_.back() and !"time must be increasing");
+			ENSURE(size() == 0 || t >= t_.back());
 
 			t_.push_back(t);
 			f_.push_back(f);

@@ -2,7 +2,7 @@
 
 Fixed income instruments pay fixed cash flows $(c_j)$ at fixed times $(u_j)$.
 The simplest fixed income instrument is a zero coupon bond that pays 1 unit at _maturity_ $u$.
-The _price_ of a zero coupon bond is the _discount_, $D(u)$.
+The _price_ of a zero coupon bond $D(u)$ is the _discount_ to time $u$.
 
 Discounts are _quoted_ using rates.
 The _continuously compounded spot rate_ $r(t)$ is defined
@@ -11,8 +11,8 @@ defined by $D(t) = \exp(-\int_0^t f(s)\,ds)$.
 This implies the spot $r(t) = (1/t)\int_0^t f(s)\,ds$
 is the average forward rate over the interval $[0, t]$.
 This also shows the forward $f(t) = r(t) + t r'(t)$.
-We use a forward curve to implement spot and discount.
-Integration is numerically more stable than differentiation.
+We use a forward curve to implement spot and discount because
+integration is numerically more stable than differentiation.
 
 Market rates are quoted using _compounding frequencies_.
 If rate $r_n$ is compounded
@@ -32,16 +32,18 @@ parallel shift in the forward curve. The _convexity_ is the second derivative.
 A fundamental problem when implementing date and time is how to convert two
 calendar dates to a time duration and a date plus a time duration back to a calendar date.
 We must preserve $d_0 + (d_1 - d_0) = d_1$ for any dates $d_0$ and $d_1$. 
-This does not have a canonical solution. We define the difference of two dates
+There is no canonical solution. We define the difference of two dates
 to be the time in seconds between the two dates divided by the number of seconds in a year.
 The number of seconds between two dates is well-defined but the number of seconds in a year is not.
 We use `constexpr time_t seconds_per_year = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::years{ 1 }).count();`
 from the C++ [`<chrono>`](https://en.cppreference.com/w/cpp/chrono) library.
 
 The [`tmx::date`](date/tmx_date.h) namespace uses `tmx::date::ymd` as an alias
-for `std::chrono::year_month_day` to represent a calendar dates
-and `time_t` to represent time durations.
-The namespace implements `ymd operator+(ymd, time_t)` and `time_t operator-(ymd, ymd)`.
+for [`std::chrono::year_month_day`](https://en.cppreference.com/w/cpp/chrono/year_month_day)
+to represent calendar dates
+and [`time_t`](https://en.cppreference.com/w/c/chrono/time_t) to represent time durations.
+The function overloads `ymd operator+(ymd, time_t)` and `time_t operator-(ymd, ymd)`
+satisfy $(d + t) - d = t$ and $d_0 + t = d_1$ when $t = d_1 - d_0$.
 The functions `ymd addyears(ymd, double)` and `double diffyears(ymd, ymd)` are
 implemented using these by converting a `time_t` to a `double` using `seconds_per_year`.
 
@@ -133,14 +135,7 @@ mathematical artifacts that have nothing to do with market prices.
 It is better to introduce interpolated _instruments_ with prices that
 make sense to traders.
 
-## [EMMA]
-
-Data from the [Electronic Municipal Market Access](https://emma.msrb.org/)
-is available using the `EMMMA(curve, date)` add-in function,
-where `curve` can be `"ICE"` or `"Treasury"` and `date` is the date of the curve.
-If `date` is omitted then the most recent curve is returned.
-
-<!---
+<!--
 Let $T$ be a totally ordered set of trading times.
 
 Let $\Omega$ be the set of all possible outcomes. 
