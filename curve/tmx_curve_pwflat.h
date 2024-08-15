@@ -26,9 +26,7 @@ namespace tmx::curve {
 		pwflat(std::span<T> t, std::span<F> f)
 			: t_(t.begin(), t.end()), f_(f.begin(), f.end())
 		{
-			if (t_.size() != f_.size()) {
-				throw std::invalid_argument("pwflat: t and f must have the same size");
-			}
+			ENSURE (t_.size() == f_.size() || !"pwflat: t and f must have the same size");
 		}
 		pwflat(const pwflat&) = default;
 		pwflat& operator=(const pwflat&) = default;
@@ -55,7 +53,6 @@ namespace tmx::curve {
 		{
 			return t_.size();
 		}
-		// Use iterable::make_interval(f.time()).
 		const auto time() const
 		{
 			return fms::iterable::make_interval(t_);

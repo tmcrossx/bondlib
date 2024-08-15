@@ -5,10 +5,10 @@
 
 // NAME, name, months, description
 #define TMX_DATE_FREQUENCY(X) \
-	X(ANNUALLY, annually, 12, "Yearly payments.") \
-	X(SEMIANNUALLY, semiannually, 6, "biannual payments.") \
-	X(QUARTERLY, quarterly, 3, "quarterly payments.") \
-	X(MONTHLY, monthly, 1, "monthly payments.") \
+	X(ANNUALLY, annually, 1, "Yearly payments.") \
+	X(SEMIANNUALLY, semiannually, 2, "biannual payments.") \
+	X(QUARTERLY, quarterly, 4, "quarterly payments.") \
+	X(MONTHLY, monthly, 12, "monthly payments.") \
 
 namespace tmx::date {
 
@@ -26,8 +26,14 @@ namespace tmx::date {
 #undef TMX_DATE_FREQUENCY_ENUM
 #ifdef _DEBUG
 	static_assert(is_frequency(12));
-	static_assert(!is_frequency(2));
+	static_assert(!is_frequency(3));
 #endif // _DEBUG
+
+	// Period in months.
+	constexpr int period(frequency f)
+	{
+		return 12 / f;
+	}
 
 	// Sequence of dates after b at frequency f working backwards from e.
 	constexpr auto periodic(frequency f, ymd b, ymd e)
@@ -36,13 +42,14 @@ namespace tmx::date {
 		using namespace fms::iterable;
 
 		int n = 0;
+		int p = period(f);
 		while (b < e) {
-			e -= months(f); // work backwards from e
+			e -= months(p); // work backwards from e
 			++n;
 		}
-		const auto fpd = e + months(f); // first payment date after b
+		const auto fpd = e + months(p); // first payment date after b
 
-		return take(sequence(fpd, months(f)), n);
+		return take(sequence(fpd, months(p)), n);
 	}
 #ifdef _DEBUG
 	constexpr int periodic_test()

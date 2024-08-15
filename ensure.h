@@ -1,12 +1,13 @@
-// report.h - Report message using souce location.
+// ensure.h - Report message using souce location.
 #pragma once
+#include <stdexcept>
 #include <source_location>
 #include <string>
 
 
 #define ENSURE_HASH(x) #x
 #define ENSURE_STRZ(x) ENSURE_HASH(x)
-#define ENSURE(e) if (!(e)) { throw report(std::source_location::current(), ENSURE_STRZ(e)); }
+#define ENSURE(e) if (!(e)) { throw std::runtime_error(report(std::source_location::current(), ENSURE_STRZ(e))); }
 
 namespace {
 

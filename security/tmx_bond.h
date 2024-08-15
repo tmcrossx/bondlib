@@ -82,7 +82,7 @@ namespace tmx::security {
 			assert(21 == size(i));
 			auto c0 = *i;
 			assert(c0.c == 2.5);
-			assert(c0.u == diffyears(d + months(b0.frequency), d));
+			assert(c0.u == diffyears(d + months(period(b0.frequency)), d));
 
 			i = drop(i, 20);
 			auto cn = *i;
@@ -95,7 +95,7 @@ namespace tmx::security {
 			assert(21 == size(i));
 			auto c0 = *i;
 			assert(c0.c < 2.5);
-			assert(c0.u == diffyears(b0.dated + months(b0.frequency), pvdate));
+			assert(c0.u == diffyears(b0.dated + months(period(b0.frequency)), pvdate));
 
 			++i;
 			auto c1 = *i;
@@ -111,7 +111,7 @@ namespace tmx::security {
 			assert(21 == size(i));
 			auto c0 = *i;
 			assert(c0.c == 2.5); // accrue from dated date
-			assert(c0.u == diffyears(b0.dated + months(b0.frequency), pvdate));
+			assert(c0.u == diffyears(b0.dated + months(period(b0.frequency)), pvdate));
 
 			++i;
 			auto c1 = *i;

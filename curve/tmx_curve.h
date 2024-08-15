@@ -9,11 +9,6 @@
 
 namespace tmx::curve {
 
-	template<class X>
-	constexpr X NaN = std::numeric_limits<X>::quiet_NaN();
-	template<class X>
-	constexpr X infinity = std::numeric_limits<X>::infinity();
-
 	// Subclasses implement _value and _integral.
 	// Handle extrapolation by f after t at the interface level.
 	template<class T = double, class F = double>
@@ -25,32 +20,32 @@ namespace tmx::curve {
 		virtual ~interface() {}
 
 		// Forward at u.
-		constexpr F value(T u, T t = infinity<T>, F f = NaN<F>) const
+		constexpr F value(T u, T t = math::infinity<T>, F f = math::NaN<F>) const
 		{
-			return u < 0 ? NaN<F> : u <= t ? _value(u) : f;
+			return u < 0 ? math::NaN<F> : u <= t ? _value(u) : f;
 		}
-		constexpr F operator()(T u, T t = infinity<T>, F f = NaN<F>) const
+		constexpr F operator()(T u, T t = math::infinity<T>, F f = math::NaN<F>) const
 		{
 			return value(u, t, f);
 		}
 
 		// Integral from 0 to u of forward: int_0^u f(s) ds.
-		constexpr F integral(T u, T t = infinity<T>, F f = NaN<F>) const
+		constexpr F integral(T u, T t = math::infinity<T>, F f = math::NaN<F>) const
 		{
-			return u < 0 ? NaN<F> : u == 0 ? 0 : u <= t ? _integral(u) : _integral(t) + f * (u - t);
+			return u < 0 ? math::NaN<F> : u == 0 ? 0 : u <= t ? _integral(u) : _integral(t) + f * (u - t);
 		}
 
 		// Price of one unit received at time u.
-		constexpr F discount(T u, T t = infinity<T>, F f = NaN<F>) const
+		constexpr F discount(T u, T t = math::infinity<T>, F f = math::NaN<F>) const
 		{
-			return u < 0 ? NaN<F> : std::exp(-integral(u, t, f));
+			return u < 0 ? math::NaN<F> : std::exp(-integral(u, t, f));
 		}
 
 		// Spot/yield is the average of the forward over [0, u].
 		// If u is small, use the forward.
-		constexpr F spot(T u, T t = infinity<T>, F f = NaN<F>) const
+		constexpr F spot(T u, T t = math::infinity<T>, F f = math::NaN<F>) const
 		{
-			return u < 0 ? NaN<F> : u < math::sqrt_epsilon<T> ? value(u, t, f) : integral(u, t, f) / u;
+			return u < 0 ? math::NaN<F> : u < math::sqrt_epsilon<T> ? value(u, t, f) : integral(u, t, f) / u;
 		}
 
 	private:
@@ -66,7 +61,7 @@ namespace tmx::curve {
 		T _t;
 		F _f;
 	public:
-		extrapolate(const interface<T, F>& f, T _t = infinity<T>, F _f = NaN<F>)
+		extrapolate(const interface<T, F>& f, T _t = math::infinity<T>, F _f = math::NaN<F>)
 			: f(f), _t(_t), _f(_f)
 		{ }
 		constexpr F _value(T u) const override
@@ -101,7 +96,7 @@ namespace tmx::curve {
 	inline int constant_test()
 	{
 		{
-			constant c(1.);
+			curve::constant c(1.);
 			assert(std::isnan(constant(1.).value(-1)));
 			assert(c.value(0.) == 1);
 			assert(c.integral(0.) == 0);
@@ -198,6 +193,9 @@ namespace tmx::curve {
 		constexpr plus(const interface<T, F>& f, const interface<T, F>& g)
 			: f(f), g(g)
 		{ }
+		constexpr plus(const interface<T, F>& f, F s)
+			: f(f), g(curve::constant(s))
+		{ }
 		constexpr plus(const plus& p) = default;
 		constexpr plus& operator=(const plus& p) = default;
 		constexpr ~plus() = default;
@@ -219,4 +217,9 @@ template<class T, class F>
 constexpr  tmx::curve::plus<T, F> operator+(const tmx::curve::interface<T, F>& f, const tmx::curve::interface<T, F>& g)
 {
 	return tmx::curve::plus<T, F>(f, g);
+}
+template<class T, class F>
+constexpr  tmx::curve::plus<T, F> operator+(const tmx::curve::interface<T, F>& f, F s)
+{
+	return tmx::curve::plus<T, F>(f, s);
 }

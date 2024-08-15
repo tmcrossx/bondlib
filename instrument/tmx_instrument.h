@@ -26,14 +26,13 @@ namespace tmx::instrument {
 	};
 
 
-	template<class IU, class IC,
-		class U = typename IU::value_type, class C = typename IC::value_type>
+	template<class IU, class IC>
 	class iterable {
 		IU u;
 		IC c;
 	public:
 		using iterator_category = std::input_iterator_tag;
-		using value_type = cash_flow<U, C>;
+		using value_type = cash_flow<std::iter_value_t<IU>, std::iter_value_t<IC>>;
 		using reference = value_type&;
 		using pointer = value_type*;
 		using difference_type = std::ptrdiff_t;
