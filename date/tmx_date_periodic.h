@@ -5,6 +5,7 @@
 
 // NAME, name, months, description
 #define TMX_DATE_FREQUENCY(X) \
+	X(NONE, none, 0, "No payments.") \
 	X(ANNUALLY, annually, 1, "Yearly payments.") \
 	X(SEMIANNUALLY, semiannually, 2, "biannual payments.") \
 	X(QUARTERLY, quarterly, 4, "quarterly payments.") \

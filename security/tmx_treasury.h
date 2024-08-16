@@ -5,6 +5,13 @@
 
 namespace tmx::security::treasury {
 
+	// T-bill price from coupon and term.
+	template<class F>
+	constexpr F bill_price(unsigned weeks, F f)
+	{
+		return 1 - 7 * weeks * f / 360;
+	}
+
 	// T-bill price is face.
 	template<class C = double, class F = double>
 	struct bill : public security::bond<C, F> {
@@ -13,10 +20,11 @@ namespace tmx::security::treasury {
 				dated,
 				std::chrono::sys_days(dated) + std::chrono::days(7*weeks),
 				C(0),
+				date::frequency::none,
 				date::day_count_actual360,
 				date::business_day::roll::following,
 				date::holiday::calendar::FED,
-				face / (1 - coupon*7*weeks/360.)
+				face / bill_price(weeks, coupon)
 		}
 		{
 			ENSURE(weeks <= 52 || !"Treasury bill must have 52 weeks or less to maturity.");

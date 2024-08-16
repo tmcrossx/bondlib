@@ -36,14 +36,19 @@ namespace tmx::security {
 		// adjust payment dates with roll convention and holiday calendar
 		const auto apd = apply(adjust(bond.roll, bond.cal), pd);
 		// convert dates to time in years from pvdate
-		const auto u = apply([pvdate](const date::ymd& d) {
+		auto u = apply([pvdate](const date::ymd& d) {
 			return diffyears(d, pvdate); }, apd);
 
 		// day count fractions for dirty price
 		const auto dcf = delta(prepend(d0, apd), bond.day_count);
 		// cash flows
-		const auto c = constant(bond.face * bond.coupon) * dcf;
-
+		auto c = constant(bond.face * bond.coupon) * dcf;
+		/*
+		if (bond.coupon == 0) {
+			u = counted(u, 0);
+			c = counted(c, 0);
+		}
+		*/
 		// face value at maturity
 		const auto u_ = append(u, diffyears(bond.maturity, pvdate));
 		const auto c_ = append(c, bond.face);
