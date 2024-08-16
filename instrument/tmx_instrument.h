@@ -61,7 +61,7 @@ namespace tmx::instrument {
 		// Last cash flow at maturity/termination/expiration.
 		value_type last() const
 		{
-			return cash_flow(*--u.end(), *--c.end()); // TODO: fms::iterable::last(u)...
+			return cash_flow(*fms::iterable::last(u), *fms::iterable::last(c)); // TODO: fms::iterable::last(u)...
 		}
 
 		iterable begin() const
