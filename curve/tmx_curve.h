@@ -193,9 +193,6 @@ namespace tmx::curve {
 		constexpr plus(const interface<T, F>& f, const interface<T, F>& g)
 			: f(f), g(g)
 		{ }
-		constexpr plus(const interface<T, F>& f, F s)
-			: f(f), g(curve::constant(s))
-		{ }
 		constexpr plus(const plus& p) = default;
 		constexpr plus& operator=(const plus& p) = default;
 		constexpr ~plus() = default;
@@ -217,9 +214,4 @@ template<class T, class F>
 constexpr  tmx::curve::plus<T, F> operator+(const tmx::curve::interface<T, F>& f, const tmx::curve::interface<T, F>& g)
 {
 	return tmx::curve::plus<T, F>(f, g);
-}
-template<class T, class F>
-constexpr  tmx::curve::plus<T, F> operator+(const tmx::curve::interface<T, F>& f, F s)
-{
-	return tmx::curve::plus<T, F>(f, s);
 }

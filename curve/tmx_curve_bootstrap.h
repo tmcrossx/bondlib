@@ -34,36 +34,12 @@ namespace tmx::curve {
 		}
 
 		const auto vp = [i, &f, _t, p](F f_) { return valuation::present(i, extrapolate(f, _t, f_)) - p; };
-		//const auto vd = [i, &f, _t](F f_) { return valuation::duration(i, extrapolate(f, _t, f_)); };
 		
-		auto [f_, tol, n] = root1d::secant(_f, _f + 0.02).solve(vp);
-		//auto [f_, tol, n] = root1d::newton(_f).solve(vp, vd);
+		auto [f_, tol, n] = root1d::secant(_f, _f + 0.01).solve(vp);
 		_f = f_;
 
 		return { uc.u, _f};
 	}
-#ifdef _DEBUG
-	inline int bootstrap_test()
-	{
-		using namespace fms::iterable;
-		{
-			curve::constant<> f;
-			double r = 0.1;
-			auto zcb = instrument::zero_coupon_bond(1, std::exp(r));
-			auto D = f.discount(1, 0., r);
-			assert(D < 1);
-			auto p = valuation::present(zcb, extrapolate(f, 0., r)); 
-			assert(p == 1);
-			auto d = valuation::duration(zcb, extrapolate(f, 0., r));
-			assert(d == -1);
-			auto [_t, _f] = curve::bootstrap0(zcb, f, 0., 0.2, 1.);
-			assert(_t == 0);
-			assert(std::fabs(_f - r) <= math::sqrt_epsilon<double>);
-		}
-
-		return 0;
-	}
-#endif // _DEBUG
 	// Bootstrap a piecewise flat curve from instruments and prices.
 	template<class I, class P>
 	constexpr auto bootstrap(I is, P ps, double _t = 0, double _f = 0.03)
@@ -79,4 +55,27 @@ namespace tmx::curve {
 
 		return f;
 	}
+#ifdef _DEBUG
+	inline int bootstrap_test()
+	{
+		using namespace fms::iterable;
+		{
+			curve::constant<> f;
+			double r = 0.1;
+			auto zcb = instrument::zero_coupon_bond(1, std::exp(r));
+			auto D = f.discount(1, 0., r);
+			assert(D < 1);
+			auto p = valuation::present(zcb, extrapolate(f, 0., r));
+			assert(p == 1);
+			auto d = valuation::duration(zcb, extrapolate(f, 0., r));
+			assert(d == -1);
+			auto [_t, _f] = curve::bootstrap0(zcb, f, 0., 0.2, 1.);
+			assert(_t == 0);
+			assert(std::fabs(_f - r) <= math::sqrt_epsilon<double>);
+		}
+
+		return 0;
+	}
+#endif // _DEBUG
+
 }

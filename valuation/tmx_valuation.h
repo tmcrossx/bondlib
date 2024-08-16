@@ -147,21 +147,14 @@ namespace tmx::valuation {
 		{
 			auto i = instrument::zero_coupon_bond(1.);
 			const auto c = curve::constant(0.05);
-			//double eps = 0.001;
-			const auto pv = [i, &c](double s) { return valuation::present(i, c + s); };
-			double x = pv(0);
-			x = pv(0.01);
-			x = pv(-0.01);
-		}
-		{
-			auto i = instrument::zero_coupon_bond(1.);
-			const auto c = curve::constant(0.05);
 			double eps = 0.001;
 			//const auto pv = valuation::present(i, c);
 			const auto dur = valuation::duration(i, c);
 			const auto cvx = valuation::convexity(i, c);
-			const auto _dur = math::symmetric_difference([i, &c](auto s) { return valuation::present(i, c + s); }, 0., eps);
-			const auto _cvx = math::second_difference([i, &c](auto s) { return valuation::present(i, c + s); }, 0., eps);
+			const auto _dur = math::symmetric_difference([i, &c](auto s) { 
+				return valuation::present(i, c + curve::constant(s)); }, 0., eps);
+			const auto _cvx = math::second_difference([i, &c](auto s) { 
+				return valuation::present(i, c + curve::constant(s)); }, 0., eps);
 			assert(fabs(dur - _dur) < eps*eps);
 			assert(fabs(cvx - _cvx) < eps * eps);
 		}
