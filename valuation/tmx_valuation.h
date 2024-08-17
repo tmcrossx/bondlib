@@ -64,6 +64,13 @@ namespace tmx::valuation {
 		return sum(apply([&f](const auto& uc) { return uc.u * uc.u * present(uc, f); }, i));
 	}
 
+	template<class IU, class IC,
+		class C = typename IC::value_type, class U = typename IU::value_type>
+	inline C price(instrument::iterable<IU, IC> i, C y)
+	{
+		return present(i, curve::constant<U, C>(y));
+	}
+
 	// Constant yield matching price p.
 	template<class IU, class IC, 
 		class C = typename IC::value_type, class U = typename IU::value_type>
@@ -84,9 +91,8 @@ namespace tmx::valuation {
 		F s0 = 0, F tol = math::sqrt_epsilon<F>, int iter = 100)
 	{
 		const auto pv = [p,&i,&f](F s_) { return present(i, f + curve::constant<T,F>(s_)) - p; };
-		const auto dur = [&i,&f](F s_) { return duration(i, f + curve::constant<T, F>(s_)); };
 
-		auto [s, t, n] = root1d::newton(s0, tol, iter).solve(pv, dur);
+		auto [s, t, n] = root1d::secant(s0, s0 + .01, tol, iter).solve(pv);
 
 		return s;
 	}
@@ -155,10 +161,46 @@ namespace tmx::valuation {
 				return valuation::present(i, c + curve::constant(s)); }, 0., eps);
 			const auto _cvx = math::second_difference([i, &c](auto s) { 
 				return valuation::present(i, c + curve::constant(s)); }, 0., eps);
-			assert(fabs(dur - _dur) < eps*eps);
+			assert(fabs(dur - _dur) < eps * eps);
 			assert(fabs(cvx - _cvx) < eps * eps);
 		}
-
+		{
+			auto i = instrument::zero_coupon_bond(1.);
+			const auto c = curve::constant(0.05);
+			double eps = 0.001;
+			//const auto pv = valuation::present(i, c);
+			const auto dur = valuation::duration(i, c);
+			const auto cvx = valuation::convexity(i, c);
+			const auto _dur = math::symmetric_difference([i, &c](auto s) {
+				return valuation::present(i, c + curve::constant(s)); }, 0., eps);
+			const auto _cvx = math::second_difference([i, &c](auto s) {
+				return valuation::present(i, c + curve::constant(s)); }, 0., eps);
+			assert(fabs(dur - _dur) < eps * eps);
+			assert(fabs(cvx - _cvx) < eps * eps);
+		}
+		{
+			auto i = instrument::zero_coupon_bond(1.);
+			const auto c = curve::constant(0.05);
+			double eps = 0.001;
+			//const auto pv = valuation::present(i, c);
+			const auto dur = valuation::duration(i, c);
+			const auto cvx = valuation::convexity(i, c);
+			const auto _dur = math::symmetric_difference([i, &c](auto s) {
+				return valuation::present(i, c + curve::constant(s)); }, 0., eps);
+			const auto _cvx = math::second_difference([i, &c](auto s) {
+				return valuation::present(i, c + curve::constant(s)); }, 0., eps);
+			assert(fabs(dur - _dur) < eps * eps);
+			assert(fabs(cvx - _cvx) < eps * eps);
+		}
+		{
+			auto i = instrument::zero_coupon_bond(1.);
+			const auto c = curve::constant(0.05);
+			const auto s = curve::constant(0.02);
+			//auto pv0 = valuation::present(i, c);
+			auto pvs = valuation::present(i, c + s);
+			auto s0 = valuation::oas(i, c, pvs);
+			assert(fabs(s0 - s(0)) < math::sqrt_epsilon<double>);
+		}
 		return 0;
 	}
 
