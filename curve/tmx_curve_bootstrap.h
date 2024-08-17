@@ -41,7 +41,7 @@ namespace tmx::curve {
 		return { uc.u, _f};
 	}
 	// Bootstrap a piecewise flat curve from instruments and prices.
-	template<class I, class P>
+	template<fms::iterable::input_iterable I, fms::iterable::input_iterable P>
 	constexpr auto bootstrap(I is, P ps, double _t = 0, double _f = 0.03)
 	{
 		curve::pwflat<> f;
