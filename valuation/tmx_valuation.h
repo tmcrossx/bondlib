@@ -195,12 +195,13 @@ namespace tmx::valuation {
 		{
 			auto i = instrument::zero_coupon_bond(1.);
 			const auto c = curve::constant(0.05);
-			const auto s = curve::constant(0.02);
+			double s = 0.02;
 			//auto pv0 = valuation::present(i, c);
 			auto pvs = valuation::present(i, c + s);
 			auto s0 = valuation::oas(i, c, pvs);
-			assert(fabs(s0 - s(0)) < math::sqrt_epsilon<double>);
+			assert(fabs(s0 - s) < math::sqrt_epsilon<double>);
 		}
+
 		return 0;
 	}
 

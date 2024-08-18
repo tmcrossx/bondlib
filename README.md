@@ -5,8 +5,8 @@ The simplest fixed income instrument is a zero coupon bond that pays 1 unit at _
 The _price_ of a zero coupon bond $D(u)$ is the _discount_ to time $u$.
 
 Discounts are _quoted_ using rates.
-The _continuously compounded spot rate_ $r(t)$ is defined
-by $D(t) = \exp(-t r(t))$. The _continuously compounded forward_ rate $f(t)$ is
+The _continuously compounded spot rate_ $r(t)$ is defined by $D(t) = \exp(-t r(t))$.
+The _continuously compounded forward_ rate $f(t)$ is
 defined by $D(t) = \exp(-\int_0^t f(s)\,ds)$.
 This implies the spot $r(t) = (1/t)\int_0^t f(s)\,ds$
 is the average forward rate over the interval $[0, t]$.
@@ -15,17 +15,18 @@ We use a forward curve to implement spot and discount because
 integration is numerically more stable than differentiation.
 
 Market rates are quoted using _compounding frequencies_.
-If rate $r_n$ is compounded
-$n$ times per year then $(1 + r_n/n)^n = \exp(r)$
-so $r_n = n(\exp(r/n) - 1)$
+If rate $r_n$ is compounded $n$ times per year then 
+$(1 + r_n/n)^n = \exp(r)$ so $r_n = n(\exp(r/n) - 1)$
 
-The _continuously compounded yield_ of a fixed income security given a price $p$ is the constant $y$
-with $p = \sum_j c_j \exp(-y u_j)$. The yeild does not require a discount curve.
+The _continuously compounded yield_ of a fixed income security given a price $p$ 
+is the constant $y$ with $p = \sum_j c_j \exp(-y u_j)$. 
+The yield does not require a discount curve.
 
-The _present value_ of a fixed income security
-is the sum of discounted future cash flows, $p = \sum_j c_j D(u_j)$.
-The _duration_ of a fixed income security is the derivative of the present value with respect to a
-parallel shift in the forward curve. The _convexity_ is the second derivative.
+The _present value_ of a fixed income security is 
+the sum of discounted future cash flows, $p = \sum_j c_j D(u_j)$.
+The _duration_ of a fixed income security is the derivative of the present value 
+with respect to a parallel shift in the forward curve. 
+The _convexity_ is the second derivative.
 
 ## [Date](date/tmx_date.h)
 

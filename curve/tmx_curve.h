@@ -206,6 +206,30 @@ namespace tmx::curve {
 			return f.integral(u) + g.integral(u);
 		}
 	};
+	// Shift curve rates by spread s.
+	template<class T = double, class F = double>
+	class spread : public curve::interface<T, F> {
+		constant<T, F> s;
+		plus<T, F> c;
+	public:
+		constexpr spread(const interface<T, F>& f, F u)
+			: s(u), c(f, s)
+		{ }
+		constexpr spread(const spread& c) = default;
+		constexpr spread& operator=(const spread& c) = default;
+		constexpr spread(spread&& c) = default;
+		constexpr spread& operator=(spread&& c) = default;
+		constexpr ~spread() = default;
+
+		constexpr F _value(T u) const override
+		{
+			return c.value(u);
+		}
+		constexpr F _integral(T u) const override
+		{
+			return c.integral(u);
+		}
+	};
 
 } // namespace tmx::curve
 
@@ -214,4 +238,10 @@ template<class T, class F>
 constexpr  tmx::curve::plus<T, F> operator+(const tmx::curve::interface<T, F>& f, const tmx::curve::interface<T, F>& g)
 {
 	return tmx::curve::plus<T, F>(f, g);
+}
+// Add two curves.
+template<class T, class F>
+constexpr tmx::curve::spread<T, F> operator+(const tmx::curve::interface<T, F>& f, F s)
+{
+	return tmx::curve::spread<T, F>(f, s);
 }
