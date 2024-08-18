@@ -6,7 +6,7 @@
 #include <utility>
 #include "instrument/tmx_instrument.h"
 #include "curve/tmx_curve_pwflat.h"
-#include "valuation/tmx_valuation.h"
+#include "value/tmx_valuation.h"
 #include "math/tmx_math_limits.h"
 
 namespace tmx::curve {
@@ -33,7 +33,7 @@ namespace tmx::curve {
 			_f = 0.01;
 		}
 
-		const auto vp = [i, &f, _t, p](F f_) { return valuation::present(i, extrapolate(f, _t, f_)) - p; };
+		const auto vp = [i, &f, _t, p](F f_) { return value::present(i, extrapolate(f, _t, f_)) - p; };
 		
 		auto [f_, tol, n] = root1d::secant(_f, _f + 0.01).solve(vp);
 		_f = f_;
@@ -65,9 +65,9 @@ namespace tmx::curve {
 			auto zcb = instrument::zero_coupon_bond(1, std::exp(r));
 			auto D = f.discount(1, 0., r);
 			assert(D < 1);
-			auto p = valuation::present(zcb, extrapolate(f, 0., r));
+			auto p = value::present(zcb, extrapolate(f, 0., r));
 			assert(p == 1);
-			auto d = valuation::duration(zcb, extrapolate(f, 0., r));
+			auto d = value::duration(zcb, extrapolate(f, 0., r));
 			assert(d == -1);
 			auto [_t, _f] = curve::bootstrap0(zcb, f, 0., 0.2, 1.);
 			assert(_t == 0);

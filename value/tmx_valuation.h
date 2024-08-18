@@ -7,7 +7,7 @@
 
 using namespace fms::iterable;
 
-namespace tmx::valuation {
+namespace tmx::value {
 
 	// Convert between continuous rate and compounded yield using (1 + y/n)^n = e^r
 	template<class X>
@@ -154,13 +154,13 @@ namespace tmx::valuation {
 			auto i = instrument::zero_coupon_bond(1.);
 			const auto c = curve::constant(0.05);
 			double eps = 0.001;
-			//const auto pv = valuation::present(i, c);
-			const auto dur = valuation::duration(i, c);
-			const auto cvx = valuation::convexity(i, c);
+			//const auto pv = value::present(i, c);
+			const auto dur = value::duration(i, c);
+			const auto cvx = value::convexity(i, c);
 			const auto _dur = math::symmetric_difference([i, &c](auto s) { 
-				return valuation::present(i, c + curve::constant(s)); }, 0., eps);
+				return value::present(i, c + curve::constant(s)); }, 0., eps);
 			const auto _cvx = math::second_difference([i, &c](auto s) { 
-				return valuation::present(i, c + curve::constant(s)); }, 0., eps);
+				return value::present(i, c + curve::constant(s)); }, 0., eps);
 			assert(fabs(dur - _dur) < eps * eps);
 			assert(fabs(cvx - _cvx) < eps * eps);
 		}
@@ -168,13 +168,13 @@ namespace tmx::valuation {
 			auto i = instrument::zero_coupon_bond(1.);
 			const auto c = curve::constant(0.05);
 			double eps = 0.001;
-			//const auto pv = valuation::present(i, c);
-			const auto dur = valuation::duration(i, c);
-			const auto cvx = valuation::convexity(i, c);
+			//const auto pv = value::present(i, c);
+			const auto dur = value::duration(i, c);
+			const auto cvx = value::convexity(i, c);
 			const auto _dur = math::symmetric_difference([i, &c](auto s) {
-				return valuation::present(i, c + curve::constant(s)); }, 0., eps);
+				return value::present(i, c + curve::constant(s)); }, 0., eps);
 			const auto _cvx = math::second_difference([i, &c](auto s) {
-				return valuation::present(i, c + curve::constant(s)); }, 0., eps);
+				return value::present(i, c + curve::constant(s)); }, 0., eps);
 			assert(fabs(dur - _dur) < eps * eps);
 			assert(fabs(cvx - _cvx) < eps * eps);
 		}
@@ -182,13 +182,13 @@ namespace tmx::valuation {
 			auto i = instrument::zero_coupon_bond(1.);
 			const auto c = curve::constant(0.05);
 			double eps = 0.001;
-			//const auto pv = valuation::present(i, c);
-			const auto dur = valuation::duration(i, c);
-			const auto cvx = valuation::convexity(i, c);
+			//const auto pv = value::present(i, c);
+			const auto dur = value::duration(i, c);
+			const auto cvx = value::convexity(i, c);
 			const auto _dur = math::symmetric_difference([i, &c](auto s) {
-				return valuation::present(i, c + curve::constant(s)); }, 0., eps);
+				return value::present(i, c + curve::constant(s)); }, 0., eps);
 			const auto _cvx = math::second_difference([i, &c](auto s) {
-				return valuation::present(i, c + curve::constant(s)); }, 0., eps);
+				return value::present(i, c + curve::constant(s)); }, 0., eps);
 			assert(fabs(dur - _dur) < eps * eps);
 			assert(fabs(cvx - _cvx) < eps * eps);
 		}
@@ -196,9 +196,9 @@ namespace tmx::valuation {
 			auto i = instrument::zero_coupon_bond(1.);
 			const auto c = curve::constant(0.05);
 			double s = 0.02;
-			//auto pv0 = valuation::present(i, c);
-			auto pvs = valuation::present(i, c + s);
-			auto s0 = valuation::oas(i, c, pvs);
+			//auto pv0 = value::present(i, c);
+			auto pvs = value::present(i, c + s);
+			auto s0 = value::oas(i, c, pvs);
 			assert(fabs(s0 - s) < math::sqrt_epsilon<double>);
 		}
 

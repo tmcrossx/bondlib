@@ -22,9 +22,6 @@
     <Filter Include="Header Files\instrument">
       <UniqueIdentifier>{ce53d8a7-590a-4f92-9f96-a455873afaaa}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\valuation">
-      <UniqueIdentifier>{1d3a3eca-9d3f-4b6d-93c0-12010826c55e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\variate">
       <UniqueIdentifier>{9b2ca28a-d989-46ab-96c8-ede0083e1147}</UniqueIdentifier>
     </Filter>
@@ -33,6 +30,9 @@
     </Filter>
     <Filter Include="Header Files\security">
       <UniqueIdentifier>{210e1135-2edd-446f-94e9-43b1ef4dc5c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\value">
+      <UniqueIdentifier>{1d3a3eca-9d3f-4b6d-93c0-12010826c55e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -78,10 +78,10 @@
       <Filter>Header Files\instrument</Filter>
     </ClInclude>
     <ClInclude Include="valuation\tmx_option.h">
-      <Filter>Header Files\valuation</Filter>
+      <Filter>Header Files\value</Filter>
     </ClInclude>
     <ClInclude Include="valuation\tmx_valuation.h">
-      <Filter>Header Files\valuation</Filter>
+      <Filter>Header Files\value</Filter>
     </ClInclude>
     <ClInclude Include="variate\tmx_variate.h">
       <Filter>Header Files\variate</Filter>

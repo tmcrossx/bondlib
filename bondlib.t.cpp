@@ -4,13 +4,13 @@
 #include "math/tmx_math_hypergeometric.h"
 #include "date/tmx_date_periodic.h"
 #include "variate/tmx_variate_normal.h"
-#include "valuation/tmx_option.h"
-#include "valuation/tmx_valuation.h"
+#include "value/tmx_option.h"
+#include "value/tmx_valuation.h"
 #include "date/tmx_date_business_day.h"
 #include "curve/tmx_curve_pwflat.h"
 #include "curve/tmx_curve.h"
 #include "instrument/tmx_instrument.h"
-#include "valuation/tmx_valuation.h"
+#include "value/tmx_valuation.h"
 #include "security/tmx_bond.h"
 #include "curve/tmx_curve_bootstrap.h"
 //#include "tmx_muni.h"
@@ -41,11 +41,11 @@ int test_pwflat = curve::pwflat_test();
 //int test_instrument_iterable = instrument::iterable_test();
 //int test_instrument_view = view<>::test();
 //int test_instrument_value = value<>::test();
-//int test_valuation_yield_d = valuation::yield_test<double>();
+//int test_valuation_yield_d = value::yield_test<double>();
 //int test_value_yield_f = value::yield_test<float>();
 int test_security_bond = security::bond_test();
 //int test_muni_fit = muni::fit_test();
-int test_valuation = valuation::valuation_test();
+int test_valuation = value::valuation_test();
 #endif // _DEBUG
 
 int bootstrap_test()
@@ -58,21 +58,21 @@ int bootstrap_test()
 		curve::constant<> c0(0.02);
 		auto i1 = instrument::iterable(take(array(u), 1), take(array(c), 1));
 		double p1, p2;
-		p1 = valuation::present(i1, curve::constant(0.01));
-		p2 = valuation::present(i1, curve::constant(0.02));
+		p1 = value::present(i1, curve::constant(0.01));
+		p2 = value::present(i1, curve::constant(0.02));
 		double t = 0;
-		auto pv = [i1, &f, t](double r) { return valuation::present(i1, curve::extrapolate(f, t, r)); };
+		auto pv = [i1, &f, t](double r) { return value::present(i1, curve::extrapolate(f, t, r)); };
 		p1 = pv(0.01);
 		p2 = pv(0.02);
-		auto uc1 = curve::bootstrap0(i1, f, 0., .01, valuation::present(i1, c0));
+		auto uc1 = curve::bootstrap0(i1, f, 0., .01, value::present(i1, c0));
 		f.push_back(uc1);
 
 		auto i2 = instrument::iterable(take(array(u), 2), take(array(c), 2));
-		auto uc2 = curve::bootstrap0(i2, f, 1., .01, valuation::present(i2, c0));
+		auto uc2 = curve::bootstrap0(i2, f, 1., .01, value::present(i2, c0));
 		f.push_back(uc2);
 
 		auto i3 = instrument::iterable(take(array(u), 3), take(array(c), 3));
-		auto uc3 = curve::bootstrap0(i3, f, 2., .01, valuation::present(i3, c0));
+		auto uc3 = curve::bootstrap0(i3, f, 2., .01, value::present(i3, c0));
 		f.push_back(uc3);
 
 		assert(equal(f.time(), { 1,2,3 }));

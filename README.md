@@ -107,9 +107,9 @@ undefined for $t < 0$, is $f_0$ for $0 \le t \le f_1$, $f_j$
 for $t_{j-1} < t \le t_j$ and $\bar{f}$ for $t > t_n$.
 Note $f(t_j) = f_j$.
 
-## [Valuation](valuation/tmx_valuation.h)
+## [Valuation](value/tmx_valuation.h)
 
-The functions in the [`tmx::valuation`](valuation/tmx_valuation.h) namespace calculate 
+The functions in the [`tmx::value`](value/tmx_valuation.h) namespace calculate 
 fixed income analytics given an instrument and curve interface.
 
 The functions [`compound_yield`](tmx_valuation.h#:~:text=compound_yield) 
