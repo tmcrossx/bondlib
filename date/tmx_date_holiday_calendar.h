@@ -9,6 +9,7 @@
 	X(WEEKEND, weekend, "Saturday and Sunday") \
 	X(SIFMA, SIFMA, "US bond market") \
 	X(NYSE, NYSE, "New York Stock Exchange") \
+	X(FED, FED, "Federal Reserve calendar") \
 
 namespace tmx::date::holiday {
 

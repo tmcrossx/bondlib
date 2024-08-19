@@ -1,4 +1,6 @@
 // tmx_instrument.h - cash flows iterable
+// A cash_flow is a pair (u,c) of time and cash.
+// An instrument is an iterable over cash_flows
 #pragma once
 #ifdef _DEBUG
 #include <cassert>
