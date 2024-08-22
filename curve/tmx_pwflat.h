@@ -42,14 +42,17 @@ namespace tmx::pwflat {
 	{
 		{
 			static_assert(monotonic(0, (int*)0));
+			static_assert(std::is_sorted(nullptr, nullptr));
 		}
 		{
 			static constexpr double t[] = { 1,2,3 };
 			static_assert(monotonic(3, t));
+			static_assert(std::is_sorted(t, t + 3));
 		}
 		{
 			static constexpr double t[] = { 1,1,3 };
 			static_assert(!monotonic(3, t));
+			static_assert(std::is_sorted(t, t + 3));
 		}
 
 		return 0;

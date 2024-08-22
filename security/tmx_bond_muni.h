@@ -15,4 +15,4 @@ namespace tmx::security {
 		}
 	};
 
-} // namespace tmx::instrument::treasury
+} // namespace tmx::security 
