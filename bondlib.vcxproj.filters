@@ -77,12 +77,6 @@
     <ClInclude Include="instrument\tmx_instrument.h">
       <Filter>Header Files\instrument</Filter>
     </ClInclude>
-    <ClInclude Include="valuation\tmx_option.h">
-      <Filter>Header Files\value</Filter>
-    </ClInclude>
-    <ClInclude Include="valuation\tmx_valuation.h">
-      <Filter>Header Files\value</Filter>
-    </ClInclude>
     <ClInclude Include="variate\tmx_variate.h">
       <Filter>Header Files\variate</Filter>
     </ClInclude>
@@ -112,6 +106,15 @@
     </ClInclude>
     <ClInclude Include="security\tmx_treasury.h">
       <Filter>Header Files\security</Filter>
+    </ClInclude>
+    <ClInclude Include="value\tmx_binomial.h">
+      <Filter>Header Files\value</Filter>
+    </ClInclude>
+    <ClInclude Include="value\tmx_option.h">
+      <Filter>Header Files\value</Filter>
+    </ClInclude>
+    <ClInclude Include="value\tmx_valuation.h">
+      <Filter>Header Files\value</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
