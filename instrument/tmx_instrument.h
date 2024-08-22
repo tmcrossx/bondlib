@@ -1,6 +1,6 @@
 // tmx_instrument.h - cash flows iterable
 // A cash_flow is a pair (u,c) of time and cash.
-// An instrument is an iterable over cash_flows
+// An instrument is sequence of cash flows at non-decreasing times.
 #pragma once
 #ifdef _DEBUG
 #include <cassert>
@@ -117,7 +117,7 @@ namespace tmx::instrument {
 
 	// Single cash flow c at u.
 	template<class U = double, class C = double>
-	constexpr auto zero_coupon_bond(U u, C c = (U)1)
+	constexpr auto zero_coupon_bond(U u, C c = (C)1)
 	{
 		using namespace fms::iterable;
 

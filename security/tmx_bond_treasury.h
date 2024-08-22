@@ -1,4 +1,4 @@
-// tmx_treasury.h - Treasury instruments
+// tmx_bond_treasury.h - Treasury securities
 #pragma once
 #include "ensure.h"
 #include "security/tmx_bond.h"

@@ -7,9 +7,9 @@ Note the spot r(t) = (1/t) int_0^t f(s) ds is the average of the foward rate.
 Taking a derivative with respect to t gives f(t) = r(t) + t r'(t).
 Discount is represented using a piecewise flat right-continuous forward curve.
 
-		   { f[i] if t[i-1] < t <= t[i];
-	f(t) = { _f   if t > t[n-1];
-		   { NaN  if t < 0
+           { f[i] if t[i-1] < t <= t[i];
+    f(t) = { _f   if t > t[n-1];
+           { NaN  if t < 0
 	F                                  _f
 	|       f[1]             f[n-1]  o--------
 	| f[0] o-----           o--------x
@@ -58,7 +58,7 @@ namespace tmx::pwflat {
 
 	// f(u) assuming t is monotonically increasing
 	template<class T = double, class F = double>
-	constexpr F value(T u, size_t n, const T* t, const F* f, F _f = math::NaN<F>)
+	constexpr F forward(T u, size_t n, const T* t, const F* f, F _f = math::NaN<F>)
 	{
 		if (u < 0)  return math::NaN<F>;
 		if (n == 0) return _f;
@@ -73,13 +73,13 @@ namespace tmx::pwflat {
 		{
 			static constexpr double t[] = { 1,2,3 };
 			static constexpr double f[] = { 4,5,6 };
-			static_assert(math::isnan(value(-1., 3, t, f)));
-			static_assert(f[0] == value(0., 3, t, f));
-			static_assert(f[0] == value(t[0], 3, t, f));
-			static_assert(f[1] == value(1.5, 3, t, f));
-			static_assert(f[1] == value(t[1], 3, t, f));
-			static_assert(f[2] == value(t[2], 3, t, f));
-			static_assert(math::isnan(value(t[2] + 1, 3, t, f)));
+			static_assert(math::isnan(forward(-1., 3, t, f)));
+			static_assert(f[0] == forward(0., 3, t, f));
+			static_assert(f[0] == forward(t[0], 3, t, f));
+			static_assert(f[1] == forward(1.5, 3, t, f));
+			static_assert(f[1] == forward(t[1], 3, t, f));
+			static_assert(f[2] == forward(t[2], 3, t, f));
+			static_assert(math::isnan(forward(t[2] + 1, 3, t, f)));
 		}
 
 		return 0;

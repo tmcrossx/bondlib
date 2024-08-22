@@ -20,13 +20,13 @@ namespace tmx::curve {
 		virtual ~interface() {}
 
 		// Forward at u.
-		constexpr F value(T u, T t = math::infinity<T>, F f = math::NaN<F>) const
+		constexpr F forward(T u, T t = math::infinity<T>, F f = math::NaN<F>) const
 		{
-			return u < 0 ? math::NaN<F> : u <= t ? _value(u) : f;
+			return u < 0 ? math::NaN<F> : u <= t ? _forward(u) : f;
 		}
 		constexpr F operator()(T u, T t = math::infinity<T>, F f = math::NaN<F>) const
 		{
-			return value(u, t, f);
+			return forward(u, t, f);
 		}
 
 		// Integral from 0 to u of forward: int_0^u f(s) ds.
@@ -45,11 +45,11 @@ namespace tmx::curve {
 		// If u is small, use the forward.
 		constexpr F spot(T u, T t = math::infinity<T>, F f = math::NaN<F>) const
 		{
-			return u < 0 ? math::NaN<F> : u < math::sqrt_epsilon<T> ? value(u, t, f) : integral(u, t, f) / u;
+			return u < 0 ? math::NaN<F> : u < math::sqrt_epsilon<T> ? forward(u, t, f) : integral(u, t, f) / u;
 		}
 
 	private:
-		constexpr virtual F _value(T u) const = 0;
+		constexpr virtual F _forward(T u) const = 0;
 		constexpr virtual F _integral(T u) const = 0;
 	};
 
@@ -64,9 +64,9 @@ namespace tmx::curve {
 		extrapolate(const interface<T, F>& f, T _t = math::infinity<T>, F _f = math::NaN<F>)
 			: f(f), _t(_t), _f(_f)
 		{ }
-		constexpr F _value(T u) const override
+		constexpr F _forward(T u) const override
 		{
-			return f.value(u, _t, _f);
+			return f.forward(u, _t, _f);
 		}
 		constexpr F _integral(T u) const override
 		{
@@ -83,7 +83,7 @@ namespace tmx::curve {
 			: f(f)
 		{ }
 
-		constexpr F _value(T) const override
+		constexpr F _forward(T) const override
 		{
 			return f;
 		}
@@ -97,8 +97,8 @@ namespace tmx::curve {
 	{
 		{
 			curve::constant c(1.);
-			assert(std::isnan(constant(1.).value(-1)));
-			assert(c.value(0.) == 1);
+			assert(std::isnan(constant(1.).forward(-1)));
+			assert(c.forward(0.) == 1);
 			assert(c.integral(0.) == 0);
 			assert(c.integral(2.) == 2.);
 			assert(c.spot(0.) == 1);
@@ -123,7 +123,7 @@ namespace tmx::curve {
 		constexpr bump& operator=(const bump& c) = default;
 		constexpr ~bump() = default;
 
-		constexpr F _value(T u) const override
+		constexpr F _forward(T u) const override
 		{
 			return s * (t0 <= u) * (u <= t1);
 		}
@@ -137,10 +137,10 @@ namespace tmx::curve {
 	{
 		{
 			bump b(0.5, 1., 2.);
-			assert(b.value(0.9) == 0);
-			assert(b.value(1) == 0.5);
-			assert(b.value(2) == 0.5);
-			assert(b.value(2.1) == 0);
+			assert(b.forward(0.9) == 0);
+			assert(b.forward(1) == 0.5);
+			assert(b.forward(2) == 0.5);
+			assert(b.forward(2.1) == 0);
 			assert(b.integral(0) == 0);
 			assert(b.integral(1) == 0);
 			assert(b.integral(2) == 0.5);
@@ -164,9 +164,9 @@ namespace tmx::curve {
 		constexpr translate& operator=(const translate& c) = default;
 		constexpr ~translate() = default;
 
-		constexpr F _value(T u) const override
+		constexpr F _forward(T u) const override
 		{
-			return f.value(u + t);
+			return f.forward(u + t);
 		}
 		constexpr F _integral(T u) const override
 		{
@@ -197,9 +197,9 @@ namespace tmx::curve {
 		constexpr plus& operator=(const plus& p) = default;
 		constexpr ~plus() = default;
 
-		constexpr F _value(T u) const override
+		constexpr F _forward(T u) const override
 		{
-			return f.value(u) + g.value(u);
+			return f.forward(u) + g.forward(u);
 		}
 		constexpr F _integral(T u) const override
 		{
@@ -221,9 +221,9 @@ namespace tmx::curve {
 		constexpr spread& operator=(spread&& c) = default;
 		constexpr ~spread() = default;
 
-		constexpr F _value(T u) const override
+		constexpr F _forward(T u) const override
 		{
-			return c.value(u);
+			return c.forward(u);
 		}
 		constexpr F _integral(T u) const override
 		{

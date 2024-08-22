@@ -104,7 +104,7 @@
     <ClInclude Include="security\tmx_bond.h">
       <Filter>Header Files\security</Filter>
     </ClInclude>
-    <ClInclude Include="security\tmx_treasury.h">
+    <ClInclude Include="security\tmx_bond_treasury.h">
       <Filter>Header Files\security</Filter>
     </ClInclude>
     <ClInclude Include="value\tmx_binomial.h">
@@ -115,6 +115,9 @@
     </ClInclude>
     <ClInclude Include="value\tmx_valuation.h">
       <Filter>Header Files\value</Filter>
+    </ClInclude>
+    <ClInclude Include="security\tmx_bond_muni.h">
+      <Filter>Header Files\security</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

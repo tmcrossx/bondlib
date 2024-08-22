@@ -170,7 +170,8 @@
     <ClInclude Include="math\tmx_root1d.h" />
     <ClInclude Include="ensure.h" />
     <ClInclude Include="security\tmx_bond.h" />
-    <ClInclude Include="security\tmx_treasury.h" />
+    <ClInclude Include="security\tmx_bond_muni.h" />
+    <ClInclude Include="security\tmx_bond_treasury.h" />
     <ClInclude Include="value\tmx_binomial.h" />
     <ClInclude Include="value\tmx_option.h" />
     <ClInclude Include="value\tmx_valuation.h" />

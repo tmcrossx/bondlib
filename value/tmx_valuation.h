@@ -78,9 +78,8 @@ namespace tmx::value {
 		C y0 = 0.01, C tol = 1e4*math::epsilon<C>, int iter = 100)
 	{
 		const auto pv = [p,&i](C y_) { return present(i, curve::constant<U, C>(y_)) - p; };
-		const auto dur = [&i](C y_) { return duration(i, curve::constant<U, C>(y_)); };
 
-		auto [y, t, n] = root1d::newton(y0, tol, iter).solve(pv, dur);
+		auto [y, t, n] = root1d::secant(y0, y0 + 0.1, tol, iter).solve(pv);
 
 		return y;
 	}
@@ -93,6 +92,18 @@ namespace tmx::value {
 		const auto pv = [p,&i,&f](F s_) { return present(i, f + curve::constant<T,F>(s_)) - p; };
 
 		auto [s, t, n] = root1d::secant(s0, s0 + .01, tol, iter).solve(pv);
+
+		return s;
+	}
+
+	// Par coupon for which the present value of the instrument equals 1.
+	template<class IU, class IC, class T, class F>
+	inline F par(T maturity, unsigned frequency, F y0 = 0.03,
+		F tol = math::sqrt_epsilon<F>, int iter = 100)
+	{
+		const auto pv = [maturity, frequency](F y_) { return price(instrument::simple(maturity, y_, frequency), y_) - 1; };
+
+		auto [s, t, n] = root1d::secant(y0, y0 + .01, tol, iter).solve(pv);
 
 		return s;
 	}

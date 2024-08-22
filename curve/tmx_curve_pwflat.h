@@ -20,13 +20,15 @@ namespace tmx::curve {
 		// constant curve
 		constexpr pwflat()
 		{ }
-		pwflat(size_t n, const T* t_, const F* f_)
-			: t_(t_, t_ + n), f_(f_, f_ + n)
-		{ }
+		pwflat(size_t n, const T* t, const F* f)
+			: t_(t, t + n), f_(f, f + n)
+		{
+			ENSURE(tmx::pwflat::monotonic(n, t) || clear());
+		}
 		pwflat(std::span<T> t, std::span<F> f)
 			: t_(t.begin(), t.end()), f_(f.begin(), f.end())
 		{
-			ENSURE (t_.size() == f_.size() || !"pwflat: t and f must have the same size");
+			ENSURE (t_.size() == f_.size() || (!"pwflat: t and f must have the same size" || clear()));
 		}
 		pwflat(const pwflat&) = default;
 		pwflat& operator=(const pwflat&) = default;
@@ -40,15 +42,24 @@ namespace tmx::curve {
 			return t_ == c.t_ && f_ == c.f_;
 		}
 
-		F _value(T u) const noexcept override
+		F _forward(T u) const noexcept override
 		{
-			return tmx::pwflat::value(u, t_.size(), t_.data(), f_.data());
+			return tmx::pwflat::forward(u, t_.size(), t_.data(), f_.data());
 		}
 		F _integral(T u) const noexcept override
 		{
 			return tmx::pwflat::integral(u, t_.size(), t_.data(), f_.data());
 		}
 
+		bool clear() noexcept
+		{
+			bool empty = t_.empty() and f_.empty();
+
+			t_.clear();
+			f_.clear();
+
+			return empty;
+		}
 		std::size_t size() const
 		{
 			return t_.size();
