@@ -22,6 +22,15 @@ namespace tmx::security {
 		F face = 100;
 	};
 
+	template<class F>
+	using schedule = std::vector<instrument::cash_flow<date::ymd, F>>;
+
+	template<class C = double, class F = double>
+	struct callable_bond : public bond<C, F>
+	{
+		schedule<F> call;
+	};
+
 	// Return instrument cash flows for basic bond from present value date.
 	template<class C = double, class F = double>
 	inline auto instrument(const bond<C, F>& bond, const date::ymd& pvdate)
