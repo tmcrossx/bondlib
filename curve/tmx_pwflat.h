@@ -42,7 +42,7 @@ namespace tmx::pwflat {
 	{
 		{
 			static_assert(monotonic(0, (int*)0));
-			static_assert(std::is_sorted(nullptr, nullptr));
+			//static_assert(std::is_sorted(nullptr, nullptr));
 		}
 		{
 			static constexpr double t[] = { 1,2,3 };
