@@ -1,11 +1,11 @@
-// tmx_instrument.h - cash flows iterable
+// tmx_instrument.h - A fixed income instrument is a sequence of cash flows.
 // A cash_flow is a pair (u,c) of time and cash.
-// An instrument is sequence of cash flows at non-decreasing times.
+// Cash flows must occur at non-decreasing times.
 #pragma once
 #ifdef _DEBUG
 #include <cassert>
 #endif // _DEBUG
-#include <initializer_list>
+#include <compare>
 #include "fms_iterable/fms_iterable.h"
 
 namespace tmx::instrument {
