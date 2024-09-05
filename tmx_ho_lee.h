@@ -16,6 +16,13 @@
 
 namespace tmx::ho_lee {
 
+	// D_t(u) = D(u) / D(t) exp(σ ^ 2[-ut(u - t)] / 2 - σ(u - t) B_t)
+	template<class X = double>
+	inline X discount(X Dt, X Du, X t, X u, X σ, X B_t)
+	{
+		return (Du / Dt) * std::exp(σ * σ * (-u * t * (u - t) / 2 - σ * (u - t) * B_t));
+	}
+
 	// E[log D_t]
 	template<class X = double>
 	inline auto ELogD(X t, X φ)

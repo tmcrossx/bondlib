@@ -1,9 +1,10 @@
 // tmx_binomial.h - Binomial model.
-// P(U_j = 1) = p, P(U_j) = 0) = 1 - p
-// V_n = U_1 + ... + U_n
-// E[V_n] = n p, Var(V_n) = n p (1 - p)
-// X(n, p) = (V_n - np)sqrt(n p (1 - p)) 
+// P(U_j = 1) = 1/2 = P(U_j = -1)
+// W_n = U_1 + ... + U_n
+// E[W_n] = 0, Var(W_n) = n
 #pragma once
+#include <cmath>
+#include <algorithm>
 
 namespace tmx::binomial {
 
