@@ -12,17 +12,145 @@
 // Var(log D_t(u)) = σ^2 (u - t)^2 t
 #pragma once
 #include <cmath>
+#include <algorithm>
 #include <utility>
 
 namespace tmx::ho_lee {
 
-	// D_t(u) = D(u) / D(t) exp(σ ^ 2[-ut(u - t)] / 2 - σ(u - t) B_t)
+	// iterable lite
+	template<class T>
+	class iterable {
+		const T* pt;
+		size_t n;
+	public:
+		using value_type = T;
+		using difference_type = std::ptrdiff_t;
+
+		constexpr iterable(const T* pt, size_t n)
+			: pt(pt),  n(n)
+		{ }
+		constexpr iterable() = default;
+		constexpr iterable(const iterable&) = default;
+		constexpr iterable& operator=(const iterable&) = default;
+		constexpr ~iterable() = default;
+
+		constexpr bool operator==(const iterable& i) const = default;
+		constexpr auto begin() const
+		{
+			return *this;
+		}
+		constexpr auto end() const
+		{
+			return iterable(pt + n, 0);
+		}	
+		constexpr operator bool() const
+		{
+			return n > 0;
+		}
+		constexpr T operator*() const
+		{
+			return *pt;
+		}	
+		constexpr iterable& operator++()
+		{
+			if (n > 0) {
+				++pt;
+				--n;
+			}
+
+			return *this;
+		}
+		constexpr iterable operator++(int)
+		{
+			iterable i = *this;
+			++*this;
+			
+			return i;
+		}	
+	};
+	static_assert(std::forward_iterator<iterable<int>>);
+
+	template<class IU, class IC>
+	class cash_flows {
+		IU iu;
+		IC ic;
+	public:
+		using value_type = std::pair<typename IU::value_type, typename IC::value_type>;
+		using ptrdiff_t = std::ptrdiff_t;
+
+		constexpr cash_flows(const IU& iu, const IC& ic)
+			: iu(iu), ic(ic)
+		{ }
+		constexpr cash_flows() = default;
+		constexpr cash_flows& operator=(const cash_flows&) = default;
+		constexpr ~cash_flows() = default;
+
+		constexpr bool operator==(const cash_flows& i) const = default;
+		constexpr auto begin() const
+		{
+			return *this;
+		}
+		constexpr auto end() const
+		{
+			return cash_flows(iu.end(), ic.end());
+		}
+
+		constexpr operator bool() const
+		{
+			return iu && ic;
+		}
+		value_type operator*() const
+		{
+			return { *iu, *ic };
+		}
+		cash_flows& operator++()
+		{
+			++iu;
+			++ic;
+
+			return *this;
+		}
+		cash_flows operator++(int)
+		{
+			cash_flows i = *this;
+			++*this;
+			
+			return i;
+		}	
+	};
+	static_assert(std::forward_iterator<cash_flows<iterable<int>, iterable<double>>>);
+
+	// D_t(u) = D(u) / D(t) exp(σ^2 [-ut(u - t)] / 2 - σ(u - t) B_t)
 	template<class X = double>
 	inline X discount(X Dt, X Du, X t, X u, X σ, X B_t)
 	{
 		return (Du / Dt) * std::exp(σ * σ * (-u * t * (u - t) / 2 - σ * (u - t) * B_t));
 	}
+	/*
+	struct translate : private instrument<U, C> {
+		size_t i0;
+		U u0;
+		using u = instrument<U, C>::u;
 
+		translate(const instrument<U, C>& i, U u0) 
+			: instrument<U, C>(i), u(u)
+		{
+			i0 = std::lower_bound(u, u + size, u0) - u;
+		}
+	};
+
+	template<class U = double, class C = double>
+	inline auto present(const instrument<U, C>& i, const C* D, C σ, C B_t)
+	{
+		C pv = 0;
+
+		for (size_t j = 0; j < i.size; ++j) {
+			pv += i.c[j] * discount(1., D[j], 0., i.u[j], σ, B_t);
+		}
+
+		return pv;
+	}
+	*/
 	// E[log D_t]
 	template<class X = double>
 	inline auto ELogD(X t, X φ)

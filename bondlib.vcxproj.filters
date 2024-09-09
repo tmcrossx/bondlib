@@ -119,5 +119,8 @@
     <ClInclude Include="security\tmx_bond_muni.h">
       <Filter>Header Files\security</Filter>
     </ClInclude>
+    <ClInclude Include="tmx_ho_lee.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
