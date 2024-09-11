@@ -47,17 +47,10 @@ namespace tmx::security {
 		// convert dates to time in years from pvdate
 		auto u = apply([pvdate](const date::ymd& d) {
 			return diffyears(d, pvdate); }, apd);
-
 		// day count fractions for dirty price
 		const auto dcf = delta(prepend(d0, apd), bond.day_count);
 		// cash flows
 		auto c = constant(bond.face * bond.coupon) * dcf;
-		/*
-		if (bond.coupon == 0) {
-			u = counted(u, 0);
-			c = counted(c, 0);
-		}
-		*/
 		// face value at maturity
 		const auto u_ = append(u, diffyears(bond.maturity, pvdate));
 		const auto c_ = append(c, bond.face);
@@ -139,4 +132,4 @@ namespace tmx::security {
 		return 0;
 	}
 #endif // _DEBUG
-} // namespace tmx::security::bond
+} // namespace tmx::security

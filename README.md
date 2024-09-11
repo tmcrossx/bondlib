@@ -1,3 +1,7 @@
+---
+title: Instrument Library
+---
+
 # bondlib
 
 Fixed income instruments pay fixed cash flows $(c_j)$ at fixed times $(u_j)$.
