@@ -33,7 +33,7 @@ namespace tmx::date {
 	// Period in months.
 	constexpr int period(frequency f)
 	{
-		return 12 / f;
+		return f ? 12 / f : std::numeric_limits<int>::max();
 	}
 
 	// Sequence of dates after b at frequency f working backwards from e.
