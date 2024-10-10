@@ -15,7 +15,8 @@
 #include "curve/tmx_curve_bootstrap.h"
 //#include "tmx_muni.h"
 #include "tmx_ho_lee.h"
- 
+#include "value/tmx_binomial.h"
+
 using namespace fms;
 using namespace tmx;
 

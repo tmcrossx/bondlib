@@ -1,5 +1,5 @@
 ﻿// tmx_option.h - Fischer Black model
-// F = f exponential(sX - κ(s)) where X has mean 0, variance 1, and κ(s) = log E[exponential(s X)].
+// F = f exp(sX - κ(s)) where X has mean 0, variance 1, and κ(s) = log E[exp(s X)].
 // Note E[F] = f and Var(log F) = s^2.
 #pragma once
 #include <cmath>
