@@ -59,7 +59,7 @@ namespace tmx::math {
 	template<class X>
 	constexpr X exp(X x, X eps = sqrt_epsilon<X>)
 	{
-		return _1F1(1., 1., x, eps);
+		return _1F1(X(1), X(1), x, eps);
 	}
 #ifdef _DEBUG
 	// constexpr double ee = math::exponential(1.);
@@ -87,7 +87,7 @@ namespace tmx::math {
 	template<class X>
 	constexpr X log(X y, X eps = sqrt_epsilon<X>)
 	{
-		return _2F1(1., 1., 2., X(1) - y, eps) * (y - X(1));
+		return _2F1(X(1), X(1), X(2), X(1) - y, eps) * (y - X(1));
 	}
 
 #ifdef _DEBUG

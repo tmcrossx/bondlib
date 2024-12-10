@@ -10,7 +10,7 @@ namespace tmx::root1d {
 	constexpr X bracket(X x, X x0, X a = -tmx::math::infinity<X>, X b = tmx::math::infinity<X>)
 	{
 		if (a >= b || a >= x0 || x0 >= b) {
-			return tmx::math::NaN<X>;
+			return math::NaN<X>;
 		}
 
 		if (x < a) {
