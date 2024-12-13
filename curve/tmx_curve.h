@@ -5,6 +5,7 @@
 #endif // _DEBUG
 #include <cmath>
 #include <limits>
+#include "ensure.h"
 #include "math/tmx_math_limits.h"
 
 namespace tmx::curve {
@@ -118,7 +119,9 @@ namespace tmx::curve {
 	public:
 		constexpr bump(F s, T t0 = 0, T t1 = math::infinity<T>)
 			: s(s), t0(t0), t1(t1)
-		{ }
+		{
+			ENSURE(t0 <= t1);
+		}
 		constexpr bump(const bump& c) = default;
 		constexpr bump& operator=(const bump& c) = default;
 		constexpr ~bump() = default;
@@ -182,7 +185,6 @@ namespace tmx::curve {
 		return 0;
 	}
 #endif // _DEBUG
-
 
 	// Add two curves. Assumes lifetime of f and g.
 	template<class T = double, class F = double>

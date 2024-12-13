@@ -2,8 +2,7 @@
 #pragma once
 #include <stdexcept>
 #include <source_location>
-#include <string>
-
+#include <string_view>
 
 #define ENSURE_HASH(x) #x
 #define ENSURE_STRZ(x) ENSURE_HASH(x)
@@ -24,13 +23,13 @@ namespace {
 		return str;
 	}
 
-	constexpr std::string report(const std::source_location& loc, const std::string& message)
+	constexpr std::string report(const std::source_location& loc, const std::string_view& message)
 	{
 		std::string msg("fail: \"");
 		msg.append(message).append("\"\n");
 		msg.append("file: ").append(loc.file_name()).append("\n");
 		msg.append("line: ").append(to_string(loc.line())).append("\n");
-		msg.append("func: ").append(loc.function_name()).append("\n");
+		msg.append("func: ").append(loc.function_name());
 
 		return msg;
 	}
