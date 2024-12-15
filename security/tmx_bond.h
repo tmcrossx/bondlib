@@ -8,6 +8,21 @@
 
 namespace tmx::security {
 
+	// Adjust dates with roll convention and holiday calendar.
+	/*
+	inline auto adjust(date::adjust& adj)
+		//		requires fms::iterable::input_iterable<date::ymd>(p)
+	{
+		using namespace fms::iterable;
+		using namespace tmx::date;
+
+		return [](auto p) {
+			return apply([&adj](const ymd& d) {
+				return date::adjust(d, adj.roll, adj.cal); }, p));
+			};
+	}
+	*/
+
 	// Basic bond indicative data from offering.
 	template<class C = double, class F = double>
 	struct bond
@@ -21,7 +36,8 @@ namespace tmx::security {
 		date::holiday::calendar_t cal = date::holiday::calendar::none;
 		F face = 100;
 	};
-
+	/* TODO: use iterable<cash_flow<ymd,F>> instead of vector<cash_flow>
+	* put_schedule, sink_schedule
 	template<class F>
 	using schedule = std::vector<instrument::cash_flow<date::ymd, F>>;
 
@@ -30,6 +46,13 @@ namespace tmx::security {
 	{
 		schedule<F> call;
 	};
+
+	template<class C = double, class F = double>
+	inline auto interest(fms::iterable<ymd> p, const date::adjust& adj)
+	{
+
+	}
+	*/
 
 	// Return instrument interest cash flows for basic bond from present value date.
 	template<class C = double, class F = double>
