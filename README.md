@@ -106,7 +106,7 @@ The referenced data are required to outlive the `curve::plus` object.
 [`tmx::curve::pwflat`](curve/tmx_curve_pwflat.h) implements `tmx::curve::interface`. 
 It uses stand-alone functions from [tmx::pwflat](curve/tmx_pwflat.h).
 A piecewise flat curve is determined by a set of times and rates, $(t_i, f_i)$,
-and an _extrapolation_ value $\bar{f]$. The value of the curve is
+and an _extrapolation_ value $\bar{f}$. The value of the curve is
 undefined for $t < 0$, is $f_0$ for $0 \le t \le f_1$, $f_j$
 for $t_{j-1} < t \le t_j$ and $\bar{f}$ for $t > t_n$.
 Note $f(t_j) = f_j$.
